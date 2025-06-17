@@ -1,4 +1,4 @@
-import 'package:acadobs/core/providers/providers.dart';
+import 'package:acadobs/core/utils/providers/providers.dart';
 import 'package:acadobs/core/theme/theme.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/routes/app_router.dart';

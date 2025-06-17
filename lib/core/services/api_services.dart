@@ -1,7 +1,5 @@
-import 'package:acadobs/core/utils/urls.dart';
+import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:dio/dio.dart';
-
-
 
 class ApiServices {
   static final Dio _dio = Dio(

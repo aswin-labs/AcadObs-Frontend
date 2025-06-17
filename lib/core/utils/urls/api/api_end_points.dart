@@ -1,0 +1,8 @@
+/// API Endpoints (relative paths only)
+class ApiEndpoints {
+  // SUPER ADMIN
+  static const String schools = "/superadmin/schools";
+  static const String classes = "/superadmin/classes";
+  static const String subjects = "/superadmin/subjects";
+  static const String classesByYear = "/schooladmin/getClassesByYear";
+}

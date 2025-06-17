@@ -1,6 +1,6 @@
-import 'package:acadobs/core/controller/file_picker_provider.dart';
+import 'package:acadobs/core/utils/urls/api/api_end_points.dart';
+import 'package:acadobs/presentation/providers/file_picker_provider.dart';
 import 'package:acadobs/core/services/api_services.dart';
-import 'package:acadobs/core/utils/urls.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
