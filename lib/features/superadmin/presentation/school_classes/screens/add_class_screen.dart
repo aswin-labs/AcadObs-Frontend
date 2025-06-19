@@ -1,7 +1,7 @@
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/superadmin/presentation/school_classes/controller/school_classes_controller.dart';
+import 'package:acadobs/features/superadmin/presentation/school_classes/provider/school_classes_provider.dart';
 import 'package:acadobs/presentation/providers/dropdown_provider.dart';
 import 'package:acadobs/presentation/widgets/common_appbar.dart';
 import 'package:acadobs/presentation/widgets/common_button.dart';
@@ -60,7 +60,14 @@ class _AddClassScreenState extends State<AddClassScreen> {
                         fieldName: "std",
                       ),
                 ),
-                SizedBox(height: Responsive.height * 2),
+                 SizedBox(height: Responsive.height * 2),
+                CustomDropdown(
+                  dropdownKey: 'division',
+                  label: "Division*",
+                  icon: Icons.school,
+                  items: ["A", "B", "C", "D", "E"], // divisions list
+                ),
+                SizedBox(height: Responsive.height * 2),   
                 CustomTextfield(
                   iconData: Icon(Icons.class_),
                   label: "Class Name*",
@@ -71,17 +78,11 @@ class _AddClassScreenState extends State<AddClassScreen> {
                         fieldName: "Class Name",
                       ),
                 ),
-                SizedBox(height: Responsive.height * 2),
-                CustomDropdown(
-                  dropdownKey: 'division',
-                  label: "Division*",
-                  icon: Icons.school,
-                  items: ["A", "B", "C", "D", "E"], // divisions list
-                ),
+               
                 SizedBox(height: Responsive.height * 2),
                 Padding(
                   padding: EdgeInsets.only(bottom: Responsive.height * 4),
-                  child: Consumer<SchoolClassController>(
+                  child: Consumer<SchoolClassProvider>(
                     builder: (context, controller, child) {
                       return CommonButton(
                         onPressed: () {
@@ -89,7 +90,7 @@ class _AddClassScreenState extends State<AddClassScreen> {
                               .read<DropdownProvider>()
                               .getSelectedItem('division');
                           if (_formKey.currentState?.validate() ?? false) {
-                            context.read<SchoolClassController>().addClass(
+                            context.read<SchoolClassProvider>().addClass(
                               context,
                               year: _stdController.text.trim(),
                               classname: _classNameController.text.trim(),

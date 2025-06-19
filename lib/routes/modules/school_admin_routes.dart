@@ -1,4 +1,4 @@
-import 'package:acadobs/features/admin/presentation/student/presentation/screens/students_home_screen.dart';
+import 'package:acadobs/features/admin/presentation/student/screens/students_home_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:go_router/go_router.dart';
 

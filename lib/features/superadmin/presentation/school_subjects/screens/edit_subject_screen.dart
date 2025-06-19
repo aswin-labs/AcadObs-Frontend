@@ -7,7 +7,7 @@ import 'package:acadobs/presentation/widgets/common_button.dart';
 import 'package:acadobs/presentation/widgets/custom_dropdown.dart';
 import 'package:acadobs/presentation/widgets/custom_textfield.dart';
 import 'package:acadobs/features/superadmin/data/models/school_subject_model.dart';
-import 'package:acadobs/features/superadmin/presentation/school_subjects/controller/school_subjects_controller.dart';
+import 'package:acadobs/features/superadmin/presentation/school_subjects/provider/school_subjects_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -84,13 +84,13 @@ class _EditSubjectScreenState extends State<EditSubjectScreen> {
               SizedBox(height: Responsive.height * 4),
               Padding(
                 padding: EdgeInsets.only(bottom: Responsive.height * 4),
-                child: Consumer<SchoolSubjectsController>(
+                child: Consumer<SchoolSubjectsProvider>(
                   builder: (context, value, child) {
                     return CommonButton(
                       onPressed: () {
                         final selectedClassRange = dropdownProvider
                             .getSelectedItem('classRange');
-                        context.read<SchoolSubjectsController>().editSubject(
+                        context.read<SchoolSubjectsProvider>().editSubject(
                           context,
                           subjectId: widget.subject.id,
                           subjectName: _editedSubjectNameController.text,

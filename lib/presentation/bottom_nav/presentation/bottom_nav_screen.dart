@@ -1,9 +1,15 @@
+import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/admin/presentation/home/admin_home_screen.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/screens/school_classes_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/screens/school_subjects_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/schools/screens/schools_list_screen.dart';
+import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_home_screen.dart';
+import 'package:acadobs/features/teacher/presentation/duties/screens/duty_home_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/teacher_home_screen.dart';
+import 'package:acadobs/features/teacher/presentation/marks/screens/marks_home_screen.dart';
+import 'package:acadobs/features/teacher/presentation/payments/screens/payments_home_screen.dart';
 import 'package:acadobs/presentation/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -33,19 +39,14 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       return [
         AdminHomeScreen(),
         Center(child: Text("Admin")),
-        // DutiesHomeScreen(),
-        // ReportsHomeScreen(),
-        // NoticeHomeScreen(),
-        // PaymentsHomeScreen(),
       ];
     } else if (userType == UserType.teacher) {
       return [
-        Center(child: Text("Teacher")),
-        // TeacherScreen(),
-        // AttendanceHomeScreen(),
-        // MarksHomeScreen(),
-        // const DutiesScreen(),
-        // TeacherPaymentScreen(),
+        TeacherHomeScreen(),
+        AttendanceHomeScreen(),
+        MarksHomeScreen(),
+        DutyHomeScreen(),
+        PaymentsHomeScreen(),
       ];
     } else if (userType == UserType.parent) {
       return [
@@ -108,6 +109,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       bottomNavigationBar: SizedBox(
         height: Responsive.height * 8,
         child: BottomNavigationBar(
+          backgroundColor: AppColors.white,
           type: BottomNavigationBarType.fixed,
           currentIndex: currentIndex,
           selectedItemColor:

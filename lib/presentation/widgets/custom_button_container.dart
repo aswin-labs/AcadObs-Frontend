@@ -1,14 +1,14 @@
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:flutter/material.dart';
 
-class CustomContainer extends StatelessWidget {
+class CustomButtonContainer extends StatelessWidget {
   final Color color;
   final String text;
   final IconData icon;
   final VoidCallback ontap;
   final bool isCenterText;
 
-  const CustomContainer({
+  const CustomButtonContainer({
     super.key,
     required this.color,
     required this.text,

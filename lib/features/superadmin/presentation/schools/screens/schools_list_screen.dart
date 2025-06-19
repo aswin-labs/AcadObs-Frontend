@@ -6,7 +6,7 @@ import 'package:acadobs/core/utils/urls/media/media_end_points.dart';
 import 'package:acadobs/presentation/widgets/common_appbar.dart';
 import 'package:acadobs/presentation/widgets/custom_button_container.dart';
 import 'package:acadobs/presentation/widgets/custom_tile_widget.dart';
-import 'package:acadobs/features/superadmin/presentation/schools/controller/school_controller.dart';
+import 'package:acadobs/features/superadmin/presentation/schools/provider/school_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -30,7 +30,7 @@ class _SchoolsListScreenState extends State<SchoolsListScreen> {
     _scrollController.addListener(_scrollListener);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final schoolController = Provider.of<SchoolController>(
+      final schoolController = Provider.of<SchoolProvider>(
         context,
         listen: false,
       );
@@ -39,7 +39,7 @@ class _SchoolsListScreenState extends State<SchoolsListScreen> {
   }
 
   void _scrollListener() {
-    final schoolController = Provider.of<SchoolController>(
+    final schoolController = Provider.of<SchoolProvider>(
       context,
       listen: false,
     );
@@ -57,7 +57,7 @@ class _SchoolsListScreenState extends State<SchoolsListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SchoolController>(
+    return Consumer<SchoolProvider>(
       builder: (context, controller, child) {
         return Scaffold(
           appBar: CommonAppBar(title: 'Schools List'),
@@ -66,7 +66,7 @@ class _SchoolsListScreenState extends State<SchoolsListScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 16),
-                CustomContainer(
+                CustomButtonContainer(
                   color: Colors.black,
                   isCenterText: true,
                   text: 'Add School',

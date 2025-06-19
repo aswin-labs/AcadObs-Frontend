@@ -5,7 +5,7 @@ import 'package:acadobs/features/superadmin/data/models/classes_model.dart';
 import 'package:acadobs/features/superadmin/data/services/super_admin_services.dart';
 import 'package:flutter/widgets.dart';
 
-class SchoolClassController extends ChangeNotifier {
+class SchoolClassProvider extends ChangeNotifier {
   bool _isloading = true;
   bool get isLoading => _isloading;
 

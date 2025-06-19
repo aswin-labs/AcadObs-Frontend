@@ -6,7 +6,7 @@ import 'package:acadobs/presentation/widgets/common_appbar.dart';
 import 'package:acadobs/presentation/widgets/common_button.dart';
 import 'package:acadobs/presentation/widgets/custom_dropdown.dart';
 import 'package:acadobs/presentation/widgets/custom_textfield.dart';
-import 'package:acadobs/features/superadmin/presentation/school_subjects/controller/school_subjects_controller.dart';
+import 'package:acadobs/features/superadmin/presentation/school_subjects/provider/school_subjects_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -71,7 +71,7 @@ class _AddSubjectScreenState extends State<AddSubjectScreen> {
                 // Add button
                 Padding(
                   padding: EdgeInsets.only(bottom: Responsive.height * 4),
-                  child: Consumer<SchoolSubjectsController>(
+                  child: Consumer<SchoolSubjectsProvider>(
                     builder: (context, superAdminController, child) {
                       return CommonButton(
                         onPressed: () {
@@ -80,7 +80,7 @@ class _AddSubjectScreenState extends State<AddSubjectScreen> {
                               .getSelectedItem('classRange');
                           if (_formKey.currentState?.validate() ?? false) {
                             context
-                                .read<SchoolSubjectsController>()
+                                .read<SchoolSubjectsProvider>()
                                 .addNewSubject(
                                   context,
                                   subjectName: _subjectNameController.text,

@@ -1,10 +1,10 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
+import 'package:acadobs/features/superadmin/presentation/school_classes/provider/school_classes_provider.dart';
 import 'package:acadobs/presentation/widgets/common_appbar.dart';
 import 'package:acadobs/presentation/widgets/custom_button_container.dart';
 import 'package:acadobs/presentation/widgets/custom_tile_widget.dart';
-import 'package:acadobs/features/superadmin/presentation/school_classes/controller/school_classes_controller.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -26,7 +26,7 @@ class _SchoolClassesScreenState extends State<SchoolClassesScreen> {
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final schoolClassController = Provider.of<SchoolClassController>(
+      final schoolClassController = Provider.of<SchoolClassProvider>(
         context,
         listen: false,
       );
@@ -35,7 +35,7 @@ class _SchoolClassesScreenState extends State<SchoolClassesScreen> {
   }
 
   void _scrollListener() {
-    final schoolClassController = Provider.of<SchoolClassController>(
+    final schoolClassController = Provider.of<SchoolClassProvider>(
       context,
       listen: false,
     );
@@ -53,7 +53,7 @@ class _SchoolClassesScreenState extends State<SchoolClassesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SchoolClassController>(
+    return Consumer<SchoolClassProvider>(
       builder: (context, controller, child) {
         return Scaffold(
           appBar: CommonAppBar(title: 'Classes List'),
@@ -62,7 +62,7 @@ class _SchoolClassesScreenState extends State<SchoolClassesScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 16),
-                CustomContainer(
+                CustomButtonContainer(
                   color: Colors.black,
                   isCenterText: true,
                   text: 'Add Class',
@@ -90,7 +90,7 @@ class _SchoolClassesScreenState extends State<SchoolClassesScreen> {
                             padding: const EdgeInsets.only(bottom: 4),
                             child: CustomTileWidget(
                               name: schoolClass.classname,
-                              subtitle: schoolClass.division,
+                              subtitle: "",
                               onTap: () {
                                 // Handle tile tap if needed
                               },

@@ -1,51 +1,54 @@
+import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
-  bool isBackButton;
+  final bool isBackButton;
 
-  CommonAppBar({
+  const CommonAppBar({
     super.key,
-    required this.title, // Title is required
+    required this.title,
     this.actions,
     this.isBackButton = false,
-    // Actions are optional
   });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      leading: isBackButton
-          ? GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Padding(
-                padding: const EdgeInsets.only(
+      leading:
+          isBackButton
+              ? GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Padding(
+                  padding: const EdgeInsets.only(
                     left: 16,
                     top: 10,
                     bottom: 10,
-                    right: 10), // Adjust padding to reduce size
-                child: CircleAvatar(
-                  radius: 14, // Adjust size
-                  backgroundColor: const Color(0xFFD9D9D9),
-                  child: const Icon(
-                    Icons.arrow_back_ios_new,
-                    size: 16, // Reduce icon size
-                    color: Colors.black,
+                    right: 10,
+                  ),
+                  child: CircleAvatar(
+                    radius: 14,
+                    backgroundColor: const Color(0xFFD9D9D9),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new,
+                      size: 16,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
-              ),
-            )
-          : null,
-      title: Text(title,
-          style: Theme.of(context)
-              .textTheme
-              .bodyLarge!
-              .copyWith(fontSize: 22, fontWeight: FontWeight.bold)),
+              )
+              : null,
+      title: Text(
+        title,
+        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       centerTitle: true,
-      backgroundColor: Colors.grey[200],
+      backgroundColor: AppColors.background,
       elevation: 0,
       iconTheme: const IconThemeData(color: Colors.black),
       actions: actions, // Optional actions

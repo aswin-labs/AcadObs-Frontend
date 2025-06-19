@@ -1,12 +1,12 @@
-import 'package:acadobs/presentation/providers/file_picker_provider.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/superadmin/data/models/school_model.dart';
+import 'package:acadobs/features/superadmin/presentation/schools/provider/school_provider.dart';
+import 'package:acadobs/presentation/providers/file_picker_provider.dart';
 import 'package:acadobs/presentation/widgets/common_appbar.dart';
 import 'package:acadobs/presentation/widgets/common_button.dart';
 import 'package:acadobs/presentation/widgets/custom_filepicker.dart';
 import 'package:acadobs/presentation/widgets/custom_textfield.dart';
-import 'package:acadobs/features/superadmin/data/models/school_model.dart';
-import 'package:acadobs/features/superadmin/presentation/schools/controller/school_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -110,17 +110,21 @@ class _EditSchoolScreenState extends State<EditSchoolScreen> {
               ),
               SizedBox(height: Responsive.height * 2),
 
-              CustomFilePicker(label: "Upload Logo:", fieldName: "logo"),
+              CustomFilePicker(
+                label: "Upload Logo:",
+                fieldName: "logo",
+                isImagePicker: true,
+              ),
               SizedBox(height: Responsive.height * 4),
 
               // Update Button
               Padding(
                 padding: EdgeInsets.only(bottom: Responsive.height * 4),
-                child: Consumer<SchoolController>(
+                child: Consumer<SchoolProvider>(
                   builder: (context, controller, child) {
                     return CommonButton(
                       onPressed: () {
-                        context.read<SchoolController>().editSchool(
+                        context.read<SchoolProvider>().editSchool(
                           context,
                           schoolId: widget.school.id,
                           name: _nameController.text.trim(),

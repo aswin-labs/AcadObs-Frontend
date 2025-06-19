@@ -4,7 +4,7 @@ import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/presentation/widgets/common_appbar.dart';
 import 'package:acadobs/presentation/widgets/custom_button_container.dart';
 import 'package:acadobs/presentation/widgets/custom_tile_widget.dart';
-import 'package:acadobs/features/superadmin/presentation/school_subjects/controller/school_subjects_controller.dart';
+import 'package:acadobs/features/superadmin/presentation/school_subjects/provider/school_subjects_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -28,7 +28,7 @@ class _SchoolSubjectsScreenState extends State<SchoolSubjectsScreen> {
     _scrollController.addListener(_scrollListener);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final schoolSubjectsController = Provider.of<SchoolSubjectsController>(
+      final schoolSubjectsController = Provider.of<SchoolSubjectsProvider>(
         context,
         listen: false,
       );
@@ -37,7 +37,7 @@ class _SchoolSubjectsScreenState extends State<SchoolSubjectsScreen> {
   }
 
   void _scrollListener() {
-    final schoolSubjectsController = Provider.of<SchoolSubjectsController>(
+    final schoolSubjectsController = Provider.of<SchoolSubjectsProvider>(
       context,
       listen: false,
     );
@@ -55,7 +55,7 @@ class _SchoolSubjectsScreenState extends State<SchoolSubjectsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SchoolSubjectsController>(
+    return Consumer<SchoolSubjectsProvider>(
       builder: (context, controller, child) {
         return Scaffold(
           appBar: CommonAppBar(title: 'Subjects List'),
@@ -64,7 +64,7 @@ class _SchoolSubjectsScreenState extends State<SchoolSubjectsScreen> {
             child: Column(
               children: [
                 const SizedBox(height: 16),
-                CustomContainer(
+                CustomButtonContainer(
                   color: Colors.black,
                   isCenterText: true,
                   text: 'Add Subject',

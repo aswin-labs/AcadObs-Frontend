@@ -6,7 +6,7 @@ import 'package:acadobs/presentation/widgets/common_appbar.dart';
 import 'package:acadobs/presentation/widgets/common_button.dart';
 import 'package:acadobs/presentation/widgets/custom_filepicker.dart';
 import 'package:acadobs/presentation/widgets/custom_textfield.dart';
-import 'package:acadobs/features/superadmin/presentation/schools/controller/school_controller.dart';
+import 'package:acadobs/features/superadmin/presentation/schools/provider/school_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -118,12 +118,12 @@ class _AddSchoolScreenState extends State<AddSchoolScreen> {
                 SizedBox(height: Responsive.height * 5),
                 Padding(
                   padding: EdgeInsets.only(bottom: Responsive.height * 4),
-                  child: Consumer<SchoolController>(
+                  child: Consumer<SchoolProvider>(
                     builder: (context, controller, child) {
                       return CommonButton(
                         onPressed: () {
                           if (_formKey.currentState?.validate() ?? false) {
-                            context.read<SchoolController>().addSchool(
+                            context.read<SchoolProvider>().addSchool(
                               context,
                               name: _schoolNameController.text.trim(),
                               email: _emailController.text.trim(),

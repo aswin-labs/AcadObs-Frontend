@@ -1,0 +1,55 @@
+import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/presentation/widgets/common_appbar.dart';
+import 'package:acadobs/presentation/widgets/item_card.dart';
+import 'package:flutter/material.dart';
+
+class AttendanceHomeScreen extends StatefulWidget {
+  const AttendanceHomeScreen({super.key});
+
+  @override
+  State<AttendanceHomeScreen> createState() => _AttendanceHomeScreenState();
+}
+
+class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CommonAppBar(title: "Attendance"),
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
+        slivers: [
+          SliverPadding(
+            padding: context.paddingHorizontal,
+            sliver: SliverToBoxAdapter(
+              child: SizedBox(height: Responsive.height * 2),
+            ),
+          ),
+
+          SliverPadding(
+            padding: context.paddingHorizontal,
+            sliver: SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) => ItemCard(
+                  title: "title",
+                  description: "description",
+                  onTap: () {},
+                ),
+                childCount: 2,
+              ),
+            ),
+          ),
+
+          SliverPadding(
+            padding: context.paddingHorizontal,
+            sliver: SliverToBoxAdapter(
+              child: SizedBox(height: Responsive.height * 4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
