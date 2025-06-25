@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 final List<GoRoute> schoolAdminRoutes = [
   // ***************Students********************
   GoRoute(
-    path: '/studentsHome',
-    name: RouteConstants.studentsHome,
+    path: RouteConstants.studentsHome,
+    name: 'studentsHome',
     builder: (context, state) => StudentsHomeScreen(),
   ),
  

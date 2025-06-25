@@ -21,7 +21,7 @@ class ItemCard extends StatelessWidget {
     required this.description,
     this.status = "",
     required this.onTap,
-    this.backgroundColor=const Color(0xFFCEFFD3),
+    this.backgroundColor = const Color(0xFFCEFFD3),
     this.iconColor = const Color(0xFF5DD168),
     this.icon = LucideIcons.filePlus2,
     this.bottomRadius = 8,
@@ -80,8 +80,12 @@ class ItemCard extends StatelessWidget {
                 ],
               ),
               Text(
-                status,
-                style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                capitalizeEachWord(status),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: iconColor,
+                ),
               ),
             ],
           ),

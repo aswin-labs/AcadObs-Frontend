@@ -8,4 +8,5 @@ class ApiEndpoints {
 
   // STAFF
   static const String staffDuties = "/staff/duties";
+  static const String updateDutyStatus = "/staff/updateAssignedDuty";
 }

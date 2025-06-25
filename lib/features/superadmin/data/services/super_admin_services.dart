@@ -31,7 +31,6 @@ class SuperAdminServices {
       "phone": phone,
       "address": address,
       "admin_password": adminPassword,
-      // '_method': 'put',
       if (fileUploadPath != null)
         'logo': await MultipartFile.fromFile(fileUploadPath,
             filename: fileUploadPath.split('/').last),

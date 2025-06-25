@@ -4,14 +4,14 @@ StaffDuty staffDutyFromJson(String str) => StaffDuty.fromJson(json.decode(str));
 
 class StaffDuty {
   int id;
-  String remarks;
+  String? remarks;
   String status;
   dynamic solvedFile;
   Duty duty;
 
   StaffDuty({
     required this.id,
-    required this.remarks,
+    this.remarks,
     required this.status,
     required this.solvedFile,
     required this.duty,
@@ -19,7 +19,7 @@ class StaffDuty {
 
   factory StaffDuty.fromJson(Map<String, dynamic> json) => StaffDuty(
     id: json["id"],
-    remarks: json["remarks"],
+    remarks: json["remarks"]??"",
     status: json["status"],
     solvedFile: json["solved_file"],
     duty: Duty.fromJson(json["Duty"]),
@@ -32,6 +32,7 @@ class Duty {
   String description;
   DateTime deadline;
   dynamic file;
+  DateTime? startDate;
 
   Duty({
     required this.id,
@@ -39,6 +40,7 @@ class Duty {
     required this.description,
     required this.deadline,
     required this.file,
+    this.startDate
   });
 
   factory Duty.fromJson(Map<String, dynamic> json) => Duty(
@@ -47,5 +49,6 @@ class Duty {
     description: json["description"],
     deadline: DateTime.parse(json["deadline"]),
     file: json["file"],
+    startDate: json["start_date"] == null ? null : DateTime.parse(json["start_date"]),
   );
 }

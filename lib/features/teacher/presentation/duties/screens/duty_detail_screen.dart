@@ -1,0 +1,177 @@
+import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
+import 'package:acadobs/core/utils/helpers/date_formatter.dart';
+import 'package:acadobs/core/utils/helpers/duty_status_style.dart';
+import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/teacher/data/models/staff_duty_model.dart';
+import 'package:acadobs/features/teacher/presentation/duties/provider/duty_provider.dart';
+import 'package:acadobs/features/teacher/presentation/duties/widgets/add_remarks_and_file_bottomsheet.dart';
+import 'package:acadobs/features/teacher/presentation/duties/widgets/date_label_container.dart';
+import 'package:acadobs/presentation/widgets/common_appbar.dart';
+import 'package:acadobs/presentation/widgets/common_button.dart';
+import 'package:acadobs/presentation/widgets/item_detail_screen_container.dart';
+import 'package:flutter/material.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
+
+class DutyDetailScreen extends StatefulWidget {
+  final StaffDuty staffDuty;
+  const DutyDetailScreen({super.key, required this.staffDuty});
+
+  @override
+  State<DutyDetailScreen> createState() => _DutyDetailScreenState();
+}
+
+class _DutyDetailScreenState extends State<DutyDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DutyProvider>().clearUpdatedDutyResponse();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final dutyStatusStyle = getDutyStatusStyle(widget.staffDuty.status);
+    return Scaffold(
+      appBar: CommonAppBar(title: "Duty Details", isBackButton: true),
+      body: CustomScrollView(
+        slivers: [
+          SliverPadding(
+            padding: context.paddingHorizontal,
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: Responsive.height * 2),
+                  ItemDetailScreenContainer(
+                    backgroundColor: dutyStatusStyle.backgroundColor,
+                    icon: dutyStatusStyle.icon,
+                    iconColor: dutyStatusStyle.iconColor,
+                  ),
+                  SizedBox(height: Responsive.height * 3),
+                  Text(
+                    widget.staffDuty.duty.title,
+                    style: context.textTheme.titleLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: Responsive.height * 1),
+                  Text(
+                    widget.staffDuty.duty.description,
+                    style: context.textTheme.bodySmall!.copyWith(
+                      color: Color(0xFF949494),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: Responsive.height * 4),
+                  Row(
+                    children: [
+                      DateLabelContainer(
+                        label: "Start date",
+                        dateText:
+                            widget.staffDuty.duty.startDate != null
+                                ? DateFormatter.formatDateTime(
+                                  widget.staffDuty.duty.startDate!,
+                                )
+                                : 'N/A',
+                      ),
+                      SizedBox(width: Responsive.width * 5),
+                      DateLabelContainer(
+                        label: "End date",
+                        dateText: DateFormatter.formatDateTime(
+                          widget.staffDuty.duty.deadline,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: Responsive.width * 4),
+                  Consumer<DutyProvider>(
+                    builder: (context, provider, _) {
+                      final updatedDutyResponse = provider.updatedDutyResponse;
+                      final displayStatus =
+                          updatedDutyResponse?.status ??
+                          widget.staffDuty.status;
+                      final displayRemarks =
+                          updatedDutyResponse?.remarks ??
+                          widget.staffDuty.remarks;
+                      final displayDutyId =
+                          updatedDutyResponse?.id ?? widget.staffDuty.id;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Remarks added by you: ',
+                            style: context.textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: Responsive.height * 1),
+                          Text(
+                            capitalizeFirstLetter(displayRemarks ?? ""),
+                            style: context.textTheme.bodyMedium!.copyWith(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          SizedBox(height: Responsive.height * 6),
+                          // Mark In Progress Button
+                          displayStatus == "in_progress" ||
+                                  displayStatus == "completed"
+                              ? SizedBox.shrink()
+                              : CommonButton(
+                                onPressed:
+                                    () => provider.updateDutyStatusInProgress(
+                                      context: context,
+                                      dutyId: displayDutyId,
+                                    ),
+                                widget: Text("Mark In Progress"),
+                                backgroundColor: Colors.orangeAccent,
+                              ),
+
+                          SizedBox(height: Responsive.height * 2),
+
+                          // Mark As Completed Button
+                          displayStatus == "completed"
+                              ? CommonButton(
+                                onPressed: () {},
+                                widget: Text("Completed"),
+                                backgroundColor: Color.fromARGB(
+                                  255,
+                                  60,
+                                  73,
+                                  61,
+                                ),
+                              )
+                              : CommonButton(
+                                onPressed:
+                                    () => provider.updateDutyStatusToCompleted(
+                                      context: context,
+                                      dutyId: displayDutyId,
+                                    ),
+                                widget: Text("Mark As Completed"),
+                                backgroundColor: Color(0xFF14601C),
+                              ),
+                          SizedBox(height: Responsive.height * 4),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed:
+            () => showAddRemarksAndFileBottomSheet(
+              context,
+              dutyId: widget.staffDuty.id,
+            ),
+        child: Icon(LucideIcons.filePlus2, weight: 1, color: Colors.grey),
+      ),
+    );
+  }
+}
