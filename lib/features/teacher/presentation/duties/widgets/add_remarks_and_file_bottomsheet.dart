@@ -2,21 +2,21 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/presentation/duties/provider/duty_provider.dart';
-import 'package:acadobs/presentation/providers/file_picker_provider.dart';
-import 'package:acadobs/presentation/widgets/common_button.dart';
-import 'package:acadobs/presentation/widgets/custom_filepicker.dart';
-import 'package:acadobs/presentation/widgets/custom_textfield.dart';
+import 'package:acadobs/shared/providers/file_picker_provider.dart';
+import 'package:acadobs/shared/widgets/common_button.dart';
+import 'package:acadobs/shared/widgets/custom_filepicker.dart';
+import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
-Future<void> showAddRemarksAndFileBottomSheet(
+void showAddRemarksAndFileBottomSheet(
   BuildContext context, {
   required int dutyId,
 }) {
   final TextEditingController remarksController = TextEditingController();
   context.read<FilePickerProvider>().clearFile('solved_file');
-  return showModalBottomSheet(
+  showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
@@ -33,7 +33,12 @@ Future<void> showAddRemarksAndFileBottomSheet(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("Add Remarks", style: context.textTheme.headlineSmall),
+            Text(
+              "Add Remarks",
+              style: context.textTheme.titleLarge!.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             SizedBox(height: Responsive.height * 2),
             CustomTextfield(
               iconData: Icon(LucideIcons.stickyNote),

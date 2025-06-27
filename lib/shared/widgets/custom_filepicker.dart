@@ -1,4 +1,4 @@
-import 'package:acadobs/presentation/providers/file_picker_provider.dart';
+import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

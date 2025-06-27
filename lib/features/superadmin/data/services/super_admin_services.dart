@@ -1,5 +1,5 @@
 import 'package:acadobs/core/utils/urls/api/api_end_points.dart';
-import 'package:acadobs/presentation/providers/file_picker_provider.dart';
+import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';

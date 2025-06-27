@@ -1,6 +1,6 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
-import 'package:acadobs/presentation/widgets/common_floating_action_button.dart';
-import 'package:acadobs/presentation/widgets/select_class_bottomsheet.dart';
+import 'package:acadobs/shared/widgets/common_floating_action_button.dart';
+import 'package:acadobs/shared/widgets/select_class_bottomsheet.dart';
 import 'package:flutter/material.dart';
 
 class StudentsHomeScreen extends StatefulWidget {

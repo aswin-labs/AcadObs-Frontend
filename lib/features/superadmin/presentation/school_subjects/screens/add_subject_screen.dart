@@ -1,11 +1,11 @@
-import 'package:acadobs/presentation/providers/dropdown_provider.dart';
+import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/presentation/widgets/common_appbar.dart';
-import 'package:acadobs/presentation/widgets/common_button.dart';
-import 'package:acadobs/presentation/widgets/custom_dropdown.dart';
-import 'package:acadobs/presentation/widgets/custom_textfield.dart';
+import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_button.dart';
+import 'package:acadobs/shared/widgets/custom_dropdown.dart';
+import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/provider/school_subjects_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

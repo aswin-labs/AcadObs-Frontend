@@ -1,6 +1,6 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/presentation/widgets/custom_name_container.dart';
+import 'package:acadobs/shared/widgets/custom_name_container.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';

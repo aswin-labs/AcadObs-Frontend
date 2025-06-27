@@ -10,7 +10,7 @@ import 'package:acadobs/features/teacher/presentation/duties/screens/duty_home_s
 import 'package:acadobs/features/teacher/presentation/home/screens/teacher_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/marks/screens/marks_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/payments/screens/payments_home_screen.dart';
-import 'package:acadobs/presentation/bottom_nav/controller/bottom_navbar_controller.dart';
+import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';

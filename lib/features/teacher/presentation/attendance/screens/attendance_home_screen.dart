@@ -1,7 +1,7 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/presentation/widgets/common_appbar.dart';
-import 'package:acadobs/presentation/widgets/item_card.dart';
+import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 
 class AttendanceHomeScreen extends StatefulWidget {

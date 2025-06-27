@@ -1,7 +1,7 @@
 import 'package:acadobs/core/constants/app_constants.dart';
-import 'package:acadobs/presentation/providers/dropdown_provider.dart';
-import 'package:acadobs/presentation/widgets/common_button.dart';
-import 'package:acadobs/presentation/widgets/custom_dropdown.dart';
+import 'package:acadobs/shared/providers/dropdown_provider.dart';
+import 'package:acadobs/shared/widgets/common_button.dart';
+import 'package:acadobs/shared/widgets/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
