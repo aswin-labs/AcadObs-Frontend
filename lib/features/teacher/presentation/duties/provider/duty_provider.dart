@@ -26,8 +26,6 @@ class DutyProvider extends ChangeNotifier {
 
   bool _isFetchedOnce = false;
 
-  final staffId = 3; //Replace with the userId of staff
-
   // Fetch Staff Duties
   Future<void> fetchStaffDuties({
     bool loadMore = false,
@@ -49,7 +47,6 @@ class DutyProvider extends ChangeNotifier {
         _isFetchedOnce = false;
       }
       final response = await DutyServices().fetchStaffDuties(
-        staffId: staffId,
         pageNo: _currentPage,
       );
       if (response.statusCode == 200) {
@@ -93,7 +90,6 @@ class DutyProvider extends ChangeNotifier {
     try {
       final response = await DutyServices().updateDutyStatus(
         dutyId: dutyId,
-        staffId: staffId,
         status: "in_progress",
       );
       if (response.statusCode == 200) {
@@ -128,7 +124,6 @@ class DutyProvider extends ChangeNotifier {
     try {
       final response = await DutyServices().updateDutyStatus(
         dutyId: dutyId,
-        staffId: staffId,
         status: "completed",
       );
       if (response.statusCode == 200) {
@@ -165,7 +160,6 @@ class DutyProvider extends ChangeNotifier {
       final response = await DutyServices().addDutyRemarksAndFile(
         context: context,
         dutyId: dutyId,
-        staffId: staffId,
         remarks: remarks ?? "",
       );
       if (response.statusCode == 200) {

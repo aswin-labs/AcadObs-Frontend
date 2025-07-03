@@ -2,7 +2,7 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
-import 'package:acadobs/core/utils/urls/media/media_end_points.dart';
+import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/custom_button_container.dart';
 import 'package:acadobs/shared/widgets/custom_tile_widget.dart';

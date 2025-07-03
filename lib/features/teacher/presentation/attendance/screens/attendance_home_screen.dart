@@ -1,8 +1,17 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/common_shimmer_list.dart';
+import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/teacher/presentation/attendance/provider/attendance_provider.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 
 class AttendanceHomeScreen extends StatefulWidget {
   const AttendanceHomeScreen({super.key});
@@ -12,43 +21,173 @@ class AttendanceHomeScreen extends StatefulWidget {
 }
 
 class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
+  late final AttendanceProvider _attendanceProvider;
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _dateController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _attendanceProvider = context.read<AttendanceProvider>();
+    _attendanceProvider.fetchAttendanceByTeacher();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener() {
+    final isNearBottom =
+        _scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200;
+
+    if (isNearBottom &&
+        !_attendanceProvider.isLoading &&
+        _attendanceProvider.hasMore) {
+      _attendanceProvider.fetchAttendanceByTeacher(loadMore: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     return Scaffold(
       appBar: CommonAppBar(title: "Attendance"),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics(),
-        ),
-        slivers: [
-          SliverPadding(
-            padding: context.paddingHorizontal,
-            sliver: SliverToBoxAdapter(
-              child: SizedBox(height: Responsive.height * 2),
-            ),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await context.read<AttendanceProvider>().fetchAttendanceByTeacher(
+            forceRefresh: true,
+          );
+        },
+        child: CustomScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
           ),
-
-          SliverPadding(
-            padding: context.paddingHorizontal,
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) => ItemCard(
-                  title: "title",
-                  description: "description",
-                  onTap: () {},
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: context.paddingHorizontal.add(
+                  EdgeInsets.only(top: Responsive.height * 2),
                 ),
-                childCount: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Consumer<AttendanceProvider>(
+                      builder: (context, provider, child) {
+                        DateTime today = DateTime.now();
+                        DateTime yesterday = today.subtract(Duration(days: 1));
+                        DateTime selectedDate =
+                            _dateController.text.isNotEmpty
+                                ? DateFormat(
+                                  'yyyy-MM-dd',
+                                ).parse(_dateController.text)
+                                : today;
+
+                        String displayText = "";
+                        if (selectedDate.year == today.year &&
+                            selectedDate.month == today.month &&
+                            selectedDate.day == today.day) {
+                          displayText = "Today   ";
+                        } else if (selectedDate.year == yesterday.year &&
+                            selectedDate.month == yesterday.month &&
+                            selectedDate.day == yesterday.day) {
+                          displayText = "Yesterday";
+                        }
+
+                        return Row(
+                          children: [
+                            if (displayText.isNotEmpty)
+                              Text(
+                                displayText,
+                                style: context.textTheme.titleLarge,
+                              ),
+                            SizedBox(width: Responsive.width * 24),
+                            Expanded(
+                              child: CustomDatePicker(
+                                label: "Date",
+                                initialDate: DateTime.now(),
+                                dateController: _dateController,
+                                onDateSelected: (selectedDate) {
+                                  context
+                                      .read<AttendanceProvider>()
+                                      .fetchAttendanceByTeacher(
+                                        forceRefresh: true,
+                                        date: DateFormat(
+                                          'yyyy-MM-dd',
+                                        ).format(selectedDate),
+                                      );
+                                },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Please select a date";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    SizedBox(height: Responsive.height * 1),
+                    Consumer<AttendanceProvider>(
+                      builder: (context, provider, _) {
+                        if (provider.isLoading &&
+                            provider.attendanceByTeacher.isEmpty) {
+                          return commonShimmerList();
+                        }
+
+                        if (provider.attendanceByTeacher.isEmpty) {
+                          return emptyScreen(message: 'No Records Found.');
+                        }
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: provider.attendanceByTeacher.length,
+                          itemBuilder: (context, index) {
+                            final attendance =
+                                provider.attendanceByTeacher[index];
+                            return ItemCard(
+                              title: attendance.classDetails.classname,
+                              description:
+                                  "Period ${attendance.period.toString()}",
+                              backgroundColor: const Color(0xFFE8F5E9),
+                              icon: LucideIcons.calendarCheck,
+                              iconColor: Colors.green,
+                              onTap:
+                                  () => context.pushNamed(
+                                    RouteConstants.attendanceDetails,
+                                    extra: attendance,
+                                  ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+
+                    Consumer<AttendanceProvider>(
+                      builder: (context, provider, _) {
+                        return provider.isLoading && provider.hasMore
+                            ? const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16.0),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox();
+                      },
+                    ),
+
+                    SizedBox(height: Responsive.height * 4),
+                  ],
+                ),
               ),
             ),
-          ),
-
-          SliverPadding(
-            padding: context.paddingHorizontal,
-            sliver: SliverToBoxAdapter(
-              child: SizedBox(height: Responsive.height * 4),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

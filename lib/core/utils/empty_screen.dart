@@ -2,7 +2,7 @@ import 'package:acadobs/core/utils/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
-Widget emptyScreen({double heightMultiplier = 30, required String message}) {
+Widget emptyScreen({double heightMultiplier = 32, required String message}) {
   return Center(
     child: Column(
       children: [

@@ -1,18 +1,18 @@
 import 'package:acadobs/core/services/api_services.dart';
-import 'package:acadobs/core/utils/urls/api/api_end_points.dart';
+import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class DutyServices {
+  final int _staffId = 3; //to be changed
   // Fetch Staff Duties
   Future<Response> fetchStaffDuties({
     required int pageNo,
-    required int staffId,
   }) async {
     final response = await ApiServices.get(
-      '${ApiEndpoints.staffDuties}?page=$pageNo&staff_id=$staffId',
+      '${ApiEndpoints.staffDuties}?page=$pageNo&staff_id=$_staffId',
     );
     return response;
   }
@@ -20,11 +20,10 @@ class DutyServices {
   // Update Duty status
   Future<Response> updateDutyStatus({
     required int dutyId,
-    required int staffId,
     required String status,
   }) async {
     final formData = {
-      "staff_id":staffId,
+      "staff_id":_staffId,
       "status":status,
     };
     final response = await ApiServices.put(
@@ -40,14 +39,13 @@ class DutyServices {
     {
     required BuildContext context,
     required int dutyId,
-    required int staffId,
     required String remarks,
   }) async {
     
     final fileUpload = context.read<FilePickerProvider>().getFile('solved_file');
     final fileUploadPath = fileUpload?.path;
     final formData = {
-      "staff_id":staffId,
+      "staff_id":_staffId,
       "remarks":remarks,
       if (fileUploadPath != null)
         'solved_file': await MultipartFile.fromFile(fileUploadPath,

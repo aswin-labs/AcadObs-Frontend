@@ -3,6 +3,7 @@ class AppConstants {
   static const double defaultBorderRadius = 30;
 
   // ********Other Constants*******
+  // classgrades
   static const List<String> classGrades = [
     '1',
     '2',
@@ -16,5 +17,11 @@ class AppConstants {
     '10',
     '11',
     '12',
+  ];
+
+  // periods
+  static const List<String> periods = [
+    '1',
+    '2',
   ];
 }
