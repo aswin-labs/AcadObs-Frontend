@@ -86,9 +86,12 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                   const Spacer(),
                   widget.alreadyTaken
                       ? Text(
-                        widget.remarks ?? '',
+                        widget.remarks != null
+                            ? "Remarks: ${widget.remarks}"
+                            : "",
                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          fontSize: 14,
+                          fontSize: 12,
+                          // fontWeight: FontWeight.bold,
                           color: const Color(0xFF7C7C7C),
                         ),
                       )

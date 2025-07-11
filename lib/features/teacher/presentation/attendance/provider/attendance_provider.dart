@@ -1,11 +1,13 @@
 import 'dart:developer';
 
 import 'package:acadobs/core/utils/custom_snackbar.dart';
-import 'package:acadobs/features/teacher/data/models/attendance_by_teacher_model.dart';
-import 'package:acadobs/features/teacher/data/models/attendance_recorded_data_model.dart';
+import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
+import 'package:acadobs/features/teacher/data/models/attendance/attendance_model.dart';
 import 'package:acadobs/features/teacher/data/services/attendance_services.dart';
-import 'package:acadobs/shared/models/student_profile_model.dart';
+import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/models/student_model.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 class AttendanceProvider extends ChangeNotifier {
@@ -15,13 +17,19 @@ class AttendanceProvider extends ChangeNotifier {
   bool _isLoadingTwo = false;
   bool get isLoadingTwo => _isLoadingTwo;
 
-  final List<AttendanceByTeacher> _attendanceByTeacher = [];
-  List<AttendanceByTeacher> get attendanceByTeacher => _attendanceByTeacher;
+  bool _isRestoring = false;
+  bool get isRestoring => _isRestoring;
 
-  AttendanceRecordedData? attendanceRecordedData;
+  final List<AttendanceModel> _attendanceByTeacher = [];
+  List<AttendanceModel> get attendanceByTeacher => _attendanceByTeacher;
 
-  List<StudentProfile> _students = [];
-  List<StudentProfile> get students => _students;
+  AttendanceModel? recordedAttendance;
+
+  bool _isAttendanceAlreadyTaken = false;
+  bool get isAttendanceAlreadyTaken => _isAttendanceAlreadyTaken;
+
+  List<StudentModel> _students = [];
+  List<StudentModel> get students => _students;
 
   List<int> _studentIds = [];
   List<int> get studentIds => _studentIds;
@@ -35,18 +43,26 @@ class AttendanceProvider extends ChangeNotifier {
 
   final int _teacherId = 3;
 
+  final currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
   // set attendance
-  final Map<int, Map<String, String?>> _attendanceData = {};
+  final Map<int, Map<String, String?>> _uploadingAttendanceData = {};
+
+  final List<Map<String, dynamic>> _editedAttendanceList = [];
+  List<Map<String, dynamic>> get editedAttendanceList => _editedAttendanceList;
 
   Future<void> fetchAttendanceByClassIdAndDate({
     required BuildContext context,
     required int classId,
     required String date,
     required int period,
+    bool forRestoring = false,
   }) async {
     _isLoading = true;
     _students.clear();
-    attendanceRecordedData == null;
+    recordedAttendance = null;
+    _isAttendanceAlreadyTaken = false;
+
     try {
       final response = await AttendanceServices()
           .fetchAttendanceByClassIdAndDate(
@@ -54,24 +70,56 @@ class AttendanceProvider extends ChangeNotifier {
             date: date,
             period: period,
           );
+
       if (response.statusCode == 200) {
         final data = response.data;
+
         if (data['status'] == 'recorded') {
-          log("Attendance already taken");
-          attendanceRecordedData = AttendanceRecordedData.fromJson(data);
+          _isAttendanceAlreadyTaken = true;
+          recordedAttendance = AttendanceModel.fromJson(data['attendance']);
           if (!context.mounted) return;
-          CustomSnackbar.show(
-            context,
-            message: "Attendance Already Taken",
-            type: SnackbarType.info,
-          );
+          if (forRestoring) {
+            log("Attendance fetched after restoring");
+          } else {
+            final isInTrash = recordedAttendance?.trash == true;
+
+            CustomSnackbar.show(
+              context,
+              message:
+                  isInTrash
+                      ? "This attendance record has been deleted."
+                      : "Attendance already recorded.",
+              type: isInTrash ? SnackbarType.failure : SnackbarType.info,
+            );
+          }
         } else {
           _students =
               (data['students'] as List<dynamic>)
-                  .map((result) => StudentProfile.fromJson(result))
+                  .map((e) => StudentModel.fromJson(e))
                   .toList();
           _studentIds = _students.map((e) => e.id).toList();
         }
+      }
+    } catch (e, stackTrace) {
+      log("Error fetching attendance: $e");
+      log(stackTrace.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // attendance by Id
+  Future<void> fetchAttendanceById({required int attendanceId}) async {
+    _isLoading = true;
+    recordedAttendance = null;
+    try {
+      final response = await AttendanceServices().fetchAttendanceById(
+        attendanceId: attendanceId,
+      );
+      if (response.statusCode == 200) {
+        final data = response.data;
+        recordedAttendance = AttendanceModel.fromJson(data);
       }
     } catch (e) {
       log(e.toString());
@@ -82,29 +130,32 @@ class AttendanceProvider extends ChangeNotifier {
   }
 
   void setAttendance(int studentId, String status, [String? remarks]) {
-    _attendanceData[studentId] = {'status': status, 'remarks': remarks};
+    _uploadingAttendanceData[studentId] = {
+      'status': status,
+      'remarks': remarks,
+    };
     notifyListeners();
   }
 
   void setRemarks(int studentId, String? remarks) {
-    if (_attendanceData.containsKey(studentId)) {
-      _attendanceData[studentId]!['remarks'] = remarks;
+    if (_uploadingAttendanceData.containsKey(studentId)) {
+      _uploadingAttendanceData[studentId]!['remarks'] = remarks;
     } else {
-      _attendanceData[studentId] = {'status': '', 'remarks': remarks};
+      _uploadingAttendanceData[studentId] = {'status': '', 'remarks': remarks};
     }
     notifyListeners();
   }
 
   String? getStatus(int studentId) {
-    return _attendanceData[studentId]?['status'];
+    return _uploadingAttendanceData[studentId]?['status'];
   }
 
   String? getRemarks(int studentId) {
-    return _attendanceData[studentId]?['remarks'];
+    return _uploadingAttendanceData[studentId]?['remarks'];
   }
 
   List<Map<String, dynamic>> getAttendanceList() {
-    return _attendanceData.entries.map((entry) {
+    return _uploadingAttendanceData.entries.map((entry) {
       return {
         'student_id': entry.key,
         'status': entry.value['status'],
@@ -114,7 +165,7 @@ class AttendanceProvider extends ChangeNotifier {
   }
 
   // mark all present
-   void markAllPresent() {
+  void markAllPresent() {
     for (var id in _studentIds) {
       setAttendance(id, "Present");
     }
@@ -123,7 +174,7 @@ class AttendanceProvider extends ChangeNotifier {
 
   // present count
   int get presentCount {
-    return _attendanceData.entries
+    return _uploadingAttendanceData.entries
         .where(
           (entry) =>
               entry.value['status'] == 'Present' ||
@@ -134,13 +185,13 @@ class AttendanceProvider extends ChangeNotifier {
 
   // absent count
   int get absentCount {
-    return _attendanceData.entries
+    return _uploadingAttendanceData.entries
         .where((entry) => entry.value['status'] == 'Absent')
         .length;
   }
 
   void clearAllAttendance() {
-    _attendanceData.clear();
+    _uploadingAttendanceData.clear();
     notifyListeners();
   }
 
@@ -150,6 +201,7 @@ class AttendanceProvider extends ChangeNotifier {
     required int classId,
     required int period,
     required String date,
+    int? subjectId,
   }) async {
     _isLoadingTwo = true;
     notifyListeners();
@@ -160,10 +212,12 @@ class AttendanceProvider extends ChangeNotifier {
           "period": period,
           "class_id": classId,
           "date": date,
+          "subject_id": subjectId ?? 0,
           "students": getAttendanceList(),
         },
       );
       if (response.statusCode == 201) {
+        await fetchAttendanceByTeacher(forceRefresh: true);
         if (!context.mounted) return;
         CustomSnackbar.show(
           context,
@@ -201,7 +255,6 @@ class AttendanceProvider extends ChangeNotifier {
         _attendanceByTeacher.clear();
         _isFetchedOnce = false;
       }
-      final currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final response = await AttendanceServices().fetchAttendanceByTeacher(
         pageNo: _currentPage,
         date: date ?? currentDate,
@@ -210,9 +263,9 @@ class AttendanceProvider extends ChangeNotifier {
         final data = response.data;
         _totalPages = data['totalPages'];
         _currentPage = data['currentPage'];
-        List<AttendanceByTeacher> attendanceJson =
+        List<AttendanceModel> attendanceJson =
             (response.data['attendance'] as List<dynamic>)
-                .map((result) => AttendanceByTeacher.fromJson(result))
+                .map((result) => AttendanceModel.fromJson(result))
                 .toList();
         _attendanceByTeacher.addAll(attendanceJson);
         _isFetchedOnce = true;
@@ -221,6 +274,185 @@ class AttendanceProvider extends ChangeNotifier {
       log(e.toString());
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Edit attendance details
+  Future<void> editAttendanceDetails({
+    required BuildContext context,
+    required int attendanceId,
+    required int period,
+    required String date,
+    required int subjectId,
+  }) async {
+    _isLoadingTwo = true;
+    notifyListeners();
+    try {
+      final response = await AttendanceServices().editAttendanceDetails(
+        attendanceId: attendanceId,
+        period: period,
+        date: date,
+        subjectId: subjectId,
+      );
+      if (response.statusCode == 200) {
+        await fetchAttendanceByTeacher(forceRefresh: true);
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: "Attendance Details Saved",
+          type: SnackbarType.success,
+        );
+      }
+      if (response.statusCode == 400) {
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: "${response.data["error"]}. Can't update details",
+          type: SnackbarType.failure,
+        );
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoadingTwo = false;
+      notifyListeners();
+    }
+  }
+
+  //************* Edit Bulk Attendance ******************//
+
+  // Set Edited Attendance
+  void setEditedAttendance(int attendanceId, String status, [String? remarks]) {
+    final finalRemarks =
+        remarks ?? _editedRemarksMap[attendanceId] ?? "Updated";
+
+    final index = _editedAttendanceList.indexWhere(
+      (e) => e['id'] == attendanceId,
+    );
+    final entry = {
+      "id": attendanceId,
+      "status": status,
+      "remarks": finalRemarks,
+    };
+
+    if (index != -1) {
+      _editedAttendanceList[index] = entry;
+    } else {
+      _editedAttendanceList.add(entry);
+    }
+
+    notifyListeners();
+  }
+
+  String? getEditedStatus(int attendanceId) {
+    final match = _editedAttendanceList.firstWhere(
+      (e) => e['id'] == attendanceId,
+      orElse: () => {},
+    );
+    return match['status']?.toString().isNotEmpty == true
+        ? match['status']
+        : null;
+  }
+
+  final Map<int, String> _editedRemarksMap = {};
+
+  void setEditedRemarks(int attendanceId, String? remarks) {
+    if (remarks != null) {
+      _editedRemarksMap[attendanceId] = remarks;
+    }
+  }
+
+  String? getEditedRemarks(int attendanceId) {
+    return _editedRemarksMap[attendanceId];
+  }
+
+  // Edit Bulk attendance
+  Future<void> editBulkAttendance({
+    required BuildContext context,
+    required int attendanceId,
+  }) async {
+    _isLoadingTwo = true;
+    notifyListeners();
+    try {
+      log("Edited list:${_editedAttendanceList.toString()}");
+      final response = await AttendanceServices().editBulkAttendance(
+        attendanceId: attendanceId,
+        attendanceList: _editedAttendanceList,
+      );
+      if (response.statusCode == 200) {
+        await fetchAttendanceByTeacher(forceRefresh: true);
+        if (!context.mounted) return;
+        context.pushNamed(
+          RouteConstants.bottomNavScreen,
+          extra: UserType.teacher,
+        );
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoadingTwo = false;
+      notifyListeners();
+    }
+  }
+
+  // Delete an attendance
+  Future<void> deleteAttendance(context, {required int attendanceId}) async {
+    try {
+      final response = await AttendanceServices().deleteAttendance(
+        attendanceId: attendanceId,
+      );
+      if (response.statusCode == 200) {
+        CustomSnackbar.show(
+          context,
+          message: 'Attendance Deleted',
+          type: SnackbarType.failure,
+        );
+      } else {
+        log('Failed to delete subject: ${response.statusCode}');
+      }
+      Navigator.pop(context);
+      _attendanceByTeacher.removeWhere(
+        (attendance) => attendance.id == attendanceId,
+      );
+      notifyListeners();
+    } catch (e) {
+      log('Error deleting subject: $e');
+    }
+  }
+
+  // Restore attendance
+  Future<bool> restoreAttendance({
+    required BuildContext context,
+    required int attendanceId,
+  }) async {
+    _isRestoring = true;
+    notifyListeners();
+
+    try {
+      final response = await AttendanceServices().restoreAttendance(
+        attendanceId: attendanceId,
+      );
+
+      if (response.statusCode == 200) {
+        await fetchAttendanceByTeacher(forceRefresh: true);
+        log("Attendance restored successfully");
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: 'Attendance restored successfully',
+            type: SnackbarType.success,
+          );
+        }
+        return true;
+      }
+
+      return false;
+    } catch (e) {
+      log("Restore failed: $e");
+      return false;
+    } finally {
+      _isRestoring = false;
       notifyListeners();
     }
   }

@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:acadobs/shared/models/student_profile_model.dart';
+import 'package:acadobs/shared/models/student_model.dart';
 import 'package:acadobs/shared/services/shared_services.dart';
 import 'package:flutter/material.dart';
 
@@ -14,8 +14,8 @@ class SharedProvider extends ChangeNotifier {
   bool _isClassesEmpty = false;
   bool get isClassesEmpty => _isClassesEmpty;
 
-  List<StudentProfile> _students = [];
-  List<StudentProfile> get students => _students;
+  List<StudentModel> _students = [];
+  List<StudentModel> get students => _students;
 
   // Get Class names from standard
   Future<void> getClassNameFromStandard({
@@ -61,7 +61,7 @@ class SharedProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         _students =
             (response.data['students'] as List<dynamic>)
-                .map((result) => StudentProfile.fromJson(result))
+                .map((result) => StudentModel.fromJson(result))
                 .toList();
         log(_students.toString());
       }

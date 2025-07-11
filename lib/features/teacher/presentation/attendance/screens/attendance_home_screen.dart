@@ -74,7 +74,6 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
                   EdgeInsets.only(top: Responsive.height * 2),
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Consumer<AttendanceProvider>(
                       builder: (context, provider, child) {
@@ -87,7 +86,7 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
                                 ).parse(_dateController.text)
                                 : today;
 
-                        String displayText = "";
+                        String displayText = "               ";
                         if (selectedDate.year == today.year &&
                             selectedDate.month == today.month &&
                             selectedDate.day == today.day) {
@@ -153,7 +152,7 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
                             final attendance =
                                 provider.attendanceByTeacher[index];
                             return ItemCard(
-                              title: attendance.classDetails.classname,
+                              title: attendance.classDetails?.classname??" ",
                               description:
                                   "Period ${attendance.period.toString()}",
                               backgroundColor: const Color(0xFFE8F5E9),

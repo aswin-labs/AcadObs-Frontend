@@ -1,8 +1,9 @@
-import 'package:acadobs/features/teacher/data/models/attendance_by_teacher_model.dart';
-import 'package:acadobs/features/teacher/data/models/attendance_initial_data.dart';
+import 'package:acadobs/features/teacher/data/models/attendance/attendance_model.dart';
+import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
 import 'package:acadobs/features/teacher/data/models/staff_duty_model.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_taking_screen.dart';
+import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:go_router/go_router.dart';
@@ -23,10 +24,10 @@ List<GoRoute> staffRoutes = [
     path: '/attendanceTaking',
     name: RouteConstants.attendanceTaking,
     builder: (context, state) {
-      final AttendanceInitialData attendanceInitialData =
-          state.extra as AttendanceInitialData;
+      final AttendanceUploadModel attendance =
+          state.extra as AttendanceUploadModel;
       return AttendanceTakingScreen(
-        attendanceInitialData: attendanceInitialData,
+        attendance: attendance,
       );
     },
   ),
@@ -34,8 +35,16 @@ List<GoRoute> staffRoutes = [
     path: '/attendanceDetails',
     name: RouteConstants.attendanceDetails,
     builder: (context, state) {
-      final attendanceByTeacher = state.extra as AttendanceByTeacher;
-      return AttendanceDetailsScreen(attendanceByTeacher: attendanceByTeacher);
+      final attendance = state.extra as AttendanceModel;
+      return AttendanceDetailsScreen(attendance: attendance);
+    },
+  ),
+   GoRoute(
+    path: '/editAttendance',
+    name: RouteConstants.editAttendance,
+    builder: (context, state) {
+      final attendance = state.extra as AttendanceModel;
+      return EditAttendanceScreen(attendance: attendance);
     },
   ),
 ];

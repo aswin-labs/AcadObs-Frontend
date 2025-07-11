@@ -34,4 +34,54 @@ class AttendanceServices {
     );
     return response;
   }
+
+  // attendance by Id
+  Future<Response> fetchAttendanceById({required int attendanceId}) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.attendance}/$attendanceId",
+    );
+    return response;
+  }
+
+  // Edit attendance details
+  Future<Response> editAttendanceDetails({
+    required int attendanceId,
+    required int period,
+    required String date,
+    required int subjectId,
+  }) async {
+    final response = await ApiServices.put(
+      "${ApiEndpoints.attendance}/$attendanceId",
+      {"period": period, "date": date, "subject_id": subjectId},
+    );
+    return response;
+  }
+
+  // Edit bulk attendance
+  Future<Response> editBulkAttendance({
+    required int attendanceId,
+    required List<Map<String, dynamic>> attendanceList,
+  }) async {
+    final response = await ApiServices.put(
+      "${ApiEndpoints.editBulkAttendance}/$attendanceId",
+      {"data": attendanceList},
+    );
+    return response;
+  }
+
+  // Delete attendance
+  Future<Response> deleteAttendance({required int attendanceId}) async {
+    final response = await ApiServices.delete(
+      "${ApiEndpoints.attendance}/$attendanceId",
+    );
+    return response;
+  }
+
+  // Restore attendance
+  Future<Response> restoreAttendance({required int attendanceId}) async {
+    final response = await ApiServices.patch(
+      "${ApiEndpoints.attendance}/$attendanceId",
+    );
+    return response;
+  }
 }

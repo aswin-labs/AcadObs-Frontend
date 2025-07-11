@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 
 class AttendanceSummaryCard extends StatelessWidget {
+  final String title;
+  final Color backgroundColor;
+  final Color borderColor;
   final String className;
   final String period;
   final String date;
@@ -14,6 +17,9 @@ class AttendanceSummaryCard extends StatelessWidget {
 
   const AttendanceSummaryCard({
     super.key,
+    required this.title,
+    required this.backgroundColor,
+     required this.borderColor,
     required this.className,
     required this.date,
     required this.period,
@@ -32,7 +38,7 @@ class AttendanceSummaryCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(
@@ -41,11 +47,12 @@ class AttendanceSummaryCard extends StatelessWidget {
             offset: Offset(0, 3),
           ),
         ],
+        border: Border.all(color: borderColor),
       ),
       child: Column(
         children: [
           Text(
-            "Attendance Already Recorded",
+            title,
             style: context.textTheme.bodyMedium!.copyWith(
               fontWeight: FontWeight.bold,
               color: Colors.blueGrey,

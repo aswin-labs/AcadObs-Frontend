@@ -3,22 +3,20 @@ import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/teacher/data/models/attendance_initial_data.dart';
+import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/provider/attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_shimmer_widget.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_summarycard.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_taking_widget.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
+import 'package:acadobs/shared/widgets/restore_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AttendanceTakingScreen extends StatefulWidget {
-  final AttendanceInitialData attendanceInitialData;
-  const AttendanceTakingScreen({
-    super.key,
-    required this.attendanceInitialData,
-  });
+  final AttendanceUploadModel attendance;
+  const AttendanceTakingScreen({super.key, required this.attendance});
 
   @override
   State<AttendanceTakingScreen> createState() => _AttendanceTakingScreenState();
@@ -31,9 +29,9 @@ class _AttendanceTakingScreenState extends State<AttendanceTakingScreen> {
     attendanceProvider = context.read<AttendanceProvider>();
     attendanceProvider.fetchAttendanceByClassIdAndDate(
       context: context,
-      classId: widget.attendanceInitialData.classId,
-      date: widget.attendanceInitialData.date,
-      period: widget.attendanceInitialData.period,
+      classId: widget.attendance.classId,
+      date: widget.attendance.date,
+      period: widget.attendance.period,
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       attendanceProvider.clearAllAttendance();
@@ -45,7 +43,7 @@ class _AttendanceTakingScreenState extends State<AttendanceTakingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(
-        title: widget.attendanceInitialData.className,
+        title: widget.attendance.className,
         isBackButton: true,
       ),
       body: CustomScrollView(
@@ -55,46 +53,52 @@ class _AttendanceTakingScreenState extends State<AttendanceTakingScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: context.paddingHorizontal.add(EdgeInsets.only(top:Responsive.height * 2)),
+              padding: context.paddingHorizontal.add(
+                EdgeInsets.only(top: Responsive.height * 2),
+              ),
               child: Column(
                 children: [
                   Consumer<AttendanceProvider>(
-                        builder: (context, value, child) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            InkWell(
-                              borderRadius: BorderRadius.circular(8),
-                              onTap: () {
-                                context
-                                    .read<AttendanceProvider>()
-                                    .markAllPresent();
-                              },
-                              child: Container(
-                                width: Responsive.width * 30,
-                                padding: EdgeInsets.all(8),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
+                    builder: (context, provider, _) {
+                      return provider.isAttendanceAlreadyTaken ||
+                              provider.isLoading
+                          ? SizedBox.shrink()
+                          : Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              InkWell(
+                                borderRadius: BorderRadius.circular(8),
+                                onTap: () {
+                                  context
+                                      .read<AttendanceProvider>()
+                                      .markAllPresent();
+                                },
+                                child: Container(
+                                  width: Responsive.width * 30,
+                                  padding: EdgeInsets.all(8),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
                                     color: Colors.black,
-                                    borderRadius: BorderRadius.circular(8)),
-                                child: Text(
-                                  "Set All Present",
-                                  style: TextStyle(color: Colors.white),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    "Set All Present",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
-                        );
-                      }),
-                      SizedBox(height: Responsive.height * 1),
+                            ],
+                          );
+                    },
+                  ),
+                  SizedBox(height: Responsive.height * 1),
                   Consumer<AttendanceProvider>(
                     builder: (context, provider, _) {
-                      final data = provider.attendanceRecordedData;
+                      final attendance = provider.recordedAttendance;
                       final students = provider.students;
-                      final status = data?.status;
-                      final attendance = data?.attendance;
+                      final inTrash = attendance?.trash;
 
-                      if (provider.isLoading) {
+                      if (provider.isLoading || provider.isRestoring) {
                         return ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -105,22 +109,70 @@ class _AttendanceTakingScreenState extends State<AttendanceTakingScreen> {
                         );
                       }
 
-                      if (students.isEmpty && status == 'not_recorded') {
-                        return emptyScreen(message: "No Students Found");
+                      if (students.isEmpty &&
+                          provider.isAttendanceAlreadyTaken) {
+                        return Column(
+                          children: [
+                            AttendanceSummaryCard(
+                              title:
+                                  inTrash == true
+                                      ? "This attendance entry was deleted"
+                                      : "Attendance Already Recorded",
+                              backgroundColor:
+                                  inTrash == true
+                                      ? Colors.red.shade50
+                                      : Colors.white,
+                              borderColor:
+                                  inTrash == true ? Colors.red : Colors.white,
+                              className: widget.attendance.className,
+                              date: DateFormatter.formatDateString(
+                                widget.attendance.date,
+                              ),
+                              period: widget.attendance.period.toString(),
+                              subject:
+                                  attendance?.subject?.subjectName ??
+                                  "Not Specified",
+                              teacherName:
+                                  attendance?.user?.name ?? "Not Specified",
+                              teacherRole:
+                                  attendance?.user?.role ?? "Not Specified",
+                            ),
+                            SizedBox(height: Responsive.height * 2),
+                            inTrash == true
+                                ? RestoreButton(
+                                  onPressed: () async {
+                                    final provider =
+                                        context.read<AttendanceProvider>();
+
+                                    final isRestored = await provider
+                                        .restoreAttendance(
+                                          context: context,
+                                          attendanceId:
+                                              provider.recordedAttendance?.id ??
+                                              0,
+                                        );
+
+                                    if (isRestored) {
+                                      if (!context.mounted) return;
+                                      await provider
+                                          .fetchAttendanceByClassIdAndDate(
+                                            context: context,
+                                            forRestoring: true,
+                                            classId: widget.attendance.classId,
+                                            date: widget.attendance.date,
+                                            period: widget.attendance.period,
+                                          );
+                                    }
+                                  },
+                                )
+                                : SizedBox.shrink(),
+                          ],
+                        );
                       }
 
-                      if (students.isEmpty && status == 'recorded') {
-                        return AttendanceSummaryCard(
-                          className: widget.attendanceInitialData.className,
-                          date: DateFormatter.formatDateString(
-                            widget.attendanceInitialData.date,
-                          ),
-                          period:
-                              widget.attendanceInitialData.period.toString(),
-                          subject: attendance?.subject ?? "Not Specified",
-                          teacherName: attendance?.user.name ?? "Not Specified",
-                          teacherRole: attendance?.user.role ?? "Not Specified",
-                        );
+                      if (students.isEmpty &&
+                          provider.isAttendanceAlreadyTaken == false) {
+                        return emptyScreen(message: "No Students Found");
                       }
 
                       return ListView.builder(
@@ -131,7 +183,7 @@ class _AttendanceTakingScreenState extends State<AttendanceTakingScreen> {
                           final student = provider.students[index];
                           return AttendanceTakingWidget(
                             studentId: student.id,
-                            rollNo: student.rollNumber,
+                            rollNo: student.rollNumber ?? 0,
                             studentName: student.fullName,
                           );
                         },
@@ -148,11 +200,10 @@ class _AttendanceTakingScreenState extends State<AttendanceTakingScreen> {
                                     .read<AttendanceProvider>()
                                     .submitAttendance(
                                       context: context,
-                                      classId:
-                                          widget.attendanceInitialData.classId,
-                                      period:
-                                          widget.attendanceInitialData.period,
-                                      date: widget.attendanceInitialData.date,
+                                      classId: widget.attendance.classId,
+                                      period: widget.attendance.period,
+                                      date: widget.attendance.date,
+                                      subjectId: widget.attendance.subjectId,
                                     ),
                             widget:
                                 provider.isLoadingTwo

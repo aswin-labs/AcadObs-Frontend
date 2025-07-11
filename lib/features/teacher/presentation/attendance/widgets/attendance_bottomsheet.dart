@@ -1,7 +1,9 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/teacher/data/models/attendance_initial_data.dart';
+import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
+import 'package:acadobs/features/teacher/presentation/subjects/provider/subject_provider.dart';
+import 'package:acadobs/features/teacher/presentation/subjects/widgets/subject_selection_dialog.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
@@ -18,7 +20,8 @@ void showAttendanceBottomSheet(BuildContext context) {
   final TextEditingController dateController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  // Set initial value to today's date
+  final subjectProvider = context.read<SubjectProvider>();
+  subjectProvider.clearSelection();
   dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
   context.read<DropdownProvider>().clearSelectedItem('standard');
   context.read<DropdownProvider>().clearSelectedItem('className');
@@ -58,7 +61,7 @@ void showAttendanceBottomSheet(BuildContext context) {
                 SizedBox(height: Responsive.height * 2),
                 CustomDropdown(
                   dropdownKey: 'standard',
-                  label: 'Select Standard',
+                  label: 'Select Standard*',
                   icon: LucideIcons.layers,
                   items: AppConstants.classGrades,
                   validator:
@@ -103,7 +106,7 @@ void showAttendanceBottomSheet(BuildContext context) {
                             ),
                             child: CustomDropdown(
                               dropdownKey: 'className',
-                              label: 'Select Class',
+                              label: 'Select Class*',
                               icon: LucideIcons.school,
                               items: onlyClassNames,
                               validator:
@@ -129,7 +132,7 @@ void showAttendanceBottomSheet(BuildContext context) {
                 SizedBox(height: Responsive.height * 1),
                 CustomDropdown(
                   dropdownKey: 'period',
-                  label: 'Select Period',
+                  label: 'Select Period*',
                   icon: LucideIcons.clock,
                   items: AppConstants.periods,
                   validator:
@@ -139,19 +142,56 @@ void showAttendanceBottomSheet(BuildContext context) {
                               : null,
                 ),
                 SizedBox(height: Responsive.height * 1),
+                Consumer<SubjectProvider>(
+                  builder: (context, subjectProvider, _) {
+                    return GestureDetector(
+                      onTap: () => showSubjectSelectionDialog(context),
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall!.copyWith(
+                            color:
+                                subjectProvider.selectedSubject?.subjectName ==
+                                        null
+                                    ? Colors.grey
+                                    : Colors.black87,
+                            fontSize: 14.0,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: 'Subject*',
+                            labelStyle: context.textTheme.bodyMedium!.copyWith(
+                              color: Colors.grey,
+                            ),
+                            prefixIcon: Icon(Icons.book),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          controller: TextEditingController(
+                            text:
+                                subjectProvider.selectedSubject?.subjectName ??
+                                'Select Subject',
+                          ),
+                          validator:
+                              (value) =>
+                                  subjectProvider.selectedSubject == null
+                                      ? 'Please select a subject'
+                                      : null,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(height: Responsive.height * 1),
                 CustomDatePicker(
                   label: "Date*",
                   dateController: dateController,
                   onDateSelected: (selectedDate) {
                     dateController.text = DateFormat(
-                      'yyyy-MM-dd',
+                      'dd/MM/yyyy',
                     ).format(selectedDate);
                   },
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? "Please select a date"
-                              : null,
                 ),
                 SizedBox(height: Responsive.height * 3),
                 CommonButton(
@@ -159,6 +199,8 @@ void showAttendanceBottomSheet(BuildContext context) {
                     final period = context
                         .read<DropdownProvider>()
                         .getSelectedItem('period');
+                    final subject =
+                        context.read<SubjectProvider>().selectedSubject;
                     if (formKey.currentState?.validate() ?? false) {
                       if (className == null) {
                         ScaffoldMessenger.of(
@@ -173,11 +215,13 @@ void showAttendanceBottomSheet(BuildContext context) {
                       } else {
                         context.pushNamed(
                           RouteConstants.attendanceTaking,
-                          extra: AttendanceInitialData(
+                          extra: AttendanceUploadModel(
                             classId: classId!,
                             date: dateController.text,
                             className: className!,
                             period: int.parse(period),
+                            subjectId: subject?.id,
+                            subjectName: subject?.subjectName,
                           ),
                         );
                       }
