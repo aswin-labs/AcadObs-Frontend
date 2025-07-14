@@ -5,6 +5,8 @@ import 'package:acadobs/features/teacher/presentation/attendance/screens/attenda
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_taking_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
+import 'package:acadobs/features/teacher/presentation/students/screens/student_detail_screen.dart';
+import 'package:acadobs/features/teacher/presentation/students/screens/students_listing_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,9 +28,7 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       final AttendanceUploadModel attendance =
           state.extra as AttendanceUploadModel;
-      return AttendanceTakingScreen(
-        attendance: attendance,
-      );
+      return AttendanceTakingScreen(attendance: attendance);
     },
   ),
   GoRoute(
@@ -39,12 +39,27 @@ List<GoRoute> staffRoutes = [
       return AttendanceDetailsScreen(attendance: attendance);
     },
   ),
-   GoRoute(
+  GoRoute(
     path: '/editAttendance',
     name: RouteConstants.editAttendance,
     builder: (context, state) {
       final attendance = state.extra as AttendanceModel;
       return EditAttendanceScreen(attendance: attendance);
+    },
+  ),
+
+  // Students
+  GoRoute(
+    path: '/studentListing',
+    name: RouteConstants.studentListing,
+    builder: (context, state) => StudentsListingScreen(),
+  ),
+  GoRoute(
+    path: '/studentDetails',
+    name: RouteConstants.studentDetails,
+    builder: (context, state) {
+      int studentId = state.extra as int;
+      return StudentDetailScreen(studentId: studentId);
     },
   ),
 ];

@@ -1,28 +1,79 @@
+
 import 'dart:convert';
 
-StudentModel studentProfileFromJson(String str) =>
+import 'package:acadobs/shared/models/user_model.dart';
+
+StudentModel studentModelFromJson(String str) =>
     StudentModel.fromJson(json.decode(str));
 
 class StudentModel {
   int id;
-  String fullName;
+  int? schoolId;
+  int? guardianId;
+  String? regNo;
   int? rollNumber;
+  String fullName;
+  DateTime? dateOfBirth;
+  String? gender;
   int? classId;
+  DateTime? admissionDate;
+  String? address;
+  String? status;
   String? image;
+  bool? alumni;
+  bool? trash;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  UserModel? user;
 
   StudentModel({
     required this.id,
-    required this.fullName,
+    this.schoolId,
+    this.guardianId,
+    this.regNo,
     this.rollNumber,
+    required this.fullName,
+    this.dateOfBirth,
+    this.gender,
     this.classId,
+    this.admissionDate,
+    this.address,
+    this.status,
     this.image,
+    this.alumni,
+    this.trash,
+    this.createdAt,
+    this.updatedAt,
+    this.user,
   });
 
   factory StudentModel.fromJson(Map<String, dynamic> json) => StudentModel(
     id: json["id"],
-    fullName: json["full_name"],
+    schoolId: json["school_id"],
+    guardianId: json["guardian_id"],
+    regNo: json["reg_no"],
     rollNumber: json["roll_number"],
+    fullName: json["full_name"],
+    dateOfBirth:
+        json["date_of_birth"] == null
+            ? null
+            : DateTime.parse(json["date_of_birth"]),
+    gender: json["gender"],
     classId: json["class_id"],
+    admissionDate:
+        json["admission_date"] == null
+            ? null
+            : DateTime.parse(json["admission_date"]),
+    address: json["address"],
+    status: json["status"],
     image: json["image"],
+    alumni: json["alumni"],
+    trash: json["trash"],
+    createdAt:
+        json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+    updatedAt:
+        json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
+    user: json["User"] == null ? null : UserModel.fromJson(json["User"]),
   );
+
 }

@@ -51,28 +51,6 @@ class SharedProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> getStudentsByClassId({required int classId}) async {
-    _isLoading = true;
-    _students.clear();
-    try {
-      final response = await SharedServices().getStudentsByClassId(
-        classId: classId,
-      );
-      if (response.statusCode == 200) {
-        _students =
-            (response.data['students'] as List<dynamic>)
-                .map((result) => StudentModel.fromJson(result))
-                .toList();
-        log(_students.toString());
-      }
-    } catch (e) {
-      log(e.toString());
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
   // clear class names
   void resetClassNames() {
     _classNames.clear();

@@ -7,6 +7,7 @@ class ApiEndpoints {
 
   // SCHOOL ADMIN
   static const String classesByYear = "/schooladmin/getClassesByYear";
+  static const String students = "/schooladmin/students";
   static const String studentsByClassId = "/schooladmin/getStudentsByClassId";
 
   // STAFF
