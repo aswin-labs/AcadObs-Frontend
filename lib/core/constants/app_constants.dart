@@ -20,8 +20,13 @@ class AppConstants {
   ];
 
   // periods
-  static const List<String> periods = [
-    '1',
-    '2',
+  static const List<String> periods = ['1', '2'];
+
+  // attendance remarks
+  static List<String> attendanceRemarks = [
+    'Medical',
+    'Personal',
+    'Official',
+    'Other',
   ];
 }

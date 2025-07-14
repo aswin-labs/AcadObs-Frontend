@@ -1,5 +1,4 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
-import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/presentation/duties/provider/duty_provider.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
@@ -34,12 +33,22 @@ void showAddRemarksAndFileBottomSheet(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "Add Remarks",
+              "Remarks & Uploads",
               style: context.textTheme.titleLarge!.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
-            SizedBox(height: Responsive.height * 2),
+            SizedBox(height: Responsive.height * 3),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Add Remarks:",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
+            SizedBox(height: Responsive.height * 1),
             CustomTextfield(
               iconData: Icon(LucideIcons.stickyNote),
               controller: remarksController,
@@ -51,22 +60,15 @@ void showAddRemarksAndFileBottomSheet(
               fieldName: "solved_file",
             ),
             SizedBox(height: Responsive.height * 4),
-            Consumer<DutyProvider>(
-              builder: (context, provider, child) {
-                return CommonButton(
-                  onPressed: () {
-                    context.read<DutyProvider>().addDutyRemarksAndFile(
-                      context: context,
-                      dutyId: dutyId,
-                      remarks: remarksController.text,
-                    );
-                  },
-                  widget:
-                      provider.isLoadingTwo
-                          ? ButtonLoading()
-                          : const Text('Save'),
+            CommonButton(
+              onPressed: () {
+                context.read<DutyProvider>().addDutyRemarksAndFile(
+                  context: context,
+                  dutyId: dutyId,
+                  remarks: remarksController.text,
                 );
               },
+              widget: const Text('Save'),
             ),
           ],
         ),

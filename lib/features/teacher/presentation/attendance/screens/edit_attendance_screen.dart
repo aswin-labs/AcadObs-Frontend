@@ -52,6 +52,9 @@ class _EditAttendanceScreenState extends State<EditAttendanceScreen> {
     return Scaffold(
       appBar: CommonAppBar(title: "Edit Attendance", isBackButton: true),
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         slivers: [
           SliverToBoxAdapter(
             child: Padding(

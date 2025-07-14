@@ -1,3 +1,6 @@
+import 'package:acadobs/core/constants/app_constants.dart';
+import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/scrollable_name.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/provider/attendance_provider.dart';
@@ -26,14 +29,33 @@ class EditAttendanceWidget extends StatefulWidget {
 
 class _EditAttendanceWidgetState extends State<EditAttendanceWidget> {
   String? selectedValue;
-  final List<String> options = ['Medical', 'Personal', 'Official'];
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = context.read<AttendanceProvider>();
+
+    // Load initial remarks
+    final stored = provider.getEditedRemarks(widget.studentAttendanceId);
+    selectedValue = stored ?? widget.remarks;
+
+    // Save initial remarks to map if not already stored
+    if (stored == null && widget.remarks != null) {
+      provider.setEditedRemarks(widget.studentAttendanceId, widget.remarks);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<AttendanceProvider>(context);
     final selectedStatus =
         provider.getEditedStatus(widget.studentAttendanceId) ??
-        widget.currentStatus;
+        widget.currentStatus.toLowerCase();
+
+    final showDropdown = selectedStatus == "late" || selectedStatus == "absent";
+    final showValueInDropdown =
+        selectedValue != null &&
+        AppConstants.attendanceRemarks.contains(selectedValue);
 
     return Container(
       decoration: const BoxDecoration(
@@ -74,13 +96,42 @@ class _EditAttendanceWidgetState extends State<EditAttendanceWidget> {
                   studentName: capitalizeEachWord(widget.studentName),
                 ),
                 const Spacer(),
-                Text(
-                  "${widget.remarks}",
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    fontSize: 14,
-                    color: const Color(0xFF7C7C7C),
+                if (showDropdown)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: DropdownButton<String>(
+                      value: showValueInDropdown ? selectedValue : null,
+                      hint: Text(
+                        'Remarks',
+                        style: context.textTheme.bodySmall!.copyWith(
+                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      items:
+                          AppConstants.attendanceRemarks.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                      style: context.textTheme.bodySmall,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedValue = newValue;
+                        });
+                        provider.setEditedRemarks(
+                          widget.studentAttendanceId,
+                          newValue,
+                        );
+                        provider.setEditedAttendance(
+                          widget.studentAttendanceId,
+                          selectedStatus,
+                          newValue,
+                        );
+                      },
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -92,12 +143,16 @@ class _EditAttendanceWidgetState extends State<EditAttendanceWidget> {
                 bottomLeftRadius: 8,
                 bottomRightRadius: 0,
                 isSelected: selectedStatus == "present",
-                onTap:
-                    () => provider.setEditedAttendance(
-                      widget.studentAttendanceId,
-                      "present",
-                      selectedValue ?? "Updated",
-                    ),
+                onTap: () {
+                  setState(() {
+                    selectedValue = null;
+                  });
+                  provider.setEditedAttendance(
+                    widget.studentAttendanceId,
+                    "present",
+                    "Updated",
+                  );
+                },
               ),
               _attendanceButton(
                 context: context,
@@ -105,12 +160,13 @@ class _EditAttendanceWidgetState extends State<EditAttendanceWidget> {
                 bottomLeftRadius: 0,
                 bottomRightRadius: 0,
                 isSelected: selectedStatus == "late",
-                onTap:
-                    () => provider.setEditedAttendance(
-                      widget.studentAttendanceId,
-                      "late",
-                      selectedValue ?? "Updated",
-                    ),
+                onTap: () {
+                  provider.setEditedAttendance(
+                    widget.studentAttendanceId,
+                    "late",
+                    selectedValue,
+                  );
+                },
               ),
               _attendanceButton(
                 context: context,
@@ -118,12 +174,13 @@ class _EditAttendanceWidgetState extends State<EditAttendanceWidget> {
                 bottomLeftRadius: 0,
                 bottomRightRadius: 8,
                 isSelected: selectedStatus == "absent",
-                onTap:
-                    () => provider.setEditedAttendance(
-                      widget.studentAttendanceId,
-                      "absent",
-                      selectedValue ?? "Updated",
-                    ),
+                onTap: () {
+                  provider.setEditedAttendance(
+                    widget.studentAttendanceId,
+                    "absent",
+                    selectedValue,
+                  );
+                },
               ),
             ],
           ),
@@ -142,9 +199,9 @@ Widget _attendanceButton({
   required VoidCallback onTap,
 }) {
   final Map<String, Color> statusColors = {
-    "Present": Color(0xFF64F946),
-    "Late": Color.fromARGB(255, 239, 180, 71),
-    "Absent": Color(0xFFFF1C1C),
+    "Present": AppColors.attendancePresent,
+    "Late": AppColors.attendanceLate,
+    "Absent": AppColors.attendanceAbsent,
   };
   return Expanded(
     child: ElevatedButton(
@@ -163,10 +220,16 @@ Widget _attendanceButton({
       ),
       child: Text(
         buttonStatus,
-        style: const TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.normal,
-        ),
+        style:
+            isSelected
+                ? context.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                )
+                : context.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.normal,
+                  color: Colors.black,
+                ),
       ),
     ),
   );
