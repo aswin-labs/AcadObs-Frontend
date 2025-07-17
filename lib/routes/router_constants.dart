@@ -19,6 +19,8 @@ class RouteConstants {
   static const String attendanceTaking = 'attendanceTaking';
   static const String attendanceDetails = 'attendanceDetails';
   static const String editAttendance = 'editAttendance';
+  static const String staffLeaveRequestHome = 'staffLeaveRequestHome';
+  static const String staffLeaveRequestDetails = 'staffLeaveRequestDetails';
 
   // STUDENTS
   static const String studentListing = 'studentListing';

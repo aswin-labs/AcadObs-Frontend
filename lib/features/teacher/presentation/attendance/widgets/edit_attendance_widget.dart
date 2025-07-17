@@ -147,10 +147,14 @@ class _EditAttendanceWidgetState extends State<EditAttendanceWidget> {
                   setState(() {
                     selectedValue = null;
                   });
+                  provider.setEditedRemarks(
+                    widget.studentAttendanceId,
+                    null,
+                  ); // clear
                   provider.setEditedAttendance(
                     widget.studentAttendanceId,
                     "present",
-                    "Updated",
+                    null, // no remarks
                   );
                 },
               ),

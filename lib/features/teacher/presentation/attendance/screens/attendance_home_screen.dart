@@ -25,12 +25,23 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _dateController = TextEditingController();
 
+  late DateTime _selectedDate;
+
   @override
   void initState() {
     super.initState();
     _attendanceProvider = context.read<AttendanceProvider>();
-    _attendanceProvider.fetchAttendanceByTeacher();
     _scrollController.addListener(_scrollListener);
+
+    // Run after build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _selectedDate = _attendanceProvider.selectedDate ?? DateTime.now();
+      _dateController.text = _formatted(_selectedDate);
+
+      _attendanceProvider.fetchAttendanceByTeacher(
+        date: _formatted(_selectedDate),
+      );
+    });
   }
 
   void _scrollListener() {
@@ -48,18 +59,19 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _dateController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
     return Scaffold(
       appBar: CommonAppBar(title: "Attendance"),
       body: RefreshIndicator(
         onRefresh: () async {
           await context.read<AttendanceProvider>().fetchAttendanceByTeacher(
             forceRefresh: true,
+            date: _formatted(_selectedDate),
           );
         },
         child: CustomScrollView(
@@ -77,24 +89,19 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
                   children: [
                     Consumer<AttendanceProvider>(
                       builder: (context, provider, child) {
-                        DateTime today = DateTime.now();
-                        DateTime yesterday = today.subtract(Duration(days: 1));
-                        DateTime selectedDate =
-                            _dateController.text.isNotEmpty
-                                ? DateFormat(
-                                  'yyyy-MM-dd',
-                                ).parse(_dateController.text)
-                                : today;
+                        _selectedDate = provider.selectedDate ?? DateTime.now();
+                        _dateController.text = _formatted(_selectedDate);
 
-                        String displayText = "               ";
-                        if (selectedDate.year == today.year &&
-                            selectedDate.month == today.month &&
-                            selectedDate.day == today.day) {
-                          displayText = "Today   ";
-                        } else if (selectedDate.year == yesterday.year &&
-                            selectedDate.month == yesterday.month &&
-                            selectedDate.day == yesterday.day) {
-                          displayText = "Yesterday";
+                        final today = DateTime.now();
+                        final yesterday = today.subtract(
+                          const Duration(days: 1),
+                        );
+
+                        String displayText = '                 ';
+                        if (_isSameDay(_selectedDate, today)) {
+                          displayText = 'Today     ';
+                        } else if (_isSameDay(_selectedDate, yesterday)) {
+                          displayText = 'Yesterday';
                         }
 
                         return Row(
@@ -108,16 +115,18 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
                             Expanded(
                               child: CustomDatePicker(
                                 label: "Date",
-                                initialDate: DateTime.now(),
+                                initialDate: _selectedDate,
                                 dateController: _dateController,
-                                onDateSelected: (selectedDate) {
+                                onDateSelected: (pickedDate) {
+                                  _selectedDate = pickedDate;
+                                  context
+                                      .read<AttendanceProvider>()
+                                      .setSelectedDate(pickedDate);
                                   context
                                       .read<AttendanceProvider>()
                                       .fetchAttendanceByTeacher(
                                         forceRefresh: true,
-                                        date: DateFormat(
-                                          'yyyy-MM-dd',
-                                        ).format(selectedDate),
+                                        date: _formatted(pickedDate),
                                       );
                                 },
                                 validator: (value) {
@@ -135,12 +144,12 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
                     SizedBox(height: Responsive.height * 1),
                     Consumer<AttendanceProvider>(
                       builder: (context, provider, _) {
-                        if (provider.isLoading &&
-                            provider.attendanceByTeacher.isEmpty) {
+                        if (!provider.hasFetchedOnce && provider.isLoading) {
                           return commonShimmerList();
                         }
 
-                        if (provider.attendanceByTeacher.isEmpty) {
+                        if (provider.hasFetchedOnce &&
+                            provider.attendanceByTeacher.isEmpty) {
                           return emptyScreen(message: 'No Records Found.');
                         }
 
@@ -152,7 +161,8 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
                             final attendance =
                                 provider.attendanceByTeacher[index];
                             return ItemCard(
-                              title: attendance.classDetails?.classname??" ",
+                              title:
+                                  attendance.classDetails?.classname ?? "Class",
                               description:
                                   "Period ${attendance.period.toString()}",
                               backgroundColor: const Color(0xFFE8F5E9),
@@ -168,7 +178,6 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
                         );
                       },
                     ),
-
                     Consumer<AttendanceProvider>(
                       builder: (context, provider, _) {
                         return provider.isLoading && provider.hasMore
@@ -179,7 +188,6 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
                             : const SizedBox();
                       },
                     ),
-
                     SizedBox(height: Responsive.height * 4),
                   ],
                 ),
@@ -189,5 +197,11 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
         ),
       ),
     );
+  }
+
+  String _formatted(DateTime d) => DateFormat('yyyy-MM-dd').format(d);
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 }

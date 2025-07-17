@@ -36,6 +36,9 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
     final selectedStatus = provider.getStatus(widget.studentId);
     final selectedRemarks = provider.getRemarks(widget.studentId);
 
+    final shouldShowRemarks =
+        selectedStatus == "Late" || selectedStatus == "Absent";
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
       child: Container(
@@ -84,6 +87,8 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                     studentName: capitalizeEachWord(widget.studentName),
                   ),
                   const Spacer(),
+
+                  // Show remarks if already taken
                   widget.alreadyTaken
                       ? Text(
                         widget.remarks != null ? " ${widget.remarks}" : "",
@@ -92,11 +97,16 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                           color: const Color(0xFF7C7C7C),
                         ),
                       )
-                      : (selectedStatus == "Late" || selectedStatus == "Absent")
+                      : shouldShowRemarks
                       ? Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: DropdownButton<String>(
-                          value: selectedRemarks,
+                          value:
+                              AppConstants.attendanceRemarks.contains(
+                                    selectedRemarks,
+                                  )
+                                  ? selectedRemarks
+                                  : null,
                           hint: Text(
                             'Remarks',
                             style: context.textTheme.bodySmall!.copyWith(
@@ -116,14 +126,11 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                           style: context.textTheme.bodySmall,
                           onChanged: (newValue) {
                             provider.setRemarks(widget.studentId, newValue);
-                            final status = provider.getStatus(widget.studentId);
-                            if (status != null && status.isNotEmpty) {
-                              provider.setAttendance(
-                                widget.studentId,
-                                status,
-                                newValue,
-                              );
-                            }
+                            provider.setAttendance(
+                              widget.studentId,
+                              selectedStatus!,
+                              newValue,
+                            );
                           },
                         ),
                       )
@@ -131,6 +138,8 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                 ],
               ),
             ),
+
+            /// Attendance Buttons
             Row(
               children: [
                 _attendanceButton(
@@ -146,14 +155,15 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                       widget.alreadyTaken
                           ? () {}
                           : () {
-                            final remarks = provider.getRemarks(
-                              widget.studentId,
-                            );
                             provider.setAttendance(
                               widget.studentId,
                               "Present",
-                              remarks,
+                              null,
                             );
+                            provider.setRemarks(
+                              widget.studentId,
+                              null,
+                            ); // optional
                           },
                 ),
                 _attendanceButton(

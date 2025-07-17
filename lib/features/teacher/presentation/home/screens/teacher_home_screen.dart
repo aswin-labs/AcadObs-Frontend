@@ -40,6 +40,12 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     text: "Take Attendance",
                     ontap: () => showAttendanceBottomSheet(context),
                   ),
+                  SizedBox(height: Responsive.height * 2),
+                  CustomButtonContainer(
+                    color: AppColors.black,
+                    text: "Leave Request",
+                    ontap: () => context.pushNamed(RouteConstants.staffLeaveRequestHome),
+                  ),
                 ],
               ),
             ),

@@ -5,6 +5,7 @@ import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/presentation/students/provider/student_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
@@ -25,9 +26,16 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
   int? classId;
   String? className;
   final ScrollController _scrollController = ScrollController();
+  late DropdownProvider dropdownProvider;
 
   @override
   void initState() {
+    dropdownProvider = context.read<DropdownProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      dropdownProvider.clearSelectedItem("standard");
+      dropdownProvider.clearSelectedItem("className");
+      context.read<StudentProvider>().clearStudents();
+    });
     super.initState();
     _scrollController.addListener(_scrollListener);
   }

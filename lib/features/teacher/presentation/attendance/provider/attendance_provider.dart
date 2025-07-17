@@ -40,6 +40,8 @@ class AttendanceProvider extends ChangeNotifier {
   bool get hasMore => _currentPage < _totalPages;
 
   bool _isFetchedOnce = false;
+  bool get hasFetchedOnce => _isFetchedOnce;
+
 
   final int _teacherId = 3;
 
@@ -132,12 +134,17 @@ class AttendanceProvider extends ChangeNotifier {
   void setAttendance(int studentId, String status, [String? remarks]) {
     _uploadingAttendanceData[studentId] = {
       'status': status,
-      'remarks': remarks,
+      'remarks':
+          status == 'present' ? null : remarks, // Clear remarks for Present
     };
     notifyListeners();
   }
 
   void setRemarks(int studentId, String? remarks) {
+    final currentStatus = _uploadingAttendanceData[studentId]?['status'];
+
+    if (currentStatus == 'Present') return; // Don't allow remarks for Present
+
     if (_uploadingAttendanceData.containsKey(studentId)) {
       _uploadingAttendanceData[studentId]!['remarks'] = remarks;
     } else {
@@ -151,7 +158,10 @@ class AttendanceProvider extends ChangeNotifier {
   }
 
   String? getRemarks(int studentId) {
-    return _uploadingAttendanceData[studentId]?['remarks'];
+    final data = _uploadingAttendanceData[studentId];
+    if (data == null) return null;
+    if (data['status'] == 'present') return null;
+    return data['remarks'];
   }
 
   List<Map<String, dynamic>> getAttendanceList() {
@@ -235,6 +245,14 @@ class AttendanceProvider extends ChangeNotifier {
   }
 
   //fetch teacher taken attendance
+  DateTime? _selectedDate;
+  DateTime? get selectedDate => _selectedDate;
+
+  void setSelectedDate(DateTime date) {
+    _selectedDate = date;
+    notifyListeners();
+  }
+
   Future<void> fetchAttendanceByTeacher({
     String? date,
     bool loadMore = false,
@@ -242,32 +260,46 @@ class AttendanceProvider extends ChangeNotifier {
   }) async {
     if (_isLoading) return;
 
-    // If not loading more, check if already fetched once.
+    // If not loading more, check if already fetched once
     if (!loadMore && !forceRefresh && _isFetchedOnce) return;
 
     _isLoading = true;
+    notifyListeners();
 
     try {
+      if (!loadMore && date != null) {
+        setSelectedDate(DateFormat('yyyy-MM-dd').parse(date));
+      }
+
       if (loadMore) {
         _currentPage++;
       } else {
         _currentPage = 1;
-        _attendanceByTeacher.clear();
+        // _attendanceByTeacher.clear();
         _isFetchedOnce = false;
       }
+      if (!loadMore) {
+    _attendanceByTeacher.clear(); // 🔄 Move here!
+  }
+
       final response = await AttendanceServices().fetchAttendanceByTeacher(
         pageNo: _currentPage,
-        date: date ?? currentDate,
+        date:
+            date ??
+            DateFormat('yyyy-MM-dd').format(_selectedDate ?? DateTime.now()),
       );
+
       if (response.statusCode == 200) {
         final data = response.data;
         _totalPages = data['totalPages'];
         _currentPage = data['currentPage'];
-        List<AttendanceModel> attendanceJson =
-            (response.data['attendance'] as List<dynamic>)
-                .map((result) => AttendanceModel.fromJson(result))
+
+        List<AttendanceModel> attendanceList =
+            (data['attendance'] as List)
+                .map((e) => AttendanceModel.fromJson(e))
                 .toList();
-        _attendanceByTeacher.addAll(attendanceJson);
+
+        _attendanceByTeacher.addAll(attendanceList);
         _isFetchedOnce = true;
       }
     } catch (e) {
@@ -325,7 +357,9 @@ class AttendanceProvider extends ChangeNotifier {
   // Set Edited Attendance
   void setEditedAttendance(int attendanceId, String status, [String? remarks]) {
     final finalRemarks =
-        remarks ?? _editedRemarksMap[attendanceId] ?? "Updated";
+        status.toLowerCase() == "present"
+            ? null
+            : remarks ?? _editedRemarksMap[attendanceId] ?? "";
 
     final index = _editedAttendanceList.indexWhere(
       (e) => e['id'] == attendanceId,
@@ -358,12 +392,17 @@ class AttendanceProvider extends ChangeNotifier {
   final Map<int, String> _editedRemarksMap = {};
 
   void setEditedRemarks(int attendanceId, String? remarks) {
+    final currentStatus = getEditedStatus(attendanceId);
+    if (currentStatus?.toLowerCase() == "present") return; // ignore if present
+
     if (remarks != null) {
       _editedRemarksMap[attendanceId] = remarks;
     }
   }
 
   String? getEditedRemarks(int attendanceId) {
+    final currentStatus = getEditedStatus(attendanceId);
+    if (currentStatus?.toLowerCase() == "present") return null;
     return _editedRemarksMap[attendanceId];
   }
 

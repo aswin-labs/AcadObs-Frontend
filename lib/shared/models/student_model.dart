@@ -1,6 +1,6 @@
-
 import 'dart:convert';
 
+import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 
 StudentModel studentModelFromJson(String str) =>
@@ -24,6 +24,7 @@ class StudentModel {
   bool? trash;
   DateTime? createdAt;
   DateTime? updatedAt;
+  ClassGradeModel? classGrade;
   UserModel? user;
 
   StudentModel({
@@ -44,6 +45,7 @@ class StudentModel {
     this.trash,
     this.createdAt,
     this.updatedAt,
+    this.classGrade,
     this.user,
   });
 
@@ -73,7 +75,8 @@ class StudentModel {
         json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
     updatedAt:
         json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
+    classGrade:
+        json["Class"] == null ? null : ClassGradeModel.fromJson(json["Class"]),
     user: json["User"] == null ? null : UserModel.fromJson(json["User"]),
   );
-
 }

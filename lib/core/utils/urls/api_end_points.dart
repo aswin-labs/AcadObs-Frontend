@@ -18,4 +18,5 @@ class ApiEndpoints {
   static const String attendanceByClassIdAndDate =
       "/staff/getAttendanceByclassIdAndDate";
   static const String editBulkAttendance = "/staff/bulkUpdateAttendanceById";
+  static const String staffLeaveRequest = "/staff/leaveRequest";
 }

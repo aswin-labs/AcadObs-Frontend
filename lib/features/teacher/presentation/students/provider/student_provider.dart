@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:acadobs/features/teacher/data/services/student_services.dart';
 import 'package:acadobs/shared/models/student_model.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +54,9 @@ class StudentProvider extends ChangeNotifier {
         final List studentsJson = data['students'];
 
         final List<StudentModel> fetchedStudents =
-            studentsJson.map((jsonItem) => StudentModel.fromJson(jsonItem)).toList();
+            studentsJson
+                .map((jsonItem) => StudentModel.fromJson(jsonItem))
+                .toList();
 
         _students.addAll(fetchedStudents);
         _isFetchedOnce = true;
@@ -68,18 +71,26 @@ class StudentProvider extends ChangeNotifier {
     }
   }
 
+  // clear students
+  void clearStudents() {
+    _students.clear();
+    notifyListeners();
+  }
+
   // Get Individual student details
   Future<void> fetchStudentDetails({required int studentId}) async {
     _isLoading = true;
     try {
-      final response = await StudentServices().fetchStudentDetails(studentId: studentId);
-      if(response.statusCode==200){
+      final response = await StudentServices().fetchStudentDetails(
+        studentId: studentId,
+      );
+      if (response.statusCode == 200) {
         final data = response.data;
         individualStudent = StudentModel.fromJson(data);
       }
-    } catch(e){
+    } catch (e) {
       log(e.toString());
-    } finally{
+    } finally {
       _isLoading = false;
       notifyListeners();
     }
