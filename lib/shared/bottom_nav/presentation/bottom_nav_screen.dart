@@ -2,6 +2,7 @@ import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/admin/presentation/home/admin_home_screen.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
+import 'package:acadobs/features/parents/presentation/notices/screens/notice_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/screens/school_classes_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/screens/school_subjects_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/schools/screens/schools_list_screen.dart';
@@ -54,7 +55,9 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         // EventsPage(),
         // NoticePage(),
         // PaymentSelection(),
-        Center(child: Text("Parent")),
+       
+        NoticeScreen(),
+          Center(child: Text("Parent")),
       ];
     } else {
       return [];

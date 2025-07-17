@@ -1,3 +1,5 @@
+
+import 'package:acadobs/features/parents/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/provider/school_classes_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/provider/school_subjects_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/schools/provider/school_provider.dart';
@@ -28,8 +30,14 @@ getProviders() {
     // **************STAFF****************//
     ChangeNotifierProvider(create: (_) => DutyProvider()),
     ChangeNotifierProvider(create: (_) => AttendanceProvider()),
+
+
+    //**************NOTICES****************//
+    ChangeNotifierProvider(create: (_) => NoticeProvider()),
+
     ChangeNotifierProvider(create: (_) => SubjectProvider()),
     ChangeNotifierProvider(create: (_) => StudentProvider()),
     ChangeNotifierProvider(create: (_) => TeacherLeaveRequestProvider())
+
   ];
 }

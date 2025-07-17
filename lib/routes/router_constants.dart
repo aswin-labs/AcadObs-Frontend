@@ -17,12 +17,20 @@ class RouteConstants {
   //  STAFF
   static const String dutyDetail = 'dutyDetail';
   static const String attendanceTaking = 'attendanceTaking';
-  static const String attendanceDetails = 'attendanceDetails';
+  static const String attendanceDetails = 'attendanceDetails'; 
   static const String editAttendance = 'editAttendance';
   static const String staffLeaveRequestHome = 'staffLeaveRequestHome';
   static const String staffLeaveRequestDetails = 'staffLeaveRequestDetails';
+    static const String editAttendance = 'editAttendance';
+  static const String staffLeaveRequestHome = 'staffLeaveRequestHome';
+  static const String staffLeaveRequestDetails = 'staffLeaveRequestDetails';
+
+  //PARENT
+  static const String parentdetails = 'parentdetails';
+
 
   // STUDENTS
   static const String studentListing = 'studentListing';
   static const String studentDetails = 'studentDetails';
+
 }
