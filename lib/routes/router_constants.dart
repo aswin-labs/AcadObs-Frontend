@@ -18,4 +18,7 @@ class RouteConstants {
   static const String dutyDetail = 'dutyDetail';
   static const String attendanceTaking = 'attendanceTaking';
   static const String attendanceDetails = 'attendanceDetails';
+
+  //PARENT
+  static const String parentdetails = 'parentdetails';
 }

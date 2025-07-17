@@ -16,4 +16,10 @@ class ApiEndpoints {
   static const String attendanceByTeacher = "/staff/getAttendanceByTeacher";
   static const String attendanceByClassIdAndDate =
       "/staff/getAttendanceByclassIdAndDate";
+  
+
+  //notices
+  static const String fetchNotices = "/schooladmin/notices";
+  
+
 }

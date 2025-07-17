@@ -1,3 +1,4 @@
+import 'package:acadobs/features/parents/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/provider/attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/duties/provider/duty_provider.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
@@ -25,5 +26,8 @@ getProviders() {
     // **************STAFF****************//
     ChangeNotifierProvider(create: (_) => DutyProvider()),
     ChangeNotifierProvider(create: (_) => AttendanceProvider()),
+
+    //**************NOTICES****************//
+    ChangeNotifierProvider(create: (_) => NoticeProvider()),
   ];
 }
