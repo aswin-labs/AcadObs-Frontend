@@ -10,12 +10,4 @@ class SharedServices {
     );
     return response;
   }
-
-  // Get students from classId
-  Future<Response> getStudentsByClassId({required int classId}) async {
-    final response = await ApiServices.get(
-      '${ApiEndpoints.studentsByClassId}/$classId?limit=200',
-    );
-    return response;
-  }
 }

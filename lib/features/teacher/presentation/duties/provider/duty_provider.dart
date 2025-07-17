@@ -5,7 +5,9 @@ import 'package:acadobs/core/utils/popup_loader.dart';
 import 'package:acadobs/features/teacher/data/models/staff_duty_model.dart';
 import 'package:acadobs/features/teacher/data/models/updated_duty_response_model.dart';
 import 'package:acadobs/features/teacher/data/services/duty_services.dart';
+import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DutyProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -156,23 +158,43 @@ class DutyProvider extends ChangeNotifier {
     _isLoadingTwo = true;
     PopupLoader.show(context, message: "Updating status...");
     notifyListeners();
+
     try {
+      final file = context.read<FilePickerProvider>().getFile('solved_file');
+      final isFilePicked = file?.path?.isNotEmpty ?? false;
+      final hasRemarks = (remarks != null && remarks.trim().isNotEmpty);
       final response = await DutyServices().addDutyRemarksAndFile(
         context: context,
         dutyId: dutyId,
         remarks: remarks ?? "",
       );
+
       if (response.statusCode == 200) {
         updatedDutyResponse = UpdatedDutyResponse.fromJson(
           response.data['updatedDuty'],
         );
         await fetchStaffDuties(forceRefresh: true);
+
         if (!context.mounted) return;
         PopupLoader.hide(context);
+
+        // ✅ Show custom message depending on what's submitted
+        String successMessage;
+        if (hasRemarks && isFilePicked) {
+          successMessage = "Remarks and file uploaded successfully";
+        } else if (hasRemarks) {
+          successMessage = "Remarks added successfully";
+        } else if (isFilePicked) {
+          successMessage = "File uploaded successfully";
+        } else {
+          successMessage = "Updated successfully";
+        }
+
         CustomSnackbar.show(
           context,
-          message: "Added Remarks Successfully",
+          message: successMessage,
           type: SnackbarType.success,
+          bottomPadding: 5,
         );
         Navigator.pop(context);
       }

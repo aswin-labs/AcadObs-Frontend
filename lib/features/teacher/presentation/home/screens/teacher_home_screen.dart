@@ -2,9 +2,11 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/custom_button_container.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
@@ -28,8 +30,21 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   SizedBox(height: Responsive.height * 2),
                   CustomButtonContainer(
                     color: AppColors.black,
+                    text: "Students",
+                    ontap:
+                        () => context.pushNamed(RouteConstants.studentListing),
+                  ),
+                  SizedBox(height: Responsive.height * 2),
+                  CustomButtonContainer(
+                    color: AppColors.black,
                     text: "Take Attendance",
                     ontap: () => showAttendanceBottomSheet(context),
+                  ),
+                  SizedBox(height: Responsive.height * 2),
+                  CustomButtonContainer(
+                    color: AppColors.black,
+                    text: "Leave Request",
+                    ontap: () => context.pushNamed(RouteConstants.staffLeaveRequestHome),
                   ),
                 ],
               ),

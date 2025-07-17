@@ -48,6 +48,10 @@ dependencies:
   shimmer: ^3.0.0
   intl: ^0.20.2
   url_launcher: ^6.3.2
+  open_file: ^3.5.10
+  permission_handler: ^12.0.1
+  http: ^1.4.0
+
 
 dev_dependencies:
   flutter_test:

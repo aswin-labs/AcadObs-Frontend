@@ -6,7 +6,7 @@ class AppColors {
   static const Color primary = Colors.black;
   static const Color onPrimary = Colors.white;
 
-  static const Color secondary = Color(0xFFD9D9D9); 
+  static const Color secondary = Color(0xFFD9D9D9);
   static const Color onSecondary = Colors.black;
 
   // White and black
@@ -32,4 +32,9 @@ class AppColors {
   static const Color darkBackground = Color(0xFF121212);
   static const Color darkSurface = Color(0xFF1E1E1E);
   static const Color darkOnSurface = Colors.white;
+
+  // Attendance Status Colors
+  static const Color attendancePresent = Color.fromARGB(255, 85, 213, 89);
+  static const Color attendanceLate = Color.fromARGB(255, 243, 173, 70);
+  static const Color attendanceAbsent = Color(0xFFFF1C1C);
 }

@@ -37,6 +37,9 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
     return Scaffold(
       appBar: CommonAppBar(title: "Duty Details", isBackButton: true),
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
         slivers: [
           SliverPadding(
             padding: context.paddingHorizontal,
@@ -86,7 +89,13 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: Responsive.width * 4),
+                  // SizedBox(height: Responsive.height * 2),
+                  // DownloadFileTile(
+                  //   fileUrl: "fileUrl",
+                  //   title: "Download File",
+                  //   description: "Do you want to download this file? ",
+                  // ),
+                  SizedBox(height: Responsive.height * 2),
                   Consumer<DutyProvider>(
                     builder: (context, provider, _) {
                       final updatedDutyResponse = provider.updatedDutyResponse;
@@ -153,7 +162,7 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
                                 widget: Text("Mark As Completed"),
                                 backgroundColor: Color(0xFF14601C),
                               ),
-                          SizedBox(height: Responsive.height * 4),
+                          SizedBox(height: Responsive.height * 10),
                         ],
                       );
                     },

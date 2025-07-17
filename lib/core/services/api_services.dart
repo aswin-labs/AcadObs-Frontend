@@ -3,17 +3,16 @@ import 'package:dio/dio.dart';
 
 class ApiServices {
   static final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: BaseUrls.api,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      followRedirects: true,
-      validateStatus: (_) => true,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    ),
-  )..interceptors.addAll([
+      BaseOptions(
+        baseUrl: BaseUrls.api,
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+        followRedirects: true,
+        validateStatus: (_) => true,
+        headers: {'Content-Type': 'application/json'},
+      ),
+    )
+    ..interceptors.addAll([
       LogInterceptor(
         request: true,
         requestHeader: true,
@@ -34,8 +33,11 @@ class ApiServices {
   }
 
   /// Generic POST request
-  static Future<Response> post(String endpoint, dynamic data,
-      {bool isFormData = false}) async {
+  static Future<Response> post(
+    String endpoint,
+    dynamic data, {
+    bool isFormData = false,
+  }) async {
     try {
       final requestData = _formatData(data, isFormData);
       return await _dio.post(endpoint, data: requestData);
@@ -45,8 +47,11 @@ class ApiServices {
   }
 
   /// Generic PUT request
-  static Future<Response> put(String endpoint, dynamic data,
-      {bool isFormData = false}) async {
+  static Future<Response> put(
+    String endpoint,
+    dynamic data, {
+    bool isFormData = false,
+  }) async {
     try {
       final requestData = _formatData(data, isFormData);
       return await _dio.put(endpoint, data: requestData);
@@ -61,6 +66,15 @@ class ApiServices {
       return await _dio.delete(endpoint);
     } on DioException catch (e) {
       throw Exception('DELETE request failed: $e');
+    }
+  }
+
+  /// Generic patch request
+  static Future<Response> patch(String endpoint) async {
+    try {
+      return await _dio.patch(endpoint);
+    } on DioException catch (e) {
+      throw Exception('PATCH request failed: $e');
     }
   }
 

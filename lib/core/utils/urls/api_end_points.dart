@@ -7,6 +7,7 @@ class ApiEndpoints {
 
   // SCHOOL ADMIN
   static const String classesByYear = "/schooladmin/getClassesByYear";
+  static const String students = "/schooladmin/students";
   static const String studentsByClassId = "/schooladmin/getStudentsByClassId";
 
   // STAFF
@@ -16,10 +17,15 @@ class ApiEndpoints {
   static const String attendanceByTeacher = "/staff/getAttendanceByTeacher";
   static const String attendanceByClassIdAndDate =
       "/staff/getAttendanceByclassIdAndDate";
+   static const String editBulkAttendance = "/staff/bulkUpdateAttendanceById";
+  static const String staffLeaveRequest = "/staff/leaveRequest";
+
   
 
   //notices
   static const String fetchNotices = "/schooladmin/notices";
   
+
+
 
 }

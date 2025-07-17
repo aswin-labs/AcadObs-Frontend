@@ -43,21 +43,23 @@ class CustomDropdown extends StatelessWidget {
             ),
           ),
           icon: const Icon(Icons.arrow_drop_down),
-          items: items.map((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
-          }).toList(),
+          items:
+              items.map((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
           onChanged: (String? newValue) {
             if (newValue != null) {
               dropdownProvider.setSelectedItem(dropdownKey, newValue);
               if (onChanged != null) {
-                onChanged!(newValue); // Trigger the external callback
+                onChanged!(newValue);
               }
             }
           },
           validator: validator,
+
           dropdownColor: Colors.white,
           style: const TextStyle(color: Colors.black),
           menuMaxHeight: 200,
