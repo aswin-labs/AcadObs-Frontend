@@ -25,6 +25,9 @@ class ApiEndpoints {
 
   //notices
   static const String fetchNotices = "/schooladmin/notices";
+
+  //events
+  static const String fetchEvents = "/schooladmin/events";
   
 
 
