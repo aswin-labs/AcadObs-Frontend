@@ -57,7 +57,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         // EventsPage(),
         // NoticePage(),
         // PaymentSelection(),
-      //  HomeScreen(),
+       HomeScreen(),
         NoticeScreen(),
         EventListScreen(),
           // Center(child: Text("Parent")),
