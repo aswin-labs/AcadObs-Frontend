@@ -2,7 +2,7 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/features/parents/presentation/notices/widgets/notice_card.dart';
-import 'package:acadobs/features/parents/presentation/provider/notice_provider.dart';
+import 'package:acadobs/features/parents/presentation/notices/provider/notice_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
@@ -134,7 +134,7 @@ class _NoticeScreenState extends State<NoticeScreen> {
                       time: TimeFormatter.formatTime(notice.createdAt),
                       //route
                       onTap:
-                          () => context.pushNamed(RouteConstants.parentdetails,extra: notice),
+                          () => context.pushNamed(RouteConstants.noticedetails,extra: notice),
                     ),
                   );
                 },
