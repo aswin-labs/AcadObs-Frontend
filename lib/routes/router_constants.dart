@@ -21,12 +21,14 @@ class RouteConstants {
   static const String editAttendance = 'editAttendance';
   static const String staffLeaveRequestHome = 'staffLeaveRequestHome';
   static const String staffLeaveRequestDetails = 'staffLeaveRequestDetails';
-    static const String editAttendance = 'editAttendance';
-  static const String staffLeaveRequestHome = 'staffLeaveRequestHome';
-  static const String staffLeaveRequestDetails = 'staffLeaveRequestDetails';
+  //   static const String editAttendance = 'editAttendance';
+  // static const String staffLeaveRequestHome = 'staffLeaveRequestHome';
+  // static const String staffLeaveRequestDetails = 'staffLeaveRequestDetails';
 
   //PARENT
-  static const String parentdetails = 'parentdetails';
+  // static const String parentdetails = 'parentdetails';
+  static const String noticedetails = 'noticedetails';
+  static const String eventlistdetails = 'eventlistdetails';
 
 
   // STUDENTS
