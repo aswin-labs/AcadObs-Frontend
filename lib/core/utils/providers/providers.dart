@@ -1,4 +1,3 @@
-
 import 'package:acadobs/features/parents/presentation/events/provider/event_provider.dart';
 import 'package:acadobs/features/parents/presentation/notices/provider/notice_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/provider/school_classes_provider.dart';
@@ -35,20 +34,15 @@ getProviders() {
     ChangeNotifierProvider(create: (_) => SubjectProvider()),
     ChangeNotifierProvider(create: (_) => StudentProvider()),
     ChangeNotifierProvider(create: (_) => TeacherLeaveRequestProvider()),
-     ChangeNotifierProvider(create: (_) => HomeworkProvider()),
+    ChangeNotifierProvider(create: (_) => HomeworkProvider()),
+    ChangeNotifierProvider(create: (_) => SubjectProvider()),
+    ChangeNotifierProvider(create: (_) => StudentProvider()),
+    ChangeNotifierProvider(create: (_) => TeacherLeaveRequestProvider()),
 
     //**************NOTICES****************//
     ChangeNotifierProvider(create: (_) => NoticeProvider()),
 
-<<<<<<< HEAD
-=======
-    ChangeNotifierProvider(create: (_) => SubjectProvider()),
-    ChangeNotifierProvider(create: (_) => StudentProvider()),
-    ChangeNotifierProvider(create: (_) => TeacherLeaveRequestProvider()),
-    
->>>>>>> e36edaa9c0b59137dc6a8a1e2afc98922c1aba2f
-
-      //**************EVENTS****************//
-      ChangeNotifierProvider(create: (_) => EventProvider()) 
+    //**************EVENTS****************//
+    ChangeNotifierProvider(create: (_) => EventProvider()),
   ];
 }

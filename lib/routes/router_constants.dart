@@ -21,15 +21,8 @@ class RouteConstants {
   static const String editAttendance = 'editAttendance';
   static const String staffLeaveRequestHome = 'staffLeaveRequestHome';
   static const String staffLeaveRequestDetails = 'staffLeaveRequestDetails';
-<<<<<<< HEAD
-=======
-  //   static const String editAttendance = 'editAttendance';
-  // static const String staffLeaveRequestHome = 'staffLeaveRequestHome';
-  // static const String staffLeaveRequestDetails = 'staffLeaveRequestDetails';
->>>>>>> e36edaa9c0b59137dc6a8a1e2afc98922c1aba2f
 
   //PARENT
-  // static const String parentdetails = 'parentdetails';
   static const String noticedetails = 'noticedetails';
   static const String eventlistdetails = 'eventlistdetails';
 
