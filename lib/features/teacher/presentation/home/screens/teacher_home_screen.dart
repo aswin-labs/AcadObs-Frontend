@@ -30,13 +30,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   SizedBox(height: Responsive.height * 2),
                   CustomButtonContainer(
                     color: AppColors.black,
-                    text: "Students",
-                    ontap:
-                        () => context.pushNamed(RouteConstants.studentListing),
-                  ),
-                  SizedBox(height: Responsive.height * 2),
-                  CustomButtonContainer(
-                    color: AppColors.black,
                     text: "Take Attendance",
                     ontap: () => showAttendanceBottomSheet(context),
                   ),
@@ -46,6 +39,19 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     text: "Leave Request",
                     ontap: () => context.pushNamed(RouteConstants.staffLeaveRequestHome),
                   ),
+                  SizedBox(height: Responsive.height * 2),
+                   CustomButtonContainer(
+                    color: AppColors.black,
+                    text: "Students",
+                    ontap:
+                        () => context.pushNamed(RouteConstants.studentListing),
+                  ),
+                   SizedBox(height: Responsive.height * 2),
+                  // CustomButtonContainer(
+                  //   color: AppColors.black,
+                  //   text: "Homework",
+                  //   ontap: (){},
+                  // ),
                 ],
               ),
             ),

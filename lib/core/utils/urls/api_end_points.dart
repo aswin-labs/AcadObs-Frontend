@@ -19,6 +19,7 @@ class ApiEndpoints {
       "/staff/getAttendanceByclassIdAndDate";
    static const String editBulkAttendance = "/staff/bulkUpdateAttendanceById";
   static const String staffLeaveRequest = "/staff/leaveRequest";
+  static const String homeworks = "staff/homeworks";
 
   
 

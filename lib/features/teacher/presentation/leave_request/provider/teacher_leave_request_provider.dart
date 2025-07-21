@@ -78,7 +78,6 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
     required String toDate,
     required String leaveType,
     required String reason,
-    String? leaveDuration,
   }) async {
     _isLoadingTwo = true;
     PopupLoader.show(context, message: "Sending Leave Request...");
@@ -90,9 +89,9 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
         toDate: toDate,
         leaveType: leaveType,
         reason: reason,
-        leaveDuration: leaveDuration,
       );
       if (response.statusCode == 201) {
+        await fetchAllLeaveRequests(forceRefresh:true);
         if (!context.mounted) return;
         PopupLoader.hide(context);
         Navigator.pop(context);

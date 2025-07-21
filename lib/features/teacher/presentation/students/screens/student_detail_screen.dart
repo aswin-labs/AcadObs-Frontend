@@ -129,7 +129,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   builder: (context, provider, _) {
                     final student = provider.individualStudent;
                     if (student == null) {
-                      return CircularProgressIndicator();
+                      return SizedBox.shrink();
                     }
                     return StudentProfileTab(student: student);
                   },

@@ -27,7 +27,6 @@ class TeacherLeaveRequestServices {
       "to_date": toDate,
       "leave_type": leaveType.toLowerCase(),
       "reason": reason,
-      "leave_duration": leaveDuration,
       if (fileUploadPath != null)
         "attachment": await MultipartFile.fromFile(
           fileUploadPath,

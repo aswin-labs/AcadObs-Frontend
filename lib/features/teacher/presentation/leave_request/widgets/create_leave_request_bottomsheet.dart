@@ -94,7 +94,7 @@ void showCreateLeaveRequesBottomSheet(BuildContext context) {
                 SizedBox(height: Responsive.height * 1),
                 CustomDropdown(
                   dropdownKey: "leavetype",
-                  label: "Leave Type",
+                  label: "Leave Type*",
                   icon: LucideIcons.clipboardList,
                   items: AppConstants.leaveTypes,
                   validator:
@@ -131,7 +131,7 @@ void showCreateLeaveRequesBottomSheet(BuildContext context) {
                       widget:
                           provider.isLoadingTwo
                               ? ButtonLoading()
-                              : const Text('Save'),
+                              : const Text('Submit'),
                     );
                   },
                 ),
