@@ -21,16 +21,21 @@ class RouteConstants {
   static const String editAttendance = 'editAttendance';
   static const String staffLeaveRequestHome = 'staffLeaveRequestHome';
   static const String staffLeaveRequestDetails = 'staffLeaveRequestDetails';
+
   static const String homeworks = 'homeworks';
   static const String homeworkDetails = 'homeworkDetails';
+  
+  static const String noticeListscreen = 'noticedetaillistscreen';
+  static const String eventListscreen = 'eventListscreen';
 
   //PARENT
   static const String noticedetails = 'noticedetails';
   static const String eventlistdetails = 'eventlistdetails';
-
+  static const String profileScreen = 'profilescreen';
 
   // STUDENTS
   static const String studentListing = 'studentListing';
   static const String studentDetails = 'studentDetails';
+ 
 
 }

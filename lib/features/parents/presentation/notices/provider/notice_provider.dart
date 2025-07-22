@@ -48,7 +48,12 @@ class NoticeProvider extends ChangeNotifier {
           _notices = fetched;
           _currentPage = 1;
         } else {
-          _notices.addAll(fetched);
+          // _notices.addAll(fetched);
+          final existingIds = _notices.map((e) => e.noticeId).toSet();
+          final newNotices =
+              fetched.where((e) => !existingIds.contains(e.noticeId)).toList();
+          _notices.addAll(newNotices);
+
           _currentPage = pageNo;
         }
         _hasMore = _currentPage < totalPages;

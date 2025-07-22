@@ -1,6 +1,7 @@
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/parents/data/models/notice_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+
 import 'package:flutter/material.dart';
 
 class NoticeDetailsScreen extends StatelessWidget {
@@ -9,10 +10,8 @@ class NoticeDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // print("File URL is: ${notices.file}");
     return Scaffold(
       appBar: CommonAppBar(
-        // title: capitalizeEachWord('title'),
         title: capitalizeEachWord(notices.title.toString()),
 
         isBackButton: true,
@@ -41,7 +40,6 @@ class NoticeDetailsScreen extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                // '12th Class Notices',
                 capitalizeEachWord(notices.title.toString()),
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
@@ -50,11 +48,8 @@ class NoticeDetailsScreen extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                // 'you have to complete the registration of 12th class students before 2022',
-                capitalizeEachWord(notices.content.toString(),),
-                style: TextStyle(
-                  color: Color(0xFF949494),
-                ),
+                capitalizeEachWord(notices.content.toString()),
+                style: TextStyle(color: Color(0xFF949494)),
               ),
             ),
             const SizedBox(height: 40),
@@ -86,6 +81,7 @@ class NoticeDetailsScreen extends StatelessWidget {
                       const SizedBox(width: 10),
                       InkWell(
                         onTap: () {},
+
                         child: const Icon(Icons.file_download_outlined),
                       ),
                     ],
