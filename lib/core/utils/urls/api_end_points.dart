@@ -17,19 +17,14 @@ class ApiEndpoints {
   static const String attendanceByTeacher = "/staff/getAttendanceByTeacher";
   static const String attendanceByClassIdAndDate =
       "/staff/getAttendanceByclassIdAndDate";
-   static const String editBulkAttendance = "/staff/bulkUpdateAttendanceById";
+  static const String editBulkAttendance = "/staff/bulkUpdateAttendanceById";
   static const String staffLeaveRequest = "/staff/leaveRequest";
-  static const String homeworks = "staff/homeworks";
-
-  
+  static const String homeworks = "/staff/homeworks";
+  static const String homeworkByTeacher = "/staff/getHomeworkByTeacher";
 
   //notices
   static const String fetchNotices = "/schooladmin/notices";
 
   //events
   static const String fetchEvents = "/schooladmin/events";
-  
-
-
-
 }

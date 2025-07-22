@@ -32,4 +32,7 @@ class AppConstants {
 
   // leave types
   static List<String> leaveTypes = ["Sick", "Casual", "Emergency", "Vacation", "Other"];
+
+  // homework types
+  static List<String> homeworkTypes = ["online","offline"];
 }

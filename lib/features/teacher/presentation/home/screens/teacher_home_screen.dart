@@ -37,21 +37,24 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   CustomButtonContainer(
                     color: AppColors.black,
                     text: "Leave Request",
-                    ontap: () => context.pushNamed(RouteConstants.staffLeaveRequestHome),
+                    ontap:
+                        () => context.pushNamed(
+                          RouteConstants.staffLeaveRequestHome,
+                        ),
                   ),
                   SizedBox(height: Responsive.height * 2),
-                   CustomButtonContainer(
+                  CustomButtonContainer(
                     color: AppColors.black,
                     text: "Students",
                     ontap:
                         () => context.pushNamed(RouteConstants.studentListing),
                   ),
-                   SizedBox(height: Responsive.height * 2),
-                  // CustomButtonContainer(
-                  //   color: AppColors.black,
-                  //   text: "Homework",
-                  //   ontap: (){},
-                  // ),
+                  SizedBox(height: Responsive.height * 2),
+                  CustomButtonContainer(
+                    color: AppColors.black,
+                    text: "Homework",
+                    ontap: () => context.pushNamed(RouteConstants.homeworks),
+                  ),
                 ],
               ),
             ),

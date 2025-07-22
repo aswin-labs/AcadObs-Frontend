@@ -21,6 +21,8 @@ class RouteConstants {
   static const String editAttendance = 'editAttendance';
   static const String staffLeaveRequestHome = 'staffLeaveRequestHome';
   static const String staffLeaveRequestDetails = 'staffLeaveRequestDetails';
+  static const String homeworks = 'homeworks';
+  static const String homeworkDetails = 'homeworkDetails';
 
   //PARENT
   static const String noticedetails = 'noticedetails';

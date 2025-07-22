@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
@@ -8,7 +10,8 @@ import 'package:provider/provider.dart';
 class HomeworkServices {
   final int schoolId = 1;
   final int teacherId = 3;
-  // create homework
+
+  // Create Homework
   Future<Response> createHomework({
     required BuildContext context,
     required int classId,
@@ -17,30 +20,49 @@ class HomeworkServices {
     required String dueDate,
     required int subjectId,
     required String type,
+    required List<Map<String, dynamic>> studentIds,
   }) async {
     final fileUpload = context.read<FilePickerProvider>().getFile(
       'homeworkFile',
     );
     final fileUploadPath = fileUpload?.path;
     final formData = {
-      "school_id": schoolId,
-      "teacher_id": teacherId,
+      "school_id": 1,
+      "teacher_id": 4,
       "class_id": classId,
       "subject_id": subjectId,
       "description": description,
       "due_date": dueDate,
       "title": title,
       "type": type,
+      "assignments": studentIds,
       if (fileUploadPath != null)
-        "file": await MultipartFile.fromFile(
+        "homeworkFile": await MultipartFile.fromFile(
           fileUploadPath,
           filename: fileUploadPath.split('/').last,
         ),
     };
+    log(formData.toString());
     final response = await ApiServices.post(
       ApiEndpoints.homeworks,
       formData,
       isFormData: true,
+    );
+    return response;
+  }
+
+  // Get homeworks by teacher
+  Future<Response> fetchHomeworksByTeacher({required int pageNo}) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.homeworkByTeacher}?teacher_id=$teacherId&limit=10&page=$pageNo",
+    );
+    return response;
+  }
+
+  // fetch individual homework
+  Future<Response> fetchSingleHomework({required int homeworkId}) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.homeworks}/$homeworkId",
     );
     return response;
   }
