@@ -1,7 +1,9 @@
 import 'package:acadobs/features/parents/presentation/notices/widgets/notice_card.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/custom_button_container.dart';
 import 'package:acadobs/shared/widgets/profile_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -58,14 +60,70 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                //profile button
                 Positioned(
                   right: 16,
                   bottom: 16,
-                  child: CircleAvatar(
-                    radius: 24,
-                    backgroundImage: AssetImage("assets/school.jpg"),
+                  child: GestureDetector(
+                    onTap: 
+                      // print("profile clicked");
+                      () => context.pushNamed(
+                            RouteConstants.profileScreen,
+                      ),
+                   
+                    child: Container(
+                      height: 44,
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 4,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8),
+                            child: Text(
+                              "Profile",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          CircleAvatar(
+                            radius: 15,
+                            backgroundImage: AssetImage("assets/school.jpg"),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
+
+                // Positioned(
+                //   right: 16,
+                //   bottom: 16,
+                //   child: Container(
+                //     width: 60,
+                //     height: 20,
+                //     decoration: BoxDecoration(
+                //       borderRadius: BorderRadius.circular(20)
+                //     ),
+                //   ),
+                //   // child: CircleAvatar(
+                //   //   radius: 24,
+                //   //   backgroundImage: AssetImage("assets/school.jpg"),
+                //   // ),
+                // ),
               ],
             ),
 

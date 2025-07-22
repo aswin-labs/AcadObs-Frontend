@@ -25,10 +25,11 @@ class RouteConstants {
   //PARENT
   static const String noticedetails = 'noticedetails';
   static const String eventlistdetails = 'eventlistdetails';
-
+  static const String profileScreen = 'profilescreen';
 
   // STUDENTS
   static const String studentListing = 'studentListing';
   static const String studentDetails = 'studentDetails';
+ 
 
 }

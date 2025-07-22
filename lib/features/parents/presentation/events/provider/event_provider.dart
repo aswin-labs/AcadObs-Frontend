@@ -38,6 +38,11 @@ class EventProvider extends ChangeNotifier {
           return;
         }
         final fetched = List<Events>.from(data.map((e) => Events.fromJson(e)));
+        //added remove duplication
+        // Avoid adding duplicate events (based on unique id)
+final existingIds = _events.map((e) => e.id).toSet(); // assuming each event has a unique id
+final newEvents = fetched.where((e) => !existingIds.contains(e.id)).toList();
+
         fetched.sort(
           (a, b) => (b.createdAt ?? DateTime(0)).compareTo(
             a.createdAt ?? DateTime(0),
@@ -48,7 +53,9 @@ class EventProvider extends ChangeNotifier {
           _events = fetched;
           _currentPage = 1;
         } else {
-          _events.addAll(fetched);
+          // _events.addAll(fetched);
+          _events.addAll(newEvents);
+
           _currentPage = pageNo;
         }
         _hasMore = _currentPage < totalPages;
