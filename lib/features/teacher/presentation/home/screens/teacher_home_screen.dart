@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/features/parents/data/models/event_model.dart';
 import 'package:acadobs/features/parents/presentation/events/widgets/event_card.dart';
@@ -74,7 +73,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               SizedBox(height: 30),
               Row(
                 children: [
-                  CustomNameContainer(text: "Student", onPressed: () {}),
+                  CustomNameContainer(text: "Student", onPressed: () => context.pushNamed(RouteConstants.studentListing),),
                   SizedBox(width: 10),
                   CustomNameContainer(text: "Parent", onPressed: () {}),
                 ],
@@ -84,13 +83,13 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               CustomButtonContainer(
                 color: Color(0xFF22AE22),
                 text: "Home Work",
-                ontap: () {},
+                ontap: () => context.pushNamed(RouteConstants.homeworks),
               ),
               SizedBox(height: 10),
               CustomButtonContainer(
                 color: Color(0xFF010101),
                 text: "Attendence",
-                ontap: () {},
+                ontap: () => showAttendanceBottomSheet(context),
               ),
 
               SizedBox(height: 20),
@@ -212,9 +211,9 @@ class FabOptionsDialog extends StatelessWidget {
                   _OptionTile(
                     icon: Icons.note_alt_outlined,
                     label: 'Leave Requests',
-                    onTap: () {
-                      // Navigator.of(context).pop();
-                    },
+                    onTap: () () => context.pushNamed(
+                          RouteConstants.staffLeaveRequestHome,
+                        ),
                   ),
                   Divider(height: 0, color: Color(0xFFE6E6E6)),
                   _OptionTile(

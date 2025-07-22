@@ -5,7 +5,7 @@ import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_model.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/provider/attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/edit_attendance_widget.dart';
-import 'package:acadobs/features/teacher/presentation/subjects/provider/subject_provider.dart';
+import 'package:acadobs/shared/providers/subject_provider.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
