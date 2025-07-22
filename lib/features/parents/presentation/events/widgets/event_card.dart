@@ -81,7 +81,7 @@ class EventCard extends StatelessWidget {
                     children: [
                       // Title
                       Text(
-                        capitalizeEachWord(event.title ?? ''),
+                        capitalizeEachWord(event.title ?? 'Not Avaliable'),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -90,8 +90,9 @@ class EventCard extends StatelessWidget {
                       const SizedBox(height: 4),
 
                       // Description (optional/dummy)
-                      const Text(
-                        "National sports day will be conducted in our school.........",
+                       Text(
+                        // "National sports day will be conducted in our school.........",
+                        capitalizeEachWord(event.description ?? "No description found"),
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xFF757575),

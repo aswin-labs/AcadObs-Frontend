@@ -5,6 +5,7 @@ import 'package:acadobs/features/parents/data/models/notice_model.dart';
 import 'package:acadobs/features/parents/presentation/events/screens/event_detail_screen.dart';
 // import 'package:acadobs/features/parents/presentation/events/screens/event_detail_screen.dart';
 import 'package:acadobs/features/parents/presentation/notices/screens/notice_details_screen.dart';
+import 'package:acadobs/features/parents/presentation/notices/screens/profile_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,6 +24,13 @@ List<GoRoute> parentRoutes = [
   builder: (context, state){
     final Events eventdetail = state.extra as Events;
     return EventDetailScreen(events: eventdetail,);
+  }
+  ),
+
+  GoRoute(path: '/profilescreen',
+  name:  RouteConstants.profileScreen,
+  builder: (context,state){
+    return ProfileScreen();
   }
   )
 

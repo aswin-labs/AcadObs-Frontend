@@ -12,6 +12,7 @@ class Events {
     int? id;
     int? schoolId;
     String? title;
+    String? description;
     DateTime? date;
     String? file;
     
@@ -24,6 +25,7 @@ class Events {
         this.id,
         this.schoolId,
         this.title,
+        this.description,
         this.date,
         this.file,
         
@@ -37,6 +39,7 @@ class Events {
         id: json["id"],
         schoolId: json["school_id"],
         title: json["title"],
+        description: json['description'],
         date: json["date"] == null ? null : DateTime.parse(json["date"]),
         file: json["file"],
         // startDate: DateTime.parse(json['start_date']),
@@ -49,6 +52,7 @@ class Events {
         "id": id,
         "school_id": schoolId,
         "title": title,
+        "description":description,
         "date": "${date!.year.toString().padLeft(4, '0')}-${date!.month.toString().padLeft(2, '0')}-${date!.day.toString().padLeft(2, '0')}",
         "file": file,
     };
