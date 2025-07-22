@@ -1,10 +1,12 @@
 import 'dart:developer';
 
+import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final UserModel usermodel;
+  const ProfileScreen({super.key, required this.usermodel});
 
   @override
   Widget build(BuildContext context) {
@@ -18,14 +20,14 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 50,
-                  backgroundImage: AssetImage('assets/school.jpg'),
+                  backgroundImage: AssetImage("assets/school.jpg"), //dummy
                 ),
                 SizedBox(width: 20),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Arun Neelakandan",
+                      usermodel.name,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
@@ -33,7 +35,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      "arun@gmail.com",
+                      usermodel.email.toString(),
                       style: TextStyle(color: Colors.grey),
                     ),
                   ],
