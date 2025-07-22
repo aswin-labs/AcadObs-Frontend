@@ -1,3 +1,9 @@
+import 'package:acadobs/features/parents/data/models/event_model.dart';
+import 'package:acadobs/features/parents/data/models/notice_model.dart';
+import 'package:acadobs/features/parents/presentation/events/screens/event_detail_screen.dart';
+import 'package:acadobs/features/parents/presentation/events/screens/event_list_screen.dart';
+import 'package:acadobs/features/parents/presentation/notices/screens/notice_details_screen.dart';
+import 'package:acadobs/features/parents/presentation/notices/screens/notice_screen.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_model.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
@@ -78,6 +84,44 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       LeaveModel leave = state.extra as LeaveModel;
       return LeaveRequestDetailScreen(leave: leave);
+    },
+  ),
+
+  //notice
+  GoRoute(
+    path: '/noticedetails',
+    name: RouteConstants.noticedetails,
+    builder: (context, state) {
+      final Notices noticedetail = state.extra as Notices;
+      return NoticeDetailsScreen(notices: noticedetail);
+    },
+  ),
+
+  //noticedetails
+  GoRoute(
+    path: '/noticeListscreen',
+    name: RouteConstants.noticeListscreen,
+    builder: (context, state) {
+      // final Notices noticedetail = state.extra as Notices;
+      return NoticeScreen();
+    },
+  ),
+
+  //events
+  GoRoute(
+    path: '/eventdetails',
+    name: RouteConstants.eventlistdetails,
+    builder: (context, state) {
+      final Events eventdetail = state.extra as Events;
+      return EventDetailScreen(events: eventdetail);
+    },
+  ),
+
+  GoRoute(
+    path: '/eventListscreen',
+    name: RouteConstants.eventListscreen,
+    builder: (context, state) {
+      return EventListScreen();
     },
   ),
 ];

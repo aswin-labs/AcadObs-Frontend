@@ -26,7 +26,7 @@ class EventCard extends StatelessWidget {
             : 'N/A';
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 1),
+      padding: const EdgeInsets.symmetric(vertical: 1),
       child: GestureDetector(
         onTap: onViewTap,
         child: Container(
@@ -89,10 +89,10 @@ class EventCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
 
-                      // Description (optional/dummy)
-                       Text(
-                        // "National sports day will be conducted in our school.........",
-                        capitalizeEachWord(event.description ?? "No description found"),
+                      Text(
+                        capitalizeEachWord(
+                          event.description ?? "No description found",
+                        ),
                         style: TextStyle(
                           fontSize: 13,
                           color: Color(0xFF757575),
@@ -127,7 +127,6 @@ class EventCard extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            // formattedTime,
                             time,
                             style: const TextStyle(
                               fontSize: 12,

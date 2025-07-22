@@ -38,10 +38,14 @@ class EventProvider extends ChangeNotifier {
           return;
         }
         final fetched = List<Events>.from(data.map((e) => Events.fromJson(e)));
-        //added remove duplication
+
         // Avoid adding duplicate events (based on unique id)
-final existingIds = _events.map((e) => e.id).toSet(); // assuming each event has a unique id
-final newEvents = fetched.where((e) => !existingIds.contains(e.id)).toList();
+        final existingIds =
+            _events
+                .map((e) => e.id)
+                .toSet(); // assuming each event has a unique id
+        final newEvents =
+            fetched.where((e) => !existingIds.contains(e.id)).toList();
 
         fetched.sort(
           (a, b) => (b.createdAt ?? DateTime(0)).compareTo(
