@@ -2,6 +2,9 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/profile_container_shimmer.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/presentation/students/provider/student_provider.dart';
+import 'package:acadobs/features/teacher/presentation/students/widgets/student_acheivement_tab.dart';
+import 'package:acadobs/features/teacher/presentation/students/widgets/student_exam_detail_screen.dart';
+import 'package:acadobs/features/teacher/presentation/students/widgets/student_homework_page.dart';
 import 'package:acadobs/features/teacher/presentation/students/widgets/student_profile_tab.dart';
 import 'package:acadobs/shared/widgets/profile_container.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +30,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 1,
+      length: 4,
       child: Scaffold(
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -104,16 +107,24 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   // backgroundColor: Colors.grey.shade200,
                   bottom: PreferredSize(
                     preferredSize: const Size.fromHeight(0),
-                    child: TabBar(
-                      tabAlignment: TabAlignment.start,
-                      isScrollable: true,
-                      labelColor: Colors.black,
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor: Colors.black,
-                      labelPadding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: TabBar(
+                        tabAlignment: TabAlignment.start,
+                        isScrollable: true,
+                        labelColor: Colors.black,
+                        unselectedLabelColor: Colors.grey,
+                        indicatorColor: Colors.black,
+                        labelPadding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                        ),
+                        tabs: const [
+                          Tab(text: "Profile"),
+                          Tab(text: "Acheivement"),
+                          Tab(text: "Exam"),
+                          Tab(text: "Homework"),
+                        ],
                       ),
-                      tabs: const [Tab(text: "Profile")],
                     ),
                   ),
                 ),
@@ -132,6 +143,38 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       return SizedBox.shrink();
                     }
                     return StudentProfileTab(student: student);
+                  },
+                ),
+                //acheivment
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return StudentAcheivementTab();
+                  },
+                ),
+
+                //exam
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return StudentExamDetailScreen();
+                  },
+                ),
+
+                //homework
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return StudentHomeworkPage();
                   },
                 ),
               ],
