@@ -102,6 +102,8 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       HomeworkModel homework = state.extra as HomeworkModel;
       return HomeworkDetailsScreen(homework: homework);
+    },
+  ),
   //notice
   GoRoute(
     path: '/noticedetails',

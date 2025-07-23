@@ -3,6 +3,7 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/features/parents/data/models/event_model.dart';
 import 'package:acadobs/features/parents/presentation/events/widgets/event_card.dart';
 import 'package:acadobs/features/parents/presentation/notices/widgets/notice_card.dart';
+import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
@@ -211,7 +212,7 @@ class FabOptionsDialog extends StatelessWidget {
                   _OptionTile(
                     icon: Icons.note_alt_outlined,
                     label: 'Leave Requests',
-                    onTap: () () => context.pushNamed(
+                    onTap: ()  => context.pushNamed(
                           RouteConstants.staffLeaveRequestHome,
                         ),
                   ),
