@@ -4,9 +4,11 @@ import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
 import 'package:acadobs/features/teacher/presentation/homework/provider/homework_provider.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/item_detail_screen_container.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
@@ -90,7 +92,11 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                         ),
                         SizedBox(width: Responsive.width * 20),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            context.pushNamed(
+                              RouteConstants.homeworkRankingScreen,
+                            );
+                          },
                           child: Text(
                             'Mark Homework',
                             style: context.textTheme.bodyMedium!.copyWith(
