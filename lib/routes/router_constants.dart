@@ -32,6 +32,7 @@ class RouteConstants {
   static const String noticedetails = 'noticedetails';
   static const String eventlistdetails = 'eventlistdetails';
   static const String profileScreen = 'profilescreen';
+  static const String homeworkRankingScreen = 'homeworkRankingScreen';
 
   // STUDENTS
   static const String studentListing = 'studentListing';
