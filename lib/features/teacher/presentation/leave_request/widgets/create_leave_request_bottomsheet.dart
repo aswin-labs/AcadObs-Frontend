@@ -60,7 +60,11 @@ void showCreateLeaveRequesBottomSheet(BuildContext context) {
                     ).format(selectedDate);
                   },
                   firstDate: DateTime.now(),
-                  lastDate: DateTime(2100),
+                  lastDate: DateTime(
+                    DateTime.now().year,
+                    DateTime.now().month + 1,
+                    DateTime.now().day,
+                  ),
                   initialDate: DateTime.now(),
                   validator: (value) {
                     return FormValidator.validateNotEmpty(value);
@@ -76,7 +80,11 @@ void showCreateLeaveRequesBottomSheet(BuildContext context) {
                     ).format(selectedDate);
                   },
                   firstDate: DateTime.now(),
-                  lastDate: DateTime(2100),
+                  lastDate: DateTime(
+                    DateTime.now().year,
+                    DateTime.now().month + 1,
+                    DateTime.now().day,
+                  ),
                   initialDate: DateTime.now(),
                   validator: (value) {
                     return FormValidator.validateNotEmpty(value);

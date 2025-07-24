@@ -1,3 +1,4 @@
+import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
@@ -30,7 +31,7 @@ class AttendanceServices {
     required int pageNo,
   }) async {
     final response = await ApiServices.get(
-      '${ApiEndpoints.attendanceByTeacher}?teacher_id=$_teacherId&page=$pageNo&limit=10&date=$date',
+      '${ApiEndpoints.attendanceByTeacher}?teacher_id=$_teacherId&page=$pageNo&limit=${AppConstants.paginationLimit}&date=$date',
     );
     return response;
   }

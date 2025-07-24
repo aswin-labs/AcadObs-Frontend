@@ -1,6 +1,7 @@
 // A utility class that holds constant values
 class AppConstants {
   static const double defaultBorderRadius = 30;
+  static const int paginationLimit = 13;
 
   // ********Other Constants*******
   // classgrades
@@ -31,8 +32,14 @@ class AppConstants {
   ];
 
   // leave types
-  static List<String> leaveTypes = ["Sick", "Casual", "Emergency", "Vacation", "Other"];
+  static List<String> leaveTypes = [
+    "Sick",
+    "Casual",
+    "Emergency",
+    "Vacation",
+    "Other",
+  ];
 
   // homework types
-  static List<String> homeworkTypes = ["online","offline"];
+  static List<String> homeworkTypes = ["online", "offline"];
 }

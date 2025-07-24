@@ -1,3 +1,4 @@
+import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
@@ -44,7 +45,7 @@ class TeacherLeaveRequestServices {
   // Get teacher leave requests
   Future<Response> fetchAllLeaveRequests({required int pageNo}) async {
     final response = await ApiServices.get(
-      "${ApiEndpoints.staffLeaveRequest}?user_id=$userId&page=$pageNo&limit=10",
+      "${ApiEndpoints.staffLeaveRequest}?user_id=$userId&page=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return response;
   }
