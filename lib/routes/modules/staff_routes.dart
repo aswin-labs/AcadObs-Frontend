@@ -18,6 +18,7 @@ import 'package:acadobs/features/teacher/presentation/homework/screens/homework_
 import 'package:acadobs/features/teacher/presentation/homework/screens/homeworks_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/leave_request_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/teacher_leave_request_home_screen.dart';
+import 'package:acadobs/features/teacher/presentation/marks/screens/student_grade_card.dart';
 import 'package:acadobs/features/teacher/presentation/students/screens/student_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/students/screens/students_listing_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -106,14 +107,14 @@ List<GoRoute> staffRoutes = [
     },
   ),
 
-   GoRoute(path: '/homeworkRankingScreen',
-  name: RouteConstants.homeworkRankingScreen,
-  builder: (context, state) {
-    
-    return HomeworkRankingScreen();
-  },
+  GoRoute(
+    path: '/homeworkRankingScreen',
+    name: RouteConstants.homeworkRankingScreen,
+    builder: (context, state) {
+      return HomeworkRankingScreen();
+    },
   ),
-  
+
   //notice
   GoRoute(
     path: '/noticedetails',
@@ -149,6 +150,15 @@ List<GoRoute> staffRoutes = [
     name: RouteConstants.eventListscreen,
     builder: (context, state) {
       return EventListScreen();
+    },
+  ),
+
+  //grade card
+  GoRoute(
+    path: '/studentGradeCard',
+    name: RouteConstants.studentGradeCard,
+    builder: (context, state) {
+      return StudentGradeCard();
     },
   ),
 ];
