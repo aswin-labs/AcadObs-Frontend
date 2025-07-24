@@ -1,5 +1,5 @@
 import 'package:acadobs/features/parents/presentation/notices/screens/profile_screen.dart';
-import 'package:acadobs/features/teacher/presentation/homework/screens/homework_ranking_screen.dart';
+// import 'package:acadobs/features/teacher/presentation/homework/screens/homework_ranking_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 import 'package:go_router/go_router.dart';
