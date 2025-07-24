@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
@@ -27,8 +28,8 @@ class HomeworkServices {
     );
     final fileUploadPath = fileUpload?.path;
     final formData = {
-      "school_id": 1,
-      "teacher_id": 4,
+      "school_id": schoolId,
+      "teacher_id": teacherId,
       "class_id": classId,
       "subject_id": subjectId,
       "description": description,
@@ -37,7 +38,7 @@ class HomeworkServices {
       "type": type,
       "assignments": studentIds,
       if (fileUploadPath != null)
-        "homeworkFile": await MultipartFile.fromFile(
+        "file": await MultipartFile.fromFile(
           fileUploadPath,
           filename: fileUploadPath.split('/').last,
         ),
@@ -54,7 +55,7 @@ class HomeworkServices {
   // Get homeworks by teacher
   Future<Response> fetchHomeworksByTeacher({required int pageNo}) async {
     final response = await ApiServices.get(
-      "${ApiEndpoints.homeworkByTeacher}?teacher_id=$teacherId&limit=10&page=$pageNo",
+      "${ApiEndpoints.homeworkByTeacher}?teacher_id=$teacherId&limit=${AppConstants.paginationLimit}&page=$pageNo",
     );
     return response;
   }

@@ -1,12 +1,13 @@
 import 'dart:ui';
+
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/parents/data/models/event_model.dart';
 import 'package:acadobs/features/parents/presentation/events/widgets/event_card.dart';
 import 'package:acadobs/features/parents/presentation/notices/widgets/notice_card.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
-import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/custom_button_container.dart';
 import 'package:acadobs/shared/widgets/custom_name_container.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
@@ -25,9 +26,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "HomeScreen"),
       body: Padding(
-        padding: context.paddingHorizontal,
+        padding: context.paddingHorizontal.add(
+          EdgeInsets.only(top: Responsive.height * 5),
+        ),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -74,7 +76,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               SizedBox(height: 30),
               Row(
                 children: [
-                  CustomNameContainer(text: "Student", onPressed: () => context.pushNamed(RouteConstants.studentListing),),
+                  CustomNameContainer(
+                    text: "Student",
+                    onPressed:
+                        () => context.pushNamed(RouteConstants.studentListing),
+                  ),
                   SizedBox(width: 10),
                   CustomNameContainer(text: "Parent", onPressed: () {}),
                 ],
@@ -106,7 +112,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   Spacer(),
                   TextButton(
                     onPressed: () {
-                      // () => context.pushNamed(RouteConstants.staffLeaveRequestHome),
                       context.pushNamed(RouteConstants.noticeListscreen);
                     },
                     child: Text("View", style: TextStyle(color: Colors.black)),
@@ -212,7 +217,8 @@ class FabOptionsDialog extends StatelessWidget {
                   _OptionTile(
                     icon: Icons.note_alt_outlined,
                     label: 'Leave Requests',
-                    onTap: ()  => context.pushNamed(
+                    onTap:
+                        () => context.pushNamed(
                           RouteConstants.staffLeaveRequestHome,
                         ),
                   ),

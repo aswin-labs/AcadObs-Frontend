@@ -130,11 +130,7 @@ class _HomeworksHomeScreenState extends State<HomeworksHomeScreen> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(16),
         child: FloatingActionButton(
-          onPressed:
-              () => showCreateHomeworkBottomSheet(
-                context: context,
-                scaffoldContext: context,
-              ),
+          onPressed: () => showCreateHomeworkBottomSheet(context: context),
           child: Icon(LucideIcons.plus, weight: 1, color: Colors.grey),
         ),
       ),

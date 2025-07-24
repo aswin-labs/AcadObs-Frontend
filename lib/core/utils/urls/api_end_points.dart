@@ -11,14 +11,21 @@ class ApiEndpoints {
   static const String studentsByClassId = "/schooladmin/getStudentsByClassId";
 
   // STAFF
+  // duties
   static const String staffDuties = "/staff/duties";
   static const String updateDutyStatus = "/staff/updateAssignedDuty";
+
+  // attendance
   static const String attendance = "/staff/attendance";
   static const String attendanceByTeacher = "/staff/getAttendanceByTeacher";
   static const String attendanceByClassIdAndDate =
       "/staff/getAttendanceByclassIdAndDate";
   static const String editBulkAttendance = "/staff/bulkUpdateAttendanceById";
+
+  // leave request
   static const String staffLeaveRequest = "/staff/leaveRequest";
+
+  // homeworks
   static const String homeworks = "/staff/homeworks";
   static const String homeworkByTeacher = "/staff/getHomeworkByTeacher";
 
@@ -27,4 +34,9 @@ class ApiEndpoints {
 
   //events
   static const String fetchEvents = "/schooladmin/events";
+
+  // marks
+  static const String marks = "/staff/internalmarks";
+  static const String marksAddedByTeacher =
+      "/staff/getInternalMarkByRecordedBy";
 }

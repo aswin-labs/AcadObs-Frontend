@@ -7,6 +7,7 @@ import 'package:acadobs/features/teacher/presentation/attendance/provider/attend
 import 'package:acadobs/features/teacher/presentation/duties/provider/duty_provider.dart';
 import 'package:acadobs/features/teacher/presentation/homework/provider/homework_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
+import 'package:acadobs/features/teacher/presentation/marks/provider/marks_provider.dart';
 import 'package:acadobs/features/teacher/presentation/students/provider/student_provider.dart';
 import 'package:acadobs/shared/providers/subject_provider.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
@@ -36,8 +37,8 @@ getProviders() {
     ChangeNotifierProvider(create: (_) => TeacherLeaveRequestProvider()),
     ChangeNotifierProvider(create: (_) => HomeworkProvider()),
     ChangeNotifierProvider(create: (_) => SubjectProvider()),
-    ChangeNotifierProvider(create: (_) => StudentProvider()),
     ChangeNotifierProvider(create: (_) => TeacherLeaveRequestProvider()),
+    ChangeNotifierProvider(create: (_) => MarksProvider()),
 
     //**************NOTICES****************//
     ChangeNotifierProvider(create: (_) => NoticeProvider()),

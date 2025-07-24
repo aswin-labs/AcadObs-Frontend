@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
 import 'package:acadobs/features/teacher/data/services/homework_services.dart';
@@ -78,7 +79,6 @@ class HomeworkProvider extends ChangeNotifier {
   // Create homework
   Future<void> createHomework({
     required BuildContext context,
-    required BuildContext scaffoldContext,
     required int classId,
     required String title,
     required String description,
@@ -93,12 +93,7 @@ class HomeworkProvider extends ChangeNotifier {
 
       // Add validation here
       if (selectedIds.isEmpty) {
-        CustomSnackbar.show(
-          scaffoldContext,
-          message: "Please select at least one student",
-          type: SnackbarType.failure,
-        );
-        _isLoadingTwo = false;
+        CustomErrorDialog.show(context, "Please select at least one student");
         notifyListeners();
         return;
       }
@@ -118,6 +113,7 @@ class HomeworkProvider extends ChangeNotifier {
       );
 
       if (response.statusCode == 201) {
+        await fetchHomeworks(forceRefresh: true);
         if (!context.mounted) return;
         Navigator.pop(context);
         CustomSnackbar.show(
@@ -128,12 +124,9 @@ class HomeworkProvider extends ChangeNotifier {
       }
       if (response.statusCode == 200) {
         if (!context.mounted) return;
-        Navigator.pop(context);
-        CustomSnackbar.show(
-          context,
-          message: response.data["message"],
-          type: SnackbarType.info,
-        );
+        CustomErrorDialog.show(context, response.data["message"]);
+        _isLoadingTwo = false;
+        notifyListeners();
       }
     } catch (e) {
       log(e.toString());
