@@ -28,7 +28,6 @@ class HomeworkServices {
     );
     final fileUploadPath = fileUpload?.path;
     final formData = {
-      "school_id": schoolId,
       "teacher_id": teacherId,
       "class_id": classId,
       "subject_id": subjectId,

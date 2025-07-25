@@ -12,4 +12,27 @@ class MarksServices {
     );
     return response;
   }
+
+  // add student marks
+  Future<Response> addStudentMarks({
+    required int classId,
+    required String title,
+    required String description,
+    required String date,
+    required int subjectId,
+    required int totalMarks,
+    required String type,
+    required List<Map<String, dynamic>> studentMarks,
+  }) async {
+    final response = await ApiServices.post(ApiEndpoints.marks, {
+      "class_id": classId,
+      "subject_id": subjectId,
+      "internal_name": title,
+      "max_marks": totalMarks,
+      "date": date,
+      "recorded_by": teacherId,
+      "marks": studentMarks,
+    });
+    return response;
+  }
 }
