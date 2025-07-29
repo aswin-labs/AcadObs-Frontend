@@ -9,15 +9,15 @@ import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/item_detail_screen_container.dart';
 import 'package:flutter/material.dart';
 
-class LeaveRequestDetailScreen extends StatelessWidget {
+class StudentLeaveRequestDetailsScreen extends StatelessWidget {
   final LeaveModel leave;
-  const LeaveRequestDetailScreen({super.key, required this.leave});
+  const StudentLeaveRequestDetailsScreen({super.key, required this.leave});
 
   @override
   Widget build(BuildContext context) {
     final leaveStatusStyle = getLeaveStatusStyle(leave.status ?? "");
     return Scaffold(
-      appBar: CommonAppBar(title: "My Leave Requests", isBackButton: true),
+      appBar: CommonAppBar(title: "Leave Request", isBackButton: true),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(

@@ -1,4 +1,5 @@
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
+import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/features/parents/data/models/notice_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 
@@ -39,9 +40,15 @@ class NoticeDetailsScreen extends StatelessWidget {
             SizedBox(height: 20),
             Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                capitalizeEachWord(notices.title.toString()),
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              child: Row(
+                children: [
+                  Text(
+                    capitalizeEachWord(notices.title.toString()),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                  Spacer(),
+                  Text(DateFormatter.formatDateString(notices.date)),
+                ],
               ),
             ),
             SizedBox(height: 8),

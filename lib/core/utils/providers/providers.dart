@@ -1,3 +1,4 @@
+import 'package:acadobs/features/parents/data/services/leave_request_student_provider.dart';
 import 'package:acadobs/features/parents/presentation/events/provider/event_provider.dart';
 import 'package:acadobs/features/parents/presentation/notices/provider/notice_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/provider/school_classes_provider.dart';
@@ -45,5 +46,8 @@ getProviders() {
 
     //**************EVENTS****************//
     ChangeNotifierProvider(create: (_) => EventProvider()),
+
+    //**************EVENTS****************//
+    ChangeNotifierProvider(create: (_) => StudentLeaveRequestProvider()),
   ];
 }

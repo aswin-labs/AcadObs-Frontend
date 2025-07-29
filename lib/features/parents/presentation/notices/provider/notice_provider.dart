@@ -13,6 +13,46 @@ class NoticeProvider extends ChangeNotifier {
   bool _hasMore = true;
 
   List<Notices> get notices => _notices;
+  //distinguishing today event
+  List<Notices> get todayEvents =>
+      _notices.where((e) {
+          // if (e.createdAt == null) return false;
+          final now = DateTime.now();
+          return now.year == e.createdAt.year &&
+              now.month == e.createdAt.month &&
+              now.day == e.createdAt.day;
+        }).toList()
+        ..sort((a, b) => (b.createdAt).compareTo(a.createdAt));
+
+  //distinguishing yesterday event
+  List<Notices> get yesterdayEvents =>
+      _notices.where((e) {
+          // if (e.createdAt == null) return false;
+          final now = DateTime.now();
+          final yesterday = now.subtract(Duration(days: 1));
+          return yesterday.year == e.createdAt.year &&
+              yesterday.month == e.createdAt.month &&
+              yesterday.day == e.createdAt.day;
+        }).toList()
+        ..sort((a, b) => (b.createdAt).compareTo(a.createdAt));
+
+  //distinguishing earlier event
+  List<Notices> get earlierEvents {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    return _notices.where((e) {
+        final created = DateTime(
+          e.createdAt.year,
+          e.createdAt.month,
+          e.createdAt.day,
+        );
+        return created.isBefore(yesterday);
+      }).toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  }
+
   bool get isLoading => _isLoading;
   String? get error => _error;
   int get currentPage => _currentPage;
@@ -48,7 +88,7 @@ class NoticeProvider extends ChangeNotifier {
           _notices = fetched;
           _currentPage = 1;
         } else {
-          // _notices.addAll(fetched);
+          // _notices.addAll(fetched); updated for the duplication
           final existingIds = _notices.map((e) => e.noticeId).toSet();
           final newNotices =
               fetched.where((e) => !existingIds.contains(e.noticeId)).toList();
