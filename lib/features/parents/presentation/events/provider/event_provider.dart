@@ -12,6 +12,54 @@ class EventProvider extends ChangeNotifier {
   bool _hasMore = true;
 
   List<Events> get events => _events;
+  //distinguishing today event
+  List<Events> get todayEvents =>
+      _events.where((e) {
+          if (e.createdAt == null) return false;
+          final now = DateTime.now();
+          return now.year == e.createdAt!.year &&
+              now.month == e.createdAt!.month &&
+              now.day == e.createdAt!.day;
+        }).toList()
+        ..sort(
+          (a, b) => (b.createdAt ?? DateTime(0)).compareTo(
+            a.createdAt ?? DateTime(0),
+          ),
+        );
+
+  //distinguishing yesterday event
+  List<Events> get yesterdayEvents =>
+      _events.where((e) {
+          if (e.createdAt == null) return false;
+          final now = DateTime.now();
+          final yesterday = now.subtract(Duration(days: 1));
+          return yesterday.year == e.createdAt!.year &&
+              yesterday.month == e.createdAt!.month &&
+              yesterday.day == e.createdAt!.day;
+        }).toList()
+        ..sort(
+          (a, b) => (b.createdAt ?? DateTime(0)).compareTo(
+            a.createdAt ?? DateTime(0),
+          ),
+        );
+
+  //earlier events
+  List<Events> get earlierEvents =>
+      _events.where((e) {
+          if (e.createdAt == null) return false;
+          final now = DateTime.now();
+          // final yesterday = now.subtract(Duration(days: 1));
+          final todayMidnight = DateTime(now.year, now.month, now.day);
+          return e.createdAt!.isBefore(
+            todayMidnight.subtract(const Duration(days: 1)),
+          );
+        }).toList()
+        ..sort(
+          (a, b) => (b.createdAt ?? DateTime(0)).compareTo(
+            a.createdAt ?? DateTime(0),
+          ),
+        );
+
   bool get isLoading => _isLoading;
   String? get error => _error;
   int get currentPage => _currentPage;

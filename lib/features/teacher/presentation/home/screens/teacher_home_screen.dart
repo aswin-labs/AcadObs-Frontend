@@ -8,12 +8,12 @@ import 'package:acadobs/features/parents/presentation/notices/widgets/notice_car
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
+import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/custom_button_container.dart';
 import 'package:acadobs/shared/widgets/custom_name_container.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
@@ -162,14 +162,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.black,
-        shape: CircleBorder(),
-        child: Icon(LucideIcons.plus, color: Colors.grey),
+      floatingActionButton: CommonFloatingButton(
         onPressed:
             () => showDialog(
               context: context,
-              builder: (context) => const FabOptionsDialog(),
+              builder: (context) => FabOptionsDialog(),
             ),
       ),
     );

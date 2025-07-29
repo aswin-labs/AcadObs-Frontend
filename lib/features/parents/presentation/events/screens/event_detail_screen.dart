@@ -18,9 +18,16 @@ class EventDetailScreen extends StatelessWidget {
         events.date != null
             ? DateFormat('dd - MM - yy').format(events.date!)
             : 'N/A';
-    // final String formattedTime = events.date != null
-    //     ? DateFormat('hh:mm a').format(events.date!)
-    //     : 'N/A';
+
+    final String formattedCreatedTime = DateFormat(
+      'hh:mm a',
+    ).format(events.createdAt!.toLocal());
+
+    final bool isYesterday =
+        events.createdAt != null &&
+        DateTime.now().difference(events.createdAt!).inDays == 1 &&
+        DateTime.now().day != events.createdAt!.day;
+
     return Scaffold(
       appBar: CommonAppBar(
         title: capitalizeEachWord(events.title.toString()),
@@ -38,8 +45,8 @@ class EventDetailScreen extends StatelessWidget {
                 color: Color(0xFFFFDFCE),
                 borderRadius: BorderRadius.circular(16),
               ),
+
               //need to place the image
-              // child: Icon(Icons.event,size: 85,),
               child: Container(
                 width: double.infinity,
                 height: 226,
@@ -74,7 +81,6 @@ class EventDetailScreen extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                // "event",
                 capitalizeEachWord(events.title.toString()),
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
@@ -84,31 +90,44 @@ class EventDetailScreen extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                // "There is an event based on the notification that you have received",
-                capitalizeEachWord(events.description ?? "No description found"),
+                capitalizeEachWord(
+                  events.description ?? "No description found",
+                ),
                 style: TextStyle(color: const Color(0xFF949494)),
               ),
             ),
             SizedBox(height: 10),
 
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Color(0xFFFFDFCE),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: Text(
-                    formattedDate,
-                    style: TextStyle(
-                      color: Color(0xFFC56F41),
-                      fontWeight: FontWeight.bold,
+            Row(
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFFFFDFCE),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(6.0),
+                      child: Text(
+                        formattedDate,
+                        style: TextStyle(
+                          color: Color(0xFFC56F41),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
+                Spacer(),
+
+                Text(
+                  isYesterday
+                      ? 'Created: Yesterday at $formattedCreatedTime'
+                      : formattedCreatedTime,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+              ],
             ),
           ],
         ),

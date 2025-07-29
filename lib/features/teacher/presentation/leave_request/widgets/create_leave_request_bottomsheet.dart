@@ -3,6 +3,7 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/parents/data/services/leave_request_student_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
@@ -16,7 +17,10 @@ import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
-void showCreateLeaveRequesBottomSheet(BuildContext context) {
+void showCreateLeaveRequesBottomSheet(
+  BuildContext context, {
+  bool fromTeacherScreen = true,
+}) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final TextEditingController fromDateController = TextEditingController();
@@ -45,7 +49,7 @@ void showCreateLeaveRequesBottomSheet(BuildContext context) {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Add Leave Request",
+                  fromTeacherScreen ? "Teacher Leave" : "Student Leave",
                   style: context.textTheme.titleLarge!.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -117,32 +121,59 @@ void showCreateLeaveRequesBottomSheet(BuildContext context) {
                   fieldName: "attachment",
                 ),
                 SizedBox(height: Responsive.height * 4),
-                Consumer<TeacherLeaveRequestProvider>(
-                  builder: (context, provider, _) {
-                    return CommonButton(
-                      onPressed: () {
-                        final leaveType = context
-                            .read<DropdownProvider>()
-                            .getSelectedItem('leavetype');
-                        if (formKey.currentState?.validate() ?? false) {
-                          context
-                              .read<TeacherLeaveRequestProvider>()
-                              .createLeaveRequest(
-                                context: context,
-                                fromDate: fromDateController.text,
-                                toDate: toDateController.text,
-                                leaveType: leaveType,
-                                reason: reasonController.text,
-                              );
-                        }
+                fromTeacherScreen
+                    ? Consumer<TeacherLeaveRequestProvider>(
+                      builder: (context, provider, _) {
+                        return CommonButton(
+                          onPressed: () {
+                            final leaveType = context
+                                .read<DropdownProvider>()
+                                .getSelectedItem('leavetype');
+                            if (formKey.currentState?.validate() ?? false) {
+                              context
+                                  .read<TeacherLeaveRequestProvider>()
+                                  .createLeaveRequest(
+                                    context: context,
+                                    fromDate: fromDateController.text,
+                                    toDate: toDateController.text,
+                                    leaveType: leaveType,
+                                    reason: reasonController.text,
+                                  );
+                            }
+                          },
+                          widget:
+                              provider.isLoadingTwo
+                                  ? ButtonLoading()
+                                  : const Text('Submit'),
+                        );
                       },
-                      widget:
-                          provider.isLoadingTwo
-                              ? ButtonLoading()
-                              : const Text('Submit'),
-                    );
-                  },
-                ),
+                    )
+                    : Consumer<StudentLeaveRequestProvider>(
+                      builder: (context, provider, _) {
+                        return CommonButton(
+                          onPressed: () {
+                            final leaveType = context
+                                .read<DropdownProvider>()
+                                .getSelectedItem('leavetype');
+
+                            context
+                                .read<StudentLeaveRequestProvider>()
+                                .createStudentLeaveRequest(
+                                  context: context,
+                                  fromDate: fromDateController.text,
+                                  toDate: toDateController.text,
+                                  leaveType: leaveType,
+                                  reason: reasonController.text,
+                                );
+                          },
+
+                          widget:
+                              provider.isLoadingTwo
+                                  ? ButtonLoading()
+                                  : Text('Submit'),
+                        );
+                      },
+                    ),
               ],
             ),
           ),

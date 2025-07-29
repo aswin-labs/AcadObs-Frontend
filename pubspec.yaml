@@ -51,6 +51,7 @@ dependencies:
   open_file: ^3.5.10
   permission_handler: ^12.0.1
   http: ^1.4.0
+  connectivity_plus: ^6.1.4
 
 
 dev_dependencies:
