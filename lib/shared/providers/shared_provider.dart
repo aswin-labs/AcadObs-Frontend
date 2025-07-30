@@ -18,13 +18,6 @@ class SharedProvider extends ChangeNotifier {
   final List<StudentModel> _students = [];
   List<StudentModel> get students => _students;
 
-  int _currentPage = 1;
-  int _totalPages = 1;
-
-  bool get hasMore => _currentPage < _totalPages;
-
-  bool _isFetchedOnce = false;
-
   Set<int> _selectedStudentIds = {};
   bool get isAllSelected =>
       _students.isNotEmpty && _selectedStudentIds.length == _students.length;
@@ -86,45 +79,22 @@ class SharedProvider extends ChangeNotifier {
   }
 
   // fetch students by class id
-  Future<void> fetchStudentsByClassId({
-    required int classId,
-    bool loadMore = false,
-    bool forceRefresh = false,
-  }) async {
-    if (_isLoading) return;
-
-    // If not loading more, check if already fetched once.
-    if (!loadMore && !forceRefresh && _isFetchedOnce) return;
-
+  Future<void> fetchStudentsByClassId({required int classId}) async {
     _isLoading = true;
-
+    _students.clear();
     try {
-      if (loadMore) {
-        _currentPage++;
-      } else {
-        _currentPage = 1;
-        _students.clear();
-        _isFetchedOnce = false;
-      }
       final response = await StudentServices().fetchStudentsByClassId(
         classId: classId,
-        pageNo: _currentPage,
       );
       if (response.statusCode == 200) {
         final data = response.data;
-
-        _totalPages = data['totalPages'];
-        _currentPage = data['currentPage'];
-
         final List studentsJson = data['students'];
-
         final List<StudentModel> fetchedStudents =
             studentsJson
                 .map((jsonItem) => StudentModel.fromJson(jsonItem))
                 .toList();
 
         _students.addAll(fetchedStudents);
-        _isFetchedOnce = true;
       } else {
         throw Exception('Failed to fetch staff duties: ${response.statusCode}');
       }
