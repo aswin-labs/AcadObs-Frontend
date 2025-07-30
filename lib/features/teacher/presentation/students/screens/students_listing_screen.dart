@@ -25,8 +25,8 @@ class StudentsListingScreen extends StatefulWidget {
 class _StudentsListingScreenState extends State<StudentsListingScreen> {
   int? classId;
   String? className;
-  final ScrollController _scrollController = ScrollController();
   late DropdownProvider dropdownProvider;
+  late StudentProvider studentProvider;
 
   @override
   void initState() {
@@ -37,23 +37,6 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
       context.read<StudentProvider>().clearStudents();
     });
     super.initState();
-    _scrollController.addListener(_scrollListener);
-  }
-
-  void _scrollListener() {
-    final provider = context.read<StudentProvider>();
-    if (_scrollController.position.pixels >=
-            _scrollController.position.maxScrollExtent - 200 &&
-        !provider.isLoading &&
-        provider.hasMore) {
-      provider.fetchStudentsByClassId(classId: classId ?? 0, loadMore: true);
-    }
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
   }
 
   @override
@@ -133,7 +116,6 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                                       .read<StudentProvider>()
                                       .fetchStudentsByClassId(
                                         classId: classId ?? 1,
-                                        forceRefresh: true,
                                       );
                                 },
                               ),
@@ -157,7 +139,6 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                       return Column(
                         children: [
                           ListView.builder(
-                            controller: _scrollController,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemCount: provider.students.length,
@@ -175,11 +156,6 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                               );
                             },
                           ),
-                          if (provider.isLoading && provider.hasMore)
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Center(child: CircularProgressIndicator()),
-                            ),
                         ],
                       );
                     },

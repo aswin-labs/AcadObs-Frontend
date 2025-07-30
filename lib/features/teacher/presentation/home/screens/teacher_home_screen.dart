@@ -217,10 +217,10 @@ class FabOptionsDialog extends StatelessWidget {
                   _OptionTile(
                     icon: Icons.note_alt_outlined,
                     label: 'Leave Requests',
-                    onTap:
-                        () => context.pushNamed(
-                          RouteConstants.staffLeaveRequestHome,
-                        ),
+                    onTap: () {
+                      context.pushNamed(RouteConstants.staffLeaveRequestHome);
+                      Navigator.pop(context);
+                    },
                   ),
                   Divider(height: 0, color: Color(0xFFE6E6E6)),
                   _OptionTile(

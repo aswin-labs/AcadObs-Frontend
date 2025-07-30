@@ -49,7 +49,7 @@ class _MarksHomeScreenState extends State<MarksHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Homeworks", isBackButton: true),
+      appBar: CommonAppBar(title: "Marks"),
       body: RefreshIndicator(
         onRefresh: () async {
           await context.read<MarksProvider>().fetchAddedMarks(

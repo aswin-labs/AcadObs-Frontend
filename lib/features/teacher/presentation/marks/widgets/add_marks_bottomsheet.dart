@@ -3,7 +3,9 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/teacher/data/models/marks/marks_upload_model.dart';
 import 'package:acadobs/features/teacher/presentation/homework/provider/homework_provider.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
 import 'package:acadobs/shared/providers/subject_provider.dart';
@@ -13,6 +15,7 @@ import 'package:acadobs/shared/widgets/custom_dropdown.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:acadobs/shared/widgets/subject_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
@@ -167,12 +170,21 @@ void showAddMarksBottomSheet({required BuildContext context}) {
                     final classId = context.watch<SharedProvider>().classId;
                     final subject =
                         context.watch<SubjectProvider>().selectedSubject;
+                     
                     return CommonButton(
                       onPressed: () {
-                        if (formKey.currentState?.validate() ?? false) {
-                          print(classId);
-                          print(subject);
-                        }
+                           final className = context.read<DropdownProvider>().getSelectedItem('className');
+                        context.pushNamed(
+                          RouteConstants.studentGradeCard,
+                          extra: MarksUploadModel(
+                            classId: classId ?? 0,
+                            className: className,
+                            subjectId: subject?.id ?? 0,
+                            title: titleController.text,
+                            totalMarks: int.parse(totalMarksController.text),
+                            date: dateController.text,
+                          ),
+                        );
                       },
                       widget:
                           provider.isLoadingTwo

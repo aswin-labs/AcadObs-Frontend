@@ -54,7 +54,7 @@ class StudentModel {
     schoolId: json["school_id"],
     guardianId: json["guardian_id"],
     regNo: json["reg_no"],
-    rollNumber: json["roll_number"],
+    rollNumber: json["roll_number"] ?? 0,
     fullName: json["full_name"],
     dateOfBirth:
         json["date_of_birth"] == null
