@@ -154,4 +154,83 @@ class HomeworkProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  //edit homeworks
+  Future<void> edithomeWork({
+    required BuildContext context,
+    required int subjectId,
+    required String title,
+    required String description,
+    required String duedate,
+    required int homeworkId,
+  }) async {
+    _isLoadingTwo = true;
+    notifyListeners();
+    try {
+      final response = await HomeworkServices().editHomeWork(
+        homeworkId: homeworkId,
+        subjectId: subjectId,
+        title: title,
+        description: description,
+        duedate: duedate,
+      );
+
+      if (response.statusCode == 200) {
+        await fetchHomeworks(forceRefresh: true);
+        if (!context.mounted) return;
+        Navigator.pop(context);
+        Navigator.pop(context);
+        final updatedData = response.data['homework'];
+        singleHomework?.subjectId = updatedData['subject_id'];
+        singleHomework?.title = updatedData['title'];
+        singleHomework?.description = updatedData['description'];
+        singleHomework?.dueDate = DateTime.parse(updatedData['due_date']);
+
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: 'Homework details saved',
+          type: SnackbarType.success,
+        );
+      } else if (response.statusCode == 400) {
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: '${response.data["error"]}. cant update',
+          type: SnackbarType.failure,
+        );
+      }
+    } catch (e) {
+      log('error: ${e.toString()}');
+    } finally {
+      _isLoadingTwo = false;
+      notifyListeners();
+    }
+  }
+
+  //delete homework
+  Future<void> deleteHomeWork(context) async {
+    try {
+      final response = await HomeworkServices().deleteHomeWork(
+        homeworkId: singleHomework?.id ?? 0,
+      );
+
+      if (response.statusCode == 200) {
+        _homeworks.removeWhere((hw) => hw.id == singleHomework?.id);
+        singleHomework = null;
+        notifyListeners();
+        CustomSnackbar.show(
+          context,
+          message: "Homework deleted",
+          type: SnackbarType.success,
+        );
+        Navigator.pop(context);
+      } else {
+        log('Failed to delete homework: ${response.statusCode}');
+      }
+    } catch (e) {
+      log('error in the deleting the homework $e');
+      CustomErrorDialog.show(context, "error in deleting homework");
+    }
+  }
 }

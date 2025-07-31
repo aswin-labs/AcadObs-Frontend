@@ -1,7 +1,9 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/custom_popup_menu.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
 import 'package:acadobs/features/teacher/presentation/homework/provider/homework_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -32,7 +34,34 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Homework", isBackButton: true),
+      appBar: CommonAppBar(
+        title: "Homework",
+        isBackButton: true,
+        actions: [
+          Consumer<HomeworkProvider>(
+            builder: (context, provider, _) {
+              return CustomPopupMenu(
+                onEdit: () {
+                  context.pushNamed(
+                    RouteConstants.editHomeWork,
+                    extra: widget.homework,
+                  );
+                },
+                onDelete: () {
+                  showConfirmationDialog(
+                    context: context,
+                    title: 'Delete Homework',
+                    content: 'Are you want to delete the homework',
+                    onConfirm: () {
+                      provider.deleteHomeWork(context);
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
