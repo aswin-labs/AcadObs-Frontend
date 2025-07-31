@@ -14,6 +14,7 @@ import 'package:acadobs/features/teacher/presentation/attendance/screens/attenda
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_taking_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
+import 'package:acadobs/features/teacher/presentation/homework/screens/edit_home_work_screen.dart';
 import 'package:acadobs/features/teacher/presentation/homework/screens/homework_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/homework/screens/homework_ranking_screen.dart';
 import 'package:acadobs/features/teacher/presentation/homework/screens/homeworks_home_screen.dart';
@@ -105,6 +106,14 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       HomeworkModel homework = state.extra as HomeworkModel;
       return HomeworkDetailsScreen(homework: homework);
+    },
+  ),
+  GoRoute(
+    path: '/edithomework',
+    name: RouteConstants.editHomeWork,
+    builder: (context, state) {
+      HomeworkModel homework = state.extra as HomeworkModel;
+      return EditHomeWorkScreen(homework: homework);
     },
   ),
 

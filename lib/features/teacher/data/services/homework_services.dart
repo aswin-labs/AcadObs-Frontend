@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
+// import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:provider/provider.dart';
 class HomeworkServices {
   final int schoolId = 1;
   final int teacherId = 3;
+  // final HomeworkModel homeworkmodel;
 
   // Create Homework
   Future<Response> createHomework({
@@ -62,6 +64,33 @@ class HomeworkServices {
   // fetch individual homework
   Future<Response> fetchSingleHomework({required int homeworkId}) async {
     final response = await ApiServices.get(
+      "${ApiEndpoints.homeworks}/$homeworkId",
+    );
+    return response;
+  }
+
+  //edit homework
+  Future<Response> editHomeWork({
+    required int homeworkId,
+    required int subjectId,
+    required String title,
+    required String description,
+    required String duedate,
+  }) async {
+    final response =
+        await ApiServices.put("${ApiEndpoints.homeworks}/$homeworkId", {
+          "subject_id": subjectId,
+          "title": title.trim(),
+          "description": description.trim(),
+          "due_date": duedate,
+        }, isFormData: true);
+
+    return response;
+  }
+
+  //delete homeworks
+  Future<Response> deleteHomeWork({required int homeworkId}) async {
+    final response = await ApiServices.delete(
       "${ApiEndpoints.homeworks}/$homeworkId",
     );
     return response;
