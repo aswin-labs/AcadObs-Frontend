@@ -142,6 +142,7 @@ void showAddMarksBottomSheet({required BuildContext context}) {
                 CustomTextfield(
                   iconData: Icon(Icons.calculate_outlined),
                   controller: totalMarksController,
+                  keyBoardtype: TextInputType.number,
                   hintText: 'Total Marks*',
                   validator: (value) {
                     return FormValidator.validateNotEmpty(value);
@@ -170,10 +171,12 @@ void showAddMarksBottomSheet({required BuildContext context}) {
                     final classId = context.watch<SharedProvider>().classId;
                     final subject =
                         context.watch<SubjectProvider>().selectedSubject;
-                     
+
                     return CommonButton(
                       onPressed: () {
-                           final className = context.read<DropdownProvider>().getSelectedItem('className');
+                        final className = context
+                            .read<DropdownProvider>()
+                            .getSelectedItem('className');
                         context.pushNamed(
                           RouteConstants.studentGradeCard,
                           extra: MarksUploadModel(
@@ -185,6 +188,7 @@ void showAddMarksBottomSheet({required BuildContext context}) {
                             date: dateController.text,
                           ),
                         );
+                        Navigator.pop(context);
                       },
                       widget:
                           provider.isLoadingTwo
