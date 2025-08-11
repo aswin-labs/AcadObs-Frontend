@@ -1,5 +1,6 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
+import 'package:acadobs/core/utils/storage_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:dio/dio.dart';
@@ -7,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class DutyServices {
-  final int _staffId = 3; //to be changed
+  final int _staffId = StorageServices.getUserId; // to be changed
+  
   // Fetch Staff Duties
   Future<Response> fetchStaffDuties({required int pageNo}) async {
     final response = await ApiServices.get(

@@ -5,12 +5,11 @@ class ApiEndpoints {
   static const String classes = "/superadmin/classes";
   static const String subjects = "/superadmin/subjects";
 
-  // SCHOOL ADMIN
-  static const String classesByYear = "/schooladmin/getClassesByYear";
-  static const String students = "/schooladmin/students";
-  static const String studentsByClassId = "/schooladmin/getStudentsByClassId";
-
   // STAFF
+
+  static const String classesByYear = "/staff/getClassesByYear";
+  static const String students = "/staff/students";
+  static const String studentsByClassId = "/staff/getStudentsByClassId";
   // duties
   static const String staffDuties = "/staff/duties";
   static const String updateDutyStatus = "/staff/updateAssignedDuty";
@@ -44,4 +43,5 @@ class ApiEndpoints {
   static const String marks = "/staff/internalmarks";
   static const String marksAddedByTeacher =
       "/staff/getInternalMarkByRecordedBy";
+  static const String marksBulkUpdate = "/staff/bulkUpdateMarks";
 }

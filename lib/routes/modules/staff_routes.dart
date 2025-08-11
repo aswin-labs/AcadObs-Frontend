@@ -8,6 +8,7 @@ import 'package:acadobs/features/teacher/data/models/attendance/attendance_model
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
 import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
+import 'package:acadobs/features/teacher/data/models/marks/marks_model.dart';
 import 'package:acadobs/features/teacher/data/models/marks/marks_upload_model.dart';
 import 'package:acadobs/features/teacher/data/models/news_model.dart';
 // import 'package:acadobs/features/teacher/data/models/news/new_model.dart';
@@ -25,6 +26,8 @@ import 'package:acadobs/features/teacher/presentation/homework/screens/homeworks
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/leave_request_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/teacher_leave_request_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/marks/screens/add_student_marks_screen.dart';
+import 'package:acadobs/features/teacher/presentation/marks/screens/edit_marks_screen.dart';
+import 'package:acadobs/features/teacher/presentation/marks/screens/marks_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/students/screens/student_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/students/screens/students_listing_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -168,15 +171,16 @@ List<GoRoute> staffRoutes = [
     },
   ),
 
-  //grade card
+  //add student Marks screen
   GoRoute(
-    path: '/studentGradeCard',
-    name: RouteConstants.studentGradeCard,
+    path: '/addStudentMarks',
+    name: RouteConstants.addStudentMarks,
     builder: (context, state) {
       final MarksUploadModel marks = state.extra as MarksUploadModel;
       return AddStudentMarksScreen(marks: marks);
     },
   ),
+
 
   //news details screen
   GoRoute(
@@ -193,6 +197,24 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       final News news = state.extra as News;
       return NewsScreenDetails(newModel: news);
+    }),
+   //marks details screen
+  GoRoute(
+    path: '/marksDetails',
+    name: RouteConstants.marksDetails,
+    builder: (context, state) {
+      final MarksModel marks = state.extra as MarksModel;
+      return MarksDetailScreen(marks: marks);
+    },
+  ),
+
+  //marks edit screen
+  GoRoute(
+    path: '/marksEdit',
+    name: RouteConstants.marksEdit,
+    builder: (context, state) {
+      final MarksModel marks = state.extra as MarksModel;
+      return EditMarksScreen(marks: marks);
     },
   ),
 ];

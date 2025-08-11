@@ -131,11 +131,9 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                       if (provider.isLoading && provider.students.isEmpty) {
                         return commonShimmerList();
                       }
-
                       if (provider.students.isEmpty) {
                         return emptyScreen(message: "No Students Found.");
                       }
-
                       return Column(
                         children: [
                           ListView.builder(

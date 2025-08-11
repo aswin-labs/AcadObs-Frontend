@@ -154,22 +154,6 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
                 ),
               ),
             ),
-            // Padding(
-            //   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-            //   child: Consumer<MarksProvider>(
-            //     builder: (context, provider, _) {
-            //       return CommonButton(
-            //         onPressed: () {
-            //           submitMarks(context);
-            //         },
-            //         widget:
-            //             provider.isLoadingTwo
-            //                 ? ButtonLoading()
-            //                 : Text('Submit'),
-            //       );
-            //     },
-            //   ),
-            // ),
           ],
         ),
       ),
