@@ -28,12 +28,16 @@ class ApiEndpoints {
   // homeworks
   static const String homeworks = "/staff/homeworks";
   static const String homeworkByTeacher = "/staff/getHomeworkByTeacher";
+  static const String homeworkRanking = "/staff/bulkUpdateHomeworkAssignments/";
 
   //notices
-  static const String fetchNotices = "/schooladmin/notices";
+  static const String fetchLatestNotices = "/staff/getLatestNotices";
 
   //events
-  static const String fetchEvents = "/schooladmin/events";
+  static const String fetchLatestEvents = "/staff/getLatestEvents";
+
+  //news
+  static const String fetchLatestNews = "/staff/getLatestNews";
 
   // marks
   static const String marks = "/staff/internalmarks";
