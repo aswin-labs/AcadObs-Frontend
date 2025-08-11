@@ -178,7 +178,7 @@ void showAddMarksBottomSheet({required BuildContext context}) {
                             .read<DropdownProvider>()
                             .getSelectedItem('className');
                         context.pushNamed(
-                          RouteConstants.studentGradeCard,
+                          RouteConstants.addStudentMarks,
                           extra: MarksUploadModel(
                             classId: classId ?? 0,
                             className: className,
