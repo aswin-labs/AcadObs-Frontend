@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:acadobs/shared/models/class_grade_model.dart';
+import 'package:acadobs/shared/models/student_model.dart';
 import 'package:acadobs/shared/models/subject_model.dart';
 
 MarksModel marksModelFromJson(String str) =>
@@ -11,7 +12,7 @@ class MarksModel {
   String internalName;
   String maxMarks;
   DateTime? date;
-  List<StudentMark>? marks;
+  List<StudentMark>? studentMarks;
   School? school;
   ClassGradeModel? classGrade;
   SubjectModel? subject;
@@ -21,7 +22,7 @@ class MarksModel {
     required this.internalName,
     required this.maxMarks,
     this.date,
-    this.marks,
+    this.studentMarks,
     this.school,
     this.classGrade,
     this.subject,
@@ -32,7 +33,7 @@ class MarksModel {
     internalName: json["internal_name"],
     maxMarks: json["max_marks"],
     date: json["date"] == null ? null : DateTime.parse(json["date"]),
-    marks:
+    studentMarks:
         json["Marks"] == null
             ? []
             : List<StudentMark>.from(
@@ -49,13 +50,20 @@ class MarksModel {
 class StudentMark {
   int? id;
   String? marksObtained;
+  String? status;
+  StudentModel? student;
 
-  StudentMark({this.id, this.marksObtained});
+  StudentMark({this.id, this.marksObtained, this.status,  this.student});
 
-  factory StudentMark.fromJson(Map<String, dynamic> json) =>
-      StudentMark(id: json["id"], marksObtained: json["marks_obtained"]);
-
-  Map<String, dynamic> toJson() => {"id": id, "marks_obtained": marksObtained};
+  factory StudentMark.fromJson(Map<String, dynamic> json) => StudentMark(
+    id: json["id"],
+    marksObtained: json["marks_obtained"],
+    status: json["status"],
+    student:
+            json["Student"] == null
+                ? null
+                : StudentModel.fromJson(json["Student"]),
+  );
 }
 
 class School {

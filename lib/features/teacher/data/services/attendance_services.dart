@@ -1,10 +1,11 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
+import 'package:acadobs/core/utils/storage_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 
 class AttendanceServices {
-  final int _teacherId = 3; // to be changed
+  final int _teacherId = StorageServices.getUserId; // to be changed
   // attendance by class and date
   Future<Response> fetchAttendanceByClassIdAndDate({
     required int classId,

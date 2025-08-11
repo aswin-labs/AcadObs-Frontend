@@ -29,7 +29,9 @@ class RouteConstants {
   static const String noticeListscreen = 'noticedetaillistscreen';
   static const String eventListscreen = 'eventListscreen';
 
-  static const String studentGradeCard = 'studentGradeCard';
+  static const String addStudentMarks = 'addStudentMarks';
+  static const String marksDetails = 'marksDetails';
+  static const String marksEdit = 'marksEdit';
 
   //PARENT
   static const String noticedetails = 'noticedetails';
