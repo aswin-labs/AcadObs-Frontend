@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
@@ -43,6 +42,18 @@ class _EditHomeWorkScreenState extends State<EditHomeWorkScreen> {
     descriptionController.dispose();
     dateController.dispose();
     super.dispose();
+  }
+
+  void buttonAction(BuildContext context) {
+    context.read<HomeworkProvider>().edithomeWork(
+      context: context,
+      subjectId: widget.homework.subjectId ?? 0,
+      title: titleController.text,
+      description: descriptionController.text,
+      duedate: dateController.text,
+
+      homeworkId: widget.homework.id ?? 0,
+    );
   }
 
   @override
@@ -110,16 +121,7 @@ class _EditHomeWorkScreenState extends State<EditHomeWorkScreen> {
                             padding: EdgeInsets.all(2),
                           ),
                           onPressed: () {
-                            log("Editing with title: ${titleController.text}");
-                            context.read<HomeworkProvider>().edithomeWork(
-                              context: context,
-                              subjectId: widget.homework.subjectId ?? 0,
-                              title: titleController.text,
-                              description: descriptionController.text,
-                              duedate: dateController.text,
-
-                              homeworkId: widget.homework.id ?? 0,
-                            );
+                            buttonAction(context);
                           },
                           child:
                               context.watch<HomeworkProvider>().isLoadingTwo

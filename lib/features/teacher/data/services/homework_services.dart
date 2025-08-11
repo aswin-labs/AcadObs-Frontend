@@ -95,4 +95,17 @@ class HomeworkServices {
     );
     return response;
   }
+
+  //homework ranking
+  Future<Response> homeworkRanking({
+    required int homeworkId,
+    required List<Map<String, dynamic>> assignments,
+  }) async {
+    final response = await ApiServices.put(ApiEndpoints.homeworkRanking, {
+      "homework_id": homeworkId,
+      "assignments": assignments,
+    });
+    log("response: ${response.data}");
+    return response;
+  }
 }

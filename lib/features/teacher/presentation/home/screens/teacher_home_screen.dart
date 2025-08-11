@@ -1,11 +1,17 @@
 import 'dart:ui';
 
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/common_shimmer_tile.dart';
+import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/parents/data/models/event_model.dart';
+import 'package:acadobs/features/parents/presentation/events/provider/event_provider.dart';
 import 'package:acadobs/features/parents/presentation/events/widgets/event_card.dart';
+import 'package:acadobs/features/parents/presentation/notices/provider/notice_provider.dart';
 import 'package:acadobs/features/parents/presentation/notices/widgets/notice_card.dart';
+// import 'package:acadobs/features/teacher/data/models/news/new_model.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
+import 'package:acadobs/features/teacher/presentation/news/widgets/news_card.dart';
+import 'package:acadobs/features/teacher/presentation/news/provider/news_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
@@ -14,6 +20,8 @@ import 'package:acadobs/shared/widgets/custom_name_container.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
@@ -23,6 +31,14 @@ class TeacherHomeScreen extends StatefulWidget {
 }
 
 class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<EventProvider>().fetchHomeLatestEvents(limit: 3);
+    context.read<NoticeProvider>().fetchHomeLatestNotices(limit: 3);
+    context.read<NewsProvider>().fetchHomeLatestNews(limit: 3);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,20 +135,46 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 ],
               ),
               SizedBox(height: 10),
-              NoticeCard(
-                title: "Notice 1",
-                date: "22-07-2025",
-                icon: Icons.notifications,
-                time: "15:19",
-                onTap: () {},
+
+              //notice listing in the teacher home screen
+              Consumer<NoticeProvider>(
+                builder: (context, provider, _) {
+                  final notices = provider.latestNotices;
+                  if (provider.isLoading && notices.isEmpty) {
+                    return const Center(child: CommonShimmerTile());
+                  }
+                  if (notices.isEmpty) {
+                    return Column(
+                      children: [
+                        Icon(
+                          Icons.notifications_off_rounded,
+                          color: Colors.grey,
+                        ),
+                        Text(
+                          "No Notices avaliable",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    );
+                  }
+                  return Column(
+                    children:
+                        notices.map((notice) {
+                          final date =
+                              "${notice.createdAt.day.toString().padLeft(2, '0')}-${notice.createdAt.month.toString().padLeft(2, '0')}-${notice.createdAt.year}";
+
+                          return NoticeCard(
+                            title: notice.title ?? "N/A",
+                            date: date,
+                            icon: Icons.notifications,
+                            time: TimeFormatter.formatTime(notice.createdAt),
+                            onTap: () {},
+                          );
+                        }).toList(),
+                  );
+                },
               ),
-              NoticeCard(
-                title: "Notice 2",
-                date: "22-07-2025",
-                icon: Icons.notifications,
-                time: "14:19",
-                onTap: () {},
-              ),
+
               SizedBox(height: 20),
               Row(
                 children: [
@@ -153,10 +195,99 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 ],
               ),
               SizedBox(height: 10),
-              EventCard(
-                event: Events(title: 'event 1'), //dummmy
-                onViewTap: () {},
-                time: "22-07-2025",
+
+              //listing latest events
+              Consumer<EventProvider>(
+                builder: (context, provider, _) {
+                  final events = provider.latestEvent;
+                  if (provider.isLoading && events.isEmpty) {
+                    return Center(child: CommonShimmerTile());
+                  } else if (events.isEmpty) {
+                    return Column(
+                      children: [
+                        Icon(Icons.event_busy_rounded, color: Colors.grey),
+                        Text(
+                          "No Events Avaliable",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Column(
+                    children:
+                        events.map((events) {
+                          return EventCard(
+                            event: events,
+
+                            onViewTap: () {},
+                            time: TimeFormatter.formatTime(
+                              events.createdAt ?? DateTime.now(),
+                            ),
+                          );
+                        }).toList(),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Text(
+                    "News",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Spacer(),
+                  TextButton(
+                    onPressed: () {
+                      context.pushNamed(RouteConstants.newsDetailsScreen);
+                    },
+                    child: Text("View", style: TextStyle(color: Colors.black)),
+                  ),
+                ],
+              ),
+
+              //listing news
+              Consumer<NewsProvider>(
+                builder: (context, provider, _) {
+                  final news = provider.latestNews;
+                  if (provider.isLoading && news.isEmpty) {
+                    return Center(child: CommonShimmerTile());
+                  } else if (news.isEmpty) {
+                    return Column(
+                      children: [
+                        Icon(Icons.event_busy_rounded, color: Colors.grey),
+                        Text(
+                          "No News Avaliable",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    );
+                  }
+
+                  return Column(
+                    children:
+                        news.map((news) {
+                          final formattedDate = DateFormat(
+                            'dd-MM-yy',
+                          ).format(news.date);
+                          final formattedTime = DateFormat(
+                            'hh:mm a',
+                          ).format(news.date);
+                          return NewsCard(
+                            news: news,
+                            button: () {},
+                            date: formattedDate,
+                            time: formattedTime,
+                            title: news.title,
+                            content: news.content,
+                          );
+                        }).toList(),
+                  );
+                },
               ),
             ],
           ),
@@ -223,9 +354,7 @@ class FabOptionsDialog extends StatelessWidget {
                   _OptionTile(
                     icon: Icons.menu_book_outlined,
                     label: 'Subjects',
-                    onTap: () {
-                      // Navigator.of(context).pop();
-                    },
+                    onTap: () {},
                   ),
                 ],
               ),

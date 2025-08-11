@@ -1,3 +1,4 @@
+import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
@@ -22,7 +23,10 @@ class _NoticeScreenState extends State<NoticeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        Provider.of<NoticeProvider>(context, listen: false).fetchNotices();
+        Provider.of<NoticeProvider>(context, listen: false).fetchLatestNotices(
+          limit: AppConstants.paginationLimit,
+          isRefresh: true,
+        );
       }
     });
   }

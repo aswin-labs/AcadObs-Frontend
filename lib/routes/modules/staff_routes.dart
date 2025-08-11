@@ -9,11 +9,15 @@ import 'package:acadobs/features/teacher/data/models/attendance/attendance_uploa
 import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
 import 'package:acadobs/features/teacher/data/models/marks/marks_upload_model.dart';
+import 'package:acadobs/features/teacher/data/models/news_model.dart';
+// import 'package:acadobs/features/teacher/data/models/news/new_model.dart';
 import 'package:acadobs/features/teacher/data/models/staff_duty_model.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_taking_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
+import 'package:acadobs/features/teacher/presentation/news/screens/news_full_screen.dart';
+import 'package:acadobs/features/teacher/presentation/news/screens/news_screen_details.dart';
 import 'package:acadobs/features/teacher/presentation/homework/screens/edit_home_work_screen.dart';
 import 'package:acadobs/features/teacher/presentation/homework/screens/homework_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/homework/screens/homework_ranking_screen.dart';
@@ -121,7 +125,8 @@ List<GoRoute> staffRoutes = [
     path: '/homeworkRankingScreen',
     name: RouteConstants.homeworkRankingScreen,
     builder: (context, state) {
-      return HomeworkRankingScreen();
+      HomeworkModel homework = state.extra as HomeworkModel;
+      return HomeworkRankingScreen(homework: homework);
     },
   ),
 
@@ -170,6 +175,24 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       final MarksUploadModel marks = state.extra as MarksUploadModel;
       return AddStudentMarksScreen(marks: marks);
+    },
+  ),
+
+  //news details screen
+  GoRoute(
+    path: '/newsdetailscreen',
+    name: RouteConstants.newsDetailsScreen,
+    builder: (context, state) {
+      return NewsDetailsScreen();
+    },
+  ),
+
+  GoRoute(
+    path: '/newsScreen',
+    name: RouteConstants.newsScreen,
+    builder: (context, state) {
+      final News news = state.extra as News;
+      return NewsScreenDetails(newModel: news);
     },
   ),
 ];

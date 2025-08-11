@@ -21,7 +21,7 @@ class _EventListScreenState extends State<EventListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        Provider.of<EventProvider>(context, listen: false).fetchEvents();
+        Provider.of<EventProvider>(context, listen: false).fetchLatestEvents(limit: 10);
       }
     });
   }

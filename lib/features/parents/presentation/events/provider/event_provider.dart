@@ -6,12 +6,15 @@ import 'package:flutter/material.dart';
 class EventProvider extends ChangeNotifier {
   final EventServices _eventServices = EventServices();
   List<Events> _events = [];
+  final List<Events> _latestEvent = [];
   bool _isLoading = false;
   String? _error;
   int _currentPage = 1;
   bool _hasMore = true;
 
   List<Events> get events => _events;
+  List<Events> get latestEvent => _latestEvent;
+
   //distinguishing today event
   List<Events> get todayEvents =>
       _events.where((e) {
@@ -65,14 +68,21 @@ class EventProvider extends ChangeNotifier {
   int get currentPage => _currentPage;
   bool get hasMore => _hasMore;
 
-  Future<void> fetchEvents({int pageNo = 1, bool isRefresh = false}) async {
+  Future<void> fetchLatestEvents({
+    int pageNo = 1,
+    bool isRefresh = false,
+    int limit = 3,
+  }) async {
     if (_isLoading) return;
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final response = await _eventServices.fetchEvents(pageNo: pageNo);
+      final response = await _eventServices.fetchLatestEvents(
+        pageNo: pageNo,
+        limit: limit,
+      );
       log('Event API response: ${response.data}');
 
       if (response.statusCode == 200) {
@@ -121,9 +131,32 @@ class EventProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> fetchHomeLatestEvents({int limit = 3}) async {
+    try {
+      final response = await _eventServices.fetchLatestEvents(
+        pageNo: 1,
+        limit: limit,
+      );
+      if (response.statusCode == 200) {
+        final data = response.data['events'];
+        final fetched = List<Events>.from(data.map((e) => Events.fromJson(e)));
+        fetched.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+
+        _latestEvent
+          ..clear()
+          ..addAll(fetched.take(limit));
+        notifyListeners();
+      } else {
+        log("Failed to fetch latest home notices: ${response.statusCode}");
+      }
+    } catch (e) {
+      log("Error in fetchHomeLatestNotices: $e");
+    }
+  }
+
   void loadMore() {
     if (_hasMore && !_isLoading) {
-      fetchEvents(pageNo: _currentPage + 1);
+      fetchLatestEvents(pageNo: _currentPage + 1);
     }
   }
 }

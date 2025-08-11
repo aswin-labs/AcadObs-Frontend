@@ -6,6 +6,7 @@ import 'package:acadobs/features/teacher/data/models/homework/homework_model.dar
 import 'package:acadobs/features/teacher/data/services/homework_services.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
 import 'package:flutter/material.dart';
+// import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 
 class HomeworkProvider extends ChangeNotifier {
@@ -26,6 +27,17 @@ class HomeworkProvider extends ChangeNotifier {
   bool get hasMore => _currentPage < _totalPages;
 
   bool _isFetchedOnce = false;
+
+  //star points clickeable
+  final Map<int, int> _studentPoints = {};
+  int getPoint(int studentId) {
+    return _studentPoints[studentId] ?? 0;
+  }
+
+  void updatePoint(int studentId, int point) {
+    _studentPoints[studentId] = point;
+    notifyListeners();
+  }
 
   // Fetch homeworks
   Future<void> fetchHomeworks({
@@ -232,5 +244,56 @@ class HomeworkProvider extends ChangeNotifier {
       log('error in the deleting the homework $e');
       CustomErrorDialog.show(context, "error in deleting homework");
     }
+  }
+
+  //homework list
+  List<Map<String, dynamic>> get studentRankingsList {
+    return singleHomework?.studentHomeworkStatus
+            ?.map(
+              (status) => {
+                "student_id": status.student?.id,
+                "status": "submitted",
+                "points": _studentPoints[status.student?.id ?? 0] ?? 0,
+              },
+            )
+            .toList() ??
+        [];
+  }
+
+  //homework ranking
+  Future<void> homeworkRanking({
+    required BuildContext context,
+    required int homeworkId,
+    required List<Map<String, dynamic>> assignments,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final response = await HomeworkServices().homeworkRanking(
+        homeworkId: homeworkId,
+        assignments: assignments,
+      );
+
+      if (response.statusCode == 200) {
+        await fetchHomeworks(forceRefresh: true);
+        log("Homework ranking submitted: ${response.data}");
+        await fetchSingleHomework(homeworkId: homeworkId);
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: "Homework ranking submitted",
+          type: SnackbarType.success,
+        );
+      } else {
+        log("Homework ranking failed: ${response.statusCode}");
+        if (!context.mounted) return;
+        CustomErrorDialog.show(context, "Failed to submit homework ranking");
+      }
+      log("response: ${response.data}");
+    } catch (e) {
+      log('error: $e');
+    }
+    _isLoading = false;
+    notifyListeners();
   }
 }

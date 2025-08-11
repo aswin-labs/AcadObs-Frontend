@@ -7,6 +7,7 @@ import 'package:acadobs/features/superadmin/presentation/schools/provider/school
 import 'package:acadobs/features/teacher/presentation/attendance/provider/attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/duties/provider/duty_provider.dart';
 import 'package:acadobs/features/teacher/presentation/homework/provider/homework_provider.dart';
+import 'package:acadobs/features/teacher/presentation/news/provider/news_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
 import 'package:acadobs/features/teacher/presentation/marks/provider/marks_provider.dart';
 import 'package:acadobs/features/teacher/presentation/students/provider/student_provider.dart';
@@ -49,5 +50,8 @@ getProviders() {
 
     //**************EVENTS****************//
     ChangeNotifierProvider(create: (_) => StudentLeaveRequestProvider()),
+
+    //**************EVENTS****************//
+    ChangeNotifierProvider(create: (_) => NewsProvider()),
   ];
 }
