@@ -10,8 +10,8 @@ import 'package:acadobs/features/parents/presentation/notices/provider/notice_pr
 import 'package:acadobs/features/parents/presentation/notices/widgets/notice_card.dart';
 // import 'package:acadobs/features/teacher/data/models/news/new_model.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
-import 'package:acadobs/features/teacher/presentation/news/widgets/news_card.dart';
 import 'package:acadobs/features/teacher/presentation/news/provider/news_provider.dart';
+import 'package:acadobs/features/teacher/presentation/news/widgets/news_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';

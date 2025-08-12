@@ -42,4 +42,22 @@ class AppConstants {
 
   // homework types
   static List<String> homeworkTypes = ["online", "offline"];
+
+  // achievement categories
+  static List<String> achievementCategories = [
+    "academic",
+    "sports",
+    "arts",
+    "other",
+  ];
+
+  // achievement levels
+  static List<String> achievementLevels = [
+    "class",
+    "school",
+    "district",
+    "state",
+    "national",
+    "international",
+  ];
 }
