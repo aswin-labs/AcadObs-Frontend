@@ -3,11 +3,11 @@ import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 
 class NoticeServices {
-  final int _schoolId = 1;
+  // final int _schoolId = 1;
 
-  Future<Response> fetchNotices({required int pageNo}) async {
+  Future<Response> fetchLatestNotices({required int pageNo, required int limit}) async {
     final response = await ApiServices.get(
-      '${ApiEndpoints.fetchNotices}?page=$pageNo&school_id=$_schoolId',
+      '${ApiEndpoints.fetchLatestNotices}?page=$pageNo&limit=$limit',
     );
     return response;
   }

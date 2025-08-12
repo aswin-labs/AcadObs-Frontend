@@ -1,12 +1,29 @@
+import 'package:acadobs/features/teacher/presentation/homework/provider/homework_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class RankingCard extends StatelessWidget {
+class RankingCard extends StatefulWidget {
   final String name;
   final String number;
-  const RankingCard({super.key, required this.name, required this.number});
+  final int studentId;
+  final int point;
+  const RankingCard({
+    super.key,
+    required this.name,
+    required this.number,
+    required this.studentId,
+    required this.point,
+  });
 
   @override
+  State<RankingCard> createState() => _RankingCardState();
+}
+
+class _RankingCardState extends State<RankingCard> {
+  @override
   Widget build(BuildContext context) {
+    final rankingProvider = Provider.of<HomeworkProvider>(context);
+    final currentPoint = rankingProvider.getPoint(widget.studentId);
     return Container(
       margin: const EdgeInsets.only(bottom: 2),
       decoration: BoxDecoration(
@@ -26,7 +43,7 @@ class RankingCard extends StatelessWidget {
                   radius: 20,
                   backgroundColor: const Color(0xFFF0F0F0),
                   child: Text(
-                    number,
+                    widget.number,
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       color: Colors.grey.shade600,
@@ -35,7 +52,7 @@ class RankingCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  name,
+                  widget.name,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
@@ -61,10 +78,21 @@ class RankingCard extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 12),
                   child: Row(
                     children: List.generate(5, (index) {
-                      return Icon(
-                        index < 3 ? Icons.star : Icons.star_border,
-                        color: index < 3 ? Colors.amber : Colors.grey.shade400,
-                        size: 30,
+                      return IconButton(
+                        icon: Icon(
+                          index < currentPoint ? Icons.star : Icons.star_border,
+                          color:
+                              index < currentPoint
+                                  ? Colors.amber
+                                  : Colors.grey.shade400,
+                          size: 30,
+                        ),
+                        onPressed: () {
+                          rankingProvider.updatePoint(
+                            widget.studentId,
+                            index + 1,
+                          );
+                        },
                       );
                     }),
                   ),
@@ -80,18 +108,18 @@ class RankingCard extends StatelessWidget {
                 ),
 
                 // Chat Icon
-                Container(
-                  width: 48,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Color(0xFFCCCCCC),
-                    borderRadius: BorderRadius.only(
-                      bottomRight: Radius.circular(9),
-                    ),
-                  ),
+                // Container(
+                //   width: 48,
+                //   alignment: Alignment.center,
+                //   decoration: BoxDecoration(
+                //     color: Color(0xFFCCCCCC),
+                //     borderRadius: BorderRadius.only(
+                //       bottomRight: Radius.circular(9),
+                //     ),
+                //   ),
 
-                  child: const Icon(Icons.message_outlined, size: 20),
-                ),
+                //   child: const Icon(Icons.message_outlined, size: 20),
+                // ),
               ],
             ),
           ),

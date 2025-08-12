@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 
 class CustomPopupMenu extends StatelessWidget {
-  final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final bool showEdit;
+  final bool showDelete;
 
   const CustomPopupMenu({
     super.key,
-    required this.onEdit,
-    required this.onDelete,
+    this.onEdit,
+    this.onDelete,
+    this.showEdit = true,
+    this.showDelete = true,
   });
 
   @override
@@ -19,16 +23,22 @@ class CustomPopupMenu extends StatelessWidget {
       ),
       elevation: 4,
       onSelected: (value) {
-        if (value == 'edit') {
-          onEdit();
-        } else if (value == 'delete') {
-          onDelete();
+        if (value == 'edit' && onEdit != null) {
+          onEdit!();
+        } else if (value == 'delete' && onDelete != null) {
+          onDelete!();
         }
       },
-      itemBuilder: (context) => [
-        _buildMenuItem('edit', Icons.edit, 'Edit', Colors.blueAccent),
-        _buildMenuItem('delete', Icons.delete, 'Delete', Colors.redAccent),
-      ],
+      itemBuilder: (context) {
+        final items = <PopupMenuEntry<String>>[];
+        if (showEdit) {
+          items.add(_buildMenuItem('edit', Icons.edit, 'Edit', Colors.blueAccent));
+        }
+        if (showDelete) {
+          items.add(_buildMenuItem('delete', Icons.delete, 'Delete', Colors.redAccent));
+        }
+        return items;
+      },
       icon: const Icon(Icons.more_vert, color: Colors.black54),
     );
   }

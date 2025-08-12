@@ -23,7 +23,7 @@ class LeaveRequestDetailScreen extends StatelessWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: context.paddingHorizontal.add(
-                EdgeInsets.only(top: Responsive.height * 2),
+                EdgeInsets.only(top: Responsive.height * 3),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

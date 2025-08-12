@@ -21,7 +21,7 @@ class _EventListScreenState extends State<EventListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        Provider.of<EventProvider>(context, listen: false).fetchEvents();
+        Provider.of<EventProvider>(context, listen: false).fetchLatestEvents(limit: 10);
       }
     });
   }
@@ -61,39 +61,122 @@ class _EventListScreenState extends State<EventListScreen> {
                 }
                 return false;
               },
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount:
-                    eventProvider.events.length +
-                    (eventProvider.hasMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == eventProvider.events.length) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(12.0),
-
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollNotification) {
+                  if (scrollNotification is ScrollEndNotification &&
+                      scrollNotification.metrics.pixels >=
+                          scrollNotification.metrics.maxScrollExtent - 100 &&
+                      !eventProvider.isLoading &&
+                      eventProvider.hasMore) {
+                    eventProvider.loadMore();
                   }
-                  final event = eventProvider.events[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 1),
-                    //time: TimeFormatter.formatTime(notice.createdAt),
-                    child: EventCard(
-                      time: TimeFormatter.formatTime(
-                        event.createdAt ?? DateTime.now(),
-                      ),
-                      event: event,
-                      onViewTap:
-                          () => context.pushNamed(
-                            RouteConstants.eventlistdetails,
-                            extra: event,
-                          ),
-                    ),
-                  );
+                  return false;
                 },
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (eventProvider.todayEvents.isNotEmpty) ...[
+                          const Text("Today", style: TextStyle(fontSize: 15)),
+                          const SizedBox(height: 10),
+                          ...eventProvider.todayEvents.map(
+                            (event) => EventCard(
+                              time: TimeFormatter.formatTime(
+                                event.createdAt ?? DateTime.now(),
+                              ),
+                              event: event,
+                              onViewTap:
+                                  () => context.pushNamed(
+                                    RouteConstants.eventlistdetails,
+                                    extra: event,
+                                  ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                        if (eventProvider.yesterdayEvents.isNotEmpty) ...[
+                          const Text(
+                            "Yesterday",
+                            style: TextStyle(fontSize: 15),
+                          ),
+                          const SizedBox(height: 10),
+                          ...eventProvider.yesterdayEvents.map(
+                            (event) => EventCard(
+                              time: TimeFormatter.formatTime(
+                                event.createdAt ?? DateTime.now(),
+                              ),
+                              event: event,
+                              onViewTap:
+                                  () => context.pushNamed(
+                                    RouteConstants.eventlistdetails,
+                                    extra: event,
+                                  ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                        if (eventProvider.earlierEvents.isNotEmpty) ...[
+                          const Text("Earlier", style: TextStyle(fontSize: 15)),
+                          const SizedBox(height: 10),
+                          ...eventProvider.earlierEvents.map(
+                            (event) => EventCard(
+                              time: TimeFormatter.formatTime(
+                                event.createdAt ?? DateTime.now(),
+                              ),
+                              event: event,
+                              onViewTap:
+                                  () => context.pushNamed(
+                                    RouteConstants.eventlistdetails,
+                                    extra: event,
+                                  ),
+                            ),
+                          ),
+                        ],
+                        if (eventProvider.hasMore) ...[
+                          const SizedBox(height: 20),
+                          const Center(child: CircularProgressIndicator()),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
               ),
+              // child: ListView.builder(
+              //   physics: const BouncingScrollPhysics(),
+              //   itemCount:
+              //       eventProvider.events.length +
+              //       (eventProvider.hasMore ? 1 : 0),
+              //   itemBuilder: (context, index) {
+              //     if (index == eventProvider.events.length) {
+              //       return const Center(
+              //         child: Padding(
+              //           padding: EdgeInsets.all(12.0),
+
+              //           child: CircularProgressIndicator(),
+              //         ),
+              //       );
+              //     }
+              //     final event = eventProvider.events[index];
+              //     return Padding(
+              //       padding: const EdgeInsets.symmetric(vertical: 1),
+              //       //time: TimeFormatter.formatTime(notice.createdAt),
+              //       child: EventCard(
+              //         time: TimeFormatter.formatTime(
+              //           event.createdAt ?? DateTime.now(),
+              //         ),
+              //         event: event,
+              //         onViewTap:
+              //             () => context.pushNamed(
+              //               RouteConstants.eventlistdetails,
+              //               extra: event,
+              //             ),
+              //       ),
+              //     );
+              //   },
+              // ),
             );
           }
         },

@@ -5,12 +5,11 @@ class ApiEndpoints {
   static const String classes = "/superadmin/classes";
   static const String subjects = "/superadmin/subjects";
 
-  // SCHOOL ADMIN
-  static const String classesByYear = "/schooladmin/getClassesByYear";
-  static const String students = "/schooladmin/students";
-  static const String studentsByClassId = "/schooladmin/getStudentsByClassId";
-
   // STAFF
+
+  static const String classesByYear = "/staff/getClassesByYear";
+  static const String students = "/staff/students";
+  static const String studentsByClassId = "/staff/getStudentsByClassId";
   // duties
   static const String staffDuties = "/staff/duties";
   static const String updateDutyStatus = "/staff/updateAssignedDuty";
@@ -24,19 +23,25 @@ class ApiEndpoints {
 
   // leave request
   static const String staffLeaveRequest = "/staff/leaveRequest";
+  static const String studentLeaveRequest = "/guardian/leaveRequest";
 
   // homeworks
   static const String homeworks = "/staff/homeworks";
   static const String homeworkByTeacher = "/staff/getHomeworkByTeacher";
+  static const String homeworkRanking = "/staff/bulkUpdateHomeworkAssignments/";
 
   //notices
-  static const String fetchNotices = "/schooladmin/notices";
+  static const String fetchLatestNotices = "/staff/getLatestNotices";
 
   //events
-  static const String fetchEvents = "/schooladmin/events";
+  static const String fetchLatestEvents = "/staff/getLatestEvents";
+
+  //news
+  static const String fetchLatestNews = "/staff/getLatestNews";
 
   // marks
   static const String marks = "/staff/internalmarks";
   static const String marksAddedByTeacher =
       "/staff/getInternalMarkByRecordedBy";
+  static const String marksBulkUpdate = "/staff/bulkUpdateMarks";
 }

@@ -2,6 +2,7 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/profile_container_shimmer.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/presentation/students/provider/student_provider.dart';
+import 'package:acadobs/features/teacher/presentation/students/widgets/leave_letter_screen.dart';
 import 'package:acadobs/features/teacher/presentation/students/widgets/student_acheivement_tab.dart';
 import 'package:acadobs/features/teacher/presentation/students/widgets/student_exam_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/students/widgets/student_homework_page.dart';
@@ -30,7 +31,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -119,10 +120,11 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           horizontal: 16.0,
                         ),
                         tabs: const [
-                          Tab(text: "Profile"),
                           Tab(text: "Acheivement"),
                           Tab(text: "Exam"),
                           Tab(text: "Homework"),
+                          Tab(text: 'Leave request'),
+                          Tab(text: "Profile"),
                         ],
                       ),
                     ),
@@ -135,16 +137,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             padding: EdgeInsets.only(top: Responsive.height * 5),
             child: TabBarView(
               children: [
-                // Profile
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
-                    if (student == null) {
-                      return SizedBox.shrink();
-                    }
-                    return StudentProfileTab(student: student);
-                  },
-                ),
                 //acheivment
                 Consumer<StudentProvider>(
                   builder: (context, provider, _) {
@@ -175,6 +167,28 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       return SizedBox.shrink();
                     }
                     return StudentHomeworkPage();
+                  },
+                ),
+
+                //leave requst
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return LeaveLetterScreen();
+                  },
+                ),
+
+                // Profile
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return StudentProfileTab(student: student);
                   },
                 ),
               ],

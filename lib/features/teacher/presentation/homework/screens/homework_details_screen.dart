@@ -1,7 +1,9 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/custom_popup_menu.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
 import 'package:acadobs/features/teacher/presentation/homework/provider/homework_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -32,7 +34,34 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Homework", isBackButton: true),
+      appBar: CommonAppBar(
+        title: "Homework",
+        isBackButton: true,
+        actions: [
+          Consumer<HomeworkProvider>(
+            builder: (context, provider, _) {
+              return CustomPopupMenu(
+                onEdit: () {
+                  context.pushNamed(
+                    RouteConstants.editHomeWork,
+                    extra: widget.homework,
+                  );
+                },
+                onDelete: () {
+                  showConfirmationDialog(
+                    context: context,
+                    title: 'Delete Homework',
+                    content: 'Are you want to delete the homework',
+                    onConfirm: () {
+                      provider.deleteHomeWork(context);
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ],
+      ),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -73,39 +102,46 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                     ),
                   ),
                   SizedBox(height: Responsive.height * 3),
-                  Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: Responsive.radius * 6,
-                          backgroundColor: const Color(0xffF4F4F4),
-                          child: const Icon(
-                            Icons.fact_check_outlined,
-                            size: 25,
-                            color: Colors.black,
+
+                  Consumer<HomeworkProvider>(
+                    builder: (context, provider, _) {
+                      return GestureDetector(
+                        onTap: () {
+                          context.pushNamed(
+                            RouteConstants.homeworkRankingScreen,
+                            extra: provider.singleHomework,
+                          );
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: Responsive.radius * 6,
+                                backgroundColor: const Color(0xffF4F4F4),
+                                child: const Icon(
+                                  Icons.fact_check_outlined,
+                                  size: 25,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              SizedBox(width: Responsive.width * 20),
+
+                              Text(
+                                'Mark Homework',
+                                style: context.textTheme.bodyMedium!.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        SizedBox(width: Responsive.width * 20),
-                        GestureDetector(
-                          onTap: () {
-                            context.pushNamed(
-                              RouteConstants.homeworkRankingScreen,
-                            );
-                          },
-                          child: Text(
-                            'Mark Homework',
-                            style: context.textTheme.bodyMedium!.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
 
                   SizedBox(height: Responsive.height * 4),

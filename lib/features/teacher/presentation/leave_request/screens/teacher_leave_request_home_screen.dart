@@ -140,7 +140,7 @@ class _TeacherLeaveRequestHomeScreenState
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(16),
         child: FloatingActionButton(
-          onPressed: () => showCreateLeaveRequesBottomSheet(context),
+          onPressed: () => showCreateLeaveRequesBottomSheet(context, fromTeacherScreen: true),
           child: Icon(LucideIcons.plus, weight: 1, color: Colors.grey),
         ),
       ),

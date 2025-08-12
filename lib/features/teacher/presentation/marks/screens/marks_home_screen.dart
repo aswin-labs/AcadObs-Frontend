@@ -5,9 +5,11 @@ import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/presentation/marks/provider/marks_provider.dart';
 import 'package:acadobs/features/teacher/presentation/marks/widgets/add_marks_bottomsheet.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
@@ -49,7 +51,7 @@ class _MarksHomeScreenState extends State<MarksHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Homeworks", isBackButton: true),
+      appBar: CommonAppBar(title: "Marks"),
       body: RefreshIndicator(
         onRefresh: () async {
           await context.read<MarksProvider>().fetchAddedMarks(
@@ -95,7 +97,11 @@ class _MarksHomeScreenState extends State<MarksHomeScreen> {
                               iconColor: Color(0xFFB14F6F),
                               backgroundColor: Color(0xFFFFCEDE),
                               icon: LucideIcons.clipboardList,
-                              onTap: () {},
+                              onTap:
+                                  () => context.pushNamed(
+                                    RouteConstants.marksDetails,
+                                    extra: mark,
+                                  ),
                             );
                           },
                         );
@@ -112,7 +118,7 @@ class _MarksHomeScreenState extends State<MarksHomeScreen> {
                       },
                     ),
 
-                    SizedBox(height: Responsive.height * 4),
+                    SizedBox(height: Responsive.height * 10),
                   ],
                 ),
               ),

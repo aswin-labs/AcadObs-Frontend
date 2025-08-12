@@ -45,7 +45,7 @@ Future<void> showStudentSelectionPopup(
   final provider = context.read<SharedProvider>();
 
   // Fetch students if not already done
-  await provider.fetchStudentsByClassId(classId: classId, forceRefresh: true);
+  await provider.fetchStudentsByClassId(classId: classId);
   if (!context.mounted) return;
   showDialog(
     context: context,

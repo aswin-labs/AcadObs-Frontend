@@ -3,12 +3,9 @@ import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 
 class EventServices {
-  final int _schoolId = 1;
-
-  Future<Response> fetchEvents({required int pageNo}) async {
+  Future<Response> fetchLatestEvents({required int pageNo, required int limit}) async {
     final response = await ApiServices.get(
-      '${ApiEndpoints.fetchEvents}?page=$pageNo&school_id=$_schoolId',
-      //https://acadobs.altezzai.com/api/s1/schooladmin/events
+      '${ApiEndpoints.fetchLatestEvents}?page=$pageNo&limit=$limit',
     );
     return response;
   }

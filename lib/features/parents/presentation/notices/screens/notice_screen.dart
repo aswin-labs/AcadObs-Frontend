@@ -1,3 +1,4 @@
+import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
@@ -22,7 +23,10 @@ class _NoticeScreenState extends State<NoticeScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        Provider.of<NoticeProvider>(context, listen: false).fetchNotices();
+        Provider.of<NoticeProvider>(context, listen: false).fetchLatestNotices(
+          limit: AppConstants.paginationLimit,
+          isRefresh: true,
+        );
       }
     });
   }
@@ -55,6 +59,10 @@ class _NoticeScreenState extends State<NoticeScreen> {
               ),
             );
           } else {
+            final todayNotices = noticeProvider.todayEvents;
+            final yesterdayNotices = noticeProvider.yesterdayEvents;
+            final earlierNotices = noticeProvider.earlierEvents;
+
             return NotificationListener<ScrollNotification>(
               onNotification: (scrollNotification) {
                 if (scrollNotification is ScrollEndNotification &&
@@ -66,39 +74,128 @@ class _NoticeScreenState extends State<NoticeScreen> {
                 }
                 return false;
               },
-              child: ListView.builder(
+              child: ListView(
                 padding: const EdgeInsets.only(bottom: 60),
                 physics: const BouncingScrollPhysics(),
-                itemCount:
-                    noticeProvider.notices.length +
-                    (noticeProvider.hasMore ? 1 : 0),
-                itemBuilder: (context, index) {
-                  if (index == noticeProvider.notices.length) {
-                    return const Center(
+                children: [
+                  if (todayNotices.isNotEmpty) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text("Today", style: TextStyle(fontSize: 15)),
+                    ),
+                    ...todayNotices.map(
+                      (notice) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: NoticeCard(
+                          title: notice.title ?? "",
+                          date: DateFormatter.formatDateString(notice.date),
+                          icon: Icons.notifications_none,
+                          time: TimeFormatter.formatTime(notice.createdAt),
+                          onTap:
+                              () => context.pushNamed(
+                                RouteConstants.noticedetails,
+                                extra: notice,
+                              ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (yesterdayNotices.isNotEmpty) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text("Yesterday", style: TextStyle(fontSize: 16)),
+                    ),
+                    ...yesterdayNotices.map(
+                      (notice) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: NoticeCard(
+                          title: notice.title ?? "",
+                          date: DateFormatter.formatDateString(notice.date),
+                          icon: Icons.notifications_none,
+                          time: TimeFormatter.formatTime(notice.createdAt),
+                          onTap:
+                              () => context.pushNamed(
+                                RouteConstants.noticedetails,
+                                extra: notice,
+                              ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (earlierNotices.isNotEmpty) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Text("Earlier", style: TextStyle(fontSize: 16)),
+                    ),
+                    ...earlierNotices.map(
+                      (notice) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: NoticeCard(
+                          title: notice.title ?? "",
+                          date: DateFormatter.formatDateString(notice.date),
+                          icon: Icons.notifications_none,
+                          time: TimeFormatter.formatTime(notice.createdAt),
+                          onTap:
+                              () => context.pushNamed(
+                                RouteConstants.noticedetails,
+                                extra: notice,
+                              ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  if (noticeProvider.isLoading)
+                    const Center(
                       child: Padding(
                         padding: EdgeInsets.all(12.0),
                         child: CircularProgressIndicator(),
                       ),
-                    );
-                  }
-                  final notice = noticeProvider.notices[index];
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: NoticeCard(
-                      title: notice.title ?? "",
-                      date: DateFormatter.formatDateString(notice.date),
-                      icon: Icons.notifications_none,
-                      time: TimeFormatter.formatTime(notice.createdAt),
-                      //route
-                      onTap:
-                          () => context.pushNamed(
-                            RouteConstants.noticedetails,
-                            extra: notice,
-                          ),
                     ),
-                  );
-                },
+                ],
               ),
+
+              // child: ListView.builder(
+              //   padding: const EdgeInsets.only(bottom: 60),
+              //   physics: const BouncingScrollPhysics(),
+              //   itemCount:
+              //       noticeProvider.notices.length +
+              //       (noticeProvider.hasMore ? 1 : 0),
+              //   itemBuilder: (context, index) {
+              //     if (index == noticeProvider.notices.length) {
+              //       return const Center(
+              //         child: Padding(
+              //           padding: EdgeInsets.all(12.0),
+              //           child: CircularProgressIndicator(),
+              //         ),
+              //       );
+              //     }
+              //     final notice = noticeProvider.notices[index];
+              //     return Padding(
+              //       padding: EdgeInsets.symmetric(horizontal: 16),
+              //       child: NoticeCard(
+              //         title: notice.title ?? "",
+              //         date: DateFormatter.formatDateString(notice.date),
+              //         icon: Icons.notifications_none,
+              //         time: TimeFormatter.formatTime(notice.createdAt),
+              //         //route
+              //         onTap:
+              //             () => context.pushNamed(
+              //               RouteConstants.noticedetails,
+              //               extra: notice,
+              //             ),
+              //       ),
+              //     );
+              //   },
+              // ),
             );
           }
         },

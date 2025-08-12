@@ -8,16 +8,26 @@ import 'package:acadobs/features/teacher/data/models/attendance/attendance_model
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
 import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
+import 'package:acadobs/features/teacher/data/models/marks/marks_model.dart';
+import 'package:acadobs/features/teacher/data/models/marks/marks_upload_model.dart';
+import 'package:acadobs/features/teacher/data/models/news_model.dart';
+// import 'package:acadobs/features/teacher/data/models/news/new_model.dart';
 import 'package:acadobs/features/teacher/data/models/staff_duty_model.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_taking_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
+import 'package:acadobs/features/teacher/presentation/news/screens/news_full_screen.dart';
+import 'package:acadobs/features/teacher/presentation/news/screens/news_screen_details.dart';
+import 'package:acadobs/features/teacher/presentation/homework/screens/edit_home_work_screen.dart';
 import 'package:acadobs/features/teacher/presentation/homework/screens/homework_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/homework/screens/homework_ranking_screen.dart';
 import 'package:acadobs/features/teacher/presentation/homework/screens/homeworks_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/leave_request_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/teacher_leave_request_home_screen.dart';
+import 'package:acadobs/features/teacher/presentation/marks/screens/add_student_marks_screen.dart';
+import 'package:acadobs/features/teacher/presentation/marks/screens/edit_marks_screen.dart';
+import 'package:acadobs/features/teacher/presentation/marks/screens/marks_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/students/screens/student_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/students/screens/students_listing_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -105,15 +115,24 @@ List<GoRoute> staffRoutes = [
       return HomeworkDetailsScreen(homework: homework);
     },
   ),
-
-   GoRoute(path: '/homeworkRankingScreen',
-  name: RouteConstants.homeworkRankingScreen,
-  builder: (context, state) {
-    
-    return HomeworkRankingScreen();
-  },
+  GoRoute(
+    path: '/edithomework',
+    name: RouteConstants.editHomeWork,
+    builder: (context, state) {
+      HomeworkModel homework = state.extra as HomeworkModel;
+      return EditHomeWorkScreen(homework: homework);
+    },
   ),
-  
+
+  GoRoute(
+    path: '/homeworkRankingScreen',
+    name: RouteConstants.homeworkRankingScreen,
+    builder: (context, state) {
+      HomeworkModel homework = state.extra as HomeworkModel;
+      return HomeworkRankingScreen(homework: homework);
+    },
+  ),
+
   //notice
   GoRoute(
     path: '/noticedetails',
@@ -149,6 +168,53 @@ List<GoRoute> staffRoutes = [
     name: RouteConstants.eventListscreen,
     builder: (context, state) {
       return EventListScreen();
+    },
+  ),
+
+  //add student Marks screen
+  GoRoute(
+    path: '/addStudentMarks',
+    name: RouteConstants.addStudentMarks,
+    builder: (context, state) {
+      final MarksUploadModel marks = state.extra as MarksUploadModel;
+      return AddStudentMarksScreen(marks: marks);
+    },
+  ),
+
+
+  //news details screen
+  GoRoute(
+    path: '/newsdetailscreen',
+    name: RouteConstants.newsDetailsScreen,
+    builder: (context, state) {
+      return NewsDetailsScreen();
+    },
+  ),
+
+  GoRoute(
+    path: '/newsScreen',
+    name: RouteConstants.newsScreen,
+    builder: (context, state) {
+      final News news = state.extra as News;
+      return NewsScreenDetails(newModel: news);
+    }),
+   //marks details screen
+  GoRoute(
+    path: '/marksDetails',
+    name: RouteConstants.marksDetails,
+    builder: (context, state) {
+      final MarksModel marks = state.extra as MarksModel;
+      return MarksDetailScreen(marks: marks);
+    },
+  ),
+
+  //marks edit screen
+  GoRoute(
+    path: '/marksEdit',
+    name: RouteConstants.marksEdit,
+    builder: (context, state) {
+      final MarksModel marks = state.extra as MarksModel;
+      return EditMarksScreen(marks: marks);
     },
   ),
 ];
