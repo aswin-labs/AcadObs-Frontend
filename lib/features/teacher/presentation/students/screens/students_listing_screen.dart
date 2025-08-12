@@ -31,10 +31,12 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
   @override
   void initState() {
     dropdownProvider = context.read<DropdownProvider>();
+    studentProvider = context.read<StudentProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       dropdownProvider.clearSelectedItem("standard");
       dropdownProvider.clearSelectedItem("className");
-      context.read<StudentProvider>().clearStudents();
+      studentProvider.clearStudents();
+      // context.read<StudentProvider>().clearStudents();
     });
     super.initState();
   }
@@ -71,6 +73,12 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                                       ? 'Please select a class standard'
                                       : null,
                           onChanged: (standard) {
+                          
+                            studentProvider.clearStudents();
+                            dropdownProvider.clearSelectedItem("className");
+                            classId = null;
+                            className = null;
+
                             context
                                 .read<SharedProvider>()
                                 .getClassNameFromStandard(
@@ -128,7 +136,7 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                   const SizedBox(height: 20),
                   Consumer<StudentProvider>(
                     builder: (context, provider, _) {
-                      if (provider.isLoading && provider.students.isEmpty) {
+                      if (provider.isLoading) {
                         return commonShimmerList();
                       }
                       if (provider.students.isEmpty) {

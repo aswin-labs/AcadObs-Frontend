@@ -1,10 +1,12 @@
+// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ProfileIcon extends StatelessWidget {
-  final String image;
+  // final String image;
+  final IconData icon;
   final VoidCallback? ontap;
 
-  const ProfileIcon({super.key, required this.image, required this.ontap});
+  const ProfileIcon({super.key, required this.ontap, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +39,8 @@ class ProfileIcon extends StatelessWidget {
                 ),
               ),
             ),
-            CircleAvatar(radius: 15, backgroundImage: AssetImage(image)),
+            Icon(icon, color: Colors.grey[500]),
+            // CircleAvatar(radius: 15, backgroundImage: AssetImage(image)),
           ],
         ),
       ),

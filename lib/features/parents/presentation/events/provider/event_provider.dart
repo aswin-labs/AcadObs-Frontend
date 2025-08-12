@@ -73,7 +73,7 @@ class EventProvider extends ChangeNotifier {
     bool isRefresh = false,
     int limit = 3,
   }) async {
-    if (_isLoading) return;
+    if (_isLoading && !isRefresh) return;
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -126,9 +126,38 @@ class EventProvider extends ChangeNotifier {
       }
     } catch (e) {
       _error = 'Error: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-    _isLoading = false;
+  }
+
+  Future<void> fetchHomeLatestEvents({int limit = 3}) async {
+    _isLoading = true;
     notifyListeners();
+    try {
+      final response = await _eventServices.fetchLatestEvents(
+        pageNo: 1,
+        limit: limit,
+      );
+      if (response.statusCode == 200) {
+        final data = response.data['events'];
+        final fetched = List<Events>.from(data.map((e) => Events.fromJson(e)));
+        fetched.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+
+        _latestEvent
+          ..clear()
+          ..addAll(fetched.take(limit));
+        notifyListeners();
+      } else {
+        log("Failed to fetch latest home notices: ${response.statusCode}");
+      }
+    } catch (e) {
+      log("Error in fetchHomeLatestNotices: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   Future<void> fetchHomeLatestEvents({int limit = 3}) async {

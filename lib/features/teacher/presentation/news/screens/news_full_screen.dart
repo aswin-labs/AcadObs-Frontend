@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
@@ -38,7 +39,8 @@ class _NewsDetailsScreenState extends State<NewsDetailsScreen> {
       appBar: const CommonAppBar(title: "News", isBackButton: true),
       body: Consumer<NewsProvider>(
         builder: (context, provider, _) {
-          if (provider.isLoading && provider.newsModel.isEmpty) {
+          if (provider.isLoading) {
+            log("error");
             return commonShimmerList();
           }
 

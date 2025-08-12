@@ -120,11 +120,11 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           horizontal: 16.0,
                         ),
                         tabs: const [
-                          Tab(text: "Profile"),
                           Tab(text: "Acheivement"),
                           Tab(text: "Exam"),
                           Tab(text: "Homework"),
                           Tab(text: 'Leave request'),
+                          Tab(text: "Profile"),
                         ],
                       ),
                     ),
@@ -137,16 +137,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             padding: EdgeInsets.only(top: Responsive.height * 5),
             child: TabBarView(
               children: [
-                // Profile
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
-                    if (student == null) {
-                      return SizedBox.shrink();
-                    }
-                    return StudentProfileTab(student: student);
-                  },
-                ),
                 //acheivment
                 Consumer<StudentProvider>(
                   builder: (context, provider, _) {
@@ -177,6 +167,28 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       return SizedBox.shrink();
                     }
                     return StudentHomeworkPage();
+                  },
+                ),
+
+                //leave requst
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return LeaveLetterScreen();
+                  },
+                ),
+
+                // Profile
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return StudentProfileTab(student: student);
                   },
                 ),
 

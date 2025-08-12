@@ -17,13 +17,14 @@ class StudentProvider extends ChangeNotifier {
   Future<void> fetchStudentsByClassId({required int classId}) async {
     _isLoading = true;
     _students.clear();
+    notifyListeners();
     try {
       final response = await StudentServices().fetchStudentsByClassId(
         classId: classId,
       );
       if (response.statusCode == 200) {
         final data = response.data;
-        final List studentsJson = data['students'];
+        final List studentsJson = data['students'] ?? [];
         final List<StudentModel> fetchedStudents =
             studentsJson
                 .map((jsonItem) => StudentModel.fromJson(jsonItem))
@@ -43,7 +44,9 @@ class StudentProvider extends ChangeNotifier {
 
   // clear students
   void clearStudents() {
+    _isLoading = false;
     _students.clear();
+    individualStudent = null;
     notifyListeners();
   }
 
