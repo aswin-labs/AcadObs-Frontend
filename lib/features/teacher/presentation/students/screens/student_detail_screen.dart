@@ -191,6 +191,17 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     return StudentProfileTab(student: student);
                   },
                 ),
+
+                //leave requst
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return LeaveLetterScreen();
+                  },
+                ),
               ],
             ),
           ),

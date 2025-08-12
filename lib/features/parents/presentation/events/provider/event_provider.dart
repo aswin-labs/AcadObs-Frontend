@@ -160,6 +160,29 @@ class EventProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> fetchHomeLatestEvents({int limit = 3}) async {
+    try {
+      final response = await _eventServices.fetchLatestEvents(
+        pageNo: 1,
+        limit: limit,
+      );
+      if (response.statusCode == 200) {
+        final data = response.data['events'];
+        final fetched = List<Events>.from(data.map((e) => Events.fromJson(e)));
+        fetched.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+
+        _latestEvent
+          ..clear()
+          ..addAll(fetched.take(limit));
+        notifyListeners();
+      } else {
+        log("Failed to fetch latest home notices: ${response.statusCode}");
+      }
+    } catch (e) {
+      log("Error in fetchHomeLatestNotices: $e");
+    }
+  }
+
   void loadMore() {
     if (_hasMore && !_isLoading) {
       fetchLatestEvents(pageNo: _currentPage + 1);

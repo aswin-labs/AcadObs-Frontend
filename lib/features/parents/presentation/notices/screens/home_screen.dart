@@ -82,8 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Positioned(
                   bottom: 20,
                   right: 20,
-                  child: ProfileIcon(
-                    // image: "assets/school.jpg",
+                  child: ProfileIcon(                    // image: "assets/school.jpg",
                     icon: CupertinoIcons.profile_circled,
                     ontap:
                         () => context.pushNamed(
