@@ -1,7 +1,7 @@
 import 'dart:developer';
 
-import 'package:acadobs/features/teacher/data/services/student_services.dart';
-import 'package:acadobs/shared/models/student_model.dart';
+import 'package:acadobs/features/students/data/models/student_model.dart';
+import 'package:acadobs/features/students/data/services/student_services.dart';
 import 'package:flutter/material.dart';
 
 class StudentProvider extends ChangeNotifier {
@@ -11,10 +11,15 @@ class StudentProvider extends ChangeNotifier {
   final List<StudentModel> _students = [];
   List<StudentModel> get students => _students;
 
+  Set<int> _selectedStudentIds = {};
+  bool get isAllSelected =>
+      _students.isNotEmpty && _selectedStudentIds.length == _students.length;
+  Set<int> get selectedStudentIds => _selectedStudentIds;
+
   StudentModel? individualStudent;
 
   // Fetch Students by class id
-  Future<void> fetchStudentsByClassId({required int classId}) async {
+  Future<void> fetchStudentsByClassId({required BuildContext context,required int classId,bool forSelection = false}) async {
     _isLoading = true;
     _students.clear();
     notifyListeners();
@@ -47,6 +52,39 @@ class StudentProvider extends ChangeNotifier {
     _isLoading = false;
     _students.clear();
     individualStudent = null;
+    notifyListeners();
+  }
+
+  // student selection multiple
+  void toggleStudentSelection(int studentId) {
+    if (_selectedStudentIds.contains(studentId)) {
+      _selectedStudentIds.remove(studentId);
+    } else {
+      _selectedStudentIds.add(studentId);
+    }
+    notifyListeners();
+  }
+
+  // student selection single
+  void toggleSingleStudentSelection(int studentId) {
+    if (_selectedStudentIds.contains(studentId)) {
+      _selectedStudentIds.clear();
+    } else {
+      _selectedStudentIds
+        ..clear()
+        ..add(studentId);
+    }
+    notifyListeners();
+  }
+
+  // select all students
+  void selectAllStudents() {
+    _selectedStudentIds = _students.map((e) => e.id).toSet();
+    notifyListeners();
+  }
+
+  void deselectAllStudents() {
+    _selectedStudentIds.clear();
     notifyListeners();
   }
 

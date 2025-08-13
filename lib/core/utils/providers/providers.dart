@@ -10,7 +10,7 @@ import 'package:acadobs/features/teacher/presentation/homework/provider/homework
 import 'package:acadobs/features/teacher/presentation/news/provider/news_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
 import 'package:acadobs/features/teacher/presentation/marks/provider/marks_provider.dart';
-import 'package:acadobs/features/teacher/presentation/students/provider/student_provider.dart';
+import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/shared/providers/subject_provider.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';

@@ -3,10 +3,10 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/teacher/data/models/marks/marks_upload_model.dart';
 import 'package:acadobs/features/teacher/presentation/marks/provider/marks_provider.dart';
 import 'package:acadobs/features/teacher/presentation/marks/widgets/grade_card.dart';
-import 'package:acadobs/shared/providers/shared_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_floating_action_button.dart';
 import 'package:flutter/material.dart';
@@ -21,15 +21,15 @@ class AddStudentMarksScreen extends StatefulWidget {
 }
 
 class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
-  late SharedProvider studentProvider;
+  late StudentProvider studentProvider;
   late MarksProvider marksProvider;
   final Map<int, TextEditingController> _marksControllers = {};
   final Map<int, String> _statusMap = {};
   @override
   void initState() {
     super.initState();
-    studentProvider = context.read<SharedProvider>();
-    studentProvider.fetchStudentsByClassId(classId: widget.marks.classId).then((
+    studentProvider = context.read<StudentProvider>();
+    studentProvider.fetchStudentsByClassId(context:context, classId: widget.marks.classId).then((
       _,
     ) {
       final students = studentProvider.students;
@@ -113,7 +113,7 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
                         ],
                       ),
                       SizedBox(height: 20),
-                      Consumer<SharedProvider>(
+                      Consumer<StudentProvider>(
                         builder: (context, provider, _) {
                           if (provider.isLoading && provider.students.isEmpty) {
                             return commonShimmerList();

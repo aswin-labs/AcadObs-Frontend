@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:acadobs/features/parents/data/models/event_model.dart';
 import 'package:acadobs/features/parents/data/services/event_services.dart';
 import 'package:flutter/material.dart';
@@ -157,29 +158,6 @@ class EventProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
-    }
-  }
-
-  Future<void> fetchHomeLatestEvents({int limit = 3}) async {
-    try {
-      final response = await _eventServices.fetchLatestEvents(
-        pageNo: 1,
-        limit: limit,
-      );
-      if (response.statusCode == 200) {
-        final data = response.data['events'];
-        final fetched = List<Events>.from(data.map((e) => Events.fromJson(e)));
-        fetched.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
-
-        _latestEvent
-          ..clear()
-          ..addAll(fetched.take(limit));
-        notifyListeners();
-      } else {
-        log("Failed to fetch latest home notices: ${response.statusCode}");
-      }
-    } catch (e) {
-      log("Error in fetchHomeLatestNotices: $e");
     }
   }
 

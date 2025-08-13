@@ -1,4 +1,4 @@
-import 'package:acadobs/features/teacher/presentation/students/widgets/mark_card.dart';
+import 'package:acadobs/features/students/presentation/widgets/mark_card.dart';
 import 'package:flutter/material.dart';
 
 class StudentExamDetailScreen extends StatelessWidget {

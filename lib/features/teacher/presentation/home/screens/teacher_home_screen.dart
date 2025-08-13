@@ -12,8 +12,8 @@ import 'package:acadobs/features/parents/presentation/notices/provider/notice_pr
 import 'package:acadobs/features/parents/presentation/notices/widgets/notice_card.dart';
 // import 'package:acadobs/features/teacher/data/models/news/new_model.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
-import 'package:acadobs/features/teacher/presentation/news/widgets/news_card.dart';
 import 'package:acadobs/features/teacher/presentation/news/provider/news_provider.dart';
+import 'package:acadobs/features/teacher/presentation/news/widgets/news_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
@@ -37,9 +37,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<EventProvider>().fetchHomeLatestEvents(limit: 3);
-    context.read<NoticeProvider>().fetchHomeLatestNotices(limit: 3);
-    context.read<NewsProvider>().fetchHomeLatestNews(limit: 3);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<EventProvider>().fetchHomeLatestEvents(limit: 3);
+      context.read<NoticeProvider>().fetchHomeLatestNotices(limit: 3);
+      context.read<NewsProvider>().fetchHomeLatestNews(limit: 3);
+    });
   }
 
   @override
@@ -50,6 +52,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
           EdgeInsets.only(top: Responsive.height * 5),
         ),
         child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
           child: Column(
             children: [
               Row(
@@ -65,7 +68,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         ),
                       ),
                       Text(
-                        "Arun",
+                        "Teacher",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF555555),
@@ -293,6 +296,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   );
                 },
               ),
+              SizedBox(height: Responsive.height * 10),
             ],
           ),
         ),

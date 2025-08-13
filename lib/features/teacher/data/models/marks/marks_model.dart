@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:acadobs/shared/models/class_grade_model.dart';
-import 'package:acadobs/shared/models/student_model.dart';
+import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/shared/models/subject_model.dart';
 
 MarksModel marksModelFromJson(String str) =>
