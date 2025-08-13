@@ -34,7 +34,7 @@ class ApiEndpoints {
   static const String fetchLatestNotices = "/staff/getLatestNotices";
 
   //events
-  static const String fetchLatestEvents = "/staff/getLatestEvents";
+  static const String fetchLatestEventsStaff = "/staff/getLatestEvents";
 
   //news
   static const String fetchLatestNews = "/staff/getLatestNews";
@@ -44,4 +44,8 @@ class ApiEndpoints {
   static const String marksAddedByTeacher =
       "/staff/getInternalMarkByRecordedBy";
   static const String marksBulkUpdate = "/staff/bulkUpdateMarks";
+
+  //GUARDIAN
+  static const String fetchLatestEventsGuardian = "/guardian/getLatestEvents";
+  static const String fetchLatestNewsGuardian = "/guardian/getLatestNews";
 }

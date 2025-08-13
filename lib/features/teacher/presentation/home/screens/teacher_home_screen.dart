@@ -6,14 +6,14 @@ import 'package:acadobs/core/utils/common_shimmer_tile.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/parents/presentation/events/provider/event_provider.dart';
-import 'package:acadobs/features/parents/presentation/events/widgets/event_card.dart';
-import 'package:acadobs/features/parents/presentation/notices/provider/notice_provider.dart';
-import 'package:acadobs/features/parents/presentation/notices/widgets/notice_card.dart';
-// import 'package:acadobs/features/teacher/data/models/news/new_model.dart';
+import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
+import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
+import 'package:acadobs/features/notices/provider/notice_provider.dart';
+import 'package:acadobs/features/notices/widgets/notice_card.dart';
+
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
-import 'package:acadobs/features/teacher/presentation/news/widgets/news_card.dart';
-import 'package:acadobs/features/teacher/presentation/news/provider/news_provider.dart';
+import 'package:acadobs/features/news/widgets/news_card.dart';
+import 'package:acadobs/features/news/provider/news_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
@@ -76,10 +76,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   ),
                   Spacer(),
                   ProfileIcon(
-                    // image: "assets/school.jpg",
                     icon: CupertinoIcons.profile_circled,
                     ontap: () {
-                      // print('teacher profile');
                       context.pushNamed(
                         RouteConstants.profileScreen,
                         extra: UserModel(
@@ -95,17 +93,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
               SizedBox(height: 30),
 
-              // Row(
-              //   children: [
-              //     CustomNameContainer(
-              //       text: "Student",
-              //       onPressed:
-              //           () => context.pushNamed(RouteConstants.studentListing),
-              //     ),
-              //     SizedBox(width: 10),
-              //     CustomNameContainer(text: "Parent", onPressed: () {}),
-              //   ],
-              // ),
               SizedBox(height: 20),
               CustomButtonContainer(
                 color: Color(0xFF22AE22),
@@ -138,7 +125,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
 
               //notice listing in the teacher home screen
               Consumer<NoticeProvider>(
@@ -192,13 +178,15 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   Spacer(),
                   TextButton(
                     onPressed: () {
-                      context.pushNamed(RouteConstants.eventListscreen);
+                      context.pushNamed(
+                        RouteConstants.eventListscreen,
+                        extra: true,
+                      );
                     },
                     child: Text("View", style: TextStyle(color: Colors.black)),
                   ),
                 ],
               ),
-              SizedBox(height: 10),
 
               //listing latest events
               Consumer<EventProvider>(
@@ -247,7 +235,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   Spacer(),
                   TextButton(
                     onPressed: () {
-                      context.pushNamed(RouteConstants.newsDetailsScreen);
+                      context.pushNamed(
+                        RouteConstants.newsDetailsScreen,
+                        extra: true,
+                      );
                     },
                     child: Text("View", style: TextStyle(color: Colors.black)),
                   ),
@@ -278,14 +269,15 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           final formattedDate = DateFormat(
                             'dd-MM-yy',
                           ).format(news.date);
-                          final formattedTime = DateFormat(
-                            'hh:mm a',
-                          ).format(news.date);
+                          // final formattedTime = DateFormat(
+                          //   'hh:mm a',
+                          // ).format(news.date);
                           return NewsCard(
                             news: news,
                             button: () {},
                             date: formattedDate,
-                            time: formattedTime,
+                            // time: formattedTime,
+                            time: TimeFormatter.formatTime(news.createdAt),
                             title: capitalizeEachWord(news.title),
                             content: news.content,
                           );

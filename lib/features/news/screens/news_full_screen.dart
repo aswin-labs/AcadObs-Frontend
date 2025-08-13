@@ -3,18 +3,22 @@ import 'dart:developer';
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
-import 'package:acadobs/core/utils/helpers/date_formatter.dart';
+import 'package:acadobs/core/utils/helpers/time_formatter.dart';
+// import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 // import 'package:acadobs/core/utils/helpers/time_formatter.dart';
-import 'package:acadobs/features/teacher/presentation/news/widgets/news_card.dart';
-import 'package:acadobs/features/teacher/presentation/news/provider/news_provider.dart';
+import 'package:acadobs/features/news/widgets/news_card.dart';
+import 'package:acadobs/features/news/provider/news_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class NewsDetailsScreen extends StatefulWidget {
-  const NewsDetailsScreen({super.key});
+  final bool isStaff;
+  const NewsDetailsScreen({super.key, this.isStaff = true});
 
   @override
   State<NewsDetailsScreen> createState() => _NewsDetailsScreenState();
@@ -26,7 +30,10 @@ class _NewsDetailsScreenState extends State<NewsDetailsScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        Provider.of<NewsProvider>(
+  widget.isStaff ?    Provider.of<NewsProvider>(
+          context,
+          listen: false,
+        ).fetchNews(limit: AppConstants.paginationLimit, isRefresh: true): Provider.of<NewsProvider>(
           context,
           listen: false,
         ).fetchNews(limit: AppConstants.paginationLimit, isRefresh: true);
@@ -105,7 +112,7 @@ class _NewsDetailsScreenState extends State<NewsDetailsScreen> {
                               ),
                           date: DateFormatter.formatDateTime(news.date),
                           // time: DateFormatter.formatDateTime(news.date),
-                          time: "",
+                          time: TimeFormatter.formatTime(news.createdAt),
 
                           title: capitalizeEachWord(news.title),
                           content: capitalizeEachWord(news.content),
@@ -133,7 +140,7 @@ class _NewsDetailsScreenState extends State<NewsDetailsScreen> {
                               ),
                           date: DateFormatter.formatDateTime(news.date),
                           // time: DateFormatter.formatDateTime(news.date),
-                          time: "",
+                          time: TimeFormatter.formatTime(news.createdAt),
                           title: capitalizeEachWord(news.title),
                           content: capitalizeEachWord(news.content),
                         ),
@@ -158,9 +165,10 @@ class _NewsDetailsScreenState extends State<NewsDetailsScreen> {
                                 RouteConstants.newsScreen,
                                 extra: news,
                               ),
+                          // time: DateFormatter.formatTime(news.createdAt),
+                          time: TimeFormatter.formatTime(news.createdAt),
+
                           date: DateFormatter.formatDateTime(news.date),
-                          // time: DateFormatter.formatDateTime(news.date),
-                          time: '',
                           title: capitalizeEachWord(news.title),
                           content: capitalizeEachWord(news.content),
                         ),
@@ -183,5 +191,16 @@ class _NewsDetailsScreenState extends State<NewsDetailsScreen> {
       ),
       // ),
     );
+  }
+}
+
+class DateFormatter {
+  // static String formatTime(DateTime dateTime) {
+
+  //   return DateFormat('hh:mm a').format(dateTime);
+  // }
+
+  static String formatDateTime(DateTime dateTime) {
+    return DateFormat('dd-MM-yyyy').format(dateTime);
   }
 }
