@@ -1,16 +1,26 @@
-import 'package:acadobs/shared/providers/shared_provider.dart';
+import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 class StudentsPicker extends StatelessWidget {
   final int classId;
-  const StudentsPicker({super.key, required this.classId});
+  final bool selectAllNeeded;
+  const StudentsPicker({
+    super.key,
+    required this.classId,
+    this.selectAllNeeded = true,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => showStudentSelectionPopup(context, classId),
+      onTap:
+          () => showStudentSelectionPopup(
+            context,
+            classId,
+            selectAllNeeded: selectAllNeeded,
+          ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
@@ -40,17 +50,18 @@ class StudentsPicker extends StatelessWidget {
 
 Future<void> showStudentSelectionPopup(
   BuildContext context,
-  int classId,
-) async {
-  final provider = context.read<SharedProvider>();
+  int classId, {
+  bool selectAllNeeded = true,
+}) async {
+  final provider = context.read<StudentProvider>();
 
   // Fetch students if not already done
-  await provider.fetchStudentsByClassId(classId: classId);
+  await provider.fetchStudentsByClassId(context:context, classId: classId);
   if (!context.mounted) return;
   showDialog(
     context: context,
     builder: (context) {
-      return Consumer<SharedProvider>(
+      return Consumer<StudentProvider>(
         builder: (context, provider, _) {
           final students = provider.students;
 
@@ -59,24 +70,26 @@ Future<void> showStudentSelectionPopup(
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  children: [
-                    Checkbox(
-                      value: provider.isAllSelected,
-                      onChanged: (_) {
-                        if (provider.isAllSelected) {
-                          provider.deselectAllStudents();
-                        } else {
-                          provider.selectAllStudents();
-                        }
-                      },
-                    ),
-                    const Text("Select All"),
-                  ],
-                ),
+                selectAllNeeded
+                    ? Row(
+                      children: [
+                        Checkbox(
+                          value: provider.isAllSelected,
+                          onChanged: (_) {
+                            if (provider.isAllSelected) {
+                              provider.deselectAllStudents();
+                            } else {
+                              provider.selectAllStudents();
+                            }
+                          },
+                        ),
+                        const Text("Select All"),
+                      ],
+                    )
+                    : SizedBox.shrink(),
                 const Divider(),
                 SizedBox(
-                  height: 300, // scrollable height
+                  height: 320, // scrollable height
                   width: 300,
                   child: ListView.builder(
                     itemCount: students.length,
@@ -90,7 +103,14 @@ Future<void> showStudentSelectionPopup(
                         title: Text(student.fullName), // or roll no etc.
                         value: isSelected,
                         onChanged:
-                            (_) => provider.toggleStudentSelection(student.id),
+                            (_) =>
+                                selectAllNeeded
+                                    ? provider.toggleStudentSelection(
+                                      student.id,
+                                    )
+                                    : provider.toggleSingleStudentSelection(
+                                      student.id,
+                                    ),
                       );
                     },
                   ),

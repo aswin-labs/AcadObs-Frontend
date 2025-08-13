@@ -3,11 +3,12 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/teacher/presentation/students/provider/student_provider.dart';
+import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
 import 'package:acadobs/shared/widgets/profile_tile.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +74,6 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                                       ? 'Please select a class standard'
                                       : null,
                           onChanged: (standard) {
-                          
                             studentProvider.clearStudents();
                             dropdownProvider.clearSelectedItem("className");
                             classId = null;
@@ -123,6 +123,7 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                                   context
                                       .read<StudentProvider>()
                                       .fetchStudentsByClassId(
+                                        context: context,
                                         classId: classId ?? 1,
                                       );
                                 },
@@ -166,12 +167,18 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 40),
+                  SizedBox(height: Responsive.height * 10),
                 ],
               ),
             ),
           ),
         ],
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16),
+        child: CommonFloatingButton(
+          onPressed: () => context.pushNamed(RouteConstants.addAchievements),
+        ),
       ),
     );
   }

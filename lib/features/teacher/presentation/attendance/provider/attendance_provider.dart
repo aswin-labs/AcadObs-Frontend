@@ -2,10 +2,10 @@ import 'dart:developer';
 
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
+import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_model.dart';
 import 'package:acadobs/features/teacher/data/services/attendance_services.dart';
 import 'package:acadobs/routes/router_constants.dart';
-import 'package:acadobs/shared/models/student_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -41,7 +41,6 @@ class AttendanceProvider extends ChangeNotifier {
 
   bool _isFetchedOnce = false;
   bool get hasFetchedOnce => _isFetchedOnce;
-
 
   final int _teacherId = 3;
 
@@ -279,8 +278,8 @@ class AttendanceProvider extends ChangeNotifier {
         _isFetchedOnce = false;
       }
       if (!loadMore) {
-    _attendanceByTeacher.clear(); // 🔄 Move here!
-  }
+        _attendanceByTeacher.clear(); // 🔄 Move here!
+      }
 
       final response = await AttendanceServices().fetchAttendanceByTeacher(
         pageNo: _currentPage,
@@ -422,6 +421,11 @@ class AttendanceProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         await fetchAttendanceByTeacher(forceRefresh: true);
         if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: "Attendance Edited Successfully",
+          type: SnackbarType.success,
+        );
         context.pushNamed(
           RouteConstants.bottomNavScreen,
           extra: UserType.teacher,

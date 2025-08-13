@@ -12,7 +12,7 @@ import 'package:acadobs/features/teacher/presentation/attendance/screens/attenda
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/teacher_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/marks/screens/marks_home_screen.dart';
-import 'package:acadobs/features/teacher/presentation/payments/screens/payments_home_screen.dart';
+import 'package:acadobs/features/teacher/presentation/chats/screens/chats_home_screen.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -46,7 +46,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         AttendanceHomeScreen(),
         MarksHomeScreen(),
         DutyHomeScreen(),
-        PaymentsHomeScreen(),
+        ChatsHomeScreen(),
       ];
     } else if (userType == UserType.parent) {
       return [
@@ -87,7 +87,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         _bottomNavItem(icon: LucideIcons.calendarCheck, label: 'Attendance'),
         _bottomNavItem(icon: LucideIcons.fileText, label: 'Marks'),
         _bottomNavItem(icon: LucideIcons.listTodo, label: 'Duties'),
-        _bottomNavItem(icon: LucideIcons.creditCard, label: 'Payments'),
+        _bottomNavItem(icon: LucideIcons.messageSquarePlus, label: 'Chats'),
       ];
     } else if (userType == UserType.parent) {
       return [

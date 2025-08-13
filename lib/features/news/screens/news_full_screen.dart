@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';

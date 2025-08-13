@@ -36,6 +36,8 @@ class RouteConstants {
   static const String newsDetailsScreen = "newsdetailscreen";
   static const String newsScreen = "newsScreen";
 
+  static const String addAchievements = 'addAchievements';
+
   //PARENT
   static const String noticedetails = 'noticedetails';
   static const String eventlistdetails = 'eventlistdetails';

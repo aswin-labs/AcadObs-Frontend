@@ -3,8 +3,10 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/provider/attendance_provider.dart';
+import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
@@ -194,6 +196,12 @@ class _AttendanceHomeScreenState extends State<AttendanceHomeScreen> {
               ),
             ),
           ],
+        ),
+      ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16),
+        child: CommonFloatingButton(
+          onPressed: () => showAttendanceBottomSheet(context),
         ),
       ),
     );

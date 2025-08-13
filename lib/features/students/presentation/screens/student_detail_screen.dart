@@ -1,12 +1,12 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/profile_container_shimmer.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/teacher/presentation/students/provider/student_provider.dart';
-import 'package:acadobs/features/teacher/presentation/students/widgets/leave_letter_screen.dart';
-import 'package:acadobs/features/teacher/presentation/students/widgets/student_acheivement_tab.dart';
-import 'package:acadobs/features/teacher/presentation/students/widgets/student_exam_detail_screen.dart';
-import 'package:acadobs/features/teacher/presentation/students/widgets/student_homework_page.dart';
-import 'package:acadobs/features/teacher/presentation/students/widgets/student_profile_tab.dart';
+import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
+import 'package:acadobs/features/students/presentation/widgets/leave_letter_screen.dart';
+import 'package:acadobs/features/students/presentation/widgets/student_acheivement_tab.dart';
+import 'package:acadobs/features/students/presentation/widgets/student_exam_detail_screen.dart';
+import 'package:acadobs/features/students/presentation/widgets/student_homework_page.dart';
+import 'package:acadobs/features/students/presentation/widgets/student_profile_tab.dart';
 import 'package:acadobs/shared/widgets/profile_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -189,6 +189,17 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       return SizedBox.shrink();
                     }
                     return StudentProfileTab(student: student);
+                  },
+                ),
+
+                //leave requst
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return LeaveLetterScreen();
                   },
                 ),
               ],
