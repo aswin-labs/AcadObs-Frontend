@@ -1,9 +1,11 @@
-import 'package:acadobs/features/parents/data/models/event_model.dart';
+import 'package:acadobs/features/events/data/models/event_model.dart';
+import 'package:acadobs/features/news/screens/news_full_screen.dart';
+import 'package:acadobs/features/news/screens/news_screen_details.dart';
 import 'package:acadobs/features/parents/data/models/notice_model.dart';
-import 'package:acadobs/features/parents/presentation/events/screens/event_detail_screen.dart';
-import 'package:acadobs/features/parents/presentation/events/screens/event_list_screen.dart';
-import 'package:acadobs/features/parents/presentation/notices/screens/notice_details_screen.dart';
-import 'package:acadobs/features/parents/presentation/notices/screens/notice_screen.dart';
+import 'package:acadobs/features/events/presentation/screens/event_detail_screen.dart';
+import 'package:acadobs/features/events/presentation/screens/event_list_screen.dart';
+import 'package:acadobs/features/notices/screens/notice_details_screen.dart';
+import 'package:acadobs/features/notices/screens/notice_screen.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_model.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
 import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
@@ -18,6 +20,7 @@ import 'package:acadobs/features/teacher/presentation/attendance/screens/attenda
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_taking_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
+
 import 'package:acadobs/features/teacher/presentation/homework/screens/edit_home_work_screen.dart';
 import 'package:acadobs/features/teacher/presentation/homework/screens/homework_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/homework/screens/homework_ranking_screen.dart';
@@ -27,8 +30,6 @@ import 'package:acadobs/features/teacher/presentation/leave_request/screens/teac
 import 'package:acadobs/features/teacher/presentation/marks/screens/add_student_marks_screen.dart';
 import 'package:acadobs/features/teacher/presentation/marks/screens/edit_marks_screen.dart';
 import 'package:acadobs/features/teacher/presentation/marks/screens/marks_detail_screen.dart';
-import 'package:acadobs/features/teacher/presentation/news/screens/news_full_screen.dart';
-import 'package:acadobs/features/teacher/presentation/news/screens/news_screen_details.dart';
 import 'package:acadobs/features/students/presentation/screens/student_detail_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/students_listing_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -168,7 +169,8 @@ List<GoRoute> staffRoutes = [
     path: '/eventListscreen',
     name: RouteConstants.eventListscreen,
     builder: (context, state) {
-      return EventListScreen();
+      final forStaff = state.extra as bool;
+      return EventListScreen(forStaff: forStaff);
     },
   ),
 
@@ -187,7 +189,8 @@ List<GoRoute> staffRoutes = [
     path: '/newsdetailscreen',
     name: RouteConstants.newsDetailsScreen,
     builder: (context, state) {
-      return NewsDetailsScreen();
+      final isStaff = state.extra as bool;
+      return NewsDetailsScreen(isStaff: isStaff);
     },
   ),
 

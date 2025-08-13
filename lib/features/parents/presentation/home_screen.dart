@@ -1,14 +1,24 @@
+import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
-import 'package:acadobs/features/parents/presentation/notices/provider/notice_provider.dart';
-import 'package:acadobs/features/parents/presentation/notices/widgets/notice_card.dart';
+
+import 'package:acadobs/core/utils/helpers/time_formatter.dart';
+import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
+import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
+import 'package:acadobs/features/news/provider/news_provider.dart';
+import 'package:acadobs/features/news/widgets/news_card.dart';
+
+import 'package:acadobs/features/notices/provider/notice_provider.dart';
+import 'package:acadobs/features/notices/widgets/notice_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
-// import 'package:acadobs/shared/widgets/custom_button_container.dart';
+
 import 'package:acadobs/shared/widgets/profile_icon.dart';
 import 'package:acadobs/shared/widgets/profile_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -23,6 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     context.read<NoticeProvider>().fetchLatestNotices(limit: 3);
+    context.read<EventProvider>().fetchHomeLatestEvents(limit: 3);
+    context.read<NewsProvider>().fetchHomeLatestNews(limit: 3);
   }
 
   @override
@@ -104,11 +116,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   const SizedBox(height: 20),
 
-                  // CustomButtonContainer(
-                  //   color: Colors.black,
-                  //   text: 'leave request',
-                  //   ontap: () {},
-                  // ),
                   const SizedBox(height: 24),
                   Align(
                     alignment: Alignment.centerLeft,
@@ -159,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   //notice listing in the parent home screen
                   Consumer<NoticeProvider>(
                     builder: (context, provider, _) {
-                      final notices = provider.notices;
+                      final notices = provider.latestNotices;
                       if (provider.isLoading && notices.isEmpty) {
                         return const Center(child: CircularProgressIndicator());
                       }
@@ -198,18 +205,119 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   ),
 
-                  // NoticeCard(
-                  //   title: 'PTA Meeting Class X',
-                  //   date: "21-07-2025",
-                  //   icon: Icons.notifications,
-                  //   time: "12:30",
-                  //   onTap: () {},
-                  // ),
+                  SizedBox(height: 20),
+
+                  //events listing
+                  Row(
+                    children: [
+                      Text(
+                        "Events",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Spacer(),
+                      TextButton(
+                        onPressed: () {
+                          context.pushNamed(
+                            RouteConstants.eventListscreen,
+                            extra: false,
+                          );
+                        },
+                        child: Text("view"),
+                      ),
+                    ],
+                  ),
+                  Consumer<EventProvider>(
+                    builder: (context, provider, _) {
+                      final events = provider.latestEvent;
+                      if (provider.isLoading) {
+                        return Center(child: commonShimmerList());
+                      } else if (events.isEmpty) {
+                        return Column(
+                          children: [
+                            Icon(Icons.event_busy_rounded, color: Colors.grey),
+                            Text(
+                              "No News Avaliable",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return Column(
+                        children:
+                            events.map((events) {
+                              return EventCard(
+                                event: events,
+                                onViewTap: () {},
+                                time: TimeFormatter.formatTime(
+                                  events.createdAt ?? DateTime.now(),
+                                ),
+                              );
+                            }).toList(),
+                      );
+                    },
+                  ),
+
+                  //listing news
+                  SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Text(
+                        'News',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Spacer(),
+                      TextButton(
+                        onPressed: () {
+                          context.pushNamed(
+                            RouteConstants.newsDetailsScreen,
+                            extra: false,
+                          );
+                        },
+                        child: Text('View'),
+                      ),
+                    ],
+                  ),
+                  Consumer<NewsProvider>(
+                    builder: (context, provider, _) {
+                      final news = provider.latestNews;
+                      if (provider.isLoading) {
+                        return Center(child: commonShimmerList());
+                      } else if (news.isEmpty) {
+                        return Column(
+                          children: [
+                            Icon(Icons.event_busy_rounded, color: Colors.grey),
+                            Text(
+                              "No News Avaliable",
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return Column(
+                        children:
+                            news.map((news) {
+                              final formattedDate = DateFormat(
+                                'dd-MM-yy',
+                              ).format(news.date);
+
+                              return NewsCard(
+                                news: news,
+                                button: () {},
+                                date: formattedDate,
+                                // time: formattedTime,
+                                time: TimeFormatter.formatTime(news.createdAt),
+                                title: capitalizeEachWord(news.title),
+                                content: news.content,
+                              );
+                            }).toList(),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
-
-            ///////////////
           ],
         ),
       ),

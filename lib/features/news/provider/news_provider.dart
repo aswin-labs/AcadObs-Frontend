@@ -27,7 +27,7 @@ class NewsProvider extends ChangeNotifier {
               now.month == e.date.month &&
               now.day == e.date.day;
         }).toList()
-        ..sort((a, b) => (b.date).compareTo(a.date));
+        ..sort((a, b) => (b.createdAt).compareTo(a.createdAt));
 
   //distinguishing yesterday event
   List<News> get yesterdayNews =>
@@ -38,7 +38,7 @@ class NewsProvider extends ChangeNotifier {
               yesterday.month == e.date.month &&
               yesterday.day == e.date.day;
         }).toList()
-        ..sort((a, b) => (b.date).compareTo(a.date));
+        ..sort((a, b) => (b.createdAt).compareTo(a.createdAt));
 
   //distinguishing earlier event
   List<News> get earlierNews {
@@ -50,7 +50,7 @@ class NewsProvider extends ChangeNotifier {
         final created = DateTime(e.date.year, e.date.month, e.date.day);
         return created.isBefore(yesterday);
       }).toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   String? get error => _error;
@@ -85,7 +85,7 @@ class NewsProvider extends ChangeNotifier {
         }
 
         final fetched = List<News>.from(data.map((e) => News.fromJson(e)));
-        fetched.sort((a, b) => b.date.compareTo(a.date));
+        fetched.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         if (isRefresh) {
           _newsModel = fetched;
           _currentPage = 1;
@@ -119,7 +119,7 @@ class NewsProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data['news'];
         final fetched = List<News>.from(data.map((e) => News.fromJson(e)));
-        fetched.sort((a, b) => b.date.compareTo(a.date));
+        fetched.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
         _newsLatest
           ..clear()
@@ -130,6 +130,35 @@ class NewsProvider extends ChangeNotifier {
       }
     } catch (e) {
       log("Error in fetchHomeLatestNotices: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  //latest news for the guardian
+  Future<void> fetchGuardianLatestNews({int limit = 3}) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final response = await _newsService.fetchNewsGuardian(
+        pageNo: 1,
+        limit: limit,
+      );
+      if (response.statusCode == 200) {
+        final data = response.data['news'];
+        final fetched = List<News>.from(data.map((e) => News.fromJson(e)));
+        fetched.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+        _newsLatest
+          ..clear()
+          ..addAll(fetched.take(limit));
+        notifyListeners();
+      } else {
+        log("Failed to fetch latest home news: ${response.statusCode}");
+      }
+    } catch (e) {
+      log("Error in fetchGuardianLatestNews: $e");
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -1,7 +1,9 @@
 import 'dart:developer';
 
-import 'package:acadobs/features/parents/data/models/event_model.dart';
-import 'package:acadobs/features/parents/data/services/event_services.dart';
+
+
+import 'package:acadobs/features/events/data/models/event_model.dart';
+import 'package:acadobs/features/events/data/services/event_services.dart';
 import 'package:flutter/material.dart';
 
 class EventProvider extends ChangeNotifier {
@@ -15,6 +17,10 @@ class EventProvider extends ChangeNotifier {
 
   List<Events> get events => _events;
   List<Events> get latestEvent => _latestEvent;
+
+  //for the parents
+  final List<Events> _eventsGuardian = [];
+  List<Events> get eventsGuardian => _eventsGuardian;
 
   //distinguishing today event
   List<Events> get todayEvents =>
@@ -52,7 +58,7 @@ class EventProvider extends ChangeNotifier {
       _events.where((e) {
           if (e.createdAt == null) return false;
           final now = DateTime.now();
-          // final yesterday = now.subtract(Duration(days: 1));
+
           final todayMidnight = DateTime(now.year, now.month, now.day);
           return e.createdAt!.isBefore(
             todayMidnight.subtract(const Duration(days: 1)),
@@ -99,10 +105,7 @@ class EventProvider extends ChangeNotifier {
         final fetched = List<Events>.from(data.map((e) => Events.fromJson(e)));
 
         // Avoid adding duplicate events (based on unique id)
-        final existingIds =
-            _events
-                .map((e) => e.id)
-                .toSet(); // assuming each event has a unique id
+        final existingIds = _events.map((e) => e.id).toSet();
         final newEvents =
             fetched.where((e) => !existingIds.contains(e.id)).toList();
 
@@ -116,7 +119,6 @@ class EventProvider extends ChangeNotifier {
           _events = fetched;
           _currentPage = 1;
         } else {
-          // _events.addAll(fetched);
           _events.addAll(newEvents);
 
           _currentPage = pageNo;
@@ -140,6 +142,35 @@ class EventProvider extends ChangeNotifier {
       final response = await _eventServices.fetchLatestEvents(
         pageNo: 1,
         limit: limit,
+      );
+      if (response.statusCode == 200) {
+        final data = response.data['events'];
+        final fetched = List<Events>.from(data.map((e) => Events.fromJson(e)));
+        fetched.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+
+        _latestEvent
+          ..clear()
+          ..addAll(fetched.take(limit));
+        notifyListeners();
+      } else {
+        log("Failed to fetch latest home notices: ${response.statusCode}");
+      }
+    } catch (e) {
+      log("Error in fetchHomeLatestNotices: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  //for the guardian latest events
+  Future<void> fetchGuardianLatestEvents({int limit = 3}) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final response = await _eventServices.fetchLatestEventsGuardian(
+        limit: limit,
+        pageNo: 1,
       );
       if (response.statusCode == 200) {
         final data = response.data['events'];

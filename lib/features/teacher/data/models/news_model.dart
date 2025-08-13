@@ -13,6 +13,8 @@ class News {
   int? userId;
   String? file;
   bool? trash;
+  DateTime createdAt;
+  DateTime? updatedAt;
 
   News({
     this.id,
@@ -23,6 +25,8 @@ class News {
     this.userId,
     this.file,
     this.trash,
+   required this.createdAt,
+    this.updatedAt,
   });
 
   factory News.fromJson(Map<String, dynamic> json) => News(
@@ -35,6 +39,18 @@ class News {
     userId: json["user_id"],
     file: json["file"],
     trash: json["trash"],
+    // createdAt: DateTime.parse(json["createdAt"]),
+    // createdAt:
+    //     json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+    createdAt:
+        json["createdAt"] != null && json["createdAt"].toString().isNotEmpty
+            ? DateTime.parse(json["createdAt"])
+            : json["date"] != null
+            ? DateTime.parse(json["date"])
+            : DateTime.now(),
+
+    updatedAt:
+        json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -49,5 +65,7 @@ class News {
     "user_id": userId,
     "file": file,
     "trash": trash,
+    "createdAt": createdAt.toIso8601String(),
+    "updatedAt": updatedAt?.toIso8601String(),
   };
 }

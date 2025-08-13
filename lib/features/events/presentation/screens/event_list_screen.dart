@@ -1,7 +1,7 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
-import 'package:acadobs/features/parents/presentation/events/widgets/event_card.dart';
-import 'package:acadobs/features/parents/presentation/events/provider/event_provider.dart';
+import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
+import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +9,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class EventListScreen extends StatefulWidget {
-  const EventListScreen({super.key});
+ final  bool forStaff ;
+  const EventListScreen({super.key, this.forStaff=true});
 
   @override
   State<EventListScreen> createState() => _EventListScreenState();
@@ -21,7 +22,8 @@ class _EventListScreenState extends State<EventListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        Provider.of<EventProvider>(context, listen: false).fetchLatestEvents(limit: 10);
+       widget.forStaff? Provider.of<EventProvider>(context, listen: false).fetchLatestEvents(limit: 10): 
+       Provider.of<EventProvider>(context, listen: false).fetchGuardianLatestEvents(limit: 10);
       }
     });
   }

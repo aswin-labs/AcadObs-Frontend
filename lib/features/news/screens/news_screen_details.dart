@@ -1,5 +1,6 @@
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
+import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/teacher/data/models/news_model.dart';
@@ -85,7 +86,7 @@ class NewsScreenDetails extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Color(0xFFFFDFCE),
+                      color: Color.fromARGB(255, 162, 100, 180),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Padding(
@@ -93,7 +94,7 @@ class NewsScreenDetails extends StatelessWidget {
                       child: Text(
                         DateFormatter.formatDateTime(newModel.date),
                         style: TextStyle(
-                          color: Color(0xFFC56F41),
+                          color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -101,6 +102,13 @@ class NewsScreenDetails extends StatelessWidget {
                   ),
                 ),
                 Spacer(),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(TimeFormatter.formatTime(newModel.createdAt)),
+                  ),
+                ),
               ],
             ),
           ],
