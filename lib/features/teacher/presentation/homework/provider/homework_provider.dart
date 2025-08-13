@@ -2,9 +2,9 @@ import 'dart:developer';
 
 import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
+import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
 import 'package:acadobs/features/teacher/data/services/homework_services.dart';
-import 'package:acadobs/shared/providers/shared_provider.dart';
 import 'package:flutter/material.dart';
 // import 'package:http/http.dart';
 import 'package:provider/provider.dart';
@@ -101,7 +101,7 @@ class HomeworkProvider extends ChangeNotifier {
     _isLoadingTwo = true;
     notifyListeners();
     try {
-      final selectedIds = context.read<SharedProvider>().selectedStudentIds;
+      final selectedIds = context.read<StudentProvider>().selectedStudentIds;
 
       // Add validation here
       if (selectedIds.isEmpty) {

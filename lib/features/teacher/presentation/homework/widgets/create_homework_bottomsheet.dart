@@ -5,6 +5,7 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/teacher/presentation/homework/provider/homework_provider.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
@@ -34,7 +35,7 @@ void showCreateHomeworkBottomSheet({required BuildContext context}) {
   context.read<DropdownProvider>().clearSelectedItem('className');
   context.read<FilePickerProvider>().clearFile('homeworkFile');
   context.read<SubjectProvider>().clearSelection();
-  context.read<SharedProvider>().deselectAllStudents();
+  context.read<StudentProvider>().deselectAllStudents();
 
   showModalBottomSheet(
     context: context,
@@ -182,9 +183,9 @@ void showCreateHomeworkBottomSheet({required BuildContext context}) {
                               : null,
                 ),
                 SizedBox(height: Responsive.height * 1),
-                Consumer<SharedProvider>(
-                  builder: (context, provider, _) {
-                    return StudentsPicker(classId: provider.classId ?? 0);
+                Consumer2<StudentProvider, SharedProvider>(
+                  builder: (context, studentProvider, sharedProvider, _) {
+                    return StudentsPicker(classId: sharedProvider.classId ?? 0);
                   },
                 ),
                 SizedBox(height: Responsive.height * 2),

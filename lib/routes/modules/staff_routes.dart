@@ -13,7 +13,7 @@ import 'package:acadobs/features/teacher/data/models/marks/marks_upload_model.da
 import 'package:acadobs/features/teacher/data/models/news_model.dart';
 // import 'package:acadobs/features/teacher/data/models/news/new_model.dart';
 import 'package:acadobs/features/teacher/data/models/staff_duty_model.dart';
-import 'package:acadobs/features/teacher/presentation/achievements/screens/add_achievements_screen.dart';
+import 'package:acadobs/features/achievements/presentaion/screens/add_achievements_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_taking_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
@@ -29,8 +29,8 @@ import 'package:acadobs/features/teacher/presentation/marks/screens/edit_marks_s
 import 'package:acadobs/features/teacher/presentation/marks/screens/marks_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/news/screens/news_full_screen.dart';
 import 'package:acadobs/features/teacher/presentation/news/screens/news_screen_details.dart';
-import 'package:acadobs/features/teacher/presentation/students/screens/student_detail_screen.dart';
-import 'package:acadobs/features/teacher/presentation/students/screens/students_listing_screen.dart';
+import 'package:acadobs/features/students/presentation/screens/student_detail_screen.dart';
+import 'package:acadobs/features/students/presentation/screens/students_listing_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:go_router/go_router.dart';
 

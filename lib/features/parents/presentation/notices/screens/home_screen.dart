@@ -1,10 +1,12 @@
+import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/parents/presentation/notices/provider/notice_provider.dart';
 import 'package:acadobs/features/parents/presentation/notices/widgets/notice_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
-import 'package:acadobs/shared/widgets/custom_button_container.dart';
+// import 'package:acadobs/shared/widgets/custom_button_container.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
 import 'package:acadobs/shared/widgets/profile_tile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -80,8 +82,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 Positioned(
                   bottom: 20,
                   right: 20,
-                  child: ProfileIcon(
-                    image: "assets/school.jpg",
+                  child: ProfileIcon(                    // image: "assets/school.jpg",
+                    icon: CupertinoIcons.profile_circled,
                     ontap:
                         () => context.pushNamed(
                           RouteConstants.profileScreen,
@@ -100,13 +102,13 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  const SizedBox(height: 24),
-                  CustomButtonContainer(
-                    color: Colors.black,
-                    text: 'leave request',
-                    ontap: () {},
-                  ),
+                  const SizedBox(height: 20),
 
+                  // CustomButtonContainer(
+                  //   color: Colors.black,
+                  //   text: 'leave request',
+                  //   ontap: () {},
+                  // ),
                   const SizedBox(height: 24),
                   Align(
                     alignment: Alignment.centerLeft,
@@ -183,7 +185,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               final time =
                                   "${notice.createdAt.hour.toString().padLeft(2, '0')}:${notice.createdAt.minute.toString().padLeft(2, '0')}";
                               return NoticeCard(
-                                title: notice.title ?? "N/A",
+                                title: capitalizeEachWord(
+                                  notice.title ?? "N/A",
+                                ),
                                 date: date,
                                 icon: Icons.notifications,
                                 time: time,

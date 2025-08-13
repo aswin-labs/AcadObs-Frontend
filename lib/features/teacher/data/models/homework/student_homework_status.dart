@@ -1,4 +1,4 @@
-import 'package:acadobs/shared/models/student_model.dart';
+import 'package:acadobs/features/students/data/models/student_model.dart';
 
 class StudentHomeworkStatus {
     int? id;

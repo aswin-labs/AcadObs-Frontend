@@ -1,5 +1,5 @@
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/shared/models/student_model.dart';
+import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:flutter/material.dart';
 
 class StudentProfileTab extends StatelessWidget {

@@ -1,7 +1,9 @@
 import 'dart:ui';
 
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/common_shimmer_tile.dart';
+import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/parents/presentation/events/provider/event_provider.dart';
@@ -16,8 +18,9 @@ import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/custom_button_container.dart';
-import 'package:acadobs/shared/widgets/custom_name_container.dart';
+// import 'package:acadobs/shared/widgets/custom_name_container.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -34,9 +37,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<EventProvider>().fetchHomeLatestEvents(limit: 3);
-    context.read<NoticeProvider>().fetchHomeLatestNotices(limit: 3);
-    context.read<NewsProvider>().fetchHomeLatestNews(limit: 3);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<EventProvider>().fetchHomeLatestEvents(limit: 3);
+      context.read<NoticeProvider>().fetchHomeLatestNotices(limit: 3);
+      context.read<NewsProvider>().fetchHomeLatestNews(limit: 3);
+    });
   }
 
   @override
@@ -47,6 +52,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
           EdgeInsets.only(top: Responsive.height * 5),
         ),
         child: SingleChildScrollView(
+          physics: BouncingScrollPhysics(),
           child: Column(
             children: [
               Row(
@@ -62,7 +68,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         ),
                       ),
                       Text(
-                        "Arun",
+                        "Teacher",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF555555),
@@ -73,7 +79,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   ),
                   Spacer(),
                   ProfileIcon(
-                    image: "assets/school.jpg",
+                    // image: "assets/school.jpg",
+                    icon: CupertinoIcons.profile_circled,
                     ontap: () {
                       // print('teacher profile');
                       context.pushNamed(
@@ -90,18 +97,18 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               ),
 
               SizedBox(height: 30),
-              Row(
-                children: [
-                  CustomNameContainer(
-                    text: "Student",
-                    onPressed:
-                        () => context.pushNamed(RouteConstants.studentListing),
-                  ),
-                  SizedBox(width: 10),
-                  CustomNameContainer(text: "Parent", onPressed: () {}),
-                ],
-              ),
 
+              // Row(
+              //   children: [
+              //     CustomNameContainer(
+              //       text: "Student",
+              //       onPressed:
+              //           () => context.pushNamed(RouteConstants.studentListing),
+              //     ),
+              //     SizedBox(width: 10),
+              //     CustomNameContainer(text: "Parent", onPressed: () {}),
+              //   ],
+              // ),
               SizedBox(height: 20),
               CustomButtonContainer(
                 color: Color(0xFF22AE22),
@@ -164,7 +171,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                               "${notice.createdAt.day.toString().padLeft(2, '0')}-${notice.createdAt.month.toString().padLeft(2, '0')}-${notice.createdAt.year}";
 
                           return NoticeCard(
-                            title: notice.title ?? "N/A",
+                            title: capitalizeEachWord(notice.title ?? "N/A"),
                             date: date,
                             icon: Icons.notifications,
                             time: TimeFormatter.formatTime(notice.createdAt),
@@ -200,7 +207,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               Consumer<EventProvider>(
                 builder: (context, provider, _) {
                   final events = provider.latestEvent;
-                  if (provider.isLoading && events.isEmpty) {
+                  if (provider.isLoading) {
                     return Center(child: CommonShimmerTile());
                   } else if (events.isEmpty) {
                     return Column(
@@ -254,8 +261,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               Consumer<NewsProvider>(
                 builder: (context, provider, _) {
                   final news = provider.latestNews;
-                  if (provider.isLoading && news.isEmpty) {
-                    return Center(child: CommonShimmerTile());
+                  if (provider.isLoading) {
+                    return Center(child: commonShimmerList());
                   } else if (news.isEmpty) {
                     return Column(
                       children: [
@@ -282,13 +289,14 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                             button: () {},
                             date: formattedDate,
                             time: formattedTime,
-                            title: news.title,
+                            title: capitalizeEachWord(news.title),
                             content: news.content,
                           );
                         }).toList(),
                   );
                 },
               ),
+              SizedBox(height: Responsive.height * 10),
             ],
           ),
         ),
@@ -353,8 +361,11 @@ class FabOptionsDialog extends StatelessWidget {
                   Divider(height: 0, color: Color(0xFFE6E6E6)),
                   _OptionTile(
                     icon: Icons.menu_book_outlined,
-                    label: 'Subjects',
-                    onTap: () {},
+                    label: 'Students',
+                    onTap: () {
+                      context.pushNamed(RouteConstants.studentListing);
+                      Navigator.pop(context);
+                    },
                   ),
                 ],
               ),

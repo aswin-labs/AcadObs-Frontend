@@ -60,4 +60,11 @@ class AppConstants {
     "national",
     "international",
   ];
+
+  // achievement status
+  static List<String> achievementStatuses = [
+    "first",
+    "second",
+    "third",
+  ];
 }

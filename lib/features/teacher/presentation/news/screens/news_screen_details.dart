@@ -1,4 +1,5 @@
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
+import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/teacher/data/models/news_model.dart';
@@ -18,6 +19,7 @@ class NewsScreenDetails extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               width: double.infinity,
@@ -89,8 +91,7 @@ class NewsScreenDetails extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(6.0),
                       child: Text(
-                        "ddddd",
-                        // formattedDate,
+                        DateFormatter.formatDateTime(newModel.date),
                         style: TextStyle(
                           color: Color(0xFFC56F41),
                           fontWeight: FontWeight.bold,
@@ -100,13 +101,6 @@ class NewsScreenDetails extends StatelessWidget {
                   ),
                 ),
                 Spacer(),
-
-                // Text(
-                //   isYesterday
-                //       ? 'Created: Yesterday at $formattedCreatedTime'
-                //       : formattedCreatedTime,
-                //   style: const TextStyle(color: Colors.grey),
-                // ),
               ],
             ),
           ],

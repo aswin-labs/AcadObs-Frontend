@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:acadobs/features/parents/data/models/event_model.dart';
 import 'package:acadobs/features/parents/data/services/event_services.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +74,7 @@ class EventProvider extends ChangeNotifier {
     bool isRefresh = false,
     int limit = 3,
   }) async {
-    if (_isLoading) return;
+    if (_isLoading && !isRefresh) return;
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -126,12 +127,15 @@ class EventProvider extends ChangeNotifier {
       }
     } catch (e) {
       _error = 'Error: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<void> fetchHomeLatestEvents({int limit = 3}) async {
+    _isLoading = true;
+    notifyListeners();
     try {
       final response = await _eventServices.fetchLatestEvents(
         pageNo: 1,
@@ -151,6 +155,9 @@ class EventProvider extends ChangeNotifier {
       }
     } catch (e) {
       log("Error in fetchHomeLatestNotices: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 

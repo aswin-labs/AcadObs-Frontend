@@ -5,7 +5,7 @@ import 'package:acadobs/features/parents/data/services/news_service.dart';
 import 'package:flutter/material.dart';
 
 class NewsProvider extends ChangeNotifier {
-  bool _isLoading = true;
+  bool _isLoading = false;
   List<News> _newsModel = [];
   final List<News> _newsLatest = [];
   String? _error;
@@ -63,8 +63,8 @@ class NewsProvider extends ChangeNotifier {
     bool isRefresh = false,
     int limit = 10,
   }) async {
-    if (_isLoading) return;
-    _isLoading = false;
+    if (_isLoading && !isRefresh) return;
+    _isLoading = true;
     _error = null;
     notifyListeners();
 
@@ -105,10 +105,10 @@ class NewsProvider extends ChangeNotifier {
       }
     } catch (e) {
       _error = 'error: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<void> fetchHomeLatestNews({int limit = 3}) async {
