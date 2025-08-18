@@ -19,7 +19,11 @@ class StudentProvider extends ChangeNotifier {
   StudentModel? individualStudent;
 
   // Fetch Students by class id
-  Future<void> fetchStudentsByClassId({required BuildContext context,required int classId,bool forSelection = false}) async {
+  Future<void> fetchStudentsByClassId({
+    required BuildContext context,
+    required int classId,
+    bool forSelection = false,
+  }) async {
     _isLoading = true;
     _students.clear();
     notifyListeners();
