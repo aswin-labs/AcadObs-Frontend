@@ -1,0 +1,42 @@
+import 'dart:developer';
+
+import 'package:acadobs/core/services/api_services.dart';
+import 'package:acadobs/core/utils/urls/api_end_points.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+
+class AchievementService {
+  Future<Response> createAchievement({
+    required BuildContext context,
+    required String title,
+    required String description,
+    required String category,
+    required String level,
+    required String date,
+    required String awardingBody,
+    required List<Map<String, dynamic>> students,
+  }) async {
+    final formData = {
+      "title": title,
+      "description": description,
+      "category": category,
+      "level": level,
+      "date": date,
+      "awarding_body": awardingBody,
+      // "students": jsonEncode(students),
+      "students": students,
+    };
+
+    try {
+      log("FormData sent: $formData");
+      final response = await ApiServices.post(
+        ApiEndpoints.createAcheivement,
+        formData,
+        isFormData: true,
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+}
