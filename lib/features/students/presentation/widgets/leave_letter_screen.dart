@@ -2,7 +2,7 @@
 
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
-import 'package:acadobs/features/parents/data/services/leave_request_student_provider.dart';
+import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/widgets/create_leave_request_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
@@ -13,7 +13,9 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 class LeaveLetterScreen extends StatefulWidget {
-  const LeaveLetterScreen({super.key});
+  final int studentId;
+  final bool forParent;
+  const LeaveLetterScreen({super.key, required this.studentId, required this.forParent});
 
   @override
   State<LeaveLetterScreen> createState() => _LeaveLetterScreenState();
@@ -27,7 +29,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
   void initState() {
     super.initState();
     _studentLeaveProvider = context.read<StudentLeaveRequestProvider>();
-    _studentLeaveProvider.fetchAllStudentLeaveRequests();
+    _studentLeaveProvider.fetchAllStudentLeaveRequests(studentId:widget.studentId );
     _scrollController.addListener(_scrollListener);
   }
 
@@ -39,7 +41,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
     if (isNearBottom &&
         !_studentLeaveProvider.isLoading &&
         _studentLeaveProvider.hasMore) {
-      _studentLeaveProvider.fetchAllStudentLeaveRequests(loadMore: true);
+      _studentLeaveProvider.fetchAllStudentLeaveRequests(loadMore: true,studentId: widget.studentId);
     }
   }
 
@@ -70,10 +72,16 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
                       builder: (context, provider, _) {
                         if (provider.isLoading &&
                             provider.leaveRequests.isEmpty) {
-                          return commonShimmerList();
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 40),
+                            child: commonShimmerList(),
+                          );
                         }
                         if (provider.leaveRequests.isEmpty) {
-                          return emptyScreen(message: "No Leave Requst Found");
+                          return emptyScreen(
+                            message: "No Leave Requsts Found",
+                            heightMultiplier: 16,
+                          );
                         }
                         return ListView.builder(
                           shrinkWrap: true,
@@ -118,7 +126,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
         onRefresh: () async {
           await context
               .read<StudentLeaveRequestProvider>()
-              .fetchAllStudentLeaveRequests();
+              .fetchAllStudentLeaveRequests(studentId: widget.studentId);
         },
       ),
 
@@ -127,6 +135,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
             () => showCreateLeaveRequesBottomSheet(
               context,
               fromTeacherScreen: false,
+              studentId: widget.studentId
             ),
       ),
     );

@@ -8,11 +8,10 @@ import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
-import 'package:acadobs/features/news/provider/news_provider.dart';
-import 'package:acadobs/features/news/widgets/news_card.dart';
+import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
+import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/features/notices/provider/notice_provider.dart';
 import 'package:acadobs/features/notices/widgets/notice_card.dart';
-
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
@@ -37,9 +36,15 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<EventProvider>().fetchHomeLatestEvents(limit: 3);
+      context.read<EventProvider>().fetchHomeLatestEvents(
+        limit: 3,
+        forStaff: true,
+      );
       context.read<NoticeProvider>().fetchHomeLatestNotices(limit: 3);
-      context.read<NewsProvider>().fetchHomeLatestNews(limit: 3);
+      context.read<NewsProvider>().fetchHomeLatestNews(
+        limit: 3,
+        forStaff: true,
+      );
     });
   }
 
@@ -154,7 +159,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         notices.map((notice) {
                           final date =
                               "${notice.createdAt.day.toString().padLeft(2, '0')}-${notice.createdAt.month.toString().padLeft(2, '0')}-${notice.createdAt.year}";
-
                           return NoticeCard(
                             title: capitalizeEachWord(notice.title ?? "N/A"),
                             date: date,
@@ -271,14 +275,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           final formattedDate = DateFormat(
                             'dd-MM-yy',
                           ).format(news.date);
-                          // final formattedTime = DateFormat(
-                          //   'hh:mm a',
-                          // ).format(news.date);
                           return NewsCard(
                             news: news,
                             button: () {},
                             date: formattedDate,
-                            // time: formattedTime,
                             time: TimeFormatter.formatTime(news.createdAt),
                             title: capitalizeEachWord(news.title),
                             content: news.content,

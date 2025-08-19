@@ -10,20 +10,12 @@ class EventServices {
   Future<Response> fetchLatestEvents({
     required int pageNo,
     required int limit,
+    required bool forStaff,
   }) async {
     final response = await ApiServices.get(
-      '${ApiEndpoints.fetchLatestEventsStaff}?page=$pageNo&limit=$limit',
-    );
-    return response;
-  }
-
-  // for the parents
-  Future<Response> fetchLatestEventsGuardian({
-    required int limit,
-    required int pageNo,
-  }) async {
-    final response = await ApiServices.get(
-      '${ApiEndpoints.fetchLatestEventsGuardian}?page=$pageNo&limit=$limit&school_id=$schoolId',
+      forStaff
+          ? '${ApiEndpoints.fetchLatestEventsStaff}?page=$pageNo&limit=$limit'
+          : '${ApiEndpoints.fetchLatestEventsGuardian}?page=$pageNo&limit=$limit',
     );
     return response;
   }

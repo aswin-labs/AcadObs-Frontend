@@ -23,8 +23,8 @@ class TeacherLeaveRequestServices {
     final fileUpload = context.read<FilePickerProvider>().getFile('attachment');
     final fileUploadPath = fileUpload?.path;
     final formData = {
-      "school_id": schoolId,
-      "user_id": userId,
+      // "school_id": schoolId,
+      // "user_id": userId,
       "from_date": fromDate,
       "to_date": toDate,
       "leave_type": leaveType.toLowerCase(),
@@ -46,7 +46,7 @@ class TeacherLeaveRequestServices {
   // Get teacher leave requests
   Future<Response> fetchAllLeaveRequests({required int pageNo}) async {
     final response = await ApiServices.get(
-      "${ApiEndpoints.staffLeaveRequest}?user_id=$userId&page=$pageNo&limit=${AppConstants.paginationLimit}",
+      "${ApiEndpoints.staffLeaveRequest}?page=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return response;
   }

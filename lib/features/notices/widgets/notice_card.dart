@@ -1,4 +1,5 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:flutter/material.dart';
 
 class NoticeCard extends StatelessWidget {
@@ -55,7 +56,7 @@ class NoticeCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        title,
+                        capitalizeEachWord(title),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
                         style: context.textTheme.bodyMedium!.copyWith(
