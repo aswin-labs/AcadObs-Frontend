@@ -1,4 +1,5 @@
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
+import 'package:acadobs/features/achievements/provider/acheivement_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/notices/provider/notice_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/provider/school_classes_provider.dart';
@@ -53,5 +54,8 @@ getProviders() {
 
     //**************EVENTS****************//
     ChangeNotifierProvider(create: (_) => NewsProvider()),
+
+    //**************EVENTS****************//
+    ChangeNotifierProvider(create: (_) => AchievementProvider()),
   ];
 }
