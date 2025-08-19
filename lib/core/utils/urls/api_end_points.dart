@@ -23,12 +23,13 @@ class ApiEndpoints {
 
   // leave request
   static const String staffLeaveRequest = "/staff/leaveRequest";
-  static const String studentLeaveRequest = "/guardian/leaveRequest";
 
   // homeworks
   static const String homeworks = "/staff/homeworks";
   static const String homeworkByTeacher = "/staff/getHomeworkByTeacher";
   static const String homeworkRanking = "/staff/bulkUpdateHomeworkAssignments/";
+  static const String fetchHomeworksByStudentIdForStaff = "/staff/getHomeworkByStudentId";
+
 
   //notices
   static const String fetchLatestNotices = "/staff/getLatestNotices";
@@ -44,8 +45,14 @@ class ApiEndpoints {
   static const String marksAddedByTeacher =
       "/staff/getInternalMarkByRecordedBy";
   static const String marksBulkUpdate = "/staff/bulkUpdateMarks";
+  static const String studentMarks = "/staff/getInternalMarkByStudentId";
 
   //GUARDIAN
   static const String fetchLatestEventsGuardian = "/guardian/getLatestEvents";
   static const String fetchLatestNewsGuardian = "/guardian/getLatestNews";
+  static const String fetchHomeworksByStudentIdForGuardian = "/guardian/getHomeworkByStudentId";
+  static const String studentMarksForParent = "/guardian/getInternalMarkByStudentId";
+  static const String studentLeaveRequest = "/guardian/leaveRequestByStudentId";
+  
+
 }

@@ -2,15 +2,13 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:flutter/material.dart';
 
 class MarkCard extends StatelessWidget {
-  final String classname;
   final String subject;
   final String examtitle;
-  final int mark;
-  final int total;
+  final double mark;
+  final double total;
 
   const MarkCard({
     super.key,
-    required this.classname,
     required this.examtitle,
     required this.subject,
     required this.mark,
@@ -40,9 +38,8 @@ class MarkCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Text(classname, style: TextStyle(color: Colors.white)),
-                    Text('>', style: TextStyle(color: Colors.white)),
-                    Text(examtitle, style: TextStyle(color: Color(0xFFE9FF42))),
+                    Text('>>', style: TextStyle(color: Colors.white)),
+                    Text(capitalizeEachWord(examtitle), style: TextStyle(color: Color(0xFFE9FF42))),
                   ],
                 ),
               ),
@@ -55,8 +52,8 @@ class MarkCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    Text("subject", style: TextStyle(color: Colors.white)),
-                    SizedBox(width: 150),
+                    Text("Subject", style: TextStyle(color: Colors.white)),
+                    SizedBox(width: 165),
                     Text("Mark", style: TextStyle(color: Colors.white)),
                     SizedBox(width: 20),
                     Text("Total", style: TextStyle(color: Colors.white)),

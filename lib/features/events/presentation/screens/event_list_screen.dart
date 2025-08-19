@@ -1,7 +1,8 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
+import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
-import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
+import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +10,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class EventListScreen extends StatefulWidget {
- final  bool forStaff ;
-  const EventListScreen({super.key, this.forStaff=true});
+  final bool forStaff;
+  const EventListScreen({super.key, this.forStaff = true});
 
   @override
   State<EventListScreen> createState() => _EventListScreenState();
@@ -22,8 +23,10 @@ class _EventListScreenState extends State<EventListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-       widget.forStaff? Provider.of<EventProvider>(context, listen: false).fetchLatestEvents(limit: 10): 
-       Provider.of<EventProvider>(context, listen: false).fetchGuardianLatestEvents(limit: 10);
+        Provider.of<EventProvider>(
+          context,
+          listen: false,
+        ).fetchLatestEvents(limit: 10, forStaff: widget.forStaff);
       }
     });
   }
@@ -31,7 +34,10 @@ class _EventListScreenState extends State<EventListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Events", isBackButton: true),
+      appBar: CommonAppBar(
+        title: "Events",
+        isBackButton: widget.forStaff ? true : false,
+      ),
       body: Consumer<EventProvider>(
         builder: (context, eventProvider, _) {
           if (eventProvider.isLoading && eventProvider.events.isEmpty) {
@@ -39,18 +45,7 @@ class _EventListScreenState extends State<EventListScreen> {
           } else if (eventProvider.error != null) {
             return Center(child: Text(eventProvider.error!));
           } else if (eventProvider.events.isEmpty) {
-            return Center(
-              child: Column(
-                children: [
-                  Icon(Icons.event_busy, color: Colors.grey, size: 35),
-                  SizedBox(height: 20),
-                  Text(
-                    "No events avaliable",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
+            return emptyScreen(message: "No Events Available");
           } else {
             return NotificationListener<ScrollNotification>(
               onNotification: (scrollNotification) {
@@ -59,7 +54,7 @@ class _EventListScreenState extends State<EventListScreen> {
                         scrollNotification.metrics.maxScrollExtent - 100 &&
                     !eventProvider.isLoading &&
                     eventProvider.hasMore) {
-                  eventProvider.loadMore();
+                  eventProvider.loadMore(forStaff: widget.forStaff);
                 }
                 return false;
               },
@@ -70,7 +65,7 @@ class _EventListScreenState extends State<EventListScreen> {
                           scrollNotification.metrics.maxScrollExtent - 100 &&
                       !eventProvider.isLoading &&
                       eventProvider.hasMore) {
-                    eventProvider.loadMore();
+                    eventProvider.loadMore(forStaff:  widget.forStaff);
                   }
                   return false;
                 },

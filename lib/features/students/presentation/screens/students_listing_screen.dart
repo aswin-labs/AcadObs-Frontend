@@ -4,6 +4,7 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
+import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
@@ -37,7 +38,6 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
       dropdownProvider.clearSelectedItem("standard");
       dropdownProvider.clearSelectedItem("className");
       studentProvider.clearStudents();
-      // context.read<StudentProvider>().clearStudents();
     });
     super.initState();
   }
@@ -158,7 +158,10 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                                 onPressed:
                                     () => context.pushNamed(
                                       RouteConstants.studentDetails,
-                                      extra: student.id,
+                                      extra: StudentDetailParameters(
+                                        forParent: false,
+                                        studentId: student.id,
+                                      ),
                                     ),
                               );
                             },

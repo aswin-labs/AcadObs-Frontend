@@ -13,7 +13,12 @@ import 'package:provider/provider.dart';
 
 class StudentDetailScreen extends StatefulWidget {
   final int studentId;
-  const StudentDetailScreen({super.key, required this.studentId});
+  final bool forParent;
+  const StudentDetailScreen({
+    super.key,
+    required this.studentId,
+    required this.forParent,
+  });
 
   @override
   State<StudentDetailScreen> createState() => _StudentDetailScreenState();
@@ -31,7 +36,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 6,
       child: Scaffold(
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -120,6 +125,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           horizontal: 16.0,
                         ),
                         tabs: const [
+                          Tab(text: "Dashboard"),
                           Tab(text: "Acheivement"),
                           Tab(text: "Exam"),
                           Tab(text: "Homework"),
@@ -137,6 +143,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             padding: EdgeInsets.only(top: Responsive.height * 5),
             child: TabBarView(
               children: [
+                // dashboard
+                Text("Dashboard"),
                 //acheivment
                 Consumer<StudentProvider>(
                   builder: (context, provider, _) {
@@ -149,25 +157,16 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 ),
 
                 //exam
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
-                    if (student == null) {
-                      return SizedBox.shrink();
-                    }
-                    return StudentExamDetailScreen();
-                  },
-                ),
+                StudentExamDetailScreen(
+                      studentId: widget.studentId,
+                      forParent: widget.forParent,
+                    ),
+                 
 
                 //homework
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
-                    if (student == null) {
-                      return SizedBox.shrink();
-                    }
-                    return StudentHomeworkPage();
-                  },
+                StudentHomeworkPage(
+                  forParent: widget.forParent,
+                  studentId: widget.studentId,
                 ),
 
                 //leave requst
@@ -177,7 +176,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     if (student == null) {
                       return SizedBox.shrink();
                     }
-                    return LeaveLetterScreen();
+                    return LeaveLetterScreen(studentId: widget.studentId, forParent: widget.forParent,);
                   },
                 ),
 
@@ -192,16 +191,16 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   },
                 ),
 
-                //leave requst
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
-                    if (student == null) {
-                      return SizedBox.shrink();
-                    }
-                    return LeaveLetterScreen();
-                  },
-                ),
+                // //leave requst
+                // Consumer<StudentProvider>(
+                //   builder: (context, provider, _) {
+                //     final student = provider.individualStudent;
+                //     if (student == null) {
+                //       return SizedBox.shrink();
+                //     }
+                //     return LeaveLetterScreen();
+                //   },
+                // ),
               ],
             ),
           ),

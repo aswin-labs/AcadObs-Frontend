@@ -3,16 +3,16 @@ import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/admin/presentation/home/admin_home_screen.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/events/presentation/screens/event_list_screen.dart';
-import 'package:acadobs/features/parents/presentation/home_screen.dart';
+import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
 import 'package:acadobs/features/notices/screens/notice_screen.dart';
+import 'package:acadobs/features/parents/presentation/screens/home_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/screens/school_classes_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/screens/school_subjects_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/schools/screens/schools_list_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_home_screen.dart';
+import 'package:acadobs/features/teacher/presentation/chats/screens/chats_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/teacher_home_screen.dart';
-import 'package:acadobs/features/teacher/presentation/marks/screens/marks_home_screen.dart';
-import 'package:acadobs/features/teacher/presentation/chats/screens/chats_home_screen.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -50,15 +50,11 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       ];
     } else if (userType == UserType.parent) {
       return [
-        // HomePage(),
-        // EventsPage(),
-        // NoticePage(),
-        // PaymentSelection(),
         HomeScreen(),
-        EventListScreen(),
+        EventListScreen(forStaff: false),
         NoticeScreen(),
-
-        // Center(child: Text("Parent")),
+        Center(child: Text("Payments")),
+        Center(child: Text("Chats")),
       ];
     } else {
       return [];

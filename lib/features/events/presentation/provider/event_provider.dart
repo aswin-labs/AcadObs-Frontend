@@ -1,7 +1,4 @@
 import 'dart:developer';
-
-
-
 import 'package:acadobs/features/events/data/models/event_model.dart';
 import 'package:acadobs/features/events/data/services/event_services.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +14,6 @@ class EventProvider extends ChangeNotifier {
 
   List<Events> get events => _events;
   List<Events> get latestEvent => _latestEvent;
-
-  //for the parents
-  final List<Events> _eventsGuardian = [];
-  List<Events> get eventsGuardian => _eventsGuardian;
 
   //distinguishing today event
   List<Events> get todayEvents =>
@@ -76,6 +69,7 @@ class EventProvider extends ChangeNotifier {
   bool get hasMore => _hasMore;
 
   Future<void> fetchLatestEvents({
+    required bool forStaff,
     int pageNo = 1,
     bool isRefresh = false,
     int limit = 3,
@@ -87,6 +81,7 @@ class EventProvider extends ChangeNotifier {
 
     try {
       final response = await _eventServices.fetchLatestEvents(
+        forStaff: forStaff,
         pageNo: pageNo,
         limit: limit,
       );
@@ -135,11 +130,13 @@ class EventProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchHomeLatestEvents({int limit = 3}) async {
+    
+  Future<void> fetchHomeLatestEvents({int limit = 3,required bool forStaff, }) async {
     _isLoading = true;
     notifyListeners();
     try {
       final response = await _eventServices.fetchLatestEvents(
+        forStaff: forStaff,
         pageNo: 1,
         limit: limit,
       );
@@ -163,38 +160,9 @@ class EventProvider extends ChangeNotifier {
     }
   }
 
-  //for the guardian latest events
-  Future<void> fetchGuardianLatestEvents({int limit = 3}) async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      final response = await _eventServices.fetchLatestEventsGuardian(
-        limit: limit,
-        pageNo: 1,
-      );
-      if (response.statusCode == 200) {
-        final data = response.data['events'];
-        final fetched = List<Events>.from(data.map((e) => Events.fromJson(e)));
-        fetched.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
-
-        _latestEvent
-          ..clear()
-          ..addAll(fetched.take(limit));
-        notifyListeners();
-      } else {
-        log("Failed to fetch latest home notices: ${response.statusCode}");
-      }
-    } catch (e) {
-      log("Error in fetchHomeLatestNotices: $e");
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
-
-  void loadMore() {
+  void loadMore({required bool forStaff}) {
     if (_hasMore && !_isLoading) {
-      fetchLatestEvents(pageNo: _currentPage + 1);
+      fetchLatestEvents(pageNo: _currentPage + 1, forStaff: forStaff);
     }
   }
 }
