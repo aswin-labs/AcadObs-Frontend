@@ -6,20 +6,15 @@ import 'package:dio/dio.dart';
 class NewsService {
   final schoolId = StorageServices.getSchoolId;
 
-  Future<Response> fetchLatestNews({required bool forStaff, required int pageNo, required int limit}) async {
-    final response = await ApiServices.get(
-      forStaff?'${ApiEndpoints.fetchLatestNews}?pageNo=$pageNo&limit=$limit':'${ApiEndpoints.fetchLatestNewsGuardian}?pageNo=$pageNo&limit=$limit',
-    );
-    return response;
-  }
-
-  //news for the guardian
-  Future<Response> fetchNewsGuardian({
-    required int limit,
+  Future<Response> fetchLatestNews({
+    required bool forStaff,
     required int pageNo,
+    required int limit,
   }) async {
     final response = await ApiServices.get(
-      '${ApiEndpoints.fetchLatestNewsGuardian}?pageNo=$pageNo&limit=$limit&schoo_id=$schoolId',
+      forStaff
+          ? '${ApiEndpoints.fetchLatestNews}?pageNo=$pageNo&limit=$limit'
+          : '${ApiEndpoints.fetchLatestNewsGuardian}?pageNo=$pageNo&limit=$limit',
     );
     return response;
   }
