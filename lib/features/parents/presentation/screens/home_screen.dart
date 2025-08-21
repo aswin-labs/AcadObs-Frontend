@@ -149,16 +149,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      // Spacer(),
-                      // TextButton(
-                      //   onPressed: () {
-                      //     context.pushNamed(RouteConstants.noticeListscreen);
-                      //   },
-                      //   child: Text(
-                      //     "View",
-                      //     style: TextStyle(color: Colors.black),
-                      //   ),
-                      // ),
                     ],
                   ),
 
@@ -197,7 +187,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 date: date,
                                 icon: Icons.notifications,
                                 time: time,
-                                onTap: () {},
+                                onTap: () {
+                                  context.pushNamed(
+                                    RouteConstants.noticedetails,
+                                    extra: notice,
+                                  );
+                                },
                               );
                             }).toList(),
                       );
@@ -307,7 +302,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
                               return NewsCard(
                                 news: news,
-                                button: () {},
+                                button: () {
+                                  context.pushNamed(
+                                    RouteConstants.newsScreen,
+                                    extra: news,
+                                  );
+                                },
                                 date: formattedDate,
                                 // time: formattedTime,
                                 time: TimeFormatter.formatTime(news.createdAt),

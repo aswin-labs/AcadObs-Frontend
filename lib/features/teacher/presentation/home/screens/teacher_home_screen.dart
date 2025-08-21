@@ -164,7 +164,12 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                             date: date,
                             icon: Icons.notifications,
                             time: TimeFormatter.formatTime(notice.createdAt),
-                            onTap: () {},
+                            onTap: () {
+                              context.pushNamed(
+                                RouteConstants.noticedetails,
+                                extra: notice,
+                              );
+                            },
                           );
                         }).toList(),
                   );
@@ -218,7 +223,12 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           return EventCard(
                             event: events,
 
-                            onViewTap: () {},
+                            onViewTap: () {
+                              context.pushNamed(
+                                RouteConstants.eventlistdetails,
+                                extra: events,
+                              );
+                            },
                             time: TimeFormatter.formatTime(
                               events.createdAt ?? DateTime.now(),
                             ),
@@ -277,7 +287,12 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           ).format(news.date);
                           return NewsCard(
                             news: news,
-                            button: () {},
+                            button: () {
+                              context.pushNamed(
+                                RouteConstants.newsScreen,
+                                extra: news,
+                              );
+                            },
                             date: formattedDate,
                             time: TimeFormatter.formatTime(news.createdAt),
                             title: capitalizeEachWord(news.title),

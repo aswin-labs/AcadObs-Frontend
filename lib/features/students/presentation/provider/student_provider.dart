@@ -110,4 +110,52 @@ class StudentProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  //get student attendace by date
+  int _totalPeriod = 0;
+  int get totalPeriod => _totalPeriod;
+
+  List<String> _status = [];
+  List<String> get status => _status;
+
+  Future<void> fetchAttendanceByDate({
+    required int studentId,
+    required String date,
+  }) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      final response = await StudentServices().fetchAttendanceByDate(
+        studentId: studentId,
+        date: date,
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        _totalPeriod = data['period_count'] ?? 0;
+
+        final List<dynamic> attendanceList = data['attendance'] ?? [];
+
+        _status = List<String>.filled(_totalPeriod, "NA");
+
+        for (final item in attendanceList) {
+          final dynamic p = item['Attendance']?['period'];
+          final int? period = (p is int) ? p : int.tryParse('$p');
+          final String st = (item['status'] ?? 'NA').toString();
+
+          if (period != null && period >= 1 && period <= _totalPeriod) {
+            _status[period - 1] = st;
+          }
+        }
+
+        log("total period: $_totalPeriod");
+        log(" status list: $_status");
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

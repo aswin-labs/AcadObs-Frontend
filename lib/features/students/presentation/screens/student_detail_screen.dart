@@ -2,6 +2,8 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/profile_container_shimmer.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
+import 'package:acadobs/features/students/presentation/widgets/student_attendence_tab.dart';
+// import 'package:acadobs/features/students/presentation/widgets/daily_attendance_widget.dart';
 import 'package:acadobs/features/students/presentation/widgets/leave_letter_screen.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_acheivement_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_exam_detail_screen.dart';
@@ -143,8 +145,14 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             padding: EdgeInsets.only(top: Responsive.height * 5),
             child: TabBarView(
               children: [
-                // dashboard
-                Text("Dashboard"),
+                // dashboardt
+                StudentAttendenceTab(
+                  studentId: widget.studentId,
+                  date: "2025-08-20",
+                ),
+
+                // Text("Dashboard"),
+
                 //acheivment
                 Consumer<StudentProvider>(
                   builder: (context, provider, _) {
@@ -158,10 +166,9 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
 
                 //exam
                 StudentExamDetailScreen(
-                      studentId: widget.studentId,
-                      forParent: widget.forParent,
-                    ),
-                 
+                  studentId: widget.studentId,
+                  forParent: widget.forParent,
+                ),
 
                 //homework
                 StudentHomeworkPage(
@@ -176,7 +183,10 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     if (student == null) {
                       return SizedBox.shrink();
                     }
-                    return LeaveLetterScreen(studentId: widget.studentId, forParent: widget.forParent,);
+                    return LeaveLetterScreen(
+                      studentId: widget.studentId,
+                      forParent: widget.forParent,
+                    );
                   },
                 ),
 

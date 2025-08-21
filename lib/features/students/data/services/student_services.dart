@@ -18,4 +18,15 @@ class StudentServices {
     );
     return response;
   }
+
+  //get attandence by date
+  Future<Response> fetchAttendanceByDate({
+    required int studentId,
+    required String date,
+  }) async {
+    final response = await ApiServices.get(
+      '${ApiEndpoints.attendanceByDate}/$studentId?date=$date',
+    );
+    return response;
+  }
 }
