@@ -1,21 +1,30 @@
+import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
-class StudentsPicker extends StatelessWidget {
+class SingleStudentPicker extends StatelessWidget {
   final int classId;
-  const StudentsPicker({super.key, required this.classId});
+  final StudentModel? selectedStudent;
+  final ValueChanged<StudentModel> onStudentSelected;
+
+  const SingleStudentPicker({
+    super.key,
+    required this.classId,
+    required this.onStudentSelected,
+    this.selectedStudent,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap:
-          () => showStudentSelectionPopup(
-            context,
-            classId,
-            selectAllNeeded: true,
-          ),
+      onTap: () => showSingleStudentSelectionPopup(
+        context,
+        classId,
+        selectedStudent,
+        onStudentSelected,
+      ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
@@ -25,13 +34,13 @@ class StudentsPicker extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 15, left: 2),
-              child: const Icon(LucideIcons.userCheck, color: Colors.grey),
+            const Padding(
+              padding: EdgeInsets.only(right: 15, left: 2),
+              child: Icon(LucideIcons.user, color: Colors.grey),
             ),
             Expanded(
               child: Text(
-                'Manage Students*',
+                selectedStudent?.fullName ?? 'Select Student',
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 14, color: Colors.black54),
               ),
@@ -43,16 +52,18 @@ class StudentsPicker extends StatelessWidget {
   }
 }
 
-Future<void> showStudentSelectionPopup(
+Future<void> showSingleStudentSelectionPopup(
   BuildContext context,
-  int classId, {
-  bool selectAllNeeded = true,
-}) async {
+  int classId,
+  StudentModel? selectedStudent,
+  ValueChanged<StudentModel> onStudentSelected,
+) async {
   final provider = context.read<StudentProvider>();
 
-  // Fetch students if not already done
+  // fetch students for this class
   await provider.fetchStudentsByClassId(context: context, classId: classId);
   if (!context.mounted) return;
+
   showDialog(
     context: context,
     builder: (context) {
@@ -61,44 +72,26 @@ Future<void> showStudentSelectionPopup(
           final students = provider.students;
 
           return AlertDialog(
-            title: const Text("Select Students"),
+            title: const Text("Select Student"),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                selectAllNeeded
-                    ? Row(
-                      children: [
-                        Checkbox(
-                          value: provider.isAllSelected,
-                          onChanged: (_) {
-                            if (provider.isAllSelected) {
-                              provider.deselectAllStudents();
-                            } else {
-                              provider.selectAllStudents();
-                            }
-                          },
-                        ),
-                        const Text("Select All"),
-                      ],
-                    )
-                    : SizedBox.shrink(),
                 const Divider(),
                 SizedBox(
-                  height: 320, // scrollable height
+                  height: 320,
                   width: 300,
                   child: ListView.builder(
                     itemCount: students.length,
                     itemBuilder: (context, index) {
                       final student = students[index];
-                      final isSelected = provider.selectedStudentIds.contains(
-                        student.id,
-                      );
 
-                      return CheckboxListTile(
-                        title: Text(student.fullName), // or roll no etc.
-                        value: isSelected,
-                        onChanged:
-                            (_) => provider.toggleStudentSelection(student.id),
+                      return RadioListTile<int>(
+                        title: Text(student.fullName),
+                        value: student.id,
+                        groupValue: selectedStudent?.id,
+                        onChanged: (_) {
+                          onStudentSelected(student); // update only this section
+                        },
                       );
                     },
                   ),
@@ -111,9 +104,7 @@ Future<void> showStudentSelectionPopup(
                 child: const Text("Cancel"),
               ),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
                 child: const Text("Done"),
               ),
             ],

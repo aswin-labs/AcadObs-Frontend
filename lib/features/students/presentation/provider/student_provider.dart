@@ -19,7 +19,8 @@ class StudentProvider extends ChangeNotifier {
       _students.isNotEmpty && _selectedStudentIds.length == _students.length;
   Set<int> get selectedStudentIds => _selectedStudentIds;
 
-  StudentModel? individualStudent;
+  StudentModel? _individualStudent;
+  StudentModel? get individualStudent => _individualStudent;
 
   // Fetch Students by class id
   Future<void> fetchStudentsByClassId({
@@ -61,7 +62,7 @@ class StudentProvider extends ChangeNotifier {
     _isLoading = false;
     _hasFetched = false;
     _students.clear();
-    individualStudent = null;
+    _individualStudent = null;
     notifyListeners();
   }
 
@@ -71,18 +72,6 @@ class StudentProvider extends ChangeNotifier {
       _selectedStudentIds.remove(studentId);
     } else {
       _selectedStudentIds.add(studentId);
-    }
-    notifyListeners();
-  }
-
-  // student selection single
-  void toggleSingleStudentSelection(int studentId) {
-    if (_selectedStudentIds.contains(studentId)) {
-      _selectedStudentIds.clear();
-    } else {
-      _selectedStudentIds
-        ..clear()
-        ..add(studentId);
     }
     notifyListeners();
   }
@@ -98,6 +87,18 @@ class StudentProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // select single student
+  void selectIndividualStudent(StudentModel student) {
+    _individualStudent = student;
+    notifyListeners();
+  }
+
+  // clear selection
+  void clearIndividualStudent() {
+    _individualStudent = null;
+    notifyListeners();
+  }
+
   // Get Individual student details
   Future<void> fetchStudentDetails({required int studentId}) async {
     _isLoading = true;
@@ -107,7 +108,7 @@ class StudentProvider extends ChangeNotifier {
       );
       if (response.statusCode == 200) {
         final data = response.data;
-        individualStudent = StudentModel.fromJson(data);
+        _individualStudent = StudentModel.fromJson(data);
       }
     } catch (e) {
       log(e.toString());

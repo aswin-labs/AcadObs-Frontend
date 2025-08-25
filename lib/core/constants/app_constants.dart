@@ -63,8 +63,10 @@ class AppConstants {
 
   // achievement status
   static List<String> achievementStatuses = [
-    "first",
-    "second",
-    "third",
+    "1st prize",
+    "2nd prize",
+    "3rd prize",
+    "participant",
+    "other",
   ];
 }
