@@ -173,7 +173,7 @@ void showCreateHomeworkBottomSheet({required BuildContext context}) {
                 SizedBox(height: Responsive.height * 1),
                 CustomDropdown(
                   dropdownKey: "homeworkType",
-                  label: "Homework Type",
+                  label: "Homework Type*",
                   icon: LucideIcons.clipboardList,
                   items: AppConstants.homeworkTypes,
                   validator:
@@ -192,6 +192,12 @@ void showCreateHomeworkBottomSheet({required BuildContext context}) {
                 CustomFilePicker(
                   label: "Upload File (Max 5 mb):",
                   fieldName: "homeworkFile",
+                  validator: (value) {
+                    final error = context.read<FilePickerProvider>().getError(
+                      "homeworkFile",
+                    );
+                    return error;
+                  },
                 ),
                 SizedBox(height: Responsive.height * 4),
                 Consumer<HomeworkProvider>(

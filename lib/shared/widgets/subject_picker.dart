@@ -20,7 +20,7 @@ class SubjectPicker extends StatelessWidget {
                   vertical: 15.0,
                   horizontal: 15.0,
                 ),
-                labelText: 'Subject',
+                labelText: 'Subject*',
 
                 prefixIcon: Icon(Icons.book),
                 border: OutlineInputBorder(
@@ -30,7 +30,7 @@ class SubjectPicker extends StatelessWidget {
               controller: TextEditingController(
                 text:
                     subjectProvider.selectedSubject?.subjectName ??
-                    'Select Subject',
+                    'Select Subject*',
               ),
               validator:
                   (value) =>
@@ -53,7 +53,7 @@ Future<void> showSubjectSelectionDialog(BuildContext context) async {
     context: context,
     builder: (ctx) {
       return AlertDialog(
-        title: Text('Select Subject'),
+        title: Text('Select Subject*'),
         content: Consumer<SubjectProvider>(
           builder: (context, subjectProvider, _) {
             if (subjectProvider.isLoading) {
@@ -97,4 +97,3 @@ Future<void> showSubjectSelectionDialog(BuildContext context) async {
     },
   );
 }
-

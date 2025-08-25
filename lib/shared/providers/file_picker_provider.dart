@@ -6,12 +6,19 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
-
 class FilePickerProvider with ChangeNotifier {
+  static const int _maxSize = 5 * 1024 * 1024;
   final Map<String, PlatformFile?> _files = {};
+  final Map<String, String?> _errors = {};
 
   PlatformFile? getFile(String fieldName) => _files[fieldName];
-  Future<void> pickFile(String fieldName, {bool imagesOnly = false}) async {
+  String? getError(String fieldName) => _errors[fieldName];
+
+  Future<void> pickFile(
+    String fieldName, {
+    bool imagesOnly = false,
+    
+  }) async {
     if (imagesOnly) {
       try {
         final ImagePicker picker = ImagePicker();
@@ -21,7 +28,13 @@ class FilePickerProvider with ChangeNotifier {
 
         if (image != null) {
           File file = File(image.path);
+
+          if (!_validateSize(file, fieldName)) return;
+
           File? compressedFile = await _compressImage(file);
+
+          if (!_validateSize(compressedFile ?? file, fieldName)) return;
+
           _storeFile(fieldName, compressedFile ?? file);
           notifyListeners();
         }
@@ -35,8 +48,11 @@ class FilePickerProvider with ChangeNotifier {
         PlatformFile selectedFile = result.files.first;
         File file = File(selectedFile.path!);
 
+        if (!_validateSize(file, fieldName)) return;
+
         if (_isImage(file.path)) {
           File? compressedFile = await _compressImage(file);
+          if (!_validateSize(compressedFile ?? file, fieldName)) return;
           _storeFile(fieldName, compressedFile ?? file);
         } else {
           _storeFile(fieldName, file);
@@ -48,12 +64,27 @@ class FilePickerProvider with ChangeNotifier {
 
   void clearFile(String fieldName) {
     _files.remove(fieldName);
+    _errors.remove(fieldName);
     notifyListeners();
   }
 
   void clearAllFiles() {
     _files.clear();
+    _errors.clear();
     notifyListeners();
+  }
+
+  bool _validateSize(File file, String fieldName) {
+    final size = file.lengthSync();
+    if (size > _maxSize) {
+      _files.remove(fieldName);
+      _errors[fieldName] = 'File must be smaller than 5 MB';
+      notifyListeners();
+     
+      return false;
+    }
+    _errors.remove(fieldName);
+    return true;
   }
 
   void _storeFile(String fieldName, File file) {
@@ -62,6 +93,7 @@ class FilePickerProvider with ChangeNotifier {
       path: file.path,
       size: file.lengthSync(),
     );
+    _errors.remove(fieldName);
   }
 
   bool _isImage(String filePath) {

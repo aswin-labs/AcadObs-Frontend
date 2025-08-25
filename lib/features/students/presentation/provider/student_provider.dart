@@ -11,6 +11,9 @@ class StudentProvider extends ChangeNotifier {
   final List<StudentModel> _students = [];
   List<StudentModel> get students => _students;
 
+  bool _hasFetched = false;
+  bool get hasFetched => _hasFetched;
+
   Set<int> _selectedStudentIds = {};
   bool get isAllSelected =>
       _students.isNotEmpty && _selectedStudentIds.length == _students.length;
@@ -25,6 +28,7 @@ class StudentProvider extends ChangeNotifier {
     bool forSelection = false,
   }) async {
     _isLoading = true;
+    _hasFetched = false;
     _students.clear();
     notifyListeners();
     try {
@@ -47,6 +51,7 @@ class StudentProvider extends ChangeNotifier {
       log(e.toString());
     } finally {
       _isLoading = false;
+      _hasFetched = true;
       notifyListeners();
     }
   }
@@ -54,6 +59,7 @@ class StudentProvider extends ChangeNotifier {
   // clear students
   void clearStudents() {
     _isLoading = false;
+    _hasFetched = false;
     _students.clear();
     individualStudent = null;
     notifyListeners();

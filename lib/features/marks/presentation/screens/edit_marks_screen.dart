@@ -28,6 +28,7 @@ class EditMarksScreen extends StatefulWidget {
 }
 
 class _EditMarksScreenState extends State<EditMarksScreen> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late SubjectProvider subjectProvider;
   TextEditingController titleController = TextEditingController();
   TextEditingController dateController = TextEditingController();
@@ -66,18 +67,41 @@ class _EditMarksScreenState extends State<EditMarksScreen> {
     final students = marksProvider.singleMarks?.studentMarks ?? [];
     final List<Map<String, dynamic>> updatedMarks = [];
 
+    final totalMarks = double.tryParse(totalMarksController.text) ?? 0;
+
     for (var i = 0; i < students.length; i++) {
       final student = students[i];
       final controller = _marksControllers[i];
       final text = controller?.text.trim() ?? '';
-      final formatted = double.tryParse(text)?.toStringAsFixed(0) ?? text;
-      final hasMarks = text.isNotEmpty;
 
-      final marks = hasMarks ? int.tryParse(text) : 0;
-      final status = hasMarks ? (_statusMap[i] ?? "present") : "absent";
+      if (text.isEmpty) continue;
+
+      final enteredMarks = double.tryParse(text) ?? 0;
+
+      if (enteredMarks > totalMarks) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "${student.student?.fullName ?? "Student"}'s marks cannot exceed $totalMarks",
+            ),
+          ),
+        );
+        return; // Stop submission
+      }
+      final formatted = enteredMarks.toStringAsFixed(0);
+      final status = _statusMap[i] ?? "present";
+      // final hasMarks = text.isNotEmpty;
+
+      // final marks = hasMarks ? enteredMarks.toInt() : 0;
+      // final status = hasMarks ? (_statusMap[i] ?? "present") : "absent";
+      // final formatted = double.tryParse(text)?.toStringAsFixed(0) ?? text;
+      // final hasMarks = text.isNotEmpty;
+
+      // final marks = hasMarks ? int.tryParse(text) : 0;
+      // final status = hasMarks ? (_statusMap[i] ?? "present") : "absent";
 
       log("Student ID: ${student.student?.id}");
-      log("Entered Marks: '$text' → Parsed: $marks");
+      log("Entered Marks: '$text' → Parsed: $enteredMarks");
       log("Status: $status");
 
       updatedMarks.add({
@@ -106,131 +130,147 @@ class _EditMarksScreenState extends State<EditMarksScreen> {
               padding: context.paddingHorizontal.add(
                 EdgeInsets.only(top: Responsive.height * 2),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Edit Details:",
-                    style: context.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Edit Details:",
+                      style: context.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
 
-                  SizedBox(height: Responsive.height * 2),
-                  SubjectPicker(),
-                  SizedBox(height: Responsive.height * 2),
-                  CustomTextfield(
-                    iconData: Icon(LucideIcons.fileText),
-                    controller: titleController,
-                    hintText: 'Title',
-                    label: "Title",
-                  ),
-                  SizedBox(height: Responsive.height * 2),
-                  CustomTextfield(
-                    iconData: Icon(Icons.calculate_outlined),
-                    controller: totalMarksController,
-                    keyBoardtype: TextInputType.number,
-                    hintText: 'Total Marks*',
-                    label: "Total Marks",
-                  ),
-                  SizedBox(height: Responsive.height * 2),
-                  CustomDatePicker(
-                    label: "Date*",
-                    dateController: dateController,
-                    onDateSelected: (selectedDate) {
-                      dateController.text = DateFormat(
-                        'dd/MM/yyyy',
-                      ).format(selectedDate);
-                    },
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2100),
-                    initialDate: DateTime.now(),
-                  ),
-                  SizedBox(height: Responsive.height * 2),
-                  Consumer<SubjectProvider>(
-                    builder: (context, subjectProvider, _) {
-                      final selectedSubject = subjectProvider.selectedSubject;
-                      return SizedBox(
-                        height: Responsive.height * 6,
-                        width: Responsive.width * 35,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.all(2),
+                    SizedBox(height: Responsive.height * 2),
+                    SubjectPicker(),
+                    SizedBox(height: Responsive.height * 2),
+                    CustomTextfield(
+                      iconData: Icon(LucideIcons.fileText),
+                      controller: titleController,
+                      hintText: 'Title*',
+                      label: "Title*",
+                      validator:
+                          (value) =>
+                              value == null || value.trim().isEmpty
+                                  ? "Title is required"
+                                  : null,
+                    ),
+                    SizedBox(height: Responsive.height * 2),
+                    CustomTextfield(
+                      iconData: Icon(Icons.calculate_outlined),
+                      controller: totalMarksController,
+                      keyBoardtype: TextInputType.number,
+                      hintText: 'Total Marks*',
+                      label: "Total Marks*",
+                    ),
+                    SizedBox(height: Responsive.height * 2),
+                    CustomDatePicker(
+                      label: "Date*",
+                      dateController: dateController,
+                      onDateSelected: (selectedDate) {
+                        dateController.text = DateFormat(
+                          'dd/MM/yyyy',
+                        ).format(selectedDate);
+                      },
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2100),
+                      initialDate: DateTime.now(),
+                    ),
+                    SizedBox(height: Responsive.height * 2),
+                    Consumer<SubjectProvider>(
+                      builder: (context, subjectProvider, _) {
+                        final selectedSubject = subjectProvider.selectedSubject;
+                        return SizedBox(
+                          height: Responsive.height * 6,
+                          width: Responsive.width * 35,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.all(2),
+                            ),
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                context.read<MarksProvider>().editMarksDetails(
+                                  context: context,
+                                  marksId: widget.marks.id,
+                                  title: titleController.text,
+                                  totalMarks: double.parse(
+                                    totalMarksController.text,
+                                  ),
+                                  date: dateController.text,
+                                  subjectId: selectedSubject?.id ?? 0,
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Title is Empty")),
+                                );
+                              }
+                            },
+                            child:
+                                context.watch<MarksProvider>().isLoadingTwo
+                                    ? ButtonLoading()
+                                    : Text("Save"),
                           ),
-                          onPressed: () {
-                            context.read<MarksProvider>().editMarksDetails(
-                              context: context,
-                              marksId: widget.marks.id,
-                              title: titleController.text,
-                              totalMarks: double.parse(
-                                totalMarksController.text,
-                              ),
-                              date: dateController.text,
-                              subjectId: selectedSubject?.id ?? 0,
+                        );
+                      },
+                    ),
+                    SizedBox(height: Responsive.height * 4),
+                    Text(
+                      "Edit Student Marks:",
+                      style: context.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: Responsive.height * 2),
+                    Consumer<MarksProvider>(
+                      builder: (context, provider, _) {
+                        final students =
+                            provider.singleMarks?.studentMarks ?? [];
+
+                        if (provider.isLoading || students.isEmpty) {
+                          return commonShimmerList();
+                        }
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: students.length,
+                          itemBuilder: (context, index) {
+                            final student = students[index];
+                            final controller = _marksControllers[index]!;
+                            final status = _statusMap[index] ?? "present";
+                            final totalMarks = double.parse(
+                              widget.marks.maxMarks,
+                            );
+
+                            return EditableGradeCard(
+                              studentId: student.student?.id ?? 0,
+                              name: student.student?.fullName ?? "",
+                              rollNumber: student.student?.rollNumber ?? 0,
+                              marksController: controller,
+                              status: status,
+                              // totalMarks: double.parse(totalMarks.toString()),
+                              totalMarks: totalMarks,
+                              onStatusChanged: (newStatus) {
+                                setState(() {
+                                  _statusMap[index] = newStatus;
+                                });
+                              },
                             );
                           },
-                          child:
-                              context.watch<MarksProvider>().isLoadingTwo
-                                  ? ButtonLoading()
-                                  : Text("Save"),
-                        ),
-                      );
-                    },
-                  ),
-                  SizedBox(height: Responsive.height * 4),
-                  Text(
-                    "Edit Student Marks:",
-                    style: context.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+                        );
+                      },
                     ),
-                  ),
-                  SizedBox(height: Responsive.height * 2),
-                  Consumer<MarksProvider>(
-                    builder: (context, provider, _) {
-                      final students = provider.singleMarks?.studentMarks ?? [];
-
-                      if (provider.isLoading || students.isEmpty) {
-                        return commonShimmerList();
-                      }
-
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: students.length,
-                        itemBuilder: (context, index) {
-                          final student = students[index];
-                          final controller = _marksControllers[index]!;
-                          final status = _statusMap[index] ?? "present";
-                          final totalMarks = double.parse(
-                            widget.marks.maxMarks,
-                          );
-
-                          return EditableGradeCard(
-                            studentId: student.student?.id ?? 0,
-                            name: student.student?.fullName ?? "",
-                            rollNumber: student.student?.rollNumber ?? 0,
-                            marksController: controller,
-                            status: status,
-                            totalMarks: double.parse(totalMarks.toString()),
-                            onStatusChanged: (newStatus) {
-                              setState(() {
-                                _statusMap[index] = newStatus;
-                              });
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  SizedBox(height: Responsive.height * 4),
-                  CommonButton(
-                    onPressed: () {
-                      submitEditedMarks(context);
-                    },
-                    widget: Text("Submit"),
-                  ),
-                  SizedBox(height: Responsive.height * 4),
-                ],
+                    SizedBox(height: Responsive.height * 4),
+                    CommonButton(
+                      onPressed: () {
+                        submitEditedMarks(context);
+                      },
+                      widget: Text("Submit"),
+                    ),
+                    SizedBox(height: Responsive.height * 4),
+                  ],
+                ),
               ),
             ),
           ),

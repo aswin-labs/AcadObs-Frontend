@@ -62,8 +62,10 @@ class LeaveModel {
     adminRemarks: json["admin_remarks"],
     attachment: json["attachment"],
     trash: json["trash"],
+    // createdAt:
+    //     json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
     createdAt:
-        json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+        json["createdAt"] != null ? DateTime.parse(json["createdAt"]) : null,
     updatedAt:
         json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
     user: json["User"] == null ? null : UserModel.fromJson(json["User"]),

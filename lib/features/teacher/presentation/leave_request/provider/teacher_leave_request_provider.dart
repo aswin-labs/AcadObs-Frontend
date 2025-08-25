@@ -57,7 +57,9 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
             leavesJson
                 .map((jsonItem) => LeaveModel.fromJson(jsonItem))
                 .toList();
-
+        fetchedLeaves.sort((a, b) {
+          return b.createdAt!.compareTo(a.createdAt!);
+        });
         _leaveRequests.addAll(fetchedLeaves);
         _isFetchedOnce = true;
       } else {
@@ -91,7 +93,7 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
         reason: reason,
       );
       if (response.statusCode == 201) {
-        await fetchAllLeaveRequests(forceRefresh:true);
+        await fetchAllLeaveRequests(forceRefresh: true);
         if (!context.mounted) return;
         PopupLoader.hide(context);
         Navigator.pop(context);

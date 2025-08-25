@@ -5,14 +5,15 @@ import 'package:provider/provider.dart';
 class CustomFilePicker extends StatelessWidget {
   final String label;
   final String fieldName;
-  final String? Function(String?)? validator; 
-  final bool isImagePicker; 
+  final String? Function(String?)? validator;
+  final bool isImagePicker;
 
-  const CustomFilePicker({super.key, 
+  const CustomFilePicker({
+    super.key,
     required this.label,
     required this.fieldName,
-    this.validator, 
-    this.isImagePicker = false, 
+    this.validator,
+    this.isImagePicker = false,
   });
 
   @override
@@ -30,34 +31,82 @@ class CustomFilePicker extends StatelessWidget {
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
-            GestureDetector(
-              onTap: () async {
-                await fileProvider.pickFile(fieldName, imagesOnly: isImagePicker);
-                state.didChange(fileProvider.getFile(fieldName)?.path);
-              },
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25),
-                  border: Border.all(color: Colors.grey),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        fileProvider.getFile(fieldName)?.name ??
-                            'No file selected',
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 14, color: Colors.black54),
-                      ),
+
+            Consumer<FilePickerProvider>(
+              builder: (context, provider, _) {
+                final file = provider.getFile(fieldName);
+
+                return GestureDetector(
+                  onTap: () async {
+                    await fileProvider.pickFile(
+                      fieldName,
+                      imagesOnly: isImagePicker,
+                    );
+
+                    final pickedFile = provider.getFile(fieldName);
+                    if (pickedFile != null) {
+                      final fileSize = pickedFile.size;
+
+
+                      if (fileSize > 5 * 1024 * 1024) {
+                        if (!context.mounted) return;
+                        state.didChange(null);
+                        state.validate();
+                        // provider.setError(fieldName,"File size must less than 5 mb");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("File size must be less than 5 MB"),
+                          ),
+                        );
+                        // Clear the invalid file
+                        fileProvider.clearFile(fieldName);
+                        return;
+                      }
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("${pickedFile.name} selected")),
+                      );
+                    } else {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("No file selected")),
+                      );
+                    }
+                    state.didChange(fileProvider.getFile(fieldName)?.path);
+                    state.validate();
+                  },
+
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 12,
                     ),
-                    const Icon(Icons.upload_file, color: Colors.grey),
-                  ],
-                ),
-              ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(25),
+                      border: Border.all(color: Colors.grey),
+                    ),
+
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            file?.name ?? "No File selected",
+                            // fileProvider.getFile(fieldName)?.name ??
+                            //     'No file selected',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ),
+                        const Icon(Icons.upload_file, color: Colors.grey),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
             if (state.hasError)
               Padding(
