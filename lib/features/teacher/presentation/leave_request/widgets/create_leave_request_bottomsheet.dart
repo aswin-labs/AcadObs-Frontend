@@ -56,6 +56,7 @@ void showCreateLeaveRequesBottomSheet(
                   ),
                 ),
                 SizedBox(height: Responsive.height * 3),
+
                 CustomDatePicker(
                   label: "Start Date*",
                   dateController: fromDateController,
@@ -76,6 +77,7 @@ void showCreateLeaveRequesBottomSheet(
                   },
                 ),
                 SizedBox(height: Responsive.height * 1),
+
                 CustomDatePicker(
                   label: "End Date*",
                   dateController: toDateController,
@@ -92,7 +94,27 @@ void showCreateLeaveRequesBottomSheet(
                   ),
                   initialDate: DateTime.now(),
                   validator: (value) {
-                    return FormValidator.validateNotEmpty(value);
+                    final error = FormValidator.validateNotEmpty(value);
+                    if (error != null) return error;
+                    try {
+                      final fromDate = DateFormat(
+                        'dd/MM/yyyy',
+                      ).parse(fromDateController.text);
+                      final toDate = DateFormat('dd/MM/yyyy').parse(value!);
+                      if (fromDate.isAfter(toDate)) {
+                        return "End Date cannot be earlier than Start Date";
+                      }
+                    } catch (e) {
+                      final fromDate = DateFormat(
+                        'yyyy-MM-dd',
+                      ).parse(fromDateController.text);
+                      final toDate = DateFormat('yyyy-MM-dd').parse(value!);
+                      if (fromDate.isAfter(toDate)) {
+                        return "End Date cannot be earlier than Start Date";
+                      }
+                    }
+                    // return FormValidator.validateNotEmpty(value);
+                    return null;
                   },
                 ),
                 SizedBox(height: Responsive.height * 1),
@@ -120,6 +142,12 @@ void showCreateLeaveRequesBottomSheet(
                 CustomFilePicker(
                   label: "Upload File (Max 5 mb):",
                   fieldName: "attachment",
+                  validator: (value) {
+                    final error = context.read<FilePickerProvider>().getError(
+                      "attachment",
+                    );
+                    return error;
+                  },
                 ),
                 SizedBox(height: Responsive.height * 4),
                 fromTeacherScreen
@@ -165,7 +193,7 @@ void showCreateLeaveRequesBottomSheet(
                                   toDate: toDateController.text,
                                   leaveType: leaveType,
                                   reason: reasonController.text,
-                                  studentId:studentId 
+                                  studentId: studentId,
                                 );
                           },
 

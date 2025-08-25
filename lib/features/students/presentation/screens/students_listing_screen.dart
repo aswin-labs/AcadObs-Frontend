@@ -27,6 +27,10 @@ class StudentsListingScreen extends StatefulWidget {
 class _StudentsListingScreenState extends State<StudentsListingScreen> {
   int? classId;
   String? className;
+
+  final _formKey = GlobalKey<FormState>();
+  String? _selectedStandard;
+
   late DropdownProvider dropdownProvider;
   late StudentProvider studentProvider;
 
@@ -38,6 +42,9 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
       dropdownProvider.clearSelectedItem("standard");
       dropdownProvider.clearSelectedItem("className");
       studentProvider.clearStudents();
+      context.read<SharedProvider>().resetClassNames();
+
+      setState(() => _selectedStandard = null);
     });
     super.initState();
   }
@@ -56,122 +63,158 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
               padding: context.paddingHorizontal.add(
                 EdgeInsets.only(top: Responsive.height * 2),
               ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      SizedBox(
-                        width: Responsive.width * 43,
-                        child: CustomDropdown(
-                          dropdownKey: 'standard',
-                          label: 'Standard*',
-                          icon: LucideIcons.layers,
-                          items: AppConstants.classGrades,
-                          validator:
-                              (value) =>
-                                  value == null || value.isEmpty
-                                      ? 'Please select a class standard'
-                                      : null,
-                          onChanged: (standard) {
-                            studentProvider.clearStudents();
-                            dropdownProvider.clearSelectedItem("className");
-                            classId = null;
-                            className = null;
+              child: Form(
+                key: _formKey,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: Responsive.width * 43,
+                          child: CustomDropdown(
+                            dropdownKey: 'standard',
+                            label: 'Standard*',
+                            icon: LucideIcons.layers,
+                            items: AppConstants.classGrades,
+                            validator:
+                                (value) =>
+                                    value == null || value.isEmpty
+                                        ? 'Please select a class standard'
+                                        : null,
+                            onChanged: (standard) {
+                              setState(() => _selectedStandard = standard);
+                              _formKey.currentState?.validate();
 
-                            context
-                                .read<SharedProvider>()
-                                .getClassNameFromStandard(
-                                  context: context,
-                                  standard: int.parse(standard),
-                                );
-                          },
-                        ),
-                      ),
-                      Consumer<SharedProvider>(
-                        builder: (context, provider, _) {
-                          List<Map<String, dynamic>> classMapList =
-                              provider.classNames;
-                          List<String> onlyClassNames =
-                              classMapList
-                                  .map((item) => item['classname'].toString())
-                                  .toList();
+                              studentProvider.clearStudents();
+                              dropdownProvider.clearSelectedItem("className");
+                              classId = null;
+                              className = null;
 
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: SizedBox(
-                              width: Responsive.width * 43,
-                              child: CustomDropdown(
-                                dropdownKey: 'className',
-                                label: 'Class*',
-                                icon: LucideIcons.school,
-                                items: onlyClassNames,
-                                validator:
-                                    (value) =>
-                                        value == null || value.isEmpty
-                                            ? 'Please select a class'
-                                            : null,
-                                onChanged: (selectedClass) {
-                                  className = selectedClass;
-                                  classId =
-                                      classMapList.firstWhere(
-                                        (item) =>
-                                            item['classname'] == selectedClass,
-                                        orElse: () => {'id': null},
-                                      )['id'];
-
-                                  context
-                                      .read<StudentProvider>()
-                                      .fetchStudentsByClassId(
-                                        context: context,
-                                        classId: classId ?? 1,
-                                      );
-                                },
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Consumer<StudentProvider>(
-                    builder: (context, provider, _) {
-                      if (provider.isLoading) {
-                        return commonShimmerList();
-                      }
-                      if (provider.students.isEmpty) {
-                        return emptyScreen(message: "No Students Found.");
-                      }
-                      return Column(
-                        children: [
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: provider.students.length,
-                            itemBuilder: (context, index) {
-                              final student = provider.students[index];
-                              return ProfileTile(
-                                name: student.fullName,
-                                description:
-                                    "Roll No: ${student.rollNumber.toString()}",
-                                onPressed:
-                                    () => context.pushNamed(
-                                      RouteConstants.studentDetails,
-                                      extra: StudentDetailParameters(
-                                        forParent: false,
-                                        studentId: student.id,
-                                      ),
-                                    ),
-                              );
+                              context
+                                  .read<SharedProvider>()
+                                  .getClassNameFromStandard(
+                                    context: context,
+                                    standard: int.parse(standard),
+                                  );
                             },
                           ),
-                        ],
-                      );
-                    },
-                  ),
-                  SizedBox(height: Responsive.height * 10),
-                ],
+                        ),
+                        Consumer<SharedProvider>(
+                          builder: (context, provider, _) {
+                            List<Map<String, dynamic>> classMapList =
+                                provider.classNames;
+                            List<String> onlyClassNames =
+                                classMapList
+                                    .map((item) => item['classname'].toString())
+                                    .toList();
+
+                            return Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: SizedBox(
+                                width: Responsive.width * 43,
+                                child: Stack(
+                                  children: [
+                                    CustomDropdown(
+                                      dropdownKey: 'className',
+                                      label: 'Class*',
+                                      icon: LucideIcons.school,
+                                      items: onlyClassNames,
+                                      validator:
+                                          (value) =>
+                                              value == null || value.isEmpty
+                                                  ? 'Please select a class'
+                                                  : null,
+                                      onChanged: (selectedClass) {
+                                        className = selectedClass;
+                                        classId =
+                                            classMapList.firstWhere(
+                                              (item) =>
+                                                  item['classname'] ==
+                                                  selectedClass,
+                                              orElse: () => {'id': null},
+                                            )['id'];
+
+                                        context
+                                            .read<StudentProvider>()
+                                            .fetchStudentsByClassId(
+                                              context: context,
+                                              classId: classId ?? 1,
+                                            );
+                                      },
+                                    ),
+                                    if (_selectedStandard == null)
+                                      Positioned.fill(
+                                        child: Material(
+                                          color: Colors.transparent,
+                                          child: InkWell(
+                                            onTap: () {
+                                              _formKey.currentState?.validate();
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                SnackBar(
+                                                  backgroundColor: Colors.red,
+                                                  content: Text(
+                                                    "Please select standard",
+                                                  ),
+                                                  duration: Duration(
+                                                    seconds: 3,
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Consumer<StudentProvider>(
+                      builder: (context, provider, _) {
+                        if (provider.isLoading) {
+                          return commonShimmerList();
+                        }
+                        if (provider.students.isEmpty) {
+                          return emptyScreen(message: "No Students Found.");
+                        }
+                        return Column(
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: provider.students.length,
+                              itemBuilder: (context, index) {
+                                final student = provider.students[index];
+                                return ProfileTile(
+                                  name: student.fullName,
+                                  description:
+                                      "Roll No: ${student.rollNumber.toString()}",
+                                  onPressed:
+                                      () => context.pushNamed(
+                                        RouteConstants.studentDetails,
+                                        extra: StudentDetailParameters(
+                                          forParent: false,
+                                          studentId: student.id,
+                                        ),
+                                      ),
+                                );
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    SizedBox(height: Responsive.height * 10),
+                  ],
+                ),
               ),
             ),
           ),

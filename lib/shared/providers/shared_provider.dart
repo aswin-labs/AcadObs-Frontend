@@ -42,6 +42,7 @@ class SharedProvider extends ChangeNotifier {
   }) async {
     _isLoading = true;
     _isClassesEmpty = false;
+    _classNames.clear();
     notifyListeners();
     try {
       final response = await SharedServices().getClassNameFromStandard(

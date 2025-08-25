@@ -174,21 +174,23 @@ void showAddMarksBottomSheet({required BuildContext context}) {
 
                     return CommonButton(
                       onPressed: () {
-                        final className = context
-                            .read<DropdownProvider>()
-                            .getSelectedItem('className');
-                        context.pushNamed(
-                          RouteConstants.addStudentMarks,
-                          extra: MarksUploadModel(
-                            classId: classId ?? 0,
-                            className: className,
-                            subjectId: subject?.id ?? 0,
-                            title: titleController.text,
-                            totalMarks: int.parse(totalMarksController.text),
-                            date: dateController.text,
-                          ),
-                        );
-                        Navigator.pop(context);
+                        if (formKey.currentState!.validate()) {
+                          final className = context
+                              .read<DropdownProvider>()
+                              .getSelectedItem('className');
+                          context.pushNamed(
+                            RouteConstants.addStudentMarks,
+                            extra: MarksUploadModel(
+                              classId: classId ?? 0,
+                              className: className,
+                              subjectId: subject?.id ?? 0,
+                              title: titleController.text,
+                              totalMarks: int.parse(totalMarksController.text),
+                              date: dateController.text,
+                            ),
+                          );
+                          Navigator.pop(context);
+                        }
                       },
                       widget:
                           provider.isLoadingTwo

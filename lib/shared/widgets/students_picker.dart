@@ -36,7 +36,7 @@ class StudentsPicker extends StatelessWidget {
             ),
             Expanded(
               child: Text(
-                'Manage Students',
+                'Manage Students*',
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontSize: 14, color: Colors.black54),
               ),
@@ -56,7 +56,7 @@ Future<void> showStudentSelectionPopup(
   final provider = context.read<StudentProvider>();
 
   // Fetch students if not already done
-  await provider.fetchStudentsByClassId(context:context, classId: classId);
+  await provider.fetchStudentsByClassId(context: context, classId: classId);
   if (!context.mounted) return;
   showDialog(
     context: context,
