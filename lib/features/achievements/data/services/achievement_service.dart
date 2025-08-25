@@ -23,7 +23,6 @@ class AchievementService {
       "level": level,
       "date": date,
       "awarding_body": awardingBody,
-      // "students": jsonEncode(students),
       "students": students,
     };
 

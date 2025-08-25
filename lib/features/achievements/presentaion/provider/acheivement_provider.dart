@@ -1,13 +1,15 @@
 import 'dart:developer';
 import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
-import 'package:acadobs/features/achievements/services/achievement_service.dart';
+import 'package:acadobs/features/achievements/data/services/achievement_service.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 
 class AchievementProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+  bool _isLoadingTwo = false;
+  bool get isLoadingTwo => _isLoadingTwo;
 
   Future<bool> createAchievement({
     required BuildContext context,
@@ -19,7 +21,7 @@ class AchievementProvider extends ChangeNotifier {
     required String awardingBody,
     required List<Map<String, dynamic>> students, // Updated parameter
   }) async {
-    _isLoading = true;
+    _isLoadingTwo = true;
     notifyListeners();
 
     try {
@@ -55,7 +57,7 @@ class AchievementProvider extends ChangeNotifier {
           type: SnackbarType.success,
         );
         Navigator.pop(context);
-        _isLoading = false;
+        _isLoadingTwo = false;
         notifyListeners();
         return true;
       }
@@ -69,7 +71,7 @@ class AchievementProvider extends ChangeNotifier {
             response.data?['message'] ??
             'Invalid request';
         if (context.mounted) CustomErrorDialog.show(context, message);
-        _isLoading = false;
+        _isLoadingTwo = false;
         notifyListeners();
         return false;
       }
@@ -77,7 +79,7 @@ class AchievementProvider extends ChangeNotifier {
       // Other failures
       final message = response.data?['message'] ?? 'Error occurred';
       if (context.mounted) CustomErrorDialog.show(context, message);
-      _isLoading = false;
+      _isLoadingTwo = false;
       notifyListeners();
       return false;
     } catch (e) {
@@ -90,7 +92,7 @@ class AchievementProvider extends ChangeNotifier {
           type: SnackbarType.failure,
         );
       }
-      _isLoading = false;
+      _isLoadingTwo = false;
       notifyListeners();
       return false;
     }

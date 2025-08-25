@@ -1,19 +1,21 @@
+import 'dart:developer';
+
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/achievements/provider/acheivement_provider.dart';
-// import 'package:acadobs/features/achievements/models/student_section_model.dart';
-import 'package:acadobs/features/achievements/widget/student_picker_manage.dart';
+import 'package:acadobs/features/achievements/data/models/avhievement_section.dart';
+import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
+import 'package:acadobs/features/achievements/presentaion/widgets/single_student_picker.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/common_floating_action_button.dart';
+import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
-// import 'package:acadobs/shared/widgets/students_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
@@ -29,35 +31,48 @@ class AddAchievementsScreen extends StatefulWidget {
 class _AddAchievementsScreenState extends State<AddAchievementsScreen> {
   late DropdownProvider dropdownProvider;
   late StudentProvider studentProvider;
-  List<int> studentSections = [0];
-  List<List<int>> selectedStudentsPerSection = [[]];
-  List<int?> classIdsPerSection = [null];
+  List<int?> selectedStudentsPerSection = []; // one student id per section
+  List<int?> classIdsPerSection = []; // one class id per section
+  List<TextEditingController> remarksControllers = [];
+  List<String?> statusPerSection = []; // 👈 add this for status
+  List<int> studentSections = [];
 
   late TextEditingController titleController;
   late TextEditingController descriptionController;
   late TextEditingController dateController;
   late TextEditingController awardingBodyController;
-  List<TextEditingController> remarksControllers = [];
+  List<AchievementSection> achievementSections = [];
+  // static const int maxSections = 5;
 
   @override
   void initState() {
+    super.initState();
+
     dropdownProvider = context.read<DropdownProvider>();
     studentProvider = context.read<StudentProvider>();
+
     titleController = TextEditingController();
     descriptionController = TextEditingController();
     dateController = TextEditingController();
     awardingBodyController = TextEditingController();
-    remarksControllers = [TextEditingController()];
+
+    // reset sections
+    achievementSections = [];
+    studentSections = [];
+    classIdsPerSection = [];
+    selectedStudentsPerSection = [];
+    remarksControllers = [];
+    statusPerSection = [];
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // also reset providers
       dropdownProvider.clearSelectedItem("standard");
       dropdownProvider.clearSelectedItem("className");
       dropdownProvider.clearSelectedItem("category");
       dropdownProvider.clearSelectedItem("level");
       dropdownProvider.clearSelectedItem("status");
-
       studentProvider.deselectAllStudents();
     });
-    super.initState();
   }
 
   @override
@@ -69,7 +84,19 @@ class _AddAchievementsScreenState extends State<AddAchievementsScreen> {
     for (var controller in remarksControllers) {
       controller.dispose();
     }
+
+    // 👇 reset providers here
+    dropdownProvider.clearAllDropdowns(); // we'll define this method
+    studentProvider.deselectAllStudents();
+
     super.dispose();
+  }
+
+  List<Map<String, dynamic>> getStudentsAchievementList() {
+    return achievementSections
+        .where((s) => s.selectedStudent != null) // only valid
+        .map((s) => s.toJson())
+        .toList();
   }
 
   @override
@@ -168,257 +195,292 @@ class _AddAchievementsScreenState extends State<AddAchievementsScreen> {
                     ),
                     SizedBox(height: Responsive.height * 2),
 
+                    GestureDetector(
+                      onTap: () {
+                        if (achievementSections.length >= 5) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "You can only add up to 5 students",
+                              ),
+                            ),
+                          );
+                          return;
+                        }
+
+                        setState(() {
+                          final newIndex = studentSections.length;
+                          studentSections.add(newIndex);
+                          selectedStudentsPerSection.add(null);
+                          classIdsPerSection.add(null);
+                          remarksControllers.add(TextEditingController());
+                          statusPerSection.add(null);
+                          achievementSections.add(AchievementSection());
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(),
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Add Student",
+                              style: context.textTheme.bodyLarge,
+                            ),
+                            SizedBox(width: Responsive.width * 2),
+                            Icon(Icons.add),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: Responsive.height * 3),
                     // Dynamic student sections
                     Column(
                       children:
-                          studentSections.map((sectionIndex) {
+                          achievementSections.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final section = entry.value;
+                            final sid =
+                                section.sectionId; // 👈 stable id for keys
+
                             return Padding(
-                              padding: EdgeInsets.only(bottom: 8),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  color: Colors.grey[300],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // STANDARD
-                                      CustomDropdown(
-                                        dropdownKey: 'standard_$sectionIndex',
-                                        label: 'Select Standard*',
-                                        icon: LucideIcons.layers,
-                                        items: AppConstants.classGrades,
-                                        validator:
-                                            (value) =>
-                                                value == null || value.isEmpty
-                                                    ? 'Please select a class standard'
-                                                    : null,
-                                        onChanged: (standard) {
-                                          context
-                                              .read<SharedProvider>()
-                                              .getClassNameFromStandard(
-                                                context: context,
-                                                standard: int.parse(standard),
-                                              );
-                                        },
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        color: Colors.grey[300],
                                       ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(10),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            // STANDARD (use sid)
+                                            CustomDropdown(
+                                              dropdownKey: 'standard_$sid',
+                                              label: 'Select Standard*',
+                                              icon: LucideIcons.layers,
+                                              items: AppConstants.classGrades,
+                                              onChanged: (standard) {
+                                                context
+                                                    .read<SharedProvider>()
+                                                    .getClassNameFromStandard(
+                                                      context: context,
+                                                      standard: int.parse(
+                                                        standard,
+                                                      ),
+                                                    );
+                                              },
+                                            ),
+                                            const SizedBox(height: 10),
 
-                                      // CLASS
-                                      Consumer<SharedProvider>(
-                                        builder: (context, provider, _) {
-                                          List<Map<String, dynamic>>
-                                          classMapList = provider.classNames;
-                                          List<String> onlyClassNames =
-                                              classMapList
-                                                  .map(
-                                                    (item) =>
-                                                        item['classname']
-                                                            .toString(),
-                                                  )
-                                                  .toList();
+                                            // CLASS (use sid)
+                                            Consumer<SharedProvider>(
+                                              builder: (context, provider, _) {
+                                                final classMapList =
+                                                    provider.classNames;
+                                                final onlyClassNames =
+                                                    classMapList
+                                                        .map(
+                                                          (item) =>
+                                                              item['classname']
+                                                                  .toString(),
+                                                        )
+                                                        .toList();
 
-                                          if (provider.isLoading) {
-                                            return CircularProgressIndicator();
-                                          } else if (provider.isClassesEmpty) {
-                                            return Padding(
-                                              padding: const EdgeInsets.all(
-                                                8.0,
-                                              ),
-                                              child: Text(
-                                                "No Classes Available",
-                                                style: context
-                                                    .textTheme
-                                                    .bodySmall!
-                                                    .copyWith(
-                                                      color: Colors.red,
-                                                    ),
-                                              ),
-                                            );
-                                          } else {
-                                            return onlyClassNames.isEmpty
-                                                ? SizedBox.shrink()
-                                                : Padding(
-                                                  padding: EdgeInsets.only(
-                                                    top: Responsive.height * 1,
-                                                  ),
-                                                  child: CustomDropdown(
-                                                    dropdownKey:
-                                                        'className_$sectionIndex',
-                                                    label: 'Select Class*',
-                                                    icon: LucideIcons.school,
-                                                    items: onlyClassNames,
-                                                    validator:
-                                                        (value) =>
-                                                            value == null ||
-                                                                    value
-                                                                        .isEmpty
-                                                                ? 'Please select a class'
-                                                                : null,
-                                                    onChanged: (selectedClass) {
-                                                      final selectedId =
-                                                          classMapList.firstWhere(
-                                                            (item) =>
-                                                                item['classname'] ==
-                                                                selectedClass,
-                                                            orElse:
-                                                                () => {
-                                                                  'id': null,
-                                                                },
-                                                          )['id'];
-                                                      provider.setClassId(
-                                                        selectedId,
-                                                      );
-                                                    },
-                                                  ),
+                                                return CustomDropdown(
+                                                  dropdownKey: 'className_$sid',
+                                                  label: 'Select Class*',
+                                                  icon: LucideIcons.school,
+                                                  items: onlyClassNames,
+                                                  onChanged: (selectedClass) {
+                                                    final selectedId =
+                                                        classMapList.firstWhere(
+                                                          (item) =>
+                                                              item['classname'] ==
+                                                              selectedClass,
+                                                          orElse:
+                                                              () => {
+                                                                "id": null,
+                                                              },
+                                                        )['id'];
+
+                                                    setState(() {
+                                                      section.classId =
+                                                          selectedId;
+                                                      section.selectedStudent =
+                                                          null; // reset student
+                                                    });
+                                                  },
                                                 );
-                                          }
-                                        },
-                                      ),
-                                      SizedBox(height: Responsive.height * 2),
+                                              },
+                                            ),
 
-                                      // STUDENT PICKER
-                                      Consumer<SharedProvider>(
-                                        builder: (context, studentProvider, _) {
-                                          final classId =
-                                              context
-                                                  .watch<SharedProvider>()
-                                                  .classId;
-                                          return StudentPickerManage(
-                                            classId: classId ?? 0,
-                                            selectAllNeeded: false,
-                                            onStudentsSelected: (List<int> selectedIds){
+                                            const SizedBox(height: 10),
+
+                                            // STUDENT PICKER (unchanged)
+                                            SingleStudentPicker(
+                                              classId: section.classId ?? 0,
+                                              selectedStudent:
+                                                  section.selectedStudent,
+                                              onStudentSelected: (student) {
                                                 setState(() {
-                                                  selectedStudentsPerSection[sectionIndex] = selectedIds;
+                                                  section.selectedStudent =
+                                                      student;
                                                 });
-                                            },
-                                          );
-                                        },
-                                      ),
-                                      SizedBox(height: Responsive.height * 2),
+                                              },
+                                            ),
 
-                                      // STATUS
-                                      CustomDropdown(
-                                        dropdownKey: 'status_$sectionIndex',
-                                        label: "Achievement Status",
-                                        icon: LucideIcons.clock,
-                                        items: AppConstants.achievementStatuses,
-                                      ),
-                                      SizedBox(height: Responsive.height * 2),
+                                            const SizedBox(height: 10),
 
-                                      // REMARK
-                                      CustomTextfield(
-                                        iconData: Icon(LucideIcons.type),
-                                        controller:
-                                            remarksControllers[sectionIndex],
-                                        hintText: 'Remark',
-                                        label: "Remark",
+                                            // STATUS (use sid)
+                                            CustomDropdown(
+                                              dropdownKey: 'status_$sid',
+                                              label: "Achievement Status",
+                                              icon: LucideIcons.clock,
+                                              items:
+                                                  AppConstants
+                                                      .achievementStatuses,
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  section.status = value;
+                                                });
+                                              },
+                                            ),
+
+                                            const SizedBox(height: 10),
+
+                                            // REMARK
+                                            CustomTextfield(
+                                              iconData: const Icon(
+                                                LucideIcons.type,
+                                              ),
+                                              controller: TextEditingController(
+                                                text: section.remark ?? "",
+                                              ),
+                                              hintText: 'Remark',
+                                              label: "Remark",
+                                              onChanged:
+                                                  (value) =>
+                                                      section.remark = value,
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+
+                                  // const SizedBox(width: 8),
+
+                                  // REMOVE button — clear provider keys tied to this sectionId before removing
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.close,
+                                      color: Colors.red,
+                                      size: 28,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        // 👇 clear dropdown selections for this section
+                                        dropdownProvider.clearSelectedItem(
+                                          'standard_$sid',
+                                        );
+                                        dropdownProvider.clearSelectedItem(
+                                          'className_$sid',
+                                        );
+                                        dropdownProvider.clearSelectedItem(
+                                          'status_$sid',
+                                        );
+
+                                        // if you keep the parallel lists, also remove at index
+                                        achievementSections.removeAt(index);
+                                        if (index < studentSections.length) {
+                                          studentSections.removeAt(index);
+                                        }
+                                        if (index < classIdsPerSection.length) {
+                                          classIdsPerSection.removeAt(index);
+                                        }
+                                        if (index <
+                                            selectedStudentsPerSection.length) {
+                                          selectedStudentsPerSection.removeAt(
+                                            index,
+                                          );
+                                        }
+                                        if (index < statusPerSection.length) {
+                                          statusPerSection.removeAt(index);
+                                        }
+                                        if (index < remarksControllers.length) {
+                                          remarksControllers[index].dispose();
+                                          remarksControllers.removeAt(index);
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ],
                               ),
                             );
                           }).toList(),
                     ),
 
                     SizedBox(height: Responsive.height * 4),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          studentSections.add(studentSections.length);
-                          selectedStudentsPerSection.add(
-                            <int>[],
-                          ); // 👈 add empty selection list
-                          classIdsPerSection.add(
-                            null,
-                          ); // 👈 add placeholder classId
-                          remarksControllers.add(TextEditingController());
-                        });
+                    Consumer<AchievementProvider>(
+                      builder: (context, provider, _) {
+                        return CommonButton(
+                          onPressed: () {
+                            // if (formKey.currentState?.validate() ?? false) {
+                            final dropdown = context.read<DropdownProvider>();
+                            final String category = dropdown.getSelectedItem(
+                              'category',
+                            );
+                            final String level = dropdown.getSelectedItem(
+                              'level',
+                            );
+
+                            final String title = titleController.text.trim();
+                            final String description =
+                                descriptionController.text.trim();
+                            final String date = dateController.text;
+                            final String awardngBody =
+                                awardingBodyController.text.trim();
+
+                            // }
+                            final achievementProvider =
+                                context.read<AchievementProvider>();
+                            log(getStudentsAchievementList().toString());
+                            achievementProvider.createAchievement(
+                              context: context,
+                              title: title,
+                              description: description,
+                              category: category,
+                              level: level,
+                              date: date,
+                              awardingBody: awardngBody,
+                              students: getStudentsAchievementList(),
+                            );
+                          },
+                          widget:
+                              provider.isLoadingTwo
+                                  ? ButtonLoading()
+                                  : Text("Submit"),
+                        );
                       },
-                      child: Container(
-                        padding: EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(32),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [Text("Add Student "), Icon(Icons.add)],
-                        ),
-                      ),
                     ),
-                    SizedBox(height: 150),
+                    SizedBox(height: Responsive.height * 6),
                   ],
                 ),
               ),
             ),
           ),
         ],
-      ),
-      floatingActionButton: Consumer(
-        builder: (context, provider, _) {
-          return CommonFloatingActionButton(
-            onPressed: () async {
-              if (formKey.currentState?.validate() ?? false) {
-                final dropdown = context.read<DropdownProvider>();
-                final String category = dropdown.getSelectedItem('category');
-                final String level = dropdown.getSelectedItem('level');
-
-                final String title = titleController.text.trim();
-                final String description = descriptionController.text.trim();
-                final String date = dateController.text;
-                final String awardngBody = awardingBodyController.text.trim();
-
-                List<Map<String, dynamic>> studentsData = [];
-                for (int i = 0; i < studentSections.length; i++) {
-                  final String status = dropdown.getSelectedItem('status_$i');
-                  final String remark = remarksControllers[i].text.trim();
-                  final List<int> students = selectedStudentsPerSection[i];
-
-                  if (students.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Please select at least one student in section ${i + 1}',
-                        ),
-                      ),
-                    );
-                    return;
-                  }
-                  for (var studentId in students) {
-                    studentsData.add({
-                      "student_id": studentId,
-                      "status": status,
-                      "remark": remark,
-                    });
-                  }
-                }
-                if (studentsData.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Add at least one student section')),
-                  );
-                  return;
-                }
-                final achievementProvider = context.read<AchievementProvider>();
-                await achievementProvider.createAchievement(
-                  context: context,
-                  title: title,
-                  description: description,
-                  category: category,
-                  level: level,
-                  date: date,
-                  awardingBody: awardngBody,
-                  // studentSections: studentSectionsData,
-                  students: studentsData,
-                );
-              }
-            },
-            text: "submit",
-          );
-        },
       ),
     );
   }
