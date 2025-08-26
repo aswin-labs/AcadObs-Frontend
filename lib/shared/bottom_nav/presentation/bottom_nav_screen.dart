@@ -10,7 +10,7 @@ import 'package:acadobs/features/superadmin/presentation/school_classes/screens/
 import 'package:acadobs/features/superadmin/presentation/school_subjects/screens/school_subjects_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/schools/screens/schools_list_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_home_screen.dart';
-import 'package:acadobs/features/teacher/presentation/chats/screens/chats_home_screen.dart';
+import 'package:acadobs/features/chats/presentation/screens/chats_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/teacher_home_screen.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';

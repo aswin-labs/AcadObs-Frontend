@@ -5,8 +5,10 @@ class ApiEndpoints {
   static const String classes = "/superadmin/classes";
   static const String subjects = "/superadmin/subjects";
 
-  // STAFF
+  // LOGIN
+  static const String login = "/public/login";
 
+  // STAFF
   static const String classesByYear = "/staff/getClassesByYear";
   static const String students = "/staff/students";
   static const String studentsByClassId = "/staff/getStudentsByClassId";
