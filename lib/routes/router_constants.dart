@@ -2,6 +2,8 @@ class RouteConstants {
   // COMMON ROUTES
   static const String userRolesScreen = 'userRoleScreen';
   static const String bottomNavScreen = 'bottomNavScreen';
+  static const String loginScreen = 'loginScreen';
+  static const String splashScreen = 'splashScreen';
 
   //  SUPER ADMIN ROUTES
   static const String addSchool = 'addSchool';
@@ -49,4 +51,7 @@ class RouteConstants {
   // STUDENTS
   static const String studentListing = 'studentListing';
   static const String studentDetails = 'studentDetails';
+
+  // CHATS
+  static const String chatScreen = "chatScreen";
 }

@@ -1,3 +1,4 @@
+import 'package:acadobs/core/interceptor/custom_interceptor.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:dio/dio.dart';
 
@@ -13,6 +14,7 @@ class ApiServices {
       ),
     )
     ..interceptors.addAll([
+      CustomInterceptor(),
       LogInterceptor(
         request: true,
         requestHeader: true,
