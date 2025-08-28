@@ -71,8 +71,10 @@ class AuthProvider with ChangeNotifier {
   Future<String?> getToken() => _storageService.getToken();
   Future<Map<String, dynamic>?> getUserData() => _storageService.getUserData();
 
-  Future<void> logout() async {
+  Future<void> logout(BuildContext context) async {
     await _storageService.clear();
+    if (!context.mounted) return;
+    context.pushReplacement(RouteConstants.loginScreen);
     notifyListeners();
   }
 }

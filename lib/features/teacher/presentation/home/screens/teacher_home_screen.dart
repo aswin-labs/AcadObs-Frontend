@@ -266,7 +266,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 builder: (context, provider, _) {
                   final news = provider.latestNews;
                   if (provider.isLoading) {
-                    return Center(child: commonShimmerList());
+                    return Center(child: CommonShimmerTile());
                   } else if (news.isEmpty) {
                     return Column(
                       children: [

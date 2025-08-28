@@ -50,9 +50,12 @@ class StudentLeaveRequestServices {
   }
 
   // Get student leave requests
-  Future<Response> fetchAllStudentLeaveRequests({required int pageNo, required int studentId}) async {
+  Future<Response> fetchAllStudentLeaveRequests({
+    required int pageNo,
+    required int studentId,
+  }) async {
     final url = await ApiServices.get(
-      "${ApiEndpoints.studentLeaveRequest}/$studentId?$pageNo&limit=${AppConstants.paginationLimit}",
+      "${ApiEndpoints.studentLeaveRequest}/$studentId?pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return url;
   }

@@ -93,6 +93,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
             pageNo: _currentPage,
             studentId: studentId,
           );
+          log("API Response: ${response.data}, Status: ${response.statusCode}");
       if (response.statusCode == 200) {
         final data = response.data;
 
