@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
@@ -37,5 +38,30 @@ class AchievementService {
     } catch (e) {
       rethrow;
     }
+  }
+
+  Future<Response> fetchAchievementByStudentId({
+    required studentId,
+    required bool forStaff,
+    required int pageNo,
+    required int limit,
+  }) async {
+    final response = await ApiServices.get(
+      forStaff
+          ? '${ApiEndpoints.achievementByStudentId}/$studentId?pageNo=$pageNo&limit=$limit'
+          : '${ApiEndpoints.achievementByGuardian}/$studentId?pageNo=$pageNo&limit=$limit',
+    );
+    return response;
+  }
+
+  //fetching all the achievements
+  Future<Response> fetchALlAchievement({
+    // required int limit,
+    required int pageNo,
+  }) async {
+    final response = await ApiServices.get(
+      '${ApiEndpoints.getAllAchievement}?pageNo=$pageNo&limit=${AppConstants.paginationLimit}',
+    );
+    return response;
   }
 }

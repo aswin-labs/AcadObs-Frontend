@@ -9,7 +9,7 @@ import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/common_floating_button.dart';
+import 'package:acadobs/shared/widgets/common_floating_button2.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
 import 'package:acadobs/shared/widgets/profile_tile.dart';
 import 'package:flutter/material.dart';
@@ -222,9 +222,21 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(16),
-        child: CommonFloatingButton(
-          onPressed: () => context.pushNamed(RouteConstants.addAchievements),
+        // child: CommonFloatingButton(
+        //   // onPressed: () => context.pushNamed(RouteConstants.addAchievements),
+        //   onPressed: () => context.pushNamed(RouteConstants.getAchievement),
+        // ),
+        child: CommonFloatingButton2(
+          onPressed: () => context.pushNamed(RouteConstants.getAchievement),
+          icon: LucideIcons.file,
         ),
+        // child: FloatingActionButton(
+        //   backgroundColor: Colors.black,
+        //   shape: CircleBorder(),
+
+        //   onPressed: () => context.pushNamed(RouteConstants.getAchievement),
+        //   child: Icon(LucideIcons.file, color: Colors.grey),
+        // ),
       ),
     );
   }

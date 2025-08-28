@@ -13,6 +13,10 @@ class ApiEndpoints {
   static const String students = "/staff/students";
   static const String studentsByClassId = "/staff/getStudentsByClassId";
   static const String createAcheivement = "/staff/achievements";
+  static const String achievementByStudentId = "/staff/achievementByStudentId";
+  static const String studentLeaveRequestStaff =
+      "/staff/getLeaveRequestByStudentId";
+
   // duties
   static const String staffDuties = "/staff/duties";
   static const String updateDutyStatus = "/staff/updateAssignedDuty";
@@ -51,6 +55,9 @@ class ApiEndpoints {
   static const String marksBulkUpdate = "/staff/bulkUpdateMarks";
   static const String studentMarks = "/staff/getInternalMarkByStudentId";
 
+  //Achievement
+  static const String getAllAchievement = "/staff/allAchievements";
+
   //GUARDIAN
   static const String fetchLatestEventsGuardian = "/guardian/getLatestEvents";
   static const String fetchLatestNewsGuardian = "/guardian/getLatestNews";
@@ -58,5 +65,7 @@ class ApiEndpoints {
       "/guardian/getHomeworkByStudentId";
   static const String studentMarksForParent =
       "/guardian/getInternalMarkByStudentId";
-  static const String studentLeaveRequest = "/guardian/leaveRequestByStudentId";
+  static const String studentLeaveRequest = "/guardian/leaveRequest";
+  static const String achievementByGuardian =
+      "/guardian/achievementByStudentId";
 }

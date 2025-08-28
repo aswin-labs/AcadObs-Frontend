@@ -160,7 +160,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     if (student == null) {
                       return SizedBox.shrink();
                     }
-                    return StudentAcheivementTab();
+                    return StudentAcheivementTab(studentId: widget.studentId);
                   },
                 ),
 
