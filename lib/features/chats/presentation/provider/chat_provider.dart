@@ -21,6 +21,8 @@ class ChatProvider with ChangeNotifier {
         _setupListeners();
         notifyListeners();
         debugPrint("✅ Connected to chat server");
+        // Load user list when connected
+        loadUsersList();
       },
       () {
         _connected = false;
@@ -58,9 +60,11 @@ class ChatProvider with ChangeNotifier {
     });
 
     socket.on("usersList", (data) {
+      debugPrint("📩 [SOCKET EVENT] usersList -> $data");
+
       _usersList.clear();
-      for (var user in data["data"]) {
-        _usersList.add(Map<String, dynamic>.from(user));
+      for (var convo in data["conversations"]) {
+        _usersList.add(Map<String, dynamic>.from(convo));
       }
       notifyListeners();
     });
@@ -68,10 +72,18 @@ class ChatProvider with ChangeNotifier {
 
   // ================= PUBLIC METHODS =================
 
-  void sendMessage(int receiverId, int studentId, String message) {
+  void sendMessage({
+    required int receiverId,
+    int? studentId,
+    required String message,
+  }) {
+    debugPrint(
+      "➡️ Sending message: $message to $receiverId (studentId: $studentId)",
+    );
+
     _chatService.sendMessage(
       receiverId: receiverId,
-      studentId: studentId,
+      studentId: studentId ?? 0,
       message: message,
     );
   }

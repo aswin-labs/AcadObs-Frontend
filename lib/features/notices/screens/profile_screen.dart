@@ -1,8 +1,8 @@
-import 'dart:developer';
-
+import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   final UserModel usermodel;
@@ -70,7 +70,7 @@ class ProfileScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     child: GestureDetector(
                       onTap: () {
-                        log("logout");
+                        context.read<AuthProvider>().logout(context);
                       },
                       child: Container(
                         width: double.infinity,

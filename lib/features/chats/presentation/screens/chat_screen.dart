@@ -1,6 +1,8 @@
+import 'dart:developer';
+
+import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
-import 'package:acadobs/features/chats/presentation/widgets/chat_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,9 +20,20 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    _initChat();
+  }
+
+  Future<void> _initChat() async {
     final chat = Provider.of<ChatProvider>(context, listen: false);
-    chat.connect("USER_TOKEN"); // auth token
-    chat.getMessages(widget.chatModel.opponentId); // example opponentId
+
+    final token = await AuthStorageService().getToken();
+
+    if (token != null) {
+      chat.connect(token);
+      chat.getMessages(widget.chatModel.opponentId);
+    } else {
+      debugPrint("No token found, cannot connect to chat");
+    }
   }
 
   @override
@@ -43,8 +56,9 @@ class _ChatScreenState extends State<ChatScreen> {
             child: ListView.builder(
               itemCount: chat.messages.length,
               itemBuilder: (context, index) {
+                log(chat.messages.length.toString());
                 final msg = chat.messages[index];
-                return ChatBubble(text: msg["message"] ?? "", isMe: true);
+                return buildMessage(msg);
               },
             ),
           ),
@@ -55,11 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 icon: const Icon(Icons.send),
                 onPressed: () {
                   if (_controller.text.trim().isNotEmpty) {
-                    chat.sendMessage(
-                      2, // opponentId
-                      1, // studentId
-                      _controller.text.trim(),
-                    );
+                    chat.sendMessage(receiverId: 4, message: _controller.text);
                     _controller.clear();
                   }
                 },
@@ -69,5 +79,20 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  Widget buildMessage(Map<String, dynamic> msg) {
+    final text = msg["message"] ?? "";
+    final mediaUrl = msg["mediaUrl"];
+
+    if (mediaUrl != null && mediaUrl.toString().isNotEmpty) {
+      return Image.network(
+        mediaUrl,
+        fit: BoxFit.cover,
+        errorBuilder:
+            (context, error, stackTrace) => const Icon(Icons.broken_image),
+      );
+    }
+    return Text(text);
   }
 }
