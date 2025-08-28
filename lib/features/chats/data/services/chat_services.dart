@@ -1,4 +1,5 @@
 import 'package:acadobs/core/utils/urls/base_urls.dart';
+import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 class ChatService {
@@ -8,19 +9,53 @@ class ChatService {
 
   void connect(String token, Function onConnect, Function onDisconnect) {
     _socket = io.io(
-      BaseUrls.socketUrl, // replace with backend URL
+      BaseUrls.socketUrl,
       io.OptionBuilder()
           .setTransports(['websocket'])
-          .setQuery({'token': token}) // pass token if backend requires
+          .setExtraHeaders({'Authorization': 'Bearer $token'})
           .enableAutoConnect()
           .build(),
     );
 
-    _socket.onConnect((_) => onConnect());
-    _socket.onDisconnect((_) => onDisconnect());
+    // ======== Connection Events ========
+    _socket.onConnect((_) {
+      debugPrint("✅ [SOCKET] Connected with id: ${_socket.id}");
+      onConnect();
+    });
+
+    _socket.onDisconnect((_) {
+      debugPrint("❌ [SOCKET] Disconnected");
+      onDisconnect();
+    });
+
+    _socket.onConnectError((err) {
+      debugPrint("⚠️ [SOCKET] Connect error: $err");
+    });
+
+    _socket.onError((err) {
+      debugPrint("🚨 [SOCKET] General error: $err");
+    });
+
+    _socket.onReconnect((attempt) {
+      debugPrint("🔄 [SOCKET] Reconnecting... attempt $attempt");
+    });
+
+    _socket.onReconnectError((err) {
+      debugPrint("⚡ [SOCKET] Reconnect error: $err");
+    });
+
+    _socket.onReconnectFailed((_) {
+      debugPrint("🔥 [SOCKET] Reconnect failed");
+    });
+
+    // ======== Debug All Incoming Events ========
+    _socket.onAny((event, data) {
+      debugPrint("📩 [SOCKET EVENT] $event -> $data");
+    });
   }
 
   void disconnect() {
+    debugPrint("🔌 [SOCKET] Disposing connection");
     _socket.dispose();
   }
 
@@ -31,29 +66,33 @@ class ChatService {
     required int studentId,
     required String message,
   }) {
-    _socket.emit("sendMessage", {
+    final payload = {
       "receiver_id": receiverId,
-      "student_id": studentId,
+      // "student_id": studentId,
       "message": message,
-    });
+    };
+    debugPrint("➡️ [EMIT] sendMessage -> $payload");
+    _socket.emit("sendMessage", payload);
   }
 
   void getMessages(int opponentId) {
+    debugPrint("➡️ [EMIT] getMessages -> {opponentId: $opponentId}");
     _socket.emit("getMessages", {"opponentId": opponentId});
   }
 
   void deleteMessage(int messageId) {
+    debugPrint("➡️ [EMIT] deleteMessage -> {messageId: $messageId}");
     _socket.emit("deleteMessage", {"messageId": messageId});
   }
 
   void getUsersList({int page = 1, int limit = 10}) {
-    _socket.emit("getUsersListandLatestMessage", {
-      "page": page,
-      "limit": limit,
-    });
+    final payload = {"page": page, "limit": limit};
+    debugPrint("➡️ [EMIT] getUsersListandLatestMessage -> $payload");
+    _socket.emit("getUsersListandLatestMessage", payload);
   }
 
   void getFirstUnseenMessage(int opponentId) {
+    debugPrint("➡️ [EMIT] getFirstUnseenMessage -> {opponentId: $opponentId}");
     _socket.emit("getFirstUnseenMessage", {"opponentId": opponentId});
   }
 }

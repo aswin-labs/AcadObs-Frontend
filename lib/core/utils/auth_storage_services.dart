@@ -34,6 +34,13 @@ class AuthStorageService {
     return jsonDecode(raw);
   }
 
+  /// Get user id
+  Future<int?> getUserId() async {
+    final data = await getUserData();
+    if (data == null) return null;
+    return data['user_id'] as int?;
+  }
+
   /// Get user role only
   Future<String?> getUserRole() async {
     final data = await getUserData();

@@ -73,8 +73,8 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> logout(BuildContext context) async {
     await _storageService.clear();
-    if (!context.mounted) return;
-    context.pushReplacement(RouteConstants.loginScreen);
+    if(!context.mounted) return;
+    context.pushReplacementNamed(RouteConstants.loginScreen);
     notifyListeners();
   }
 }
