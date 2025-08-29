@@ -13,6 +13,8 @@ class ChatProvider with ChangeNotifier {
   final List<Map<String, dynamic>> _usersList = [];
   List<Map<String, dynamic>> get usersList => List.unmodifiable(_usersList);
 
+  
+
   void connect(String token) {
     _chatService.connect(
       token,

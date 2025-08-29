@@ -1,3 +1,4 @@
+import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/chats/presentation/widgets/common_chat_tile.dart';
@@ -19,9 +20,27 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Load users list once connected
-    final chatProvider = Provider.of<ChatProvider>(context, listen: false);
-    chatProvider.loadUsersList();
+
+    _getUsersList();
+  }
+
+  Future<void> _getUsersList() async {
+    final chat = Provider.of<ChatProvider>(context, listen: false);
+
+    final token = await AuthStorageService().getToken();
+
+    if (token != null) {
+      chat.connect(token);
+      chat.loadUsersList();
+    } else {
+      debugPrint("No token found, cannot connect to chat");
+    }
+  }
+
+  @override
+  void dispose() {
+    Provider.of<ChatProvider>(context, listen: false).disconnect();
+    super.dispose();
   }
 
   @override
