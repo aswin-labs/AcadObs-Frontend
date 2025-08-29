@@ -1,8 +1,8 @@
-import 'dart:developer';
-
 import 'package:acadobs/core/utils/auth_storage_services.dart';
+import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
+import 'package:acadobs/features/chats/presentation/widgets/chat_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -56,12 +56,19 @@ class _ChatScreenState extends State<ChatScreen> {
             child: ListView.builder(
               itemCount: chat.messages.length,
               itemBuilder: (context, index) {
-                log(chat.messages.length.toString());
                 final msg = chat.messages[index];
-                return buildMessage(msg);
+
+                // Get logged-in user id
+                final currentUserId = context.read<AuthProvider>().getUserId();
+                // or await AuthStorageService().getUserId();
+
+                final isMe = msg['sender_id'] == currentUserId;
+
+                return ChatBubble(text: msg['message'], isMe: isMe);
               },
             ),
           ),
+
           Row(
             children: [
               Expanded(child: TextField(controller: _controller)),
@@ -69,7 +76,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 icon: const Icon(Icons.send),
                 onPressed: () {
                   if (_controller.text.trim().isNotEmpty) {
-                    chat.sendMessage(receiverId: 4, message: _controller.text);
+                    chat.sendMessage(
+                      receiverId: widget.chatModel.opponentId,
+                      message: _controller.text,
+                    );
                     _controller.clear();
                   }
                 },

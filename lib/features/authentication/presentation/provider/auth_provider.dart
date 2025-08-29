@@ -70,6 +70,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<String?> getToken() => _storageService.getToken();
   Future<Map<String, dynamic>?> getUserData() => _storageService.getUserData();
+  Future<int?> getUserId() => _storageService.getUserId();
 
   Future<void> logout(BuildContext context) async {
     await _storageService.clear();
