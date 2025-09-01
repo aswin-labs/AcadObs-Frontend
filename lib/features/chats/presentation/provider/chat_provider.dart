@@ -74,7 +74,6 @@ class ChatProvider with ChangeNotifier {
       for (var convo in data["conversations"]) {
         _usersList.add(Map<String, dynamic>.from(convo));
       }
-
       _isLoadingUsers = false; // 👈 stop loading when data received
       notifyListeners();
     });
@@ -109,7 +108,6 @@ class ChatProvider with ChangeNotifier {
   void loadUsersList({int page = 1, int limit = 10}) {
     _isLoadingUsers = true; // 👈 start loading
     notifyListeners();
-
     _chatService.getUsersList(page: page, limit: limit);
   }
 }
