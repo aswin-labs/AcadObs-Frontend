@@ -1,7 +1,10 @@
+import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
+import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/notices/provider/notice_provider.dart';
+import 'package:acadobs/features/students/presentation/provider/student_achievement_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/provider/school_classes_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/provider/school_subjects_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/schools/provider/school_provider.dart';
@@ -26,6 +29,7 @@ getProviders() {
     ChangeNotifierProvider(create: (_) => FilePickerProvider()),
     ChangeNotifierProvider(create: (_) => DropdownProvider()),
     ChangeNotifierProvider(create: (_) => SharedProvider()),
+    ChangeNotifierProvider(create: (_) => AuthProvider()),
 
     //*************SUPER ADMIN*************//
     ChangeNotifierProvider(create: (_) => SchoolProvider()),
@@ -49,13 +53,22 @@ getProviders() {
     //**************EVENTS****************//
     ChangeNotifierProvider(create: (_) => EventProvider()),
 
-    //**************EVENTS****************//
+    //**************STUDENT LEAVE REQUEST****************//
     ChangeNotifierProvider(create: (_) => StudentLeaveRequestProvider()),
 
-    //**************EVENTS****************//
+    //**************NEWS****************//
     ChangeNotifierProvider(create: (_) => NewsProvider()),
 
-    //**************EVENTS****************//
+    //**************ACHIEVMENT****************//
     ChangeNotifierProvider(create: (_) => AchievementProvider()),
+
+
+    //**************CHATS****************// 
+    ChangeNotifierProvider(create: (_) => ChatProvider()),
+
+
+    //**************ACHIEVEMENTS****************//
+    ChangeNotifierProvider(create: (_) => StudentAchievementProvider()),
+
   ];
 }

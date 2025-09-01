@@ -1,3 +1,4 @@
+import 'package:acadobs/features/achievements/presentaion/screens/achievement_details_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/add_achievements_screen.dart';
 import 'package:acadobs/features/events/data/models/event_model.dart';
 import 'package:acadobs/features/events/presentation/screens/event_detail_screen.dart';
@@ -12,6 +13,8 @@ import 'package:acadobs/features/news/presentation/screens/news_screen_details.d
 import 'package:acadobs/features/notices/screens/notice_details_screen.dart';
 import 'package:acadobs/features/notices/screens/notice_screen.dart';
 import 'package:acadobs/features/parents/data/models/notice_model.dart';
+import 'package:acadobs/features/students/acheivement/achievement_listing_screen.dart';
+import 'package:acadobs/features/students/acheivement/achievement_model.dart';
 import 'package:acadobs/features/students/presentation/screens/student_detail_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/students_listing_screen.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_model.dart';
@@ -24,7 +27,7 @@ import 'package:acadobs/features/teacher/data/models/staff_duty_model.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_taking_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
-import 'package:acadobs/features/teacher/presentation/chats/screens/add_teacher_note_screen.dart';
+import 'package:acadobs/features/chats/presentation/screens/add_teacher_note_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/leave_request_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/teacher_leave_request_home_screen.dart';
@@ -234,12 +237,30 @@ List<GoRoute> staffRoutes = [
     },
   ),
 
+  GoRoute(
+    path: '/getAchievements',
+    name: RouteConstants.getAchievement,
+    builder: (context, state) {
+      return AchievementListingScreen();
+    },
+  ),
+
   //add Note screen
   GoRoute(
     path: '/addteachernotesection',
     name: RouteConstants.addTeacherNoteSection,
     builder: (context, state) {
       return AddTeacherNoteScreen();
+    },
+  ),
+
+  //achievement detail screen
+  GoRoute(
+    path: '/achievementdetatilscreen',
+    name: RouteConstants.achievementDetailsScreen,
+    builder: (context, state) {
+      final AchievementModel achievementModel = state.extra as AchievementModel;
+      return AchievementDetailsScreen(achievementModel: achievementModel);
     },
   ),
 ];

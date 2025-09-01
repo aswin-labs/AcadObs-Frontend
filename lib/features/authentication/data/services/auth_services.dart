@@ -1,0 +1,17 @@
+import 'package:acadobs/core/services/api_services.dart';
+import 'package:acadobs/core/utils/urls/api_end_points.dart';
+import 'package:dio/dio.dart';
+
+class AuthServices {
+  // Login
+  Future<Response> login({
+    required String email,
+    required String password,
+  }) async {
+    final response = await ApiServices.post(ApiEndpoints.login, {
+      "email": email,
+      "password": password,
+    });
+    return response;
+  }
+}

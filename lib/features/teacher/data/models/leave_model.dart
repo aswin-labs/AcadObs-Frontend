@@ -65,9 +65,10 @@ class LeaveModel {
     // createdAt:
     //     json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
     createdAt:
-        json["createdAt"] != null ? DateTime.parse(json["createdAt"]) : null,
+        json["created_at"] != null ? DateTime.parse(json["created_at"]) : null,
     updatedAt:
-        json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
+        json["updated_at"] != null ? DateTime.parse(json["updated_at"]) : null,
+
     user: json["User"] == null ? null : UserModel.fromJson(json["User"]),
   );
 }

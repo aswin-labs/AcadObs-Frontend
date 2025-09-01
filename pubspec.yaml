@@ -52,6 +52,8 @@ dependencies:
   permission_handler: ^12.0.1
   http: ^1.4.0
   connectivity_plus: ^6.1.4
+  socket_io_client: ^3.1.2
+  flutter_secure_storage: ^9.2.4
 
 
 dev_dependencies:
