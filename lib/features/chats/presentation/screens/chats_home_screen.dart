@@ -20,7 +20,6 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
   @override
   void initState() {
     super.initState();
-
     _getUsersList();
   }
 
@@ -57,7 +56,6 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
 
           return ListView.builder(
             physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.all(16),
             itemCount: users.length,
             itemBuilder: (context, index) {
               final convo = users[index];

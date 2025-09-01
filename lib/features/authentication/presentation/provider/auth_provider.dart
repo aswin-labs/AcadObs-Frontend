@@ -12,6 +12,13 @@ class AuthProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+   int? _userId;
+  int? get userId => _userId;
+
+  Future<void> loadUserId() async {
+    _userId = await AuthStorageService().getUserId();
+    notifyListeners();
+  }
   Future<void> login({
     required BuildContext context,
     required String email,
@@ -68,9 +75,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<String?> getToken() => _storageService.getToken();
-  Future<Map<String, dynamic>?> getUserData() => _storageService.getUserData();
-  Future<int?> getUserId() => _storageService.getUserId();
 
   Future<void> logout(BuildContext context) async {
     await _storageService.clear();

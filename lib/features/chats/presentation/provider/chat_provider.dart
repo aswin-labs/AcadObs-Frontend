@@ -13,7 +13,8 @@ class ChatProvider with ChangeNotifier {
   final List<Map<String, dynamic>> _usersList = [];
   List<Map<String, dynamic>> get usersList => List.unmodifiable(_usersList);
 
-  
+  bool _isLoadingUsers = false; // 👈 NEW
+  bool get isLoadingUsers => _isLoadingUsers;
 
   void connect(String token) {
     _chatService.connect(
@@ -43,6 +44,11 @@ class ChatProvider with ChangeNotifier {
   void _setupListeners() {
     final socket = _chatService.socket;
 
+    socket.off("newMessage"); // 👈 remove old listener
+    socket.off("messages");
+    socket.off("messageDeleted");
+    socket.off("usersList");
+
     socket.on("newMessage", (data) {
       _messages.add(Map<String, dynamic>.from(data));
       notifyListeners();
@@ -68,6 +74,7 @@ class ChatProvider with ChangeNotifier {
       for (var convo in data["conversations"]) {
         _usersList.add(Map<String, dynamic>.from(convo));
       }
+      _isLoadingUsers = false; // 👈 stop loading when data received
       notifyListeners();
     });
   }
@@ -99,6 +106,8 @@ class ChatProvider with ChangeNotifier {
   }
 
   void loadUsersList({int page = 1, int limit = 10}) {
+    _isLoadingUsers = true; // 👈 start loading
+    notifyListeners();
     _chatService.getUsersList(page: page, limit: limit);
   }
 }

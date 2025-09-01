@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
@@ -50,7 +51,7 @@ class ChatService {
 
     // ======== Debug All Incoming Events ========
     _socket.onAny((event, data) {
-      debugPrint("📩 [SOCKET EVENT] $event -> $data");
+      log("📩 [SOCKET EVENT] $event -> $data");
     });
   }
 
@@ -76,7 +77,7 @@ class ChatService {
   }
 
   void getMessages(int opponentId) {
-    debugPrint("➡️ [EMIT] getMessages -> {opponentId: $opponentId}");
+    log("➡️ [EMIT] getMessages -> {opponentId: $opponentId}");
     _socket.emit("getMessages", {"opponentId": opponentId});
   }
 

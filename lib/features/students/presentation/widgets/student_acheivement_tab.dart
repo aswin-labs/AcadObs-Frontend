@@ -105,14 +105,12 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
             Consumer<StudentAchievementProvider>(
               builder: (context, provider, _) {
                 return provider.isLoading && provider.hasMore
-                    ? const Padding(
-                      padding: EdgeInsetsGeometry.symmetric(vertical: 16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox();
+                    ? Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ) : const SizedBox();
               },
             ),
-
             SizedBox(height: Responsive.height * 4),
           ],
         ),

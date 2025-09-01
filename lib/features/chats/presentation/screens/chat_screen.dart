@@ -1,8 +1,9 @@
+import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
-import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/chats/presentation/widgets/chat_bubble.dart';
+import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,6 +17,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -44,65 +46,102 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final chat = Provider.of<ChatProvider>(context);
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text(chat.isConnected ? "Chat Connected" : "Connecting..."),
+      appBar: CommonAppBar(
+        title: widget.chatModel.opponentName,
+        isBackButton: true,
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: chat.messages.length,
-              itemBuilder: (context, index) {
-                final msg = chat.messages[index];
+      body: Padding(
+        padding: context.paddingHorizontal,
+        child: Column(
+          children: [
+            /// Messages
+            Expanded(
+              child: Consumer<ChatProvider>(
+                builder: (context, provider, _) {
+                  final messages = provider.messages;
 
-                // Get logged-in user id
-                final currentUserId = context.read<AuthProvider>().getUserId();
-                // or await AuthStorageService().getUserId();
+                  return FutureBuilder<int?>(
+                    future: AuthStorageService().getUserId(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final currentUserId = snapshot.data;
 
-                final isMe = msg['sender_id'] == currentUserId;
-
-                return ChatBubble(text: msg['message'], isMe: isMe);
-              },
-            ),
-          ),
-
-          Row(
-            children: [
-              Expanded(child: TextField(controller: _controller)),
-              IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: () {
-                  if (_controller.text.trim().isNotEmpty) {
-                    chat.sendMessage(
-                      receiverId: widget.chatModel.opponentId,
-                      message: _controller.text,
-                    );
-                    _controller.clear();
-                  }
+                      return ListView.builder(
+                        controller: _scrollController,
+                        reverse: true,
+                        padding: const EdgeInsets.only(top: 12, bottom: 20),
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          // since reverse:true, take from the end
+                          final msg = messages[messages.length - 1 - index];
+                          final isMe = msg['sender_id'] == currentUserId;
+                          return ChatBubble(
+                            text: msg['message'] ?? "",
+                            isMe: isMe,
+                          );
+                        },
+                      );
+                    },
+                  );
                 },
               ),
-            ],
-          ),
-        ],
+            ),
+
+            /// Input field
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: InputDecoration(
+                          hintText: "Type a message...",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: () {
+                        if (_controller.text.trim().isNotEmpty) {
+                          context.read<ChatProvider>().sendMessage(
+                            receiverId: widget.chatModel.opponentId,
+                            message: _controller.text.trim(),
+                          );
+                          _controller.clear();
+
+                          // auto scroll to bottom
+                          Future.delayed(const Duration(milliseconds: 100), () {
+                            if (_scrollController.hasClients) {
+                              _scrollController.animateTo(
+                                0.0,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOut,
+                              );
+                            }
+                          });
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
-  }
-
-  Widget buildMessage(Map<String, dynamic> msg) {
-    final text = msg["message"] ?? "";
-    final mediaUrl = msg["mediaUrl"];
-
-    if (mediaUrl != null && mediaUrl.toString().isNotEmpty) {
-      return Image.network(
-        mediaUrl,
-        fit: BoxFit.cover,
-        errorBuilder:
-            (context, error, stackTrace) => const Icon(Icons.broken_image),
-      );
-    }
-    return Text(text);
   }
 }
