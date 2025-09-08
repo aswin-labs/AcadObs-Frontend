@@ -60,7 +60,30 @@ class AchievementService {
     required int pageNo,
   }) async {
     final response = await ApiServices.get(
-      '${ApiEndpoints.getAllAchievement}?pageNo=$pageNo&limit=${AppConstants.paginationLimit}',
+      '${ApiEndpoints.getAllAchievement}?page=$pageNo&limit=${AppConstants.paginationLimit}',
+    );
+    return response;
+  }
+
+  //edit achievement
+  Future<Response> editAchievement({
+    required int achievementId,
+    required String title,
+    required String description,
+  }) async {
+    final response = await ApiServices.put(
+      "${ApiEndpoints.achievements}/$achievementId",
+      {"title": title.trim(), "description": description.trim()}, 
+      isFormData: true,
+    );
+
+    return response;
+  }
+
+  //delete achievements
+  Future<Response> deleteAchievement({required int achievementId}) async {
+    final response = await ApiServices.delete(
+      "${ApiEndpoints.deleteAchievement}/$achievementId",
     );
     return response;
   }

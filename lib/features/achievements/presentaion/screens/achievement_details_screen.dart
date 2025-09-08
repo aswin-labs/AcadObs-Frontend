@@ -1,9 +1,17 @@
+import 'package:acadobs/core/utils/custom_error_dialog.dart';
+import 'package:acadobs/core/utils/custom_popup_menu.dart';
+import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
+import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
+import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
 import 'package:acadobs/features/students/acheivement/achievement_model.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/profile_tile.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
+import 'package:provider/provider.dart';
 
 class AchievementDetailsScreen extends StatelessWidget {
   final AchievementModel achievementModel;
@@ -13,11 +21,58 @@ class AchievementDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(
-        title: achievementModel.title.toString(),
+        title: capitalizeEachWord(achievementModel.title.toString()),
         isBackButton: true,
+        actions: [
+          Consumer<AchievementProvider>(
+            builder: (context, provider, _) {
+              return CustomPopupMenu(
+                // showEdit: false,
+                onEdit: () {
+                  context.pushNamed(
+                    RouteConstants.editAchievement,
+                    extra: achievementModel,
+                  );
+                },
+                onDelete: () {
+                  showConfirmationDialog(
+                    context: context,
+                    title: 'Delete achievement',
+                    content: 'Do you want to delete the achievement?',
+                    onConfirm: () async {
+                      Navigator.of(
+                        context,
+                      ).pop(); // close the confirmation dialog first
+
+                      final ok = await context
+                          .read<AchievementProvider>()
+                          .deleteAchievement(achievementModel.id ?? 0);
+
+                      if (ok) {
+                        if (!context.mounted) return;
+                        CustomSnackbar.show(
+                          context,
+                          message: "achievement deleted",
+                          type: SnackbarType.success,
+                        );
+                        Navigator.pop(context); // close the NoteDetailsScreen
+                      } else {
+                        if (!context.mounted) return;
+                        CustomErrorDialog.show(
+                          context,
+                          "Failed to delete achievement",
+                        );
+                      }
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

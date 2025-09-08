@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:acadobs/features/parents/data/models/notice_model.dart';
-import 'package:acadobs/features/parents/data/services/notice_services.dart';
+import 'package:acadobs/features/notices/services/notice_services.dart';
 import 'package:flutter/material.dart';
 
 class NoticeProvider extends ChangeNotifier {
