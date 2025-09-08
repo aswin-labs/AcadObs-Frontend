@@ -96,4 +96,25 @@ class ApiServices {
     }
     return data;
   }
+
+  /// Download file with auth headers
+  static Future<void> downloadFile(
+    String url,
+    String savePath, {
+    ProgressCallback? onReceiveProgress,
+  }) async {
+    try {
+      await _dio.download(
+        url,
+        savePath,
+        onReceiveProgress: onReceiveProgress,
+        options: Options(
+          headers: _dio.options.headers,
+          responseType: ResponseType.bytes,
+        ),
+      );
+    } on DioException catch (e) {
+      throw Exception('File download failed: $e');
+    }
+  }
 }

@@ -21,41 +21,42 @@ class AchievementProvider extends ChangeNotifier {
 
   int _currentPage = 1;
 
+  AchievementModel? model;
+
   // bool _hasMore = true;
   bool get hasMore => _currentPage < _totalPages;
 
-  //distinguishing today achievements
-  List<AchievementModel> get todayAchievement =>
-      _achievements.where((e) {
-          final now = DateTime.now();
-          return now.year == e.date!.year &&
-              now.month == e.date!.month &&
-              now.day == e.date!.day;
-        }).toList()
-        ..sort((a, b) => (b.createdAt)!.compareTo(a.createdAt!));
-
-  // Distinguishing yesterday's achievements
-  List<AchievementModel> get yesterdayAchievement =>
-      _achievements.where((e) {
-          final now = DateTime.now();
-          final yesterday = now.subtract(Duration(days: 1));
-          return yesterday.year == e.date!.year &&
-              yesterday.month == e.date!.month &&
-              yesterday.day == e.date!.day;
-        }).toList()
-        ..sort((a, b) => (b.createdAt)!.compareTo(a.createdAt!));
-
-  // Distinguishing earlier achievements
-  List<AchievementModel> get earlierAchievement {
+  List<AchievementModel> get todayAchievement {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final yesterday = today.subtract(const Duration(days: 1));
 
-    return _achievements.where((e) {
-        final created = DateTime(e.date!.year, e.date!.month, e.date!.day);
-        return created.isBefore(yesterday);
-      }).toList()
-      ..sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+    return _achievements.where((a) {
+      if (a.date == null) return false;
+      final d = DateTime(a.date!.year, a.date!.month, a.date!.day);
+      return d == today;
+    }).toList();
+  }
+
+  List<AchievementModel> get yesterdayAchievement {
+    final now = DateTime.now();
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+
+    return _achievements.where((a) {
+      if (a.date == null) return false;
+      final d = DateTime(a.date!.year, a.date!.month, a.date!.day);
+      return d == yesterday;
+    }).toList();
+  }
+
+  List<AchievementModel> get earlierAchievement {
+    final now = DateTime.now();
+    final yesterday = DateTime(now.year, now.month, now.day - 1);
+
+    return _achievements.where((a) {
+      if (a.date == null) return false;
+      final d = DateTime(a.date!.year, a.date!.month, a.date!.day);
+      return d.isBefore(yesterday);
+    }).toList();
   }
 
   Future<bool> createAchievement({
@@ -97,6 +98,7 @@ class AchievementProvider extends ChangeNotifier {
       final code = response.statusCode ?? 0;
 
       if (code == 201 || code == 200) {
+        await fetchAllAchievements(forceRefresh: true);
         if (!context.mounted) return true;
         CustomSnackbar.show(
           context,
@@ -160,37 +162,43 @@ class AchievementProvider extends ChangeNotifier {
     notifyListeners(); // Notify UI of loading state
 
     try {
-      if (loadMore) {
-        _currentPage++;
-      } else {
+      final int requestedPage = loadMore ? _currentPage + 1 : 1;
+
+      if (!loadMore) {
         _currentPage = 1;
         _achievements.clear();
         _isFetchedOnce = false;
       }
+
       final response = await AchievementService().fetchALlAchievement(
-        pageNo: _currentPage,
+        pageNo: requestedPage,
       );
+
       log("Fetch response: ${response.data}, Status: ${response.statusCode}");
       if (response.statusCode == 200) {
         final data = response.data;
         _totalPages = data['totalPages'] ?? 1;
-        _currentPage = data['currentPage'] ?? 1;
+        _currentPage = requestedPage;
         final List achievements = data['achievements'] ?? [];
         final List<AchievementModel> fetchedAchievements = [];
         for (var jsonItem in achievements) {
           try {
             final model = AchievementModel.fromJson(jsonItem);
-            log(
-              "Parsed: ${model.title}, Date: ${model.date}, CreatedAt: ${model.createdAt}",
-            );
+
             fetchedAchievements.add(model);
           } catch (e) {
             log("Error parsing achievement: $e, JSON: $jsonItem");
           }
         }
-        _achievements.addAll(fetchedAchievements);
+        for (final newItem in fetchedAchievements) {
+          if (!_achievements.any((a) => a.id == newItem.id)) {
+            _achievements.add(newItem);
+          }
+        }
+
+        _achievements.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+
         _isFetchedOnce = true;
-        log("Total achievements: ${_achievements.length}, Has more: $hasMore");
       } else {
         _error = 'Failed to fetch achievements: ${response.statusCode}';
         log(_error!);
@@ -201,6 +209,78 @@ class AchievementProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  //edit achievement
+  Future<void> editAchievement({
+    required BuildContext context,
+
+    required String title,
+    required String description,
+
+    required int achievementId,
+  }) async {
+    _isLoadingTwo = true;
+    notifyListeners();
+    try {
+      final response = await AchievementService().editAchievement(
+        achievementId: achievementId,
+
+        title: title,
+        description: description,
+      );
+
+      if (response.statusCode == 200) {
+        await fetchAllAchievements(forceRefresh: true);
+        if (!context.mounted) return;
+        Navigator.pop(context);
+        // Navigator.pop(context);
+        final updatedData = response.data['achievements'];
+
+        model?.title = updatedData['title'];
+        model?.description = updatedData['description'];
+
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: 'achievements details saved',
+          type: SnackbarType.success,
+        );
+      } else if (response.statusCode == 400) {
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: '${response.data["error"]}. cant update',
+          type: SnackbarType.failure,
+        );
+      }
+    } catch (e) {
+      log('error: ${e.toString()}');
+    } finally {
+      _isLoadingTwo = false;
+      notifyListeners();
+    }
+  }
+
+  //delete achievement
+  Future<bool> deleteAchievement(int id) async {
+    try {
+      final response = await AchievementService().deleteAchievement(
+        achievementId: id,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        _achievements.removeWhere((n) => n.id == id);
+        notifyListeners();
+        return true; // success
+      } else {
+        log('Failed to delete achievement: ${response.statusCode}');
+        return false; // failed
+      }
+    } catch (e) {
+      log('Error deleting achievement: $e');
+      return false; // failed
     }
   }
 }

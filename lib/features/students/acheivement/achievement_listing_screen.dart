@@ -8,11 +8,13 @@ import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_floating_button2.dart';
 // import 'package:acadobs/shared/widgets/common_floating_button2.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 // import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
@@ -75,9 +77,6 @@ class _AchievementListingScreenState extends State<AchievementListingScreen> {
                   children: [
                     Consumer<AchievementProvider>(
                       builder: (context, provider, _) {
-                        log(
-                          "Consumer rebuild: isLoading=${provider.isLoading}, Achievements=${provider.achievements.length}, Error=${provider.error}",
-                        );
                         if (provider.isLoading &&
                             provider.achievements.isEmpty) {
                           return commonShimmerList();
@@ -88,28 +87,123 @@ class _AchievementListingScreenState extends State<AchievementListingScreen> {
                                 'No Achievements Found. Error: ${provider.error ?? "None"}',
                           );
                         }
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: provider.achievements.length,
-                          itemBuilder: (context, index) {
-                            final achievement = provider.achievements[index];
-                            log(
-                              "Rendering: ${achievement.title}, Date: ${achievement.date}",
-                            );
-                            return ItemCard(
-                              title: achievement.title ?? "Untitled",
-                              description:
-                                  achievement.description ?? "No description",
-                              onTap: () {
-                                context.pushNamed(
-                                  RouteConstants.achievementDetailsScreen,
-                                  extra: achievement,
-                                );
-                              },
-                            );
-                          },
+                        return Column(
+                          children: [
+                            if (provider.todayAchievement.isNotEmpty) ...[
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Today",
+                                  // style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                              ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: provider.todayAchievement.length,
+                                itemBuilder: (context, index) {
+                                  final achievement =
+                                      provider.todayAchievement[index];
+                                  return ItemCard(
+                                    title: achievement.title ?? "Untitled",
+                                    description:
+                                        achievement.description ??
+                                        "No description",
+                                    onTap: () {
+                                      context.pushNamed(
+                                        RouteConstants.achievementDetailsScreen,
+                                        extra: achievement,
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+
+                            if (provider.yesterdayAchievement.isNotEmpty) ...[
+                              const SizedBox(height: 20),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Yesterday",
+                                  // style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                              ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: provider.yesterdayAchievement.length,
+                                itemBuilder: (context, index) {
+                                  final achievement =
+                                      provider.yesterdayAchievement[index];
+                                  return ItemCard(
+                                    title: achievement.title ?? "Untitled",
+                                    description:
+                                        achievement.description ??
+                                        "No description",
+                                    onTap: () {
+                                      context.pushNamed(
+                                        RouteConstants.achievementDetailsScreen,
+                                        extra: achievement,
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                            if (provider.earlierAchievement.isNotEmpty) ...[
+                              const SizedBox(height: 20),
+                              Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Earlier",
+                                  // style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                              ),
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: provider.earlierAchievement.length,
+                                itemBuilder: (context, index) {
+                                  final achievement =
+                                      provider.earlierAchievement[index];
+                                  return ItemCard(
+                                    title: achievement.title ?? "Untitled",
+                                    description:
+                                        achievement.description ??
+                                        "No description",
+                                    onTap: () {
+                                      context.pushNamed(
+                                        RouteConstants.achievementDetailsScreen,
+                                        extra: achievement,
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          ],
                         );
+                        // return ListView.builder(
+                        //   shrinkWrap: true,
+                        //   physics: const NeverScrollableScrollPhysics(),
+                        //   itemCount: provider.achievements.length,
+                        //   itemBuilder: (context, index) {
+                        //     final achievement = provider.achievements[index];
+
+                        //     return ItemCard(
+                        //       title: achievement.title ?? "Untitled",
+                        //       description:
+                        //           achievement.description ?? "No description",
+                        //       onTap: () {
+                        //         context.pushNamed(
+                        //           RouteConstants.achievementDetailsScreen,
+                        //           extra: achievement,
+                        //         );
+                        //       },
+                        //     );
+                        //   },
+                        // );
                       },
                     ),
                     Consumer<AchievementProvider>(
@@ -134,6 +228,13 @@ class _AchievementListingScreenState extends State<AchievementListingScreen> {
             forceRefresh: true,
           );
         },
+      ),
+
+      floatingActionButton: CommonFloatingButton2(
+        onPressed: () {
+          context.pushNamed(RouteConstants.addAchievements);
+        },
+        icon: LucideIcons.plus,
       ),
     );
   }
