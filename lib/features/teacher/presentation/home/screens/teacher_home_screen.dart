@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:acadobs/core/extensions/context_extensions.dart';
-import 'package:acadobs/core/utils/common_shimmer_list.dart';
+
 import 'package:acadobs/core/utils/common_shimmer_tile.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';

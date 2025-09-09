@@ -1,22 +1,77 @@
+import 'package:acadobs/core/utils/custom_error_dialog.dart';
+import 'package:acadobs/core/utils/custom_popup_menu.dart';
+import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
-import 'package:acadobs/core/utils/helpers/date_formatter.dart';
+import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/features/notices/provider/file_download_provider.dart';
-import 'package:acadobs/features/parents/data/models/notice_model.dart';
+import 'package:acadobs/features/teacher/data/models/note_model.dart';
+import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
+// import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-
 import 'package:flutter/material.dart';
+// import 'package:go_router/go_router.dart';
+// import 'package:go_router/go_router.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
-class NoticeDetailsScreen extends StatelessWidget {
-  final Notices notices;
-  const NoticeDetailsScreen({super.key, required this.notices});
+class NoteDetailsScreen extends StatefulWidget {
+  final Note note;
+  const NoteDetailsScreen({super.key, required this.note});
 
+  @override
+  State<NoteDetailsScreen> createState() => _NoteDetailsScreenState();
+}
+
+class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(
-        title: capitalizeEachWord(notices.title.toString()),
+        title: capitalizeEachWord(widget.note.noteTitle ?? " "),
         isBackButton: true,
+        actions: [
+          Consumer<ParentNoteProvider>(
+            builder: (context, provider, _) {
+              return CustomPopupMenu(
+                showEdit: false,
+                onDelete: () {
+                  showConfirmationDialog(
+                    context: context,
+                    title: 'Delete note',
+                    content: 'Do you want to delete the note?',
+                    onConfirm: () async {
+                      Navigator.of(
+                        context,
+                      ).pop(); // close the confirmation dialog first
+
+                      final ok = await context
+                          .read<ParentNoteProvider>()
+                          .deleteNote(widget.note.id!);
+
+                      if (!mounted) return;
+
+                      if (ok) {
+                        if (!context.mounted) return;
+                        CustomSnackbar.show(
+                          context,
+                          message: "Note deleted",
+                          type: SnackbarType.success,
+                        );
+                        Navigator.pop(context); // close the NoteDetailsScreen
+                      } else {
+                        if (!context.mounted) return;
+                        CustomErrorDialog.show(
+                          context,
+                          "Failed to delete note",
+                        );
+                      }
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -27,13 +82,13 @@ class NoticeDetailsScreen extends StatelessWidget {
               width: double.infinity,
               height: 226,
               decoration: BoxDecoration(
-                color: const Color(0xFFCEF2FF),
+                color: const Color(0xFFCEFFD3),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Center(
                 child: Icon(
-                  Icons.notifications_none_outlined,
-                  color: Color(0xFF378AA8),
+                  LucideIcons.filePlus2,
+                  color: Color(0xFF5DD168),
                   size: 150,
                 ),
               ),
@@ -44,11 +99,11 @@ class NoticeDetailsScreen extends StatelessWidget {
               child: Row(
                 children: [
                   Text(
-                    capitalizeEachWord(notices.title.toString()),
+                    capitalizeEachWord(widget.note.noteTitle ?? ""),
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                   Spacer(),
-                  Text(DateFormatter.formatDateString(notices.date)),
+                  // Text(DateFormatter.formatDateString(note.createdAt)),
                 ],
               ),
             ),
@@ -56,13 +111,13 @@ class NoticeDetailsScreen extends StatelessWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                capitalizeEachWord(notices.content.toString()),
+                capitalizeEachWord(widget.note.noteContent.toString()),
                 style: TextStyle(color: Color(0xFF949494)),
               ),
             ),
             const SizedBox(height: 40),
 
-            notices.file != null
+            widget.note.noteAttachment != null
                 ? Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -81,7 +136,7 @@ class NoticeDetailsScreen extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          notices.file!.split('/').last,
+                          widget.note.noteAttachment!.split('/').last,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontWeight: FontWeight.w500),
                         ),
@@ -90,8 +145,12 @@ class NoticeDetailsScreen extends StatelessWidget {
                       InkWell(
                         onTap: () async {
                           final provider = context.read<FileDownloadProvider>();
-                          final fileName = notices.file!.split('/').last;
-                          provider.downloadNoticeFile(notices.file!, fileName);
+                          final fileName =
+                              widget.note.noteAttachment!.split('/').last;
+                          provider.downloadNoticeFile(
+                            widget.note.noteAttachment!,
+                            fileName,
+                          );
                         },
 
                         child: const Icon(Icons.file_download_outlined),

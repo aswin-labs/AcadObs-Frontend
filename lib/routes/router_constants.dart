@@ -24,6 +24,7 @@ class RouteConstants {
   static const String staffLeaveRequestHome = 'staffLeaveRequestHome';
   static const String staffLeaveRequestDetails = 'staffLeaveRequestDetails';
   static const String editHomeWork = "edithomework";
+  static const String editAchievement = "editAchievement";
 
   static const String homeworks = 'homeworks';
   static const String homeworkDetails = 'homeworkDetails';
@@ -41,6 +42,9 @@ class RouteConstants {
   static const String addAchievements = 'addAchievements';
   static const String getAchievement = 'getAchievements';
   static const String achievementDetailsScreen = "achievemnetDetailScreen";
+
+  static const String noteListingScreen = "noteListingScreen";
+  static const String noteDetailScreen = "noteDetailScreen";
 
   //PARENT
   static const String noticedetails = 'noticedetails';

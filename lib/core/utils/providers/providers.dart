@@ -1,5 +1,6 @@
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
+import 'package:acadobs/features/notices/provider/file_download_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
@@ -16,6 +17,7 @@ import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
+import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
 import 'package:acadobs/shared/providers/subject_provider.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
@@ -63,16 +65,20 @@ getProviders() {
     //**************ACHIEVMENT****************//
     ChangeNotifierProvider(create: (_) => AchievementProvider()),
 
-
-    //**************CHATS****************// 
+    //**************CHATS****************//
     ChangeNotifierProvider(create: (_) => ChatProvider()),
-
 
     //**************ACHIEVEMENTS****************//
     ChangeNotifierProvider(create: (_) => StudentAchievementProvider()),
 
     //**************PARENTS****************//
     ChangeNotifierProvider(create: (_) => ParentProvider()),
+
+    //**************pdf download****************//
+    ChangeNotifierProvider(create: (_) => FileDownloadProvider()),
+
+    //**************parent note ****************//
+    ChangeNotifierProvider(create: (_) => ParentNoteProvider()),
 
   ];
 }

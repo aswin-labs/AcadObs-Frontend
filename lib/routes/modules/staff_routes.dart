@@ -1,5 +1,9 @@
 import 'package:acadobs/features/achievements/presentaion/screens/achievement_details_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/add_achievements_screen.dart';
+import 'package:acadobs/features/students/acheivement/achievement_edit_screen.dart';
+import 'package:acadobs/features/teacher/data/models/note_model.dart';
+import 'package:acadobs/features/teacher/presentation/notes/screens/note_details_screen.dart';
+import 'package:acadobs/features/teacher/presentation/notes/screens/note_listing_screen.dart';
 import 'package:acadobs/features/events/data/models/event_model.dart';
 import 'package:acadobs/features/events/presentation/screens/event_detail_screen.dart';
 import 'package:acadobs/features/events/presentation/screens/event_list_screen.dart';
@@ -254,6 +258,25 @@ List<GoRoute> staffRoutes = [
     },
   ),
 
+  //note listing screen
+  GoRoute(
+    path: '/noteListingScreen',
+    name: RouteConstants.noteListingScreen,
+    builder: (context, state) {
+      return NoteListingScreen();
+    },
+  ),
+
+  //note detail screen
+  GoRoute(
+    path: '/noteDetailScreen',
+    name: RouteConstants.noteDetailScreen,
+    builder: (context, state) {
+      final Note noteModel = state.extra as Note;
+      return NoteDetailsScreen(note: noteModel);
+    },
+  ),
+
   //achievement detail screen
   GoRoute(
     path: '/achievementdetatilscreen',
@@ -261,6 +284,16 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       final AchievementModel achievementModel = state.extra as AchievementModel;
       return AchievementDetailsScreen(achievementModel: achievementModel);
+    },
+  ),
+
+  //achievement edit detail screen
+  GoRoute(
+    path: '/achievementEditScreen',
+    name: RouteConstants.editAchievement,
+    builder: (context, state) {
+      final AchievementModel achievementModel = state.extra as AchievementModel;
+      return AchievementEditScreen(achievement: achievementModel);
     },
   ),
 ];

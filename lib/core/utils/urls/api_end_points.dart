@@ -16,6 +16,9 @@ class ApiEndpoints {
   static const String achievementByStudentId = "/staff/achievementByStudentId";
   static const String studentLeaveRequestStaff =
       "/staff/getLeaveRequestByStudentId";
+  static const String createParentNote = "/staff/parentNotes";
+  static const String getLatestNotes = "/staff/parentNotes";
+  static const String deleteNote = "/staff/parentNotes";
 
   // duties
   static const String staffDuties = "/staff/duties";
@@ -57,6 +60,8 @@ class ApiEndpoints {
 
   //Achievement
   static const String getAllAchievement = "/staff/allAchievements";
+  static const String deleteAchievement = "/staff/achievements";
+  static const String achievements = "/staff/achievements";
 
   //GUARDIAN
   static const String fetchLatestEventsGuardian = "/guardian/getLatestEvents";

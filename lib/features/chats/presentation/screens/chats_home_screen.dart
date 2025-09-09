@@ -80,9 +80,10 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
       ),
       floatingActionButton: CommonFloatingActionButton(
         onPressed: () {
-          context.pushNamed(RouteConstants.addTeacherNoteSection);
+         
+          context.pushNamed(RouteConstants.noteListingScreen);
         },
-        text: "Add New Parent Note",
+        text: "Notes",
       ),
     );
   }
