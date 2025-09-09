@@ -1,4 +1,5 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
+import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
@@ -177,18 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         return const Center(child: CircularProgressIndicator());
                       }
                       if (notices.isEmpty) {
-                        return Column(
-                          children: [
-                            Icon(
-                              Icons.notifications_off_rounded,
-                              color: Colors.grey,
-                            ),
-                            Text(
-                              "No Notices avaliable",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        );
+                        return emptyScreen(message: "No Notice Avaliable");
                       }
                       return Column(
                         children:
@@ -243,15 +233,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (provider.isLoading) {
                         return Center(child: commonShimmerList());
                       } else if (events.isEmpty) {
-                        return Column(
-                          children: [
-                            Icon(Icons.event_busy_rounded, color: Colors.grey),
-                            Text(
-                              "No News Avaliable",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        );
+                        return emptyScreen(message: "No News Avaliable");
                       }
 
                       return Column(
@@ -299,15 +281,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       if (provider.isLoading) {
                         return Center(child: commonShimmerList());
                       } else if (news.isEmpty) {
-                        return Column(
-                          children: [
-                            Icon(Icons.event_busy_rounded, color: Colors.grey),
-                            Text(
-                              "No News Avaliable",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        );
+                        return emptyScreen(message: "No News Avaliable");
                       }
 
                       return Column(

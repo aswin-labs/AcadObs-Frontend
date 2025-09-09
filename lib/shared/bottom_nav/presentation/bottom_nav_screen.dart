@@ -6,6 +6,7 @@ import 'package:acadobs/features/events/presentation/screens/event_list_screen.d
 import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
 import 'package:acadobs/features/notices/screens/notice_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/home_screen.dart';
+// import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/screens/school_classes_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/screens/school_subjects_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/schools/screens/schools_list_screen.dart';
@@ -53,7 +54,8 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         HomeScreen(),
         EventListScreen(forStaff: false),
         NoticeScreen(),
-        Center(child: Text("Payments")),
+
+        // Center(child: Text("Payments")),
         Center(child: Text("Chats")),
       ];
     } else {

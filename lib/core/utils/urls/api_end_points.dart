@@ -74,5 +74,8 @@ class ApiEndpoints {
   static const String achievementByGuardian =
       "/guardian/achievementByStudentId";
   static const String schoolsByGuardian = "/guardian/getSchoolsByUser";
-  static const String studentsUnderGuardianBySchoolId = "/guardian/getStudentsUnderGuardianBySchoolId";
+  static const String studentsUnderGuardianBySchoolId =
+      "/guardian/getStudentsUnderGuardianBySchoolId";
+
+  static const String studentPayment = "/guardian/getPaymentbyStudentId";
 }

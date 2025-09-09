@@ -110,7 +110,7 @@ class _AchievementEditScreenState extends State<AchievementEditScreen> {
                   //     return FormValidator.validateNotEmpty(value);
                   //   },
                   // ),
-                  // spacer,
+                  spacer,
                   SizedBox(
                     height: Responsive.height * 6,
                     width: Responsive.width * 35,

@@ -1,5 +1,6 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
+import 'package:acadobs/core/utils/empty_screen.dart';
 
 import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -11,7 +12,6 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class NoteListingScreen extends StatefulWidget {
-
   const NoteListingScreen({super.key});
 
   @override
@@ -35,9 +35,7 @@ class _NoteListingScreenState extends State<NoteListingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'My Notes', isBackButton: true,
-     
-      ),
+      appBar: CommonAppBar(title: 'My Notes', isBackButton: true),
       body: Consumer<ParentNoteProvider>(
         builder: (context, noteProvider, _) {
           if (noteProvider.isLoading && noteProvider.note.isEmpty) {
@@ -45,22 +43,7 @@ class _NoteListingScreenState extends State<NoteListingScreen> {
           } else if (noteProvider.error != null) {
             return Center(child: Text(noteProvider.error!));
           } else if (noteProvider.note.isEmpty) {
-            return Center(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.notification_important_outlined,
-                    color: Colors.grey,
-                    size: 35,
-                  ),
-                  SizedBox(height: 20),
-                  Text(
-                    "No Notices avaliable",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
+            return Center(child: emptyScreen(message: 'No Notes avaliable'));
           } else {
             final todayNote = noteProvider.todayNote;
             final yesterdayNote = noteProvider.yesterdayNote;
