@@ -1,10 +1,10 @@
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
-import 'package:acadobs/features/notices/provider/file_download_provider.dart';
+import 'package:acadobs/features/notices/presentation/provider/file_download_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
-import 'package:acadobs/features/notices/provider/notice_provider.dart';
+import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_achievement_provider.dart';

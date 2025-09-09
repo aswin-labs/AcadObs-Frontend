@@ -16,8 +16,8 @@ import 'package:acadobs/features/homework/presentation/screens/homework_ranking_
 import 'package:acadobs/features/homework/presentation/screens/homeworks_home_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_screen_details.dart';
-import 'package:acadobs/features/notices/screens/notice_details_screen.dart';
-import 'package:acadobs/features/notices/screens/notice_screen.dart';
+import 'package:acadobs/features/notices/presentation/screens/notice_details_screen.dart';
+import 'package:acadobs/features/notices/presentation/screens/notice_screen.dart';
 import 'package:acadobs/features/parents/data/models/notice_model.dart';
 import 'package:acadobs/features/students/acheivement/achievement_listing_screen.dart';
 import 'package:acadobs/features/students/acheivement/achievement_model.dart';

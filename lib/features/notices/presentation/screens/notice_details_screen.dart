@@ -1,6 +1,6 @@
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
-import 'package:acadobs/features/notices/provider/file_download_provider.dart';
+import 'package:acadobs/features/notices/presentation/provider/file_download_provider.dart';
 import 'package:acadobs/features/parents/data/models/notice_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 

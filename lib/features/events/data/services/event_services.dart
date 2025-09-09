@@ -1,22 +1,28 @@
 import 'package:acadobs/core/services/api_services.dart';
-import 'package:acadobs/core/utils/storage_services.dart';
+import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 
 class EventServices {
-  final schoolId = StorageServices.getSchoolId;
+ Future<Response> fetchLatestEvents({
+  required int pageNo,
+  required int limit,
+  required bool forStaff,
+}) async {
+  String url;
 
-  //for the staff
-  Future<Response> fetchLatestEvents({
-    required int pageNo,
-    required int limit,
-    required bool forStaff,
-  }) async {
-    final response = await ApiServices.get(
-      forStaff
-          ? '${ApiEndpoints.fetchLatestEventsStaff}?page=$pageNo&limit=$limit'
-          : '${ApiEndpoints.fetchLatestEventsGuardian}?page=$pageNo&limit=$limit',
-    );
-    return response;
+  if (forStaff) {
+    url = '${ApiEndpoints.fetchLatestEventsStaff}?page=$pageNo&limit=$limit';
+  } else {
+    final schoolId = await AuthStorageService().getSchoolIdForParent();
+    if (schoolId == null) {
+      throw Exception("School ID is null");
+    }
+    url = '${ApiEndpoints.fetchLatestEventsGuardian}?page=$pageNo&limit=$limit&school_id=$schoolId';
   }
+
+  final response = await ApiServices.get(url);
+  return response;
+}
+
 }

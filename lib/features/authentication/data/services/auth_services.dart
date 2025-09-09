@@ -21,6 +21,4 @@ class AuthServices {
     return response;
   }
 
-  // get students under guardian by school id
-  // Future<Response> fetchStudentsUnderParent({re})
 }
