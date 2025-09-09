@@ -1,3 +1,4 @@
+import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
@@ -5,8 +6,8 @@ import 'package:acadobs/features/events/presentation/provider/event_provider.dar
 import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
-import 'package:acadobs/features/notices/provider/notice_provider.dart';
-import 'package:acadobs/features/notices/widgets/notice_card.dart';
+import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
+import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -68,15 +69,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   top: MediaQuery.of(context).size.height * 0.12,
                   left: 0,
                   right: 0,
-                  child: Center(
-                    child: Text(
-                      "ABC School Academy",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
-                        color: Colors.white,
-                      ),
-                    ),
+                  child: FutureBuilder<String?>(
+                    future: AuthStorageService().getSchoolNameForParent(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: CircularProgressIndicator(color: Colors.white),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            "Error loading school name",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24,
+                              color: Colors.white,
+                            ),
+                          ),
+                        );
+                      } else {
+                        final schoolName = snapshot.data ?? "Unknown School";
+                        return Center(
+                          child: Text(
+                            schoolName,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 24,
+                              color: Colors.white,
+                            ),
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ),
                 Positioned(

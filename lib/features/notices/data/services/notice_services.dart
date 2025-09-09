@@ -3,7 +3,6 @@ import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 
 class NoticeServices {
-  // final int _schoolId = 1;
 
   Future<Response> fetchLatestNotices({
     required int pageNo,

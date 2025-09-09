@@ -23,7 +23,6 @@ class AuthProvider with ChangeNotifier {
   int get totalSchoolsUnderParent => _totalSchoolsUnderParent;
   SchoolModel? get selectedSchool => _selectedSchool;
 
-
   // Login
 
   Future<void> login({
@@ -74,7 +73,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-
   // Logout
 
   Future<void> logout(BuildContext context) async {
@@ -115,15 +113,14 @@ class AuthProvider with ChangeNotifier {
 
   /// Save schoolId in secure storage
   Future<void> saveSchoolIdAndContinue() async {
-    if (_selectedSchool?.schoolId != null) {
+    if (_selectedSchool?.schoolId != null &&
+        _selectedSchool?.school?.name != null) {
       await _storageService.saveSchoolIdForParent(
         schoolId: _selectedSchool!.schoolId.toString(),
       );
+      await _storageService.saveSchoolNameForParent(
+        schoolName: _selectedSchool!.school!.name!,
+      );
     }
-  }
-
-  /// Retrieve saved schoolId (for other pages)
-  Future<String?> getSavedSchoolId() async {
-    return await _storageService.getSchoolIdForParent();
   }
 }
