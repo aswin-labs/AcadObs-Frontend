@@ -1,10 +1,12 @@
 // lib/services/auth_storage_service.dart
 import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthStorageService {
   static const _kToken = 'auth_token';
   static const _kUser = 'user_data';
+  static const _kSchoolId = 'school_id';
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -20,6 +22,16 @@ class AuthStorageService {
   }) async {
     await _storage.write(key: _kToken, value: token);
     await _storage.write(key: _kUser, value: jsonEncode(userData));
+  }
+
+  // Save school Id
+  Future<void> saveSchoolIdForParent({required String schoolId}) async {
+    await _storage.write(key: _kSchoolId, value: schoolId);
+  }
+
+  // Get stored school id
+  Future<String?> getSchoolIdForParent() async {
+    return await _storage.read(key: _kSchoolId);
   }
 
   /// Get stored token

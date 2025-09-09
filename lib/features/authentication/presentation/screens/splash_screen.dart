@@ -31,7 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final userRole = await _authStorage.getUserRole();
 
     if (token != null && token.isNotEmpty) {
-      if (userRole == 'parent') {
+      if (userRole == 'guardian') {
         context.pushNamed(
           RouteConstants.bottomNavScreen,
           extra: UserType.parent,

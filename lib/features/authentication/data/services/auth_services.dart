@@ -14,4 +14,13 @@ class AuthServices {
     });
     return response;
   }
+
+  // get schools by parent
+  Future<Response> fetchSchoolsByParent() async {
+    final response = await ApiServices.get(ApiEndpoints.schoolsByGuardian);
+    return response;
+  }
+
+  // get students under guardian by school id
+  // Future<Response> fetchStudentsUnderParent({re})
 }

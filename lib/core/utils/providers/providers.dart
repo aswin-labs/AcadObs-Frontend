@@ -5,6 +5,7 @@ import 'package:acadobs/features/parents/presentation/provider/leave_request_stu
 import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/notices/provider/notice_provider.dart';
+import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_achievement_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/provider/school_classes_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/provider/school_subjects_provider.dart';
@@ -70,10 +71,14 @@ getProviders() {
     //**************ACHIEVEMENTS****************//
     ChangeNotifierProvider(create: (_) => StudentAchievementProvider()),
 
+    //**************PARENTS****************//
+    ChangeNotifierProvider(create: (_) => ParentProvider()),
+
     //**************pdf download****************//
     ChangeNotifierProvider(create: (_) => FileDownloadProvider()),
 
     //**************parent note ****************//
     ChangeNotifierProvider(create: (_) => ParentNoteProvider()),
+
   ];
 }
