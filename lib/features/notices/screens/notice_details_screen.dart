@@ -14,7 +14,6 @@ class NoticeDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: CommonAppBar(
         title: capitalizeEachWord(notices.title.toString()),
-
         isBackButton: true,
       ),
       body: Padding(

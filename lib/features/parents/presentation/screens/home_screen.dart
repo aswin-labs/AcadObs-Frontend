@@ -7,6 +7,8 @@ import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/features/notices/provider/notice_provider.dart';
 import 'package:acadobs/features/notices/widgets/notice_card.dart';
+import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
+import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
@@ -28,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    context.read<ParentProvider>().fetchStudentsUnderParentBySchoolId();
     context.read<NoticeProvider>().fetchLatestNotices(limit: 3);
     context.read<EventProvider>().fetchHomeLatestEvents(
       limit: 3,
@@ -127,16 +130,30 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  ProfileTile(
-                    name: 'Amal',
-                    description: 'aaa Villa',
-                    onPressed:
-                        () => context.pushNamed(
-                          RouteConstants.studentDetails,
-                          extra: 2, // need to change
-                        ),
+                  Consumer<ParentProvider>(
+                    builder: (context, provider, _) {
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: provider.students.length,
+                        itemBuilder: (context, index) {
+                          final student = provider.students[index];
+                          return ProfileTile(
+                            name: student.fullName,
+                            description: student.classGrade?.classname ?? "",
+                            onPressed:
+                                () => context.pushNamed(
+                                  RouteConstants.studentDetails,
+                                  extra: StudentDetailParameters(
+                                    forParent: true,
+                                    studentId: student.id,
+                                  ),
+                                ),
+                          );
+                        },
+                      );
+                    },
                   ),
+                  const SizedBox(height: 8),
 
                   const SizedBox(height: 16),
 

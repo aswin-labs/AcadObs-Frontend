@@ -1,5 +1,8 @@
 // lib/providers/login_provider.dart
+import 'dart:developer';
+
 import 'package:acadobs/core/utils/auth_storage_services.dart';
+import 'package:acadobs/features/authentication/data/models/parent_school_model.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/data/services/auth_services.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -10,16 +13,17 @@ class AuthProvider with ChangeNotifier {
   final AuthStorageService _storageService = AuthStorageService();
 
   bool _isLoading = false;
+  List<SchoolModel> _schools = [];
+  int _totalSchoolsUnderParent = 0;
+
+  SchoolModel? _selectedSchool; // store selected school
+
   bool get isLoading => _isLoading;
+  List<SchoolModel> get schools => _schools;
+  int get totalSchoolsUnderParent => _totalSchoolsUnderParent;
+  SchoolModel? get selectedSchool => _selectedSchool;
 
-   int? _userId;
-  int? get userId => _userId;
-
-  Future<void> loadUserId() async {
-    _userId = await AuthStorageService().getUserId();
-    notifyListeners();
-  }
-
+  // Login
   Future<void> login({
     required BuildContext context,
     required String email,
@@ -29,13 +33,10 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // ⬇️ Call your API here
       final response = await AuthServices().login(
         email: email,
         password: password,
       );
-
-      // Save in secure storage
       await _storageService.saveUserCredentials(
         token: response.data['token'],
         userData: response.data['userData'],
@@ -44,11 +45,8 @@ class AuthProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final userRole = await _storageService.getUserRole();
         if (!context.mounted) return;
-        if (userRole == 'parent') {
-          context.pushNamed(
-            RouteConstants.bottomNavScreen,
-            extra: UserType.parent,
-          );
+        if (userRole == 'guardian') {
+          context.pushNamed(RouteConstants.schoolSelectionScreen);
         } else if (userRole == 'teacher') {
           context.pushNamed(
             RouteConstants.bottomNavScreen,
@@ -66,8 +64,6 @@ class AuthProvider with ChangeNotifier {
           );
         }
       }
-
-      // ✅ Login successful
     } catch (e) {
       debugPrint("Login error: $e");
     } finally {
@@ -76,14 +72,54 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Future<String?> getToken() => _storageService.getToken();
-  // Future<Map<String, dynamic>?> getUserData() => _storageService.getUserData();
-  // Future<int?> getUserId() => _storageService.getUserId();
-
+  // Logout
   Future<void> logout(BuildContext context) async {
     await _storageService.clear();
-    if(!context.mounted) return;
+    if (!context.mounted) return;
     context.pushReplacementNamed(RouteConstants.loginScreen);
     notifyListeners();
+  }
+
+  // Schools by guardian
+  Future<void> fetchSchoolsByParent() async {
+    _isLoading = true;
+    _schools.clear();
+    try {
+      final response = await AuthServices().fetchSchoolsByParent();
+      if (response.statusCode == 200) {
+        final data = response.data;
+        _totalSchoolsUnderParent = data['totalcontent'];
+        _schools =
+            (data['schools'] as List<dynamic>)
+                .map((json) => SchoolModel.fromJson(json))
+                .toList();
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Select a school and store globally
+  void selectSchool(SchoolModel school) {
+    _selectedSchool = school;
+    log("Selected schoolId: ${_selectedSchool?.schoolId}");
+    notifyListeners();
+  }
+
+  /// Save schoolId in secure storage
+  Future<void> saveSchoolIdAndContinue() async {
+    if (_selectedSchool?.schoolId != null) {
+      await _storageService.saveSchoolIdForParent(
+        schoolId: _selectedSchool!.schoolId.toString(),
+      );
+    }
+  }
+
+  /// Retrieve saved schoolId (for other pages)
+  Future<String?> getSavedSchoolId() async {
+    return await _storageService.getSchoolIdForParent();
   }
 }
