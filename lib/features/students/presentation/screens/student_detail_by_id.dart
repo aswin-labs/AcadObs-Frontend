@@ -2,40 +2,45 @@
 
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
-import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
-import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
-import 'package:acadobs/routes/router_constants.dart';
-// import 'package:acadobs/features/teacher/presentation/leave_request/widgets/create_leave_request_bottomsheet.dart';
+import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
+import 'package:acadobs/features/notices/widgets/notice_card.dart';
 
-// import 'package:acadobs/shared/widgets/common_floating_button.dart';
-import 'package:acadobs/shared/widgets/item_card.dart';
+import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
+
+import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
+import 'package:acadobs/features/teacher/presentation/leave_request/widgets/create_leave_request_bottomsheet.dart';
+import 'package:acadobs/routes/router_constants.dart';
+
+import 'package:acadobs/shared/widgets/common_floating_button.dart';
+// import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+// import 'package:intl/intl.dart';
 
 import 'package:provider/provider.dart';
 
-class PaymentScreen extends StatefulWidget {
+class StudentDetailById extends StatefulWidget {
   final int studentId;
   final bool forParent;
-  const PaymentScreen({
+  const StudentDetailById({
     super.key,
     required this.studentId,
     required this.forParent,
   });
 
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  State<StudentDetailById> createState() => _StudentDetailByIdState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
-  late final PaymentProvider _paymentProvider;
+class _StudentDetailByIdState extends State<StudentDetailById> {
+  late final StudentProvider _studentProvider;
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    _paymentProvider = context.read<PaymentProvider>();
-    _paymentProvider.fetchPayments(studentId: widget.studentId);
+    _studentProvider = context.read<StudentProvider>();
+    _studentProvider.fetchNoticeByStudentId(studentId: widget.studentId);
     _scrollController.addListener(_scrollListener);
   }
 
@@ -45,9 +50,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
         _scrollController.position.maxScrollExtent - 200;
 
     if (isNearBottom &&
-        !_paymentProvider.isLoading &&
-        _paymentProvider.hasMore) {
-      _paymentProvider.fetchPayments(
+        !_studentProvider.isLoading &&
+        _studentProvider.hasMore) {
+      _studentProvider.fetchNoticeByStudentId(
         loadMore: true,
         studentId: widget.studentId,
       );
@@ -76,35 +81,37 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
                 child: Column(
                   children: [
-                    // Text('hello'),
-                    Consumer<PaymentProvider>(
+                    Consumer<StudentProvider>(
                       builder: (context, provider, _) {
-                        if (provider.isLoading && provider.payments.isEmpty) {
+                        if (provider.isLoading && provider.notices.isEmpty) {
                           return Padding(
                             padding: const EdgeInsets.only(top: 40),
                             child: commonShimmerList(),
                           );
                         }
-                        if (provider.payments.isEmpty) {
+                        if (provider.notices.isEmpty) {
                           return emptyScreen(
-                            message: "No payments  Found",
+                            message: "No Notices Found",
                             heightMultiplier: 16,
                           );
                         }
                         return ListView.builder(
                           shrinkWrap: true,
-                          itemCount: provider.payments.length,
+                          itemCount: provider.notices.length,
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            final payment = provider.payments[index];
-                            return ItemCard(
-                              icon: Icons.payment,
-                              title: payment.paymentType ?? "",
-                              description: "₹${payment.amount}",
+                            final notices = provider.notices[index];
+                            return NoticeCard(
+                              icon: Icons.notifications_none,
+                              title: notices.title ?? "",
+                              date: notices.date,
+                              time: DateFormatter.formatDateTime(
+                                notices.createdAt,
+                              ),
                               onTap: () {
                                 context.pushNamed(
-                                  RouteConstants.paymentDetailScreen,
-                                  extra: payment,
+                                  RouteConstants.noticedetails,
+                                  extra: notices,
                                 );
                               },
                             );
@@ -112,7 +119,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         );
                       },
                     ),
-                    Consumer<PaymentProvider>(
+                    Consumer<StudentProvider>(
                       builder: (context, provider, _) {
                         return provider.isLoading && provider.hasMore
                             ? const Padding(
@@ -135,14 +142,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
         },
       ),
 
-      // floatingActionButton: CommonFloatingButton(
-      //   onPressed:
-      //       () => showCreateLeaveRequesBottomSheet(
-      //         context,
-      //         fromTeacherScreen: false,
-      //         studentId: widget.studentId,
-      //       ),
-      // ),
+      floatingActionButton: CommonFloatingButton(
+        onPressed:
+            () => showCreateLeaveRequesBottomSheet(
+              context,
+              fromTeacherScreen: false,
+              studentId: widget.studentId,
+            ),
+      ),
     );
   }
 }

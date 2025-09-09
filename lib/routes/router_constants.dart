@@ -46,6 +46,8 @@ class RouteConstants {
   static const String noteListingScreen = "noteListingScreen";
   static const String noteDetailScreen = "noteDetailScreen";
 
+  static const String paymentDetailScreen = "paymentDetailScreen";
+
   //PARENT
   static const String noticedetails = 'noticedetails';
   static const String eventlistdetails = 'eventlistdetails';
