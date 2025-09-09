@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:acadobs/features/parents/data/models/notice_model.dart';
 import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/students/data/services/student_services.dart';
 import 'package:flutter/material.dart';
@@ -157,6 +158,75 @@ class StudentProvider extends ChangeNotifier {
 
         log("total period: $_totalPeriod");
         log(" status list: $_status");
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+
+//////////////
+  int _currentPage = 1;
+  int _totalPages = 1;
+
+  bool get hasMore => _currentPage < _totalPages;
+
+  bool _isFetchedOnce = false;
+
+  final List<Notices> _notices = [];
+  List<Notices> get notices => _notices;
+
+  Future<void> fetchNoticeByStudentId({
+    bool loadMore = false,
+    bool forceRefresh = false,
+    required int studentId,
+  }) async {
+    if (_isLoading) return;
+
+    // If not loading more, check if already fetched once.
+    if (!loadMore && !forceRefresh && _isFetchedOnce) return;
+
+    _isLoading = true;
+
+    try {
+      if (loadMore) {
+        _currentPage++;
+      } else {
+        _currentPage = 1;
+        _notices.clear();
+        _isFetchedOnce = false;
+      }
+      final response = await StudentServices().fetchNoticeByStudentId(
+        pageNo: _currentPage,
+        studentId: studentId,
+      );
+      log("API Response: ${response.data}, Status: ${response.statusCode}");
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        // log("data:$data");
+
+        _totalPages = data['totalPages'];
+        _currentPage = data['currentPage'];
+
+        final List noticeJson = data['notices'];
+
+        final List<Notices> fetchedNotices =
+            noticeJson.map((jsonItem) => Notices.fromJson(jsonItem)).toList();
+
+        //avoids the duplication
+        // final ids = _notices.map((e) => e.id).toSet();
+        // final newPayments = fetchedPayments.where(
+        //   (payment) => !ids.contains(payment.id),
+        // );
+
+        _notices.addAll(fetchedNotices);
+        _isFetchedOnce = true;
+      } else {
+        throw Exception('Failed to fetch Notices: ${response.statusCode}');
       }
     } catch (e) {
       log(e.toString());

@@ -1,5 +1,7 @@
 import 'package:acadobs/features/achievements/presentaion/screens/achievement_details_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/add_achievements_screen.dart';
+import 'package:acadobs/features/parents/data/models/payment_model.dart';
+import 'package:acadobs/features/parents/presentation/screens/payment_detail_screen.dart';
 import 'package:acadobs/features/students/acheivement/achievement_edit_screen.dart';
 import 'package:acadobs/features/teacher/data/models/note_model.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_details_screen.dart';
@@ -294,6 +296,16 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       final AchievementModel achievementModel = state.extra as AchievementModel;
       return AchievementEditScreen(achievement: achievementModel);
+    },
+  ),
+
+  //payment detail page
+  GoRoute(
+    path: '/paymentdetailScreen',
+    name: RouteConstants.paymentDetailScreen,
+    builder: (context, state) {
+      final Payment payment = state.extra as Payment;
+      return PaymentDetailScreen(payment: payment);
     },
   ),
 ];
