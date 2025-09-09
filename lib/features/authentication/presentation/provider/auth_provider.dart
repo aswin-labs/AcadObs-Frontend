@@ -23,7 +23,9 @@ class AuthProvider with ChangeNotifier {
   int get totalSchoolsUnderParent => _totalSchoolsUnderParent;
   SchoolModel? get selectedSchool => _selectedSchool;
 
+
   // Login
+
   Future<void> login({
     required BuildContext context,
     required String email,
@@ -72,7 +74,9 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+
   // Logout
+
   Future<void> logout(BuildContext context) async {
     await _storageService.clear();
     if (!context.mounted) return;
