@@ -1,6 +1,7 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/profile_container_shimmer.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_attendence_tab.dart';
 // import 'package:acadobs/features/students/presentation/widgets/daily_attendance_widget.dart';
@@ -38,7 +39,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 6,
+      length: 7,
       child: Scaffold(
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -132,6 +133,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           Tab(text: "Exam"),
                           Tab(text: "Homework"),
                           Tab(text: 'Leave request'),
+                          Tab(text: "Payment"),
                           Tab(text: "Profile"),
                         ],
                       ),
@@ -184,6 +186,20 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       return SizedBox.shrink();
                     }
                     return LeaveLetterScreen(
+                      studentId: widget.studentId,
+                      forParent: widget.forParent,
+                    );
+                  },
+                ),
+
+                //payment
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return PaymentScreen(
                       studentId: widget.studentId,
                       forParent: widget.forParent,
                     );

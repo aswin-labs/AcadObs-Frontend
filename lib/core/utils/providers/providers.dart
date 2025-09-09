@@ -6,6 +6,7 @@ import 'package:acadobs/features/achievements/presentaion/provider/acheivement_p
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/notices/provider/notice_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
+import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_achievement_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/provider/school_classes_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/provider/school_subjects_provider.dart';
@@ -80,5 +81,7 @@ getProviders() {
     //**************parent note ****************//
     ChangeNotifierProvider(create: (_) => ParentNoteProvider()),
 
+    //**************payment ****************//
+    ChangeNotifierProvider(create: (_) => PaymentProvider()),
   ];
 }

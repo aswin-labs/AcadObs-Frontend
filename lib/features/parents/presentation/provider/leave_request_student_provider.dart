@@ -93,7 +93,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
             pageNo: _currentPage,
             studentId: studentId,
           );
-          log("API Response: ${response.data}, Status: ${response.statusCode}");
+      log("API Response: ${response.data}, Status: ${response.statusCode}");
       if (response.statusCode == 200) {
         final data = response.data;
 
@@ -109,7 +109,13 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
                 .map((jsonItem) => LeaveModel.fromJson(jsonItem))
                 .toList();
 
-        _leaveRequests.addAll(fetchedLeaves);
+        //avoids the duplication
+        final ids = _leaveRequests.map((e) => e.id).toSet();
+        final newLeaves = fetchedLeaves.where(
+          (leave) => !ids.contains(leave.id),
+        );
+
+        _leaveRequests.addAll(newLeaves);
         _isFetchedOnce = true;
       } else {
         throw Exception('Failed to fetch Leaves: ${response.statusCode}');

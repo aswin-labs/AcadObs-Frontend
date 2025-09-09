@@ -55,7 +55,7 @@ class StudentLeaveRequestServices {
     required int studentId,
   }) async {
     final url = await ApiServices.get(
-      "${ApiEndpoints.studentLeaveRequest}/$studentId?pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
+      "${ApiEndpoints.studentLeaveRequest}/?student_id=$studentId&pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return url;
   }
