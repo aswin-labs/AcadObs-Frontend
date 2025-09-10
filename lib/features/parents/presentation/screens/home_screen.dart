@@ -8,7 +8,6 @@ import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
-import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -144,7 +143,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   const SizedBox(height: 20),
 
-                  const SizedBox(height: 24),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -155,9 +153,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 20),
+
                   Consumer<ParentProvider>(
                     builder: (context, provider, _) {
                       return ListView.builder(
+                        padding: EdgeInsets.zero,
                         shrinkWrap: true,
                         itemCount: provider.students.length,
                         itemBuilder: (context, index) {
@@ -178,79 +179,19 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 8),
 
-                  const SizedBox(height: 16),
-
-                  Row(
-                    children: [
-                      Text(
-                        "Notices",
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  //notice listing in the parent home screen
-                  Consumer<NoticeProvider>(
-                    builder: (context, provider, _) {
-                      final notices = provider.latestNotices;
-                      if (provider.isLoading && notices.isEmpty) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (notices.isEmpty) {
-                        return emptyScreen(message: "No Notice Avaliable");
-                      }
-                      return Column(
-                        children:
-                            notices.map((notice) {
-                              final date =
-                                  "${notice.createdAt.day.toString().padLeft(2, '0')}-${notice.createdAt.month.toString().padLeft(2, '0')}-${notice.createdAt.year}";
-                              final time =
-                                  "${notice.createdAt.hour.toString().padLeft(2, '0')}:${notice.createdAt.minute.toString().padLeft(2, '0')}";
-                              return NoticeCard(
-                                title: capitalizeEachWord(
-                                  notice.title ?? "N/A",
-                                ),
-                                date: date,
-                                icon: Icons.notifications,
-                                time: time,
-                                onTap: () {
-                                  context.pushNamed(
-                                    RouteConstants.noticedetails,
-                                    extra: notice,
-                                  );
-                                },
-                              );
-                            }).toList(),
-                      );
-                    },
-                  ),
-
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
                   //events listing
                   Row(
                     children: [
                       Text(
-                        "Events",
+                        "Latest Events",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      // Spacer(),
-                      // TextButton(
-                      //   onPressed: () {
-                      //     context.pushNamed(
-                      //       RouteConstants.eventListscreen,
-                      //       extra: false,
-                      //     );
-                      //   },
-                      //   child: Text("view"),
-                      // ),
                     ],
                   ),
+                  SizedBox(height: 20),
                   Consumer<EventProvider>(
                     builder: (context, provider, _) {
                       final events = provider.latestEvent;
@@ -284,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Row(
                     children: [
                       Text(
-                        'News',
+                        'Latest News',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Spacer(),
@@ -333,6 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       );
                     },
                   ),
+                  SizedBox(height: 40),
                 ],
               ),
             ),

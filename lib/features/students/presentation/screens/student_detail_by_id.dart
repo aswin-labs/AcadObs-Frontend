@@ -3,7 +3,7 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
-import 'package:acadobs/features/notices/widgets/notice_card.dart';
+import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 

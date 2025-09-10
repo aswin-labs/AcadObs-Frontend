@@ -2,16 +2,16 @@ import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/admin/presentation/home/admin_home_screen.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
+import 'package:acadobs/features/chats/presentation/screens/chats_home_screen.dart';
 import 'package:acadobs/features/events/presentation/screens/event_list_screen.dart';
 import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
-import 'package:acadobs/features/notices/presentation/screens/notice_screen.dart';
+import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/home_screen.dart';
 // import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/screens/school_classes_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/screens/school_subjects_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/schools/screens/schools_list_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_home_screen.dart';
-import 'package:acadobs/features/chats/presentation/screens/chats_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/teacher_home_screen.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
@@ -53,9 +53,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       return [
         HomeScreen(),
         EventListScreen(forStaff: false),
-        NoticeScreen(),
-
-        // Center(child: Text("Payments")),
+        NewsDetailsScreen(forStaff: false),
         Center(child: Text("Chats")),
       ];
     } else {
@@ -91,8 +89,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       return [
         _bottomNavItem(icon: LucideIcons.home, label: 'Home'),
         _bottomNavItem(icon: LucideIcons.calendarDays, label: 'Events'),
-        _bottomNavItem(icon: LucideIcons.bell, label: 'Notice'),
-        _bottomNavItem(icon: LucideIcons.creditCard, label: 'Payment'),
+        _bottomNavItem(icon: LucideIcons.bell, label: 'News'),
         _bottomNavItem(icon: LucideIcons.messageSquare, label: 'Chat'),
       ];
     } else {
