@@ -15,7 +15,11 @@ import 'package:provider/provider.dart';
 class LeaveLetterScreen extends StatefulWidget {
   final int studentId;
   final bool forParent;
-  const LeaveLetterScreen({super.key, required this.studentId, required this.forParent});
+  const LeaveLetterScreen({
+    super.key,
+    required this.studentId,
+    required this.forParent,
+  });
 
   @override
   State<LeaveLetterScreen> createState() => _LeaveLetterScreenState();
@@ -29,7 +33,9 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
   void initState() {
     super.initState();
     _studentLeaveProvider = context.read<StudentLeaveRequestProvider>();
-    _studentLeaveProvider.fetchAllStudentLeaveRequests(studentId:widget.studentId );
+    _studentLeaveProvider.fetchAllStudentLeaveRequests(
+      studentId: widget.studentId,
+    );
     _scrollController.addListener(_scrollListener);
   }
 
@@ -41,7 +47,10 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
     if (isNearBottom &&
         !_studentLeaveProvider.isLoading &&
         _studentLeaveProvider.hasMore) {
-      _studentLeaveProvider.fetchAllStudentLeaveRequests(loadMore: true,studentId: widget.studentId);
+      _studentLeaveProvider.fetchAllStudentLeaveRequests(
+        loadMore: true,
+        studentId: widget.studentId,
+      );
     }
   }
 
@@ -130,14 +139,17 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
         },
       ),
 
-      floatingActionButton: CommonFloatingButton(
-        onPressed:
-            () => showCreateLeaveRequesBottomSheet(
-              context,
-              fromTeacherScreen: false,
-              studentId: widget.studentId
-            ),
-      ),
+      floatingActionButton:
+          widget.forParent
+              ? CommonFloatingButton(
+                onPressed:
+                    () => showCreateLeaveRequesBottomSheet(
+                      context,
+                      fromTeacherScreen: false,
+                      studentId: widget.studentId,
+                    ),
+              )
+              : SizedBox.shrink(),
     );
   }
 }

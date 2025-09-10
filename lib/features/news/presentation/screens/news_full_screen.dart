@@ -3,8 +3,8 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
-import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
+import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +38,7 @@ class _NewsDetailsScreenState extends State<NewsDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CommonAppBar(title: "News", isBackButton: true),
+      appBar: CommonAppBar(title: "News", isBackButton: widget.forStaff),
       body: Consumer<NewsProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading && provider.newsModel.isEmpty) {
