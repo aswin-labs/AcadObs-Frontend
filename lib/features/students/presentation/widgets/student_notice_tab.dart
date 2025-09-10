@@ -3,36 +3,28 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
-import 'package:acadobs/features/notices/widgets/notice_card.dart';
-
+import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
-
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
-import 'package:acadobs/features/teacher/presentation/leave_request/widgets/create_leave_request_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
-
-import 'package:acadobs/shared/widgets/common_floating_button.dart';
-// import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-// import 'package:intl/intl.dart';
-
 import 'package:provider/provider.dart';
 
-class StudentDetailById extends StatefulWidget {
+class StudentNoticeTab extends StatefulWidget {
   final int studentId;
   final bool forParent;
-  const StudentDetailById({
+  const StudentNoticeTab({
     super.key,
     required this.studentId,
     required this.forParent,
   });
 
   @override
-  State<StudentDetailById> createState() => _StudentDetailByIdState();
+  State<StudentNoticeTab> createState() => _StudentNoticeTabState();
 }
 
-class _StudentDetailByIdState extends State<StudentDetailById> {
+class _StudentNoticeTabState extends State<StudentNoticeTab> {
   late final StudentProvider _studentProvider;
   final ScrollController _scrollController = ScrollController();
 
@@ -140,15 +132,6 @@ class _StudentDetailByIdState extends State<StudentDetailById> {
               .read<StudentLeaveRequestProvider>()
               .fetchAllStudentLeaveRequests(studentId: widget.studentId);
         },
-      ),
-
-      floatingActionButton: CommonFloatingButton(
-        onPressed:
-            () => showCreateLeaveRequesBottomSheet(
-              context,
-              fromTeacherScreen: false,
-              studentId: widget.studentId,
-            ),
       ),
     );
   }
