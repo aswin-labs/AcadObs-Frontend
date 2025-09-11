@@ -13,7 +13,7 @@ class ChatProvider with ChangeNotifier {
   final List<Map<String, dynamic>> _usersList = [];
   List<Map<String, dynamic>> get usersList => List.unmodifiable(_usersList);
 
-  bool _isLoadingUsers = false; // 👈 NEW
+  bool _isLoadingUsers = false;
   bool get isLoadingUsers => _isLoadingUsers;
 
   void connect(String token) {
@@ -106,7 +106,7 @@ class ChatProvider with ChangeNotifier {
   }
 
   void loadUsersList({int page = 1, int limit = 10}) {
-    _isLoadingUsers = true; // 👈 start loading
+    _isLoadingUsers = true; 
     notifyListeners();
     _chatService.getUsersList(page: page, limit: limit);
   }

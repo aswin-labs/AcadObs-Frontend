@@ -54,7 +54,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         HomeScreen(),
         EventListScreen(forStaff: false),
         NewsDetailsScreen(forStaff: false),
-        Center(child: Text("Chats")),
+        ChatsHomeScreen(forParent: true),
       ];
     } else {
       return [];

@@ -1,5 +1,10 @@
 import 'dart:developer';
+
+import 'package:acadobs/core/services/api_services.dart';
+import 'package:acadobs/core/utils/auth_storage_services.dart';
+import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
@@ -95,5 +100,21 @@ class ChatService {
   void getFirstUnseenMessage(int opponentId) {
     debugPrint("➡️ [EMIT] getFirstUnseenMessage -> {opponentId: $opponentId}");
     _socket.emit("getFirstUnseenMessage", {"opponentId": opponentId});
+  }
+
+  // Get staffs under school
+  Future<Response> fetchStaffsUnderSchool() async {
+    final schoolId =
+        await AuthStorageService().getSchoolIdForParent(); // await here!
+
+    if (schoolId == null) {
+      throw Exception("School ID is null");
+    }
+
+    final response = await ApiServices.get(
+      "${ApiEndpoints.staffsBySchoolId}/$schoolId",
+    );
+
+    return response;
   }
 }
