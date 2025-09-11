@@ -79,4 +79,5 @@ class ApiEndpoints {
 
   static const String studentPayment = "/guardian/getPaymentbyStudentId";
   static const String studentNotices = "/guardian/getNoticeByStudentId/";
+  static const String staffsBySchoolId = "/guardian/getStaffsBySchoolId";
 }
