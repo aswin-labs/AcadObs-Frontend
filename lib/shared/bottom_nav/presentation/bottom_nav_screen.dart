@@ -7,6 +7,7 @@ import 'package:acadobs/features/events/presentation/screens/event_list_screen.d
 import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/home_screen.dart';
+import 'package:acadobs/features/parents/presentation/screens/teachers_listing_screen.dart';
 // import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/screens/school_classes_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/screens/school_subjects_screen.dart';
@@ -55,6 +56,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         EventListScreen(forStaff: false),
         NewsDetailsScreen(forStaff: false),
         ChatsHomeScreen(forParent: true),
+        TeachersListingScreen(),
       ];
     } else {
       return [];
@@ -91,6 +93,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         _bottomNavItem(icon: LucideIcons.calendarDays, label: 'Events'),
         _bottomNavItem(icon: LucideIcons.bell, label: 'News'),
         _bottomNavItem(icon: LucideIcons.messageSquare, label: 'Chat'),
+        _bottomNavItem(icon: LucideIcons.users, label: 'Teachers'),
       ];
     } else {
       return [];

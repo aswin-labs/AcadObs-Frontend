@@ -1,8 +1,14 @@
+import 'dart:developer';
+
 import 'package:acadobs/features/chats/data/services/chat_services.dart';
+import 'package:acadobs/shared/models/staff_model.dart';
 import 'package:flutter/foundation.dart';
 
 class ChatProvider with ChangeNotifier {
   final ChatService _chatService = ChatService();
+
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
 
   bool _connected = false;
   bool get isConnected => _connected;
@@ -15,6 +21,16 @@ class ChatProvider with ChangeNotifier {
 
   bool _isLoadingUsers = false;
   bool get isLoadingUsers => _isLoadingUsers;
+
+  final List<StaffModel> _staffs = [];
+  List<StaffModel> get staffs => _staffs;
+
+  int _currentPage = 1;
+  int _totalPages = 1;
+
+  bool get hasMore => _currentPage < _totalPages;
+
+  bool _isFetchedOnce = false;
 
   void connect(String token) {
     _chatService.connect(
@@ -106,8 +122,57 @@ class ChatProvider with ChangeNotifier {
   }
 
   void loadUsersList({int page = 1, int limit = 10}) {
-    _isLoadingUsers = true; 
+    _isLoadingUsers = true;
     notifyListeners();
     _chatService.getUsersList(page: page, limit: limit);
   }
+
+  // Get staffs under school id
+  // ChatProvider.dart
+Future<void> fetchStaffsUnderSchool({
+  bool loadMore = false,
+  bool forceRefresh = false,
+  String? query,
+}) async {
+  if (_isLoading) return;
+
+  if (!loadMore && !forceRefresh && _isFetchedOnce && query == null) return;
+
+  _isLoading = true;
+
+  try {
+    if (loadMore) {
+      _currentPage++;
+    } else {
+      _currentPage = 1;
+      _staffs.clear();
+      _isFetchedOnce = false;
+    }
+
+    final response = await ChatService().fetchStaffsUnderSchool(
+      pageNo: _currentPage,
+      query: query,
+    );
+
+    if (response.statusCode == 200) {
+      final data = response.data;
+      _totalPages = data['totalPages'];
+      _currentPage = data['currentPage'];
+      final List staffsJson = data['staffs'];
+      final List<StaffModel> fetchedStaffs =
+          staffsJson.map((jsonItem) => StaffModel.fromJson(jsonItem)).toList();
+
+      _staffs.addAll(fetchedStaffs);
+      _isFetchedOnce = true;
+    } else {
+      throw Exception('Failed to fetch staff: ${response.statusCode}');
+    }
+  } catch (e) {
+    log(e.toString());
+  } finally {
+    _isLoading = false;
+    notifyListeners();
+  }
+}
+
 }
