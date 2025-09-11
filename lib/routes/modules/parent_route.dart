@@ -1,4 +1,5 @@
 import 'package:acadobs/features/authentication/presentation/screens/school_selection_screen.dart';
+import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
 import 'package:acadobs/features/parents/data/services/student_leave_request_details_screen.dart';
 import 'package:acadobs/features/authentication/presentation/screens/profile_screen.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
@@ -31,6 +32,15 @@ List<GoRoute> parentRoutes = [
     name: RouteConstants.schoolSelectionScreen,
     builder: (context, state) {
       return SchoolSelectionScreen();
+    },
+  ),
+
+
+   GoRoute(
+    path: '/sharebottomsheet',
+    name: RouteConstants.shareBottomSheet,
+    builder: (context, state) {
+      return ShareBottomSheet();
     },
   ),
 ];
