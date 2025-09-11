@@ -2,6 +2,7 @@ import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/chats/presentation/widgets/common_chat_tile.dart';
+import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_floating_action_button.dart';
@@ -91,7 +92,19 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
       ),
       floatingActionButton:
           widget.forParent
-              ? FloatingActionButton(onPressed: () {}, child: Icon(Icons.chat))
+              ? FloatingActionButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    isDismissible: true,
+                    enableDrag: true,
+                    backgroundColor: Colors.transparent,
+                    barrierColor: Colors.black.withAlpha(50),
+                    context: context,
+                    builder: (_) => ShareBottomSheet(),
+                  );
+                },
+                child: Icon(Icons.chat),
+              )
               : CommonFloatingActionButton(
                 onPressed: () {
                   context.pushNamed(RouteConstants.addTeacherNoteSection);
