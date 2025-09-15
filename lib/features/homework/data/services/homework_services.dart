@@ -109,6 +109,19 @@ class HomeworkServices {
     return response;
   }
 
+  //homework remarks
+  Future<Response> homeworkRemark({
+    required int homeworkId,
+    required String remarks,
+  }) async {
+    final data = {"remarks": remarks};
+    final response = await ApiServices.put(
+      "${ApiEndpoints.sendRemarks}/$homeworkId",
+      data,
+    );
+    return response;
+  }
+
   // fetch homeworkby studentId
   Future<Response> fetchHomeworkByStudentId({
     required int studentId,

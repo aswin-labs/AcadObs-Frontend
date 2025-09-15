@@ -41,6 +41,7 @@ class ApiEndpoints {
   static const String homeworkRanking = "/staff/bulkUpdateHomeworkAssignments/";
   static const String fetchHomeworksByStudentIdForStaff =
       "/staff/getHomeworkByStudentId";
+  static const String sendRemarks = "/staff/updateHomeworkAssignment";
 
   //notices
   static const String fetchLatestNotices = "/staff/getLatestNotices";
