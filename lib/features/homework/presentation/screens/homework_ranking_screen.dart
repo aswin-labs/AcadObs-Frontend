@@ -28,8 +28,14 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
 
       final provider = context.read<HomeworkProvider>();
       for (var status in widget.homework.studentHomeworkStatus ?? []) {
-        if (status.student?.id != null && status.points != null) {
-          provider.updatePoint(status.student!.id!, status.points!);
+        final id = status.student?.id;
+        if (id != null) {
+          if (status.points != null) {
+            provider.updatePoint(id, status.points!);
+          }
+          if (status.remark != null) {
+            provider.updateRemark(id, status.remark!);
+          }
         }
       }
     });
@@ -56,9 +62,7 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
         assignments: studentPoints,
       );
       if (!context.mounted) return;
-      // ScaffoldMessenger.of(
-      //   context,
-      // ).showSnackBar(SnackBar(content: Text('Homework ranking submitted')));
+
       Navigator.pop(context);
     }
 
@@ -95,10 +99,13 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
                       return RankingCard(
                         studentId: studentHomeworks?.student?.id ?? 0,
                         name: studentHomeworks?.student?.fullName ?? "",
+                        status: studentHomeworks?.status ?? "",
                         number:
                             studentHomeworks?.student?.rollNumber?.toString() ??
                             "",
                         point: points,
+                        homeworkId: studentHomeworks?.id ?? 0,
+                        // remark: studentHomeworks?.status ?? "",
                       );
                     },
                   );

@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
+
 import 'package:acadobs/features/homework/data/models/homework_model.dart';
 import 'package:acadobs/features/homework/data/models/student_homework_model.dart';
 import 'package:acadobs/features/homework/data/services/homework_services.dart';
@@ -265,6 +266,7 @@ class HomeworkProvider extends ChangeNotifier {
                 "student_id": status.student?.id,
                 "status": "submitted",
                 "points": _studentPoints[status.student?.id ?? 0] ?? 0,
+                "remark": _studentRemarks[status.student?.id ?? 0] ?? "",
               },
             )
             .toList() ??
@@ -353,5 +355,53 @@ class HomeworkProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  //homework remark section
+  Future<void> homeworkRemarks({
+    required BuildContext context,
+    required int homeworkId,
+    required String remarks,
+  }) async {
+    _isLoading = false;
+    notifyListeners();
+
+    try {
+      final response = await HomeworkServices().homeworkRemark(
+        homeworkId: homeworkId,
+        remarks: remarks,
+      );
+      if (response.statusCode == 200) {
+        // final data = response.data;
+        await fetchSingleHomework(homeworkId: homeworkId);
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: "Remarks added ",
+          type: SnackbarType.success,
+        );
+      } else {
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: "Remarks failed adding ",
+          type: SnackbarType.failure,
+        );
+      }
+    } catch (e) {
+      log("error is $e");
+      CustomErrorDialog.show(context, "something went wrong");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  final Map<int, String> _studentRemarks = {};
+  String getRemark(int studentId) => _studentRemarks[studentId] ?? "";
+
+  void updateRemark(int studentId, String remark) {
+    _studentRemarks[studentId] = remark;
+    notifyListeners();
   }
 }
