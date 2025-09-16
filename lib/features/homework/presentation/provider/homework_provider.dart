@@ -258,19 +258,19 @@ class HomeworkProvider extends ChangeNotifier {
   }
 
   //homework list
-  List<Map<String, dynamic>> get studentRankingsList {
-    return singleHomework?.studentHomeworkStatus
-            ?.map(
-              (status) => {
-                "student_id": status.student?.id,
-                "status": "submitted",
-                "points": _studentPoints[status.student?.id ?? 0] ?? 0,
-                "remark": _studentRemarks[status.student?.id ?? 0] ?? "",
-              },
-            )
-            .toList() ??
-        [];
-  }
+  // List<Map<String, dynamic>> get studentRankingsList {
+  //   return singleHomework?.studentHomeworkStatus
+  //           ?.map(
+  //             (status) => {
+  //               "student_id": status.student?.id,
+  //               "status": "submitted",
+  //               "points": _studentPoints[status.student?.id ?? 0] ?? 0,
+  //               "remark": _studentRemarks[status.student?.id ?? 0] ?? "",
+  //             },
+  //           )
+  //           .toList() ??
+  //       [];
+  // }
 
   //homework ranking
   Future<void> homeworkRanking({
@@ -359,27 +359,38 @@ class HomeworkProvider extends ChangeNotifier {
   //homework remark section
   Future<void> homeworkRemarks({
     required BuildContext context,
-    required int homeworkId,
+    required int studentHomeworkId,
     required String remarks,
   }) async {
-    _isLoading = false;
+    _isLoading = true;
     notifyListeners();
 
     try {
       final response = await HomeworkServices().homeworkRemark(
-        homeworkId: homeworkId,
+        homeworkId: studentHomeworkId,
         remarks: remarks,
       );
       log(response.toString());
       if (response.statusCode == 200) {
-        // final data = response.data;
+        final statuses = singleHomework?.studentHomeworkStatus;
+        if (statuses != null) {
+          final idx = statuses.indexWhere((s) => s.id == studentHomeworkId);
+          if (idx != -1) {
+            statuses[idx].remark = remarks;
+            notifyListeners(); // refresh UI instantly
+          }
+        }
+        notifyListeners();
+
         if (!context.mounted) return;
         CustomSnackbar.show(
           context,
-          message: "Remarks added ",
+          message: "Remarks added",
           type: SnackbarType.success,
         );
-        await fetchSingleHomework(homeworkId: homeworkId);
+
+        // ❌ remove this line, it’s overwriting your local update
+        // await fetchSingleHomework(homeworkId: homeworkId);
       } else {
         if (!context.mounted) return;
         CustomSnackbar.show(
@@ -390,7 +401,6 @@ class HomeworkProvider extends ChangeNotifier {
       }
     } catch (e) {
       log("error is $e");
-      // CustomErrorDialog.show(context, "something went wrong");
     } finally {
       _isLoading = false;
 
@@ -405,4 +415,26 @@ class HomeworkProvider extends ChangeNotifier {
     _studentRemarks[studentId] = remark;
     notifyListeners();
   }
+
+  List<Map<String, dynamic>> get studentRankingsList {
+    return singleHomework?.studentHomeworkStatus
+            ?.map(
+              (status) => {
+                "student_id": status.student?.id,
+                "status": "submitted",
+                "points": _studentPoints[status.student?.id ?? 0] ?? 0,
+                "remark": _studentRemarks[status.student?.id ?? 0] ?? "",
+              },
+            )
+            .toList() ??
+        [];
+  }
+
+  // final Map<int, String> _studentRemarks = {};
+  // String getRemark(int studentId) => _studentRemarks[studentId] ?? "";
+
+  // void updateRemark(int studentId, String remark) {
+  //   _studentRemarks[studentId] = remark;
+  //   notifyListeners();
+  // }
 }

@@ -71,7 +71,7 @@ class HomeworkRemark extends StatelessWidget {
                     onPressed: () {
                       context.read<HomeworkProvider>().homeworkRemarks(
                         context: context,
-                        homeworkId: homeworkId,
+                        studentHomeworkId: homeworkId,
                         remarks: remarkController.text,
                       );
                       context.pop();
