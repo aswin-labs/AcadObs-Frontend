@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
-
 import 'package:acadobs/features/homework/data/models/homework_model.dart';
 import 'package:acadobs/features/homework/data/models/student_homework_model.dart';
 import 'package:acadobs/features/homework/data/services/homework_services.dart';
@@ -279,7 +278,7 @@ class HomeworkProvider extends ChangeNotifier {
     required int homeworkId,
     required List<Map<String, dynamic>> assignments,
   }) async {
-    _isLoading = true;
+    _isLoadingTwo = true;
     notifyListeners();
     try {
       final response = await HomeworkServices().homeworkRanking(
@@ -306,7 +305,7 @@ class HomeworkProvider extends ChangeNotifier {
     } catch (e) {
       log('error: $e');
     }
-    _isLoading = false;
+    _isLoadingTwo = false;
     notifyListeners();
   }
 
@@ -374,13 +373,13 @@ class HomeworkProvider extends ChangeNotifier {
       log(response.toString());
       if (response.statusCode == 200) {
         // final data = response.data;
-        await fetchSingleHomework(homeworkId: homeworkId);
         if (!context.mounted) return;
         CustomSnackbar.show(
           context,
           message: "Remarks added ",
           type: SnackbarType.success,
         );
+        await fetchSingleHomework(homeworkId: homeworkId);
       } else {
         if (!context.mounted) return;
         CustomSnackbar.show(
@@ -391,9 +390,10 @@ class HomeworkProvider extends ChangeNotifier {
       }
     } catch (e) {
       log("error is $e");
-      CustomErrorDialog.show(context, "something went wrong");
+      // CustomErrorDialog.show(context, "something went wrong");
     } finally {
       _isLoading = false;
+
       notifyListeners();
     }
   }

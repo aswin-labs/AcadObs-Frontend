@@ -1,12 +1,13 @@
 import 'dart:developer';
 
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/homework/data/models/homework_model.dart';
 import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
 import 'package:acadobs/features/homework/presentation/widgets/ranking_card.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/common_floating_action_button.dart';
+import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -64,6 +65,7 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
       if (!context.mounted) return;
 
       Navigator.pop(context);
+      Navigator.pop(context);
     }
 
     return Scaffold(
@@ -99,13 +101,12 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
                       return RankingCard(
                         studentId: studentHomeworks?.student?.id ?? 0,
                         name: studentHomeworks?.student?.fullName ?? "",
-                        // status: studentHomeworks?.status ?? "",
                         number:
                             studentHomeworks?.student?.rollNumber?.toString() ??
                             "",
                         point: points,
                         homeworkId: studentHomeworks?.id ?? 0,
-                        remark: studentHomeworks?.remark?? "",
+                        remark: studentHomeworks?.remark ?? "",
                       );
                     },
                   );
@@ -116,11 +117,19 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
           ),
         ),
       ),
-      floatingActionButton: CommonFloatingActionButton(
-        onPressed: () async {
-          buttonFunction(context);
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: Consumer<HomeworkProvider>(
+        builder: (context, provider, _) {
+          return Padding(
+            padding: const EdgeInsets.all(16),
+            child: CommonButton(
+              onPressed: () async {
+                buttonFunction(context);
+              },
+              widget: provider.isLoadingTwo ? ButtonLoading() : Text("Submit"),
+            ),
+          );
         },
-        text: "Submit",
       ),
     );
   }
