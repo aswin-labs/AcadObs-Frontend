@@ -99,13 +99,13 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
                       return RankingCard(
                         studentId: studentHomeworks?.student?.id ?? 0,
                         name: studentHomeworks?.student?.fullName ?? "",
-                        status: studentHomeworks?.status ?? "",
+                        // status: studentHomeworks?.status ?? "",
                         number:
                             studentHomeworks?.student?.rollNumber?.toString() ??
                             "",
                         point: points,
                         homeworkId: studentHomeworks?.id ?? 0,
-                        // remark: studentHomeworks?.status ?? "",
+                        remark: studentHomeworks?.remark?? "",
                       );
                     },
                   );

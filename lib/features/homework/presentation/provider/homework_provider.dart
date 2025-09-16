@@ -371,6 +371,7 @@ class HomeworkProvider extends ChangeNotifier {
         homeworkId: homeworkId,
         remarks: remarks,
       );
+      log(response.toString());
       if (response.statusCode == 200) {
         // final data = response.data;
         await fetchSingleHomework(homeworkId: homeworkId);
