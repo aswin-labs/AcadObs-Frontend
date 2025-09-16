@@ -34,9 +34,9 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
           if (status.points != null) {
             provider.updatePoint(id, status.points!);
           }
-          if (status.remark != null) {
-            provider.updateRemark(id, status.remark!);
-          }
+          // if (status.remark != null) {
+          //   provider.updateRemark(id, status.remark!);
+          // }
         }
       }
     });
@@ -92,21 +92,28 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
                 physics: const BouncingScrollPhysics(),
                 itemCount: widget.homework.studentHomeworkStatus?.length ?? 0,
                 itemBuilder: (context, index) {
-                  final studentHomeworks =
-                      widget.homework.studentHomeworkStatus?[index];
+                  // final studentHomeworks =
+                  //     widget.homework.studentHomeworkStatus?[index];
                   return Consumer<HomeworkProvider>(
                     builder: (context, provider, _) {
-                      final studentId = studentHomeworks?.student?.id ?? 0;
-                      final points = provider.getPoint(studentId);
+                      final studentStatus =
+                          provider
+                              .singleHomework
+                              ?.studentHomeworkStatus?[index];
+
                       return RankingCard(
-                        studentId: studentHomeworks?.student?.id ?? 0,
-                        name: studentHomeworks?.student?.fullName ?? "",
+                        studentId: studentStatus?.student?.id ?? 0,
+                        name: studentStatus?.student?.fullName ?? "",
                         number:
-                            studentHomeworks?.student?.rollNumber?.toString() ??
+                            studentStatus?.student?.rollNumber?.toString() ??
                             "",
-                        point: points,
-                        homeworkId: studentHomeworks?.id ?? 0,
-                        remark: studentHomeworks?.remark ?? "",
+                        point: provider.getPoint(
+                          studentStatus?.student?.id ?? 0,
+                        ),
+                        homeworkId: studentStatus?.id ?? 0,
+                        remark:
+                            studentStatus?.remark ??
+                            "", // ✅ from provider not widget
                       );
                     },
                   );
