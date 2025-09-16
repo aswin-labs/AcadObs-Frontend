@@ -1,6 +1,8 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/profile_container_shimmer.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/chats/data/models/chat_model.dart';
+import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 // import 'package:acadobs/features/students/presentation/widgets/daily_attendance_widget.dart';
@@ -11,9 +13,10 @@ import 'package:acadobs/features/students/presentation/widgets/student_exam_deta
 import 'package:acadobs/features/students/presentation/widgets/student_homework_page.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_notice_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_profile_tab.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/profile_container.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class StudentDetailScreen extends StatefulWidget {
@@ -81,7 +84,39 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          Icon(LucideIcons.messageSquarePlus),
+                          widget.forParent
+                              ? SizedBox.shrink()
+                              : Consumer2<StudentProvider, ChatProvider>(
+                                builder: (
+                                  context,
+                                  studentProvider,
+                                  chatProvider,
+                                  _,
+                                ) {
+                                  final student =
+                                      studentProvider.individualStudent;
+                                  return GestureDetector(
+                                    onTap: () {
+                                      context
+                                          .pushNamed(
+                                            RouteConstants.chatScreen,
+                                            extra: ChatModel(
+                                              opponentId:
+                                                  student?.user?.id ?? 0,
+                                              opponentName:
+                                                  student?.user?.name ?? "",
+                                              studentId: student?.id,
+                                            ),
+                                          )
+                                          .then((_) {
+                                            if (!mounted) return;
+                                            chatProvider.loadUsersList();
+                                          });
+                                    },
+                                    child: Icon(Icons.chat),
+                                  );
+                                },
+                              ),
                         ],
                       ),
                       SizedBox(height: Responsive.height * 3),

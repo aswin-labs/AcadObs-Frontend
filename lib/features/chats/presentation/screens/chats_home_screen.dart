@@ -1,4 +1,5 @@
 import 'package:acadobs/core/utils/auth_storage_services.dart';
+import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/chats/presentation/widgets/common_chat_tile.dart';
@@ -48,47 +49,62 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: "Chats"),
-      body: Consumer<ChatProvider>(
-        builder: (context, chatProvider, _) {
-          final users = chatProvider.usersList;
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Column(
+              children: [
+                Consumer<ChatProvider>(
+                  builder: (context, chatProvider, _) {
+                    final users = chatProvider.usersList;
 
-          if (chatProvider.isLoadingUsers) {
-            return const Center(child: CircularProgressIndicator());
-          }
+                    if (chatProvider.isLoadingUsers) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-          if (users.isEmpty) {
-            return const Center(child: Text("No conversations yet"));
-          }
+                    if (users.isEmpty) {
+                      return const Center(child: Text("No conversations yet"));
+                    }
 
-          return ListView.builder(
-            physics: const BouncingScrollPhysics(),
-            itemCount: users.length,
-            itemBuilder: (context, index) {
-              final convo = users[index];
-              final opponent = convo["opponent"];
+                    return ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: users.length,
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        final convo = users[index];
+                        final opponent = convo["opponent"];
 
-              return CommonChatTile(
-                name: opponent["name"] ?? "Unknown",
-                subject: convo["last_message"] ?? "",
-                imageUrl: opponent["dp"] ?? "",
-                onTap: () {
-                  context
-                      .pushNamed(
-                        RouteConstants.chatScreen,
-                        extra: ChatModel(
-                          opponentId: opponent["id"],
-                          opponentName: opponent["name"],
-                        ),
-                      )
-                      .then((_) {
-                        if (!mounted) return;
-                        _chatProvider.loadUsersList();
-                      });
-                },
-              );
-            },
-          );
-        },
+                        return CommonChatTile(
+                          name: opponent["name"] ?? "Unknown",
+                          subject: convo["last_message"] ?? "",
+                          imageUrl: opponent["dp"] ?? "",
+                          onTap: () {
+                            context
+                                .pushNamed(
+                                  RouteConstants.chatScreen,
+                                  extra: ChatModel(
+                                    opponentId: opponent["id"],
+                                    opponentName: opponent["name"],
+                                  ),
+                                )
+                                .then((_) {
+                                  if (!mounted) return;
+                                  _chatProvider.loadUsersList();
+                                });
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+                SizedBox(height: Responsive.height * 15),
+              ],
+            ),
+          ),
+        ],
       ),
       floatingActionButton:
           widget.forParent

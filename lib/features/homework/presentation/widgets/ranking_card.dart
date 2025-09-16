@@ -1,5 +1,5 @@
 import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
-import 'package:acadobs/features/teacher/presentation/homework/homework_remark.dart';
+import 'package:acadobs/features/homework/presentation/widgets/homework_remark.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,7 +8,6 @@ class RankingCard extends StatefulWidget {
   final String number;
   final int studentId;
   final int point;
-  // final String status;
   final int homeworkId;
   final String remark;
   const RankingCard({
@@ -17,7 +16,6 @@ class RankingCard extends StatefulWidget {
     required this.number,
     required this.studentId,
     required this.point,
-    // required this.status,
     required this.homeworkId,
     required this.remark,
   });
@@ -27,15 +25,6 @@ class RankingCard extends StatefulWidget {
 }
 
 class _RankingCardState extends State<RankingCard> {
-  // final List<String> _statusOptions = ["submitted", "pending", "reviewed"];
-  // late String _selectedStatus;
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _selectedStatus =
-  //       widget.status.isNotEmpty ? widget.status : _statusOptions.first;
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +36,7 @@ class _RankingCardState extends State<RankingCard> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
 
-        border: Border.all(color: const Color(0xFFE0E0E0)), // light border
+        border: Border.all(color: const Color(0xFFE0E0E0)),
       ),
       child: Column(
         children: [
@@ -90,55 +79,6 @@ class _RankingCardState extends State<RankingCard> {
                     ),
                   ),
                 ),
-
-                // const SizedBox(width: 12),
-
-                // Text(
-                //   widget.status,
-                //   style: TextStyle(
-                //     fontWeight: FontWeight.w500,
-                //     fontSize: 14,
-                //     color: Colors.grey.shade700,
-                //   ),
-                // ),
-
-                //dropdown status
-                // Container(
-                //   height: 30,
-                //   decoration: BoxDecoration(
-                //     border: Border.all(color: Colors.grey, width: 1),
-                //     borderRadius: BorderRadius.circular(20),
-                //   ),
-                //   child: Padding(
-                //     padding: const EdgeInsets.symmetric(horizontal: 8),
-                //     child: DropdownButton<String>(
-                //       value: _selectedStatus,
-                //       underline: SizedBox(),
-                //       isExpanded: false,
-                //       items:
-                //           _statusOptions.map((status) {
-                //             return DropdownMenuItem(
-                //               value: status,
-                //               child: Text(
-                //                 status,
-                //                 style: TextStyle(
-                //                   color: Colors.black,
-                //                   fontWeight: FontWeight.w500,
-                //                   fontSize: 12,
-                //                 ),
-                //               ),
-                //             );
-                //           }).toList(),
-                //       onChanged: (value) {
-                //         if (value != null) {
-                //           setState(() {
-                //             _selectedStatus = value;
-                //           });
-                //         }
-                //       },
-                //     ),
-                //   ),
-                // ),
               ],
             ),
           ),

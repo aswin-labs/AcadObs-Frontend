@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -33,7 +34,7 @@ class HomeworkRemark extends StatelessWidget {
             color: Colors.transparent,
             child: Container(
               width: 300,
-              height: 225,
+              height: 260,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -62,7 +63,7 @@ class HomeworkRemark extends StatelessWidget {
                     ),
                     maxLines: 4, // more space for remarks
                   ),
-                  SizedBox(height: 8),
+                  SizedBox(height: 16),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,

@@ -74,7 +74,7 @@ class ChatService {
   }) {
     final payload = {
       "receiver_id": receiverId,
-      // "student_id": studentId,
+      "student_id": studentId,
       "message": message,
     };
     debugPrint("➡️ [EMIT] sendMessage -> $payload");

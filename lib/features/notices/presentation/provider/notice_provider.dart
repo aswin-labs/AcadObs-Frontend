@@ -99,9 +99,9 @@ class NoticeProvider extends ChangeNotifier {
           _hasMore = true;
         } else {
           // _notices.addAll(fetched); updated for the duplication
-          final existingIds = _notices.map((e) => e.noticeId).toSet();
+          final existingIds = _notices.map((e) => e.id).toSet();
           final newNotices =
-              fetched.where((e) => !existingIds.contains(e.noticeId)).toList();
+              fetched.where((e) => !existingIds.contains(e.id)).toList();
           _notices.addAll(newNotices);
 
           _currentPage = pageNo;

@@ -3,7 +3,7 @@ import 'dart:convert';
 Notices noticesFromJson(String str) => Notices.fromJson(json.decode(str));
 
 class Notices {
-  int noticeId;
+  int id;
   int? schoolId;
   String? title;
   String? content;
@@ -17,7 +17,7 @@ class Notices {
   List<dynamic>? noticeClasses;
 
   Notices({
-    required this.noticeId,
+    required this.id,
     this.schoolId,
     this.title,
     this.content,
@@ -31,7 +31,7 @@ class Notices {
   });
 
   factory Notices.fromJson(Map<String, dynamic> json) => Notices(
-    noticeId: json["notice_id"],
+    id: json["id"],
     schoolId: json["school_id"],
     title: json["title"],
     content: json["content"],
