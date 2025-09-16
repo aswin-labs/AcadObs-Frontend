@@ -8,16 +8,18 @@ class RankingCard extends StatefulWidget {
   final String number;
   final int studentId;
   final int point;
-  final String status;
+  // final String status;
   final int homeworkId;
+  final String remark;
   const RankingCard({
     super.key,
     required this.name,
     required this.number,
     required this.studentId,
     required this.point,
-    required this.status,
+    // required this.status,
     required this.homeworkId,
+    required this.remark,
   });
 
   @override
@@ -77,21 +79,15 @@ class _RankingCardState extends State<RankingCard> {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
+                Spacer(),
                 Expanded(
-                  child: Consumer<HomeworkProvider>(
-                    builder: (context, provider, _) {
-                      final remark = provider.getRemark(widget.studentId);
-                      return Text(
-                        remark.isNotEmpty ? remark : "",
-                        textAlign: TextAlign.right,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                          fontStyle: FontStyle.italic,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      );
-                    },
+                  child: Text(
+                    widget.remark,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: Colors.grey.shade700,
+                    ),
                   ),
                 ),
 
