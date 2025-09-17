@@ -3,6 +3,7 @@ import 'package:acadobs/features/achievements/presentaion/screens/add_achievemen
 import 'package:acadobs/features/parents/data/models/payment_model.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_detail_screen.dart';
 import 'package:acadobs/features/students/acheivement/achievement_edit_screen.dart';
+import 'package:acadobs/features/students/presentation/widgets/time_table_day_tab.dart';
 import 'package:acadobs/features/teacher/data/models/note_model.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_listing_screen.dart';
@@ -306,6 +307,15 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       final Payment payment = state.extra as Payment;
       return PaymentDetailScreen(payment: payment);
+    },
+  ),
+
+  //time table day tab
+  GoRoute(
+    path: '/timetabledaytab',
+    name: RouteConstants.timeTableDayTab,
+    builder: (context, state) {
+      return TimeTableDayTab();
     },
   ),
 ];

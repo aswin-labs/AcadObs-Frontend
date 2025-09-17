@@ -252,6 +252,7 @@ class MarksProvider extends ChangeNotifier {
                 .toList();
 
         _studentMarks.addAll(fetchHomeworks);
+        log(_studentMarks.toString());
         // _isFetchedOnceForStudent = true;
       } else {
         throw Exception('Failed to fetch marks: ${response.statusCode}');
