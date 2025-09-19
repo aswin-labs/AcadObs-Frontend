@@ -19,6 +19,7 @@ import 'package:acadobs/features/teacher/presentation/leave_request/provider/tea
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
+import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/shared/providers/subject_provider.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
@@ -83,5 +84,8 @@ getProviders() {
 
     //**************payment ****************//
     ChangeNotifierProvider(create: (_) => PaymentProvider()),
+
+    //**************time table ****************//
+    ChangeNotifierProvider(create: (_) => TimeTableProvider()),
   ];
 }

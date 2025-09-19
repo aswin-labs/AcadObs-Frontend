@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
 class TimeTableCard extends StatelessWidget {
-  final String time;
+  final int periodnumber;
   final String subject;
   final String teacher;
   const TimeTableCard({
     super.key,
     required this.subject,
     required this.teacher,
-    required this.time,
+    required this.periodnumber,
   });
 
   @override
@@ -34,7 +34,7 @@ class TimeTableCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 color: Color(0xFFFFECCE),
               ),
-              child: Text(time, style: TextStyle(color: Color(0xFFA86637))),
+              child: Text(periodnumber.toString(), style: TextStyle(color: Color(0xFFA86637))),
             ),
             const SizedBox(height: 8),
             Text(

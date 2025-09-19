@@ -3,6 +3,7 @@ import 'package:acadobs/features/achievements/presentaion/screens/add_achievemen
 import 'package:acadobs/features/parents/data/models/payment_model.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_detail_screen.dart';
 import 'package:acadobs/features/students/acheivement/achievement_edit_screen.dart';
+
 import 'package:acadobs/features/students/presentation/widgets/time_table_day_tab.dart';
 import 'package:acadobs/features/teacher/data/models/note_model.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_details_screen.dart';
@@ -315,7 +316,8 @@ List<GoRoute> staffRoutes = [
     path: '/timetabledaytab',
     name: RouteConstants.timeTableDayTab,
     builder: (context, state) {
-      return TimeTableDayTab();
+      final studentId = state.extra as int;
+      return TimeTableDayTab(studentId: studentId);
     },
   ),
 ];
