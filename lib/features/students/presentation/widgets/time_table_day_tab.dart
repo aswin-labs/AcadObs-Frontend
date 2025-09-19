@@ -5,7 +5,8 @@ import 'package:acadobs/features/students/presentation/widgets/sunday_tab.dart';
 import 'package:flutter/material.dart';
 
 class TimeTableDayTab extends StatelessWidget {
-  const TimeTableDayTab({super.key});
+  final int studentId;
+  const TimeTableDayTab({super.key, required this.studentId});
 
   @override
   Widget build(BuildContext context) {
@@ -116,12 +117,13 @@ class TimeTableDayTab extends StatelessWidget {
                           horizontal: 16.0,
                         ),
                         tabs: const [
-                          Tab(text: "Sunday"),
                           Tab(text: "Monday"),
                           Tab(text: "Tuesday"),
                           Tab(text: "Wednesday"),
+                          Tab(text: "thursday"),
                           Tab(text: 'Friday'),
                           Tab(text: "Saturday"),
+                          Tab(text: "Sunday"),
                         ],
                       ),
                     ),
@@ -134,20 +136,27 @@ class TimeTableDayTab extends StatelessWidget {
             padding: EdgeInsets.only(top: Responsive.height * 5),
             child: TabBarView(
               children: [
+                SundayTab(dayOfWeek: 1, dayName: "Monday",studentId: studentId,),
+                SundayTab(dayOfWeek: 2, dayName: "Tuesday",studentId: studentId,),
+                SundayTab(dayOfWeek: 3, dayName: "Wednesday",studentId: studentId,),
+                SundayTab(dayOfWeek: 4, dayName: "Thursday",studentId: studentId),
+                SundayTab(dayOfWeek: 5, dayName: "Friday",studentId: studentId),
+                SundayTab(dayOfWeek: 6, dayName: "Saturday",studentId: studentId),
+                SundayTab(dayOfWeek: 7, dayName: "Sunday",studentId: studentId),
                 // sunday
-                SundayTab(),
-                //monday
-                SundayTab(),
-                //tuesday
-                SundayTab(),
-                //wednesday
-                SundayTab(),
-                //thursday
-                SundayTab(),
-                //friday
-                SundayTab(),
-                //saturday
-                SundayTab(),
+                // SundayTab(),
+                // //monday
+                // SundayTab(),
+                // //tuesday
+                // SundayTab(),
+                // //wednesday
+                // SundayTab(),
+                // //thursday
+                // SundayTab(),
+                // //friday
+                // SundayTab(),
+                // //saturday
+                // SundayTab(),
               ],
             ),
           ),

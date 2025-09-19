@@ -1,8 +1,11 @@
+import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/students/presentation/widgets/daily_attendance_widget.dart';
 import 'package:acadobs/features/students/presentation/widgets/time_table_card.dart';
+import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/attendance_card_shimmer.dart';
+import 'package:acadobs/shared/widgets/time_table_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -24,11 +27,13 @@ class StudentAttendenceTab extends StatefulWidget {
 class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
   late StudentProvider studentProvider;
   late DateTime _initialDate;
+  late TimeTableProvider timeTableProvider;
 
   @override
   void initState() {
     super.initState();
     studentProvider = context.read<StudentProvider>();
+    timeTableProvider = context.read<TimeTableProvider>();
 
     _initialDate = DateFormat("yyyy-MM-dd").parse(widget.date);
 
@@ -36,6 +41,8 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
       studentId: widget.studentId,
       date: widget.date,
     );
+
+    timeTableProvider.fetchTimeTable(studentId: widget.studentId);
   }
 
   @override
@@ -79,7 +86,10 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
                   Spacer(),
                   TextButton(
                     onPressed: () {
-                      context.pushNamed(RouteConstants.timeTableDayTab);
+                      context.pushNamed(
+                        RouteConstants.timeTableDayTab,
+                        extra: widget.studentId,
+                      );
                     },
                     child: Text("view"),
                   ),
@@ -87,61 +97,110 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
               ),
 
               SizedBox(height: 10),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.4,
-                child: GridView.count(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 8,
-                  mainAxisSpacing: 10,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  childAspectRatio: 0.7,
-                  children: [
-                    TimeTableCard(
-                      time: "9:00",
-                      subject: "computer Science",
-                      teacher: " Mr.Smith",
-                    ),
+              Consumer<TimeTableProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading) {
+                    return const Center(child: TimeTableShimmer());
+                  }
 
-                    TimeTableCard(
-                      time: "9:00",
-                      subject: "computer Science",
-                      teacher: " Mr.Smith",
-                    ),
+                  if (provider.error != null) {
+                    return Text(
+                      provider.error!,
+                      style: const TextStyle(color: Colors.red),
+                    );
+                  }
 
-                    TimeTableCard(
-                      time: "9:00",
-                      subject: "computer Science",
-                      teacher: " Mr.Smith",
-                    ),
+                  if (provider.timetable.isEmpty) {
+                    return emptyScreen(message: "No Time Table Avaliable");
+                  }
 
-                    TimeTableCard(
-                      time: "9:00",
-                      subject: "computer Science",
-                      teacher: " Mr.Smith",
-                    ),
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    child: GridView.builder(
+                      itemCount: provider.timetable.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 0.7,
+                          ),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
 
-                    TimeTableCard(
-                      time: "9:00",
-                      subject: "computer Science",
-                      teacher: " Mr.Smith",
+                      itemBuilder: (context, index) {
+                        final item = provider.timetable[index];
+                        return TimeTableCard(
+                          periodnumber: item.periodNumber ?? 0,
+                          subject: item.subject!.subjectName ?? "",
+                          teacher: item.user!.name ?? "",
+                        );
+                      },
                     ),
-
-                    TimeTableCard(
-                      time: "9:00",
-                      subject: "computer Science",
-                      teacher: " Mr.Smith",
-                    ),
-
-                    TimeTableCard(
-                      time: "9:00",
-                      subject: "computer Science",
-                      teacher: " Mr.Smith",
-                    ),
-                  ],
-                ),
+                  );
+                },
               ),
 
+              // SizedBox(
+              //   height: MediaQuery.of(context).size.height * 0.4,
+              //   child: GridView.count(
+              //     crossAxisCount: 4,
+              //     crossAxisSpacing: 8,
+              //     mainAxisSpacing: 10,
+              //     shrinkWrap: true,
+              //     physics: const NeverScrollableScrollPhysics(),
+              //     childAspectRatio: 0.7,
+              //     children: [
+              //       TimeTableCard(
+              //         periodnumber: 1,
+              //         subject: "computer Science",
+              //         teacher: " Mr.Smith",
+              //       ),
+
+              //       TimeTableCard(
+              //         periodnumber: 2,
+              //         subject: "computer Science",
+              //         teacher: " Mr.Smith",
+              //       ),
+
+              //       TimeTableCard(
+              //         periodnumber: 3,
+              //         subject: "computer Science",
+              //         teacher: " Mr.Smith",
+              //       ),
+
+              //       TimeTableCard(
+              //         periodnumber: 4,
+              //         subject: "computer Science",
+              //         teacher: " Mr.Smith",
+              //       ),
+
+              //       TimeTableCard(
+              //         periodnumber: 5,
+              //         subject: "computer Science",
+              //         teacher: " Mr.Smith",
+              //       ),
+
+              //       TimeTableCard(
+              //         periodnumber: 6,
+              //         subject: "computer Science",
+              //         teacher: " Mr.Smith",
+              //       ),
+
+              //       TimeTableCard(
+              //         periodnumber: 7,
+              //         subject: "computer Science",
+              //         teacher: " Mr.Smith",
+              //       ),
+
+              //       TimeTableCard(
+              //         periodnumber: 8,
+              //         subject: "computer Science",
+              //         teacher: " Mr.Smith",
+              //       ),
+              //     ],
+              //   ),
+              // ),
               SizedBox(height: 20),
             ],
           ),
