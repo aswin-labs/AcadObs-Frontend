@@ -12,7 +12,6 @@ class ItemCard extends StatelessWidget {
   final Color backgroundColor;
   final Color iconColor;
   final IconData icon;
-
   final void Function() onTap;
 
   const ItemCard({

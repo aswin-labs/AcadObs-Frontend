@@ -4,6 +4,7 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
+import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/homework/data/models/homework_model.dart';
 import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -39,7 +40,28 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
         isBackButton: true,
         actions: [
           widget.homework.forStudent == true
-              ? SizedBox.shrink()
+              ? widget.homework.forParent == true
+                  ? SizedBox.shrink()
+                  : Padding(
+                    padding: const EdgeInsets.only(right: 16),
+                    child: GestureDetector(
+                      onTap: () {
+                        context.pushNamed(
+                          RouteConstants.chatScreen,
+                          extra: ChatModel(
+                            opponentId: widget.homework.guardianIdForChat ?? 0,
+                            opponentName:
+                                widget.homework.guardianNameForChat ?? "",
+                            title: widget.homework.title ?? "",
+                            subtitle: widget.homework.description ?? "",
+                            msgType: "homeworks",
+                            typeId: widget.homework.studentHomeworkId
+                          ),
+                        );
+                      },
+                      child: Icon(Icons.chat),
+                    ),
+                  )
               : Consumer<HomeworkProvider>(
                 builder: (context, provider, _) {
                   return CustomPopupMenu(
@@ -116,14 +138,6 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                             ),
                           ),
                           SizedBox(height: Responsive.height * 2),
-                          Text(
-                            widget.homework.studentStatus ?? "N/A",
-                            style: context.textTheme.bodyMedium!.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          SizedBox(height: Responsive.height * 1),
                           Row(
                             children: List.generate(5, (index) {
                               final points = widget.homework.studentPoints ?? 0;

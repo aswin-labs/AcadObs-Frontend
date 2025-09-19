@@ -211,9 +211,18 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 ),
 
                 //homework
-                StudentHomeworkPage(
-                  forParent: widget.forParent,
-                  studentId: widget.studentId,
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+
+                    return StudentHomeworkPage(
+                      forParent: widget.forParent,
+                      studentId: widget.studentId,
+                      guardianIdForChat: student?.user?.id??0,
+                      guardianNameForChat: student?.user?.name??"",
+                      
+                    );
+                  },
                 ),
 
                 //leave requst

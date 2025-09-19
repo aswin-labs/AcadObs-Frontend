@@ -1,6 +1,5 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
-import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/homework/data/models/homework_model.dart';
@@ -15,10 +14,14 @@ import 'package:provider/provider.dart';
 class StudentHomeworkPage extends StatefulWidget {
   final bool forParent;
   final int studentId;
+  final int guardianIdForChat;
+  final String guardianNameForChat;
   const StudentHomeworkPage({
     super.key,
     required this.forParent,
     required this.studentId,
+    required this.guardianIdForChat,
+    required this.guardianNameForChat
   });
 
   @override
@@ -103,10 +106,11 @@ class _StudentHomeworkPageState extends State<StudentHomeworkPage> {
                           title: homework.homework?.title ?? "N/A",
                           description: homework.homework?.description ?? "N/A",
                           dueDate: homework.homework?.dueDate,
-                          studentStatus: capitalizeFirstLetter(
-                            homework.status ?? "N/A",
-                          ),
+                          studentHomeworkId: homework.id,
                           studentPoints: homework.points,
+                          forParent: widget.forParent,
+                          guardianIdForChat: widget.guardianIdForChat,
+                          guardianNameForChat: widget.guardianNameForChat
                         );
                         context.pushNamed(
                           RouteConstants.homeworkDetails,
