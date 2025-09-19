@@ -90,10 +90,16 @@ class _StudentExamDetailScreenState extends State<StudentExamDetailScreen> {
                       subject:
                           studentMark.internalExam?.subject?.subjectName ??
                           "N/A",
-                      mark: double.parse(studentMark.marksObtained ?? ""),
-                      total: double.parse(
-                        studentMark.internalExam?.maxMarks ?? "",
-                      ),
+                      mark:
+                          studentMark.marksObtained != null &&
+                                  studentMark.marksObtained!.isNotEmpty
+                              ? double.parse(studentMark.marksObtained!)
+                              : 0.0,
+                      total:
+                          studentMark.internalExam?.maxMarks != null &&
+                                  studentMark.internalExam!.maxMarks.isNotEmpty
+                              ? double.parse(studentMark.internalExam!.maxMarks)
+                              : 0.0,
                     );
                   },
                 );
