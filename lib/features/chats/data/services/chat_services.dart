@@ -71,11 +71,15 @@ class ChatService {
     required int receiverId,
     required int studentId,
     required String message,
+    required String type,
+    required int typeId
   }) {
     final payload = {
       "receiver_id": receiverId,
       "student_id": studentId,
       "message": message,
+      "type":type,
+      "type_id":typeId
     };
     debugPrint("➡️ [EMIT] sendMessage -> $payload");
     _socket.emit("sendMessage", payload);

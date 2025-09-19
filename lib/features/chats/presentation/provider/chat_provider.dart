@@ -101,6 +101,8 @@ class ChatProvider with ChangeNotifier {
     required int receiverId,
     int? studentId,
     required String message,
+    int? typeId,
+    String? type,
   }) {
     debugPrint(
       "➡️ Sending message: $message to $receiverId (studentId: $studentId)",
@@ -110,7 +112,10 @@ class ChatProvider with ChangeNotifier {
       receiverId: receiverId,
       studentId: studentId ?? 0,
       message: message,
+      type: type ?? "msg",
+      typeId: typeId ?? 0,
     );
+    getMessages(receiverId);
   }
 
   void getMessages(int opponentId) {
@@ -129,50 +134,51 @@ class ChatProvider with ChangeNotifier {
 
   // Get staffs under school id
   // ChatProvider.dart
-Future<void> fetchStaffsUnderSchool({
-  bool loadMore = false,
-  bool forceRefresh = false,
-  String? query,
-}) async {
-  if (_isLoading) return;
+  Future<void> fetchStaffsUnderSchool({
+    bool loadMore = false,
+    bool forceRefresh = false,
+    String? query,
+  }) async {
+    if (_isLoading) return;
 
-  if (!loadMore && !forceRefresh && _isFetchedOnce && query == null) return;
+    if (!loadMore && !forceRefresh && _isFetchedOnce && query == null) return;
 
-  _isLoading = true;
+    _isLoading = true;
 
-  try {
-    if (loadMore) {
-      _currentPage++;
-    } else {
-      _currentPage = 1;
-      _staffs.clear();
-      _isFetchedOnce = false;
+    try {
+      if (loadMore) {
+        _currentPage++;
+      } else {
+        _currentPage = 1;
+        _staffs.clear();
+        _isFetchedOnce = false;
+      }
+
+      final response = await ChatService().fetchStaffsUnderSchool(
+        pageNo: _currentPage,
+        query: query,
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        _totalPages = data['totalPages'];
+        _currentPage = data['currentPage'];
+        final List staffsJson = data['staffs'];
+        final List<StaffModel> fetchedStaffs =
+            staffsJson
+                .map((jsonItem) => StaffModel.fromJson(jsonItem))
+                .toList();
+
+        _staffs.addAll(fetchedStaffs);
+        _isFetchedOnce = true;
+      } else {
+        throw Exception('Failed to fetch staff: ${response.statusCode}');
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    final response = await ChatService().fetchStaffsUnderSchool(
-      pageNo: _currentPage,
-      query: query,
-    );
-
-    if (response.statusCode == 200) {
-      final data = response.data;
-      _totalPages = data['totalPages'];
-      _currentPage = data['currentPage'];
-      final List staffsJson = data['staffs'];
-      final List<StaffModel> fetchedStaffs =
-          staffsJson.map((jsonItem) => StaffModel.fromJson(jsonItem)).toList();
-
-      _staffs.addAll(fetchedStaffs);
-      _isFetchedOnce = true;
-    } else {
-      throw Exception('Failed to fetch staff: ${response.statusCode}');
-    }
-  } catch (e) {
-    log(e.toString());
-  } finally {
-    _isLoading = false;
-    notifyListeners();
   }
-}
-
 }

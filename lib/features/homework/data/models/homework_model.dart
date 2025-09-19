@@ -8,6 +8,10 @@ HomeworkModel homeworkModelFromJson(String str) =>
 
 class HomeworkModel {
   bool? forStudent;
+  bool? forParent;
+  int? studentHomeworkId;
+  int? guardianIdForChat;
+  String? guardianNameForChat;
   String? studentStatus;
   int? studentPoints;
   int? id;
@@ -28,8 +32,12 @@ class HomeworkModel {
 
   HomeworkModel({
     this.forStudent = false,
+    this.forParent = false,
+    this.studentHomeworkId=0,
+    this.guardianIdForChat = 0,
+    this.guardianNameForChat = "",
     this.studentStatus = "N/A",
-    this.studentPoints=0,
+    this.studentPoints = 0,
     this.id,
     this.schoolId,
     this.teacherId,

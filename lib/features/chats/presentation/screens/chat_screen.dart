@@ -78,9 +78,29 @@ class _ChatScreenState extends State<ChatScreen> {
                           // since reverse:true, take from the end
                           final msg = messages[messages.length - 1 - index];
                           final isMe = msg['sender_id'] == currentUserId;
+
+                          final typeDetails =
+                              msg['typeDetails'] as Map<String, dynamic>?;
+
+                          // helper to return null for empty strings
+                          String? safeString(dynamic value) {
+                            if (value == null) return null;
+                            final s = value.toString().trim();
+                            return s.isEmpty ? null : s;
+                          }
+
+                          final title = safeString(
+                            typeDetails?['Homework.title'],
+                          );
+                          final subtitle = safeString(
+                            typeDetails?['Homework.description'],
+                          );
+
                           return ChatBubble(
-                            text: msg['message'] ?? "",
+                            text: safeString(msg['message']) ?? "",
                             isMe: isMe,
+                            title: title,
+                            subtitle: subtitle,
                           );
                         },
                       );
@@ -90,53 +110,137 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
 
-            /// Input field
+            /// Input with optional context details
+            /// Input with optional context details
             SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        decoration: InputDecoration(
-                          hintText: "Type a message...",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.chatModel.title != null ||
+                      widget.chatModel.subtitle != null)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(
+                            Icons.info_outline,
+                            color: Colors.blueGrey,
+                            size: 24,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (widget.chatModel.title != null)
+                                  Text(
+                                    widget.chatModel.title!,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                if (widget.chatModel.subtitle != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 4.0),
+                                    child: Text(
+                                      widget.chatModel.subtitle!,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ),
-                        ),
+                          // Optional close button if user wants to manually remove context
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                widget.chatModel.title = null;
+                                widget.chatModel.subtitle = null;
+                              });
+                            },
+                            child: const Icon(
+                              Icons.close,
+                              size: 18,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: () {
-                        if (_controller.text.trim().isNotEmpty) {
-                          context.read<ChatProvider>().sendMessage(
-                            receiverId: widget.chatModel.opponentId,
-                            message: _controller.text.trim(),
-                          );
-                          _controller.clear();
 
-                          // auto scroll to bottom
-                          Future.delayed(const Duration(milliseconds: 100), () {
-                            if (_scrollController.hasClients) {
-                              _scrollController.animateTo(
-                                0.0,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeOut,
+                  /// Input Field
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _controller,
+                            decoration: InputDecoration(
+                              hintText: "Type a message...",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        IconButton(
+                          icon: const Icon(Icons.send),
+                          onPressed: () {
+                            if (_controller.text.trim().isNotEmpty) {
+                              context.read<ChatProvider>().sendMessage(
+                                receiverId: widget.chatModel.opponentId,
+                                message: _controller.text.trim(),
+                                studentId: widget.chatModel.studentId,
+                                type: widget.chatModel.msgType,
+                                typeId: widget.chatModel.typeId,
+                              );
+                              _controller.clear();
+
+                              // remove context details after sending
+                              setState(() {
+                                widget.chatModel.title = null;
+                                widget.chatModel.subtitle = null;
+                              });
+
+                              // auto scroll to bottom
+                              Future.delayed(
+                                const Duration(milliseconds: 100),
+                                () {
+                                  if (_scrollController.hasClients) {
+                                    _scrollController.animateTo(
+                                      0.0,
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      curve: Curves.easeOut,
+                                    );
+                                  }
+                                },
                               );
                             }
-                          });
-                        }
-                      },
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],
