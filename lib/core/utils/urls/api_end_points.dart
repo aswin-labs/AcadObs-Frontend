@@ -19,6 +19,10 @@ class ApiEndpoints {
   static const String createParentNote = "/staff/parentNotes";
   static const String getLatestNotes = "/staff/parentNotes";
   static const String deleteNote = "/staff/parentNotes";
+  static const String getTodayTimetableForStaff =
+      "/staff/getTodayTimetableForStaff";
+  static const String getAllDayTimetableForStaff =
+      "/staff/getAllDayTimetableForStaff";
 
   // duties
   static const String staffDuties = "/staff/duties";
