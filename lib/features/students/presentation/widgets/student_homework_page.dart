@@ -21,7 +21,7 @@ class StudentHomeworkPage extends StatefulWidget {
     required this.forParent,
     required this.studentId,
     required this.guardianIdForChat,
-    required this.guardianNameForChat
+    required this.guardianNameForChat,
   });
 
   @override
@@ -110,7 +110,8 @@ class _StudentHomeworkPageState extends State<StudentHomeworkPage> {
                           studentPoints: homework.points,
                           forParent: widget.forParent,
                           guardianIdForChat: widget.guardianIdForChat,
-                          guardianNameForChat: widget.guardianNameForChat
+                          guardianNameForChat: widget.guardianNameForChat,
+                          user: homework.homework?.user,
                         );
                         context.pushNamed(
                           RouteConstants.homeworkDetails,

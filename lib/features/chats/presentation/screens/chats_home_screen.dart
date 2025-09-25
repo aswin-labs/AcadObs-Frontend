@@ -1,5 +1,4 @@
 import 'package:acadobs/core/utils/auth_storage_services.dart';
-import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/chats/presentation/widgets/common_chat_tile.dart';
@@ -21,19 +20,28 @@ class ChatsHomeScreen extends StatefulWidget {
 
 class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
   late ChatProvider _chatProvider;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _chatProvider = Provider.of<ChatProvider>(context, listen: false);
     _getUsersList();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          !_chatProvider.isLoadingUsers) {
+        _chatProvider.loadUsersList(); // fetch next page
+      }
+    });
   }
 
   Future<void> _getUsersList() async {
     final token = await AuthStorageService().getToken();
     if (token != null) {
       _chatProvider.connect(token);
-      _chatProvider.loadUsersList();
+      _chatProvider.loadUsersList(reset: true);
     } else {
       debugPrint("No token found, cannot connect to chat");
     }
@@ -41,6 +49,7 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _chatProvider.disconnect();
     super.dispose();
   }
@@ -49,62 +58,57 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: "Chats"),
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics(),
-        ),
-        slivers: [
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                Consumer<ChatProvider>(
-                  builder: (context, chatProvider, _) {
-                    final users = chatProvider.usersList;
+      body: Consumer<ChatProvider>(
+        builder: (context, chatProvider, _) {
+          final users = chatProvider.usersList;
 
-                    if (chatProvider.isLoadingUsers) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+          if (chatProvider.isLoadingUsers && users.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-                    if (users.isEmpty) {
-                      return const Center(child: Text("No conversations yet"));
-                    }
+          if (users.isEmpty) {
+            return const Center(child: Text("No conversations yet"));
+          }
 
-                    return ListView.builder(
-                      physics: const BouncingScrollPhysics(),
-                      itemCount: users.length,
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        final convo = users[index];
-                        final opponent = convo["opponent"];
+          return ListView.builder(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(),
+            itemCount: users.length + 1, // 👈 for loader at bottom
+            itemBuilder: (context, index) {
+              if (index == users.length) {
+                return chatProvider.isLoadingUsers
+                    ? const Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                    : const SizedBox.shrink();
+              }
 
-                        return CommonChatTile(
-                          name: opponent["name"] ?? "Unknown",
-                          subject: convo["last_message"] ?? "",
-                          imageUrl: opponent["dp"] ?? "",
-                          onTap: () {
-                            context
-                                .pushNamed(
-                                  RouteConstants.chatScreen,
-                                  extra: ChatModel(
-                                    opponentId: opponent["id"],
-                                    opponentName: opponent["name"],
-                                  ),
-                                )
-                                .then((_) {
-                                  if (!mounted) return;
-                                  _chatProvider.loadUsersList();
-                                });
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-                SizedBox(height: Responsive.height * 15),
-              ],
-            ),
-          ),
-        ],
+              final convo = users[index];
+              final opponent = convo["opponent"];
+
+              return CommonChatTile(
+                name: opponent["name"] ?? "Unknown",
+                subject: convo["last_message"] ?? "",
+                imageUrl: opponent["dp"] ?? "",
+                onTap: () {
+                  context
+                      .pushNamed(
+                        RouteConstants.chatScreen,
+                        extra: ChatModel(
+                          opponentId: opponent["id"],
+                          opponentName: opponent["name"],
+                        ),
+                      )
+                      .then((_) {
+                        if (!mounted) return;
+                        _chatProvider.loadUsersList(reset: true);
+                      });
+                },
+              );
+            },
+          );
+        },
       ),
       floatingActionButton:
           widget.forParent
@@ -123,7 +127,7 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
               )
               : CommonFloatingActionButton(
                 onPressed: () {
-                  context.pushNamed(RouteConstants.addTeacherNoteSection);
+                  context.pushNamed(RouteConstants.noteListingScreen);
                 },
                 text: "Add New Parent Note",
               ),

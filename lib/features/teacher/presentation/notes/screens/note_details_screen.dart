@@ -6,11 +6,8 @@ import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/features/notices/presentation/provider/file_download_provider.dart';
 import 'package:acadobs/features/teacher/data/models/note_model.dart';
 import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
-// import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 

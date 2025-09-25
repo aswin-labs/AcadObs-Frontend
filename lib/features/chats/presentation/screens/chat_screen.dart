@@ -80,24 +80,35 @@ class _ChatScreenState extends State<ChatScreen> {
                           final isMe = msg['sender_id'] == currentUserId;
 
                           final typeDetails =
-                              msg['typeDetails'] as Map<String, dynamic>?;
+                              (msg['typeDetails'] as Map<String, dynamic>?) ??
+                              {};
 
-                          // helper to return null for empty strings
+                          // helper to return null for empty/invalid strings
                           String? safeString(dynamic value) {
                             if (value == null) return null;
                             final s = value.toString().trim();
                             return s.isEmpty ? null : s;
                           }
 
-                          final title = safeString(
-                            typeDetails?['Homework.title'],
-                          );
-                          final subtitle = safeString(
-                            typeDetails?['Homework.description'],
-                          );
+                          // extract dynamic values safely
+                          final messageText = safeString(msg['message']) ?? "";
+
+                          String? title;
+                          String? subtitle;
+
+                          // handle different typeDetails gracefully
+                          if (typeDetails.containsKey('Homework.title')) {
+                            title = 'Homework';
+                            subtitle = safeString(
+                              typeDetails['Homework.title'],
+                            );
+                          } else if (typeDetails.containsKey('note_title')) {
+                            title = safeString(typeDetails['note_title']);
+                            subtitle = safeString(typeDetails['note_content']);
+                          }
 
                           return ChatBubble(
-                            text: safeString(msg['message']) ?? "",
+                            text: messageText,
                             isMe: isMe,
                             title: title,
                             subtitle: subtitle,
@@ -110,7 +121,6 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
 
-            /// Input with optional context details
             /// Input with optional context details
             SafeArea(
               child: Column(
