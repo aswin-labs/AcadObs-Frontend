@@ -22,15 +22,20 @@ class ChatProvider with ChangeNotifier {
   bool _isLoadingUsers = false;
   bool get isLoadingUsers => _isLoadingUsers;
 
+  int _currentUserPage = 1;
+  int _totalUserPages = 1;
+  bool get hasMoreUsers => _currentUserPage < _totalUserPages;
+
   final List<StaffModel> _staffs = [];
   List<StaffModel> get staffs => _staffs;
 
   int _currentPage = 1;
   int _totalPages = 1;
-
   bool get hasMore => _currentPage < _totalPages;
 
   bool _isFetchedOnce = false;
+
+  // ================= CONNECTION =================
 
   void connect(String token) {
     _chatService.connect(
@@ -40,8 +45,9 @@ class ChatProvider with ChangeNotifier {
         _setupListeners();
         notifyListeners();
         debugPrint("✅ Connected to chat server");
+
         // Load user list when connected
-        loadUsersList();
+        loadUsersList(reset: true);
       },
       () {
         _connected = false;
@@ -60,7 +66,7 @@ class ChatProvider with ChangeNotifier {
   void _setupListeners() {
     final socket = _chatService.socket;
 
-    socket.off("newMessage"); // 👈 remove old listener
+    socket.off("newMessage");
     socket.off("messages");
     socket.off("messageDeleted");
     socket.off("usersList");
@@ -85,17 +91,60 @@ class ChatProvider with ChangeNotifier {
 
     socket.on("usersList", (data) {
       debugPrint("📩 [SOCKET EVENT] usersList -> $data");
-
-      _usersList.clear();
-      for (var convo in data["conversations"]) {
-        _usersList.add(Map<String, dynamic>.from(convo));
-      }
-      _isLoadingUsers = false; // 👈 stop loading when data received
-      notifyListeners();
+      _handleUsersListResponse(data);
     });
   }
 
-  // ================= PUBLIC METHODS =================
+  // ================= USERS LIST =================
+
+  void loadUsersList({bool reset = false, int limit = 10}) {
+    if (_isLoadingUsers) return;
+
+    // if (_currentUserPage > _totalUserPages) return;
+
+    _isLoadingUsers = true;
+    notifyListeners();
+
+    if (reset) {
+      _usersList.clear();
+      _currentUserPage = 1;
+      _totalUserPages = 1;
+    }
+
+    _chatService.getUsersList(page: _currentUserPage, limit: limit);
+  }
+
+  void _handleUsersListResponse(dynamic data) {
+    final conversations = List<Map<String, dynamic>>.from(
+      data["conversations"],
+    );
+
+    // Update pagination from backend if provided
+    if (data["totalPages"] != null) {
+      _totalUserPages = data["totalPages"];
+    }
+    if (data["currentPage"] != null) {
+      _currentUserPage = data["currentPage"];
+    }
+
+    if (_currentUserPage == 1 && _usersList.isEmpty) {
+      _usersList.clear();
+    }
+
+    _usersList.addAll(conversations);
+
+    // If backend doesn’t send totalPages, fallback: infer from page size
+    if (data["totalPages"] == null && conversations.length < 10) {
+      _totalUserPages = _currentUserPage; // stop further loads
+    } else {
+      _currentUserPage++;
+    }
+
+    _isLoadingUsers = false;
+    notifyListeners();
+  }
+
+  // ================= MESSAGES =================
 
   void sendMessage({
     required int receiverId,
@@ -126,14 +175,8 @@ class ChatProvider with ChangeNotifier {
     _chatService.deleteMessage(messageId);
   }
 
-  void loadUsersList({int page = 1, int limit = 10}) {
-    _isLoadingUsers = true;
-    notifyListeners();
-    _chatService.getUsersList(page: page, limit: limit);
-  }
+  // ================= STAFFS =================
 
-  // Get staffs under school id
-  // ChatProvider.dart
   Future<void> fetchStaffsUnderSchool({
     bool loadMore = false,
     bool forceRefresh = false,

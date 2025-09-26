@@ -40,28 +40,31 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
         isBackButton: true,
         actions: [
           widget.homework.forStudent == true
-              ? widget.homework.forParent == true
-                  ? SizedBox.shrink()
-                  : Padding(
-                    padding: const EdgeInsets.only(right: 16),
-                    child: GestureDetector(
-                      onTap: () {
-                        context.pushNamed(
-                          RouteConstants.chatScreen,
-                          extra: ChatModel(
-                            opponentId: widget.homework.guardianIdForChat ?? 0,
-                            opponentName:
-                                widget.homework.guardianNameForChat ?? "",
-                            title: widget.homework.title ?? "",
-                            subtitle: widget.homework.description ?? "",
-                            msgType: "homeworks",
-                            typeId: widget.homework.studentHomeworkId
-                          ),
-                        );
-                      },
-                      child: Icon(Icons.chat),
-                    ),
-                  )
+              ? Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: GestureDetector(
+                  onTap: () {
+                    context.pushNamed(
+                      RouteConstants.chatScreen,
+                      extra: ChatModel(
+                        opponentId:
+                            widget.homework.forParent == true
+                                ? widget.homework.user?.id ?? 0
+                                : widget.homework.guardianIdForChat ?? 0,
+                        opponentName:
+                            widget.homework.forParent == true
+                                ? widget.homework.user?.name ?? ""
+                                : widget.homework.guardianNameForChat ?? "",
+                        title: widget.homework.title ?? "",
+                        subtitle: widget.homework.description ?? "",
+                        msgType: "homeworks",
+                        typeId: widget.homework.studentHomeworkId,
+                      ),
+                    );
+                  },
+                  child: Icon(Icons.chat),
+                ),
+              )
               : Consumer<HomeworkProvider>(
                 builder: (context, provider, _) {
                   return CustomPopupMenu(
