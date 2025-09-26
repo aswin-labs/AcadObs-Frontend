@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 class TimeTableProvider extends ChangeNotifier {
   final TimeTableServices _timeTableServices = TimeTableServices();
 
-
   final Map<int, List<TimeTableModel>> _timeTableByDay = {};
   Map<int, List<TimeTableModel>> get timeTableByDay => _timeTableByDay;
 
@@ -34,22 +33,42 @@ class TimeTableProvider extends ChangeNotifier {
   /// Flat list (optional, in case you still need it)
   final List<TimeTableModel> _timetable = [];
   List<TimeTableModel> get timetable => _timetable;
+  final List<TimeTableModel> _timetableForStaff = [];
+
+  List<TimeTableModel> get timetableForStaff => _timetableForStaff;
 
   /// Old API - fetch flat timetable
-  Future<void> fetchTimeTable({required int studentId}) async {
+  Future<void> fetchTimeTable({int? studentId, bool forStaff = false}) async {
     _isLoading = true;
     _error = null;
+    _timetable.clear();
     notifyListeners();
 
     try {
       final response = await _timeTableServices.fetchTimeTable(
         studentId: studentId,
+        forStaff: forStaff,
       );
 
       log("API Response: ${response.data}");
 
       if (response.statusCode == 200) {
         final data = response.data;
+
+        if (forStaff) {
+          if (data != null && data['timetable'] != null) {
+            final List timetableJson = data['timetable'];
+
+            final List<TimeTableModel> fetchedTimetable =
+                timetableJson
+                    .map((item) => TimeTableModel.fromJson(item))
+                    .toList();
+
+            _timetableForStaff
+              ..clear()
+              ..addAll(fetchedTimetable);
+          }
+        }
 
         if (data != null && data['timetable'] != null) {
           final List timetableJson = data['timetable'];
@@ -80,14 +99,17 @@ class TimeTableProvider extends ChangeNotifier {
   }
 
   /// Refresh flat timetable
-  Future<void> refreshTimeTable({required int studentId}) async {
+  Future<void> refreshTimeTable({int? studentId, bool forStaff = false}) async {
     _timetable.clear();
-    await fetchTimeTable(studentId: studentId);
+    await fetchTimeTable(studentId: studentId, forStaff: forStaff);
   }
 
   ////////
 
-  Future<void> fetchAllDayTimeTableNew({required int studentId}) async {
+  Future<void> fetchAllDayTimeTableNew({
+    int? studentId,
+    bool forStaff = false,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -95,6 +117,7 @@ class TimeTableProvider extends ChangeNotifier {
     try {
       final response = await _timeTableServices.getAllDayTimeTableByStudentId(
         studentId: studentId,
+        forStaff: forStaff,
       );
 
       log("API Response (All Day): ${response.data}");
