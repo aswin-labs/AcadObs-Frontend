@@ -101,7 +101,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
 
                             return ItemCard(
                               title: '${leave.leaveType} leave',
-                              description: leave.reason,
+                              description: leave.reason ?? "",
                               onTap: () {
                                 context.pushNamed(
                                   RouteConstants.studentLeaveLetterScreen,
