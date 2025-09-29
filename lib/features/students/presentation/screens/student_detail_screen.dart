@@ -17,6 +17,7 @@ import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/profile_container.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class StudentDetailScreen extends StatefulWidget {
@@ -188,7 +189,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 // dashboardt
                 StudentAttendenceTab(
                   studentId: widget.studentId,
-                  date: "2025-08-20",
+                  // date: "2025-08-20",
+                  date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
                 ),
 
                 // Text("Dashboard"),
@@ -218,9 +220,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     return StudentHomeworkPage(
                       forParent: widget.forParent,
                       studentId: widget.studentId,
-                      guardianIdForChat: student?.user?.id??0,
-                      guardianNameForChat: student?.user?.name??"",
-                      
+                      guardianIdForChat: student?.user?.id ?? 0,
+                      guardianNameForChat: student?.user?.name ?? "",
                     );
                   },
                 ),

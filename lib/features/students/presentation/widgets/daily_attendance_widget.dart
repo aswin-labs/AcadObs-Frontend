@@ -28,17 +28,6 @@ class _DailyAttendanceWidgetState extends State<DailyAttendanceWidget> {
     _selectedDate = widget.initialDate;
   }
 
-  // @override
-  // void didUpdateWidget(covariant DailyAttendanceWidget oldWidget) {
-  //   super.didUpdateWidget(oldWidget);
-  //   // Update when parent provides new initialDate
-  //   if (widget.initialDate != oldWidget.initialDate) {
-  //     setState(() {
-  //       _selectedDate = widget.initialDate;
-  //     });
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -58,12 +47,16 @@ class _DailyAttendanceWidgetState extends State<DailyAttendanceWidget> {
                   Text("Date"),
                   DateWidget(
                     initialDate: _selectedDate,
-                    // onDateChanged: widget.onDateChanged,
+
                     onDateChanged: (newDate) {
                       setState(() {
                         _selectedDate = DateTime.parse(newDate);
                       });
-                      widget.onDateChanged(newDate);
+
+                      final formattedDate = DateFormat(
+                        "yyyy-MM-dd",
+                      ).format(_selectedDate);
+                      widget.onDateChanged(formattedDate);
                     },
                   ),
                 ],

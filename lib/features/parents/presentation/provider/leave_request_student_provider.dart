@@ -15,7 +15,20 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
   bool get isLoadingTwo => _isLoadingTwo;
 
   final List<LeaveModel> _leaveRequests = [];
-  List<LeaveModel> get leaveRequests => _leaveRequests;
+  // List<LeaveModel> get leaveRequests => _leaveRequests;
+
+  String _filterStatus = "all";
+  List<LeaveModel> get leaveRequests {
+    if (_filterStatus == "all") return _leaveRequests;
+    return _leaveRequests
+        .where((leave) => leave.status == _filterStatus)
+        .toList();
+  }
+
+  void setFilter(String status) {
+    _filterStatus = status;
+    notifyListeners();
+  }
 
   //today leave request
   List<LeaveModel> get todayLeave =>

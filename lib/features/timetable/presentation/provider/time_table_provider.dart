@@ -51,6 +51,8 @@ class TimeTableProvider extends ChangeNotifier {
       );
 
       log("API Response: ${response.data}");
+      log("API Response Status: ${response.statusCode}");
+      log("API Response Data: ${response.data.toString()}");
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -58,6 +60,7 @@ class TimeTableProvider extends ChangeNotifier {
         if (forStaff) {
           if (data != null && data['timetable'] != null) {
             final List timetableJson = data['timetable'];
+            log("Timetable JSON: $timetableJson");
 
             final List<TimeTableModel> fetchedTimetable =
                 timetableJson
