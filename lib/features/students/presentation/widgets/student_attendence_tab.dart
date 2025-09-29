@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/students/presentation/widgets/daily_attendance_widget.dart';
@@ -36,13 +38,20 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
     timeTableProvider = context.read<TimeTableProvider>();
 
     _initialDate = DateFormat("yyyy-MM-dd").parse(widget.date);
-
-    studentProvider.fetchAttendanceByDate(
-      studentId: widget.studentId,
-      date: widget.date,
+    log(
+      "Fetching timetable for studentId: ${widget.studentId}, date: ${widget.date}",
     );
 
-    timeTableProvider.fetchTimeTable(studentId: widget.studentId);
+    studentProvider.resetAttendance();
+    studentProvider.fetchAttendanceByDate(
+      studentId: widget.studentId,
+      date: DateFormat("yyyy-MM-dd").format(_initialDate),
+    );
+
+    timeTableProvider.fetchTimeTable(
+      studentId: widget.studentId,
+      forStaff: false,
+    );
   }
 
   @override
@@ -58,6 +67,12 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
                 builder: (context, provider, _) {
                   if (provider.isLoading) {
                     return const AttendanceCardShimmer();
+                  }
+                  if (provider.totalPeriod == 0 && provider.status.isEmpty) {
+                    // Add this block
+                    return const Center(
+                      child: Text("No attendance data available"),
+                    );
                   }
                   return DailyAttendanceWidget(
                     totalPeriodCount: provider.totalPeriod,
@@ -141,66 +156,6 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
                 },
               ),
 
-              // SizedBox(
-              //   height: MediaQuery.of(context).size.height * 0.4,
-              //   child: GridView.count(
-              //     crossAxisCount: 4,
-              //     crossAxisSpacing: 8,
-              //     mainAxisSpacing: 10,
-              //     shrinkWrap: true,
-              //     physics: const NeverScrollableScrollPhysics(),
-              //     childAspectRatio: 0.7,
-              //     children: [
-              //       TimeTableCard(
-              //         periodnumber: 1,
-              //         subject: "computer Science",
-              //         teacher: " Mr.Smith",
-              //       ),
-
-              //       TimeTableCard(
-              //         periodnumber: 2,
-              //         subject: "computer Science",
-              //         teacher: " Mr.Smith",
-              //       ),
-
-              //       TimeTableCard(
-              //         periodnumber: 3,
-              //         subject: "computer Science",
-              //         teacher: " Mr.Smith",
-              //       ),
-
-              //       TimeTableCard(
-              //         periodnumber: 4,
-              //         subject: "computer Science",
-              //         teacher: " Mr.Smith",
-              //       ),
-
-              //       TimeTableCard(
-              //         periodnumber: 5,
-              //         subject: "computer Science",
-              //         teacher: " Mr.Smith",
-              //       ),
-
-              //       TimeTableCard(
-              //         periodnumber: 6,
-              //         subject: "computer Science",
-              //         teacher: " Mr.Smith",
-              //       ),
-
-              //       TimeTableCard(
-              //         periodnumber: 7,
-              //         subject: "computer Science",
-              //         teacher: " Mr.Smith",
-              //       ),
-
-              //       TimeTableCard(
-              //         periodnumber: 8,
-              //         subject: "computer Science",
-              //         teacher: " Mr.Smith",
-              //       ),
-              //     ],
-              //   ),
-              // ),
               SizedBox(height: 20),
             ],
           ),

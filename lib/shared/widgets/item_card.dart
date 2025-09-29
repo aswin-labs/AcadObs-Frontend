@@ -7,6 +7,7 @@ class ItemCard extends StatelessWidget {
   final String title;
   final String description;
   final String status;
+  final String date;
   final double bottomRadius;
   final double topRadius;
   final Color backgroundColor;
@@ -25,6 +26,7 @@ class ItemCard extends StatelessWidget {
     this.icon = LucideIcons.filePlus2,
     this.bottomRadius = 8,
     this.topRadius = 8,
+    this.date = "",
   });
 
   @override
@@ -78,13 +80,18 @@ class ItemCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Text(
-                capitalizeEachWord(status),
-                style: TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: iconColor,
-                ),
+              Column(
+                children: [
+                  Text(
+                    capitalizeEachWord(status),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      color: iconColor,
+                    ),
+                  ),
+                  Text(date, style: TextStyle(fontSize: 10)),
+                ],
               ),
             ],
           ),
