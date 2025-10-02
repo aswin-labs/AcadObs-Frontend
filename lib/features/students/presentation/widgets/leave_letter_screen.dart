@@ -2,6 +2,7 @@
 
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
+import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/leave_status_style.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
@@ -36,6 +37,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
     _studentLeaveProvider = context.read<StudentLeaveRequestProvider>();
     _studentLeaveProvider.fetchAllStudentLeaveRequests(
       studentId: widget.studentId,
+      forParent: widget.forParent,
     );
     _scrollController.addListener(_scrollListener);
   }
@@ -77,7 +79,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
                 ),
                 child: Column(
                   children: [
-                    // Text('hello'),
+                    SizedBox(height: Responsive.height * 3),
                     Consumer<StudentLeaveRequestProvider>(
                       builder: (context, provider, _) {
                         return Row(
@@ -179,6 +181,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
                           );
                         }
                         return ListView.builder(
+                          padding: EdgeInsets.zero,
                           shrinkWrap: true,
                           itemCount: provider.leaveRequests.length,
                           physics: NeverScrollableScrollPhysics(),
@@ -190,9 +193,11 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
 
                             return ItemCard(
                               title: '${leave.leaveType} leave',
-                              description: leave.reason,
+                              description: leave.reason ?? "",
                               status: leave.status ?? "",
-                              date: leave.fromDate,
+                              date: DateFormatter.formatDateString(
+                                leave.fromDate.toString(),
+                              ),
                               onTap: () {
                                 context.pushNamed(
                                   RouteConstants.studentLeaveLetterScreen,
@@ -226,7 +231,10 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
         onRefresh: () async {
           await context
               .read<StudentLeaveRequestProvider>()
-              .fetchAllStudentLeaveRequests(studentId: widget.studentId);
+              .fetchAllStudentLeaveRequests(
+                studentId: widget.studentId,
+                forParent: widget.forParent,
+              );
         },
       ),
 

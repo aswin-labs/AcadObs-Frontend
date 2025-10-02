@@ -12,8 +12,6 @@ import '../../../../shared/providers/file_picker_provider.dart';
 
 class StudentLeaveRequestServices {
   final int schoolId = StorageServices.getSchoolId;
-  final int userId = 6;
-  final int studentId = 2;
   // create leave request
   Future<Response> createStudentLeaveRequest({
     required BuildContext context,
@@ -21,6 +19,7 @@ class StudentLeaveRequestServices {
     required String toDate,
     required String leaveType,
     required String reason,
+    required int studentId,
     String? leaveDuration,
   }) async {
     final fileUpload = context.read<FilePickerProvider>().getFile('attachment');
@@ -28,7 +27,7 @@ class StudentLeaveRequestServices {
 
     final formData = FormData.fromMap({
       "school_id": schoolId,
-      "user_id": userId,
+      // "user_id": userId,
       "from_date": fromDate,
       "to_date": toDate,
       "leave_type": leaveType.toLowerCase(),
@@ -41,7 +40,7 @@ class StudentLeaveRequestServices {
         ),
     });
     final response = await ApiServices.post(
-      ApiEndpoints.studentLeaveRequest,
+      ApiEndpoints.createStudentLeaveRequest,
       formData,
       isFormData: true,
     );
@@ -53,9 +52,11 @@ class StudentLeaveRequestServices {
   Future<Response> fetchAllStudentLeaveRequests({
     required int pageNo,
     required int studentId,
+   required bool forParent
   }) async {
     final url = await ApiServices.get(
-      "${ApiEndpoints.studentLeaveRequest}/?student_id=$studentId&pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
+      forParent? "${ApiEndpoints.getStudentLeaveRequest}/$studentId&pageNo=$pageNo&limit=${AppConstants.paginationLimit}":
+      "${ApiEndpoints.studentLeaveRequestStaff}/$studentId&pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return url;
   }

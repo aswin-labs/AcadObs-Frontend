@@ -236,13 +236,6 @@ class StudentProvider extends ChangeNotifier {
 
         final List<Notices> fetchedNotices =
             noticeJson.map((jsonItem) => Notices.fromJson(jsonItem)).toList();
-
-        //avoids the duplication
-        // final ids = _notices.map((e) => e.id).toSet();
-        // final newPayments = fetchedPayments.where(
-        //   (payment) => !ids.contains(payment.id),
-        // );
-
         _notices.addAll(fetchedNotices);
         _isFetchedOnce = true;
       } else {

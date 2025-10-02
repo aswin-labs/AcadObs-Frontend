@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:acadobs/core/extensions/context_extensions.dart';
-
 import 'package:acadobs/core/utils/common_shimmer_tile.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
@@ -132,7 +131,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   }
 
                   if (provider.timetableForStaff.isEmpty) {
-                    return emptyScreen(message: "No Time Table Avaliable");
+                    return emptyScreen(
+                      message: "No Time Table Avaliable",
+                      heightMultiplier: 5,
+                    );
                   }
 
                   return SizedBox(

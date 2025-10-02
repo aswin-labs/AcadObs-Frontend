@@ -42,7 +42,7 @@ class LeaveRequestDetailScreen extends StatelessWidget {
                   ),
                   SizedBox(height: Responsive.height * 1),
                   Text(
-                    leave.reason,
+                    leave.reason ?? "",
                     style: context.textTheme.bodySmall!.copyWith(
                       color: Color(0xFF949494),
                       fontWeight: FontWeight.bold,
@@ -54,13 +54,15 @@ class LeaveRequestDetailScreen extends StatelessWidget {
                       DateLabelContainer(
                         label: "Start date",
                         dateText: DateFormatter.formatDateString(
-                          leave.fromDate,
+                          leave.fromDate.toString(),
                         ),
                       ),
                       SizedBox(width: Responsive.width * 5),
                       DateLabelContainer(
                         label: "End date",
-                        dateText: DateFormatter.formatDateString(leave.toDate),
+                        dateText: DateFormatter.formatDateString(
+                          leave.toDate.toString(),
+                        ),
                       ),
                     ],
                   ),

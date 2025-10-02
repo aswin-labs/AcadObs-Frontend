@@ -102,7 +102,7 @@ class _TeacherLeaveRequestHomeScreenState
                             return ItemCard(
                               title: "${leaveRequest.leaveType} Leave",
                               description: DateFormatter.formatDateString(
-                                leaveRequest.fromDate,
+                                leaveRequest.fromDate.toString(),
                               ),
                               status: leaveRequest.status ?? "",
                               backgroundColor: leaveStatusStyle.backgroundColor,

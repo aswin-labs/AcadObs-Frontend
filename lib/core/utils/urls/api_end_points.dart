@@ -8,7 +8,7 @@ class ApiEndpoints {
   // LOGIN
   static const String login = "/public/login";
 
-  // STAFF
+  //*****************STAFF*********************
   static const String classesByYear = "/staff/getClassesByYear";
   static const String students = "/staff/students";
   static const String studentsByClassId = "/staff/getStudentsByClassId";
@@ -68,14 +68,16 @@ class ApiEndpoints {
   static const String deleteAchievement = "/staff/achievements";
   static const String achievements = "/staff/achievements";
 
-  //GUARDIAN
+  //***********************GUARDIAN*************************
   static const String fetchLatestEventsGuardian = "/guardian/getLatestEvents";
   static const String fetchLatestNewsGuardian = "/guardian/getLatestNews";
   static const String fetchHomeworksByStudentIdForGuardian =
       "/guardian/getHomeworkByStudentId";
   static const String studentMarksForParent =
       "/guardian/getInternalMarkByStudentId";
-  static const String studentLeaveRequest = "/guardian/leaveRequest";
+  static const String createStudentLeaveRequest = "/guardian/leaveRequest";
+  static const String getStudentLeaveRequest =
+      "/guardian/getLeaveRequestByStudentId";
   static const String achievementByGuardian =
       "/guardian/achievementByStudentId";
   static const String schoolsByGuardian = "/guardian/getSchoolsByUser";
