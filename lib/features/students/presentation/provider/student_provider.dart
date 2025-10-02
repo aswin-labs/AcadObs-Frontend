@@ -132,7 +132,12 @@ class StudentProvider extends ChangeNotifier {
   }) async {
     try {
       _isLoading = true;
+
+      _totalPeriod = 0;
+      _status = [];
       notifyListeners();
+      log(" Sending request for studentId=$studentId, date=$date");
+
       final response = await StudentServices().fetchAttendanceByDate(
         studentId: studentId,
         date: date,
@@ -140,16 +145,20 @@ class StudentProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        _totalPeriod = data['period_count'] ?? 0;
+        log(" Attendance API response: $data");
 
-        final List<dynamic> attendanceList = data['attendance'] ?? [];
+        _totalPeriod = data['period_count'] ?? 0;
+        log(" totalPeriod = $_totalPeriod");
 
         _status = List<String>.filled(_totalPeriod, "NA");
+
+        final List<dynamic> attendanceList = data['attendance'] ?? [];
+        log("attendanceList = $attendanceList");
 
         for (final item in attendanceList) {
           final dynamic p = item['Attendance']?['period'];
           final int? period = (p is int) ? p : int.tryParse('$p');
-          final String st = (item['status'] ?? 'NA').toString();
+          final String st = (item['status'] ?? 'NA').toString().toLowerCase();
 
           if (period != null && period >= 1 && period <= _totalPeriod) {
             _status[period - 1] = st;
@@ -157,7 +166,11 @@ class StudentProvider extends ChangeNotifier {
         }
 
         log("total period: $_totalPeriod");
-        log(" status list: $_status");
+        log("status list: $_status");
+      } else {
+        log(
+          " Non-200 response: ${response.statusCode} → keeping reset state (no attendance)",
+        );
       }
     } catch (e) {
       log(e.toString());
@@ -167,8 +180,15 @@ class StudentProvider extends ChangeNotifier {
     }
   }
 
+  void resetAttendance() {
+    log("Resetting attendance: _totalPeriod = 0, _status = []");
+    _isLoading = true;
+    _totalPeriod = 0;
+    _status = [];
+    notifyListeners();
+  }
 
-//////////////
+  //////////////
   int _currentPage = 1;
   int _totalPages = 1;
 
@@ -216,13 +236,6 @@ class StudentProvider extends ChangeNotifier {
 
         final List<Notices> fetchedNotices =
             noticeJson.map((jsonItem) => Notices.fromJson(jsonItem)).toList();
-
-        //avoids the duplication
-        // final ids = _notices.map((e) => e.id).toSet();
-        // final newPayments = fetchedPayments.where(
-        //   (payment) => !ids.contains(payment.id),
-        // );
-
         _notices.addAll(fetchedNotices);
         _isFetchedOnce = true;
       } else {

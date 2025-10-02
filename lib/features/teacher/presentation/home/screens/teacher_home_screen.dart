@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:acadobs/core/extensions/context_extensions.dart';
-
 import 'package:acadobs/core/utils/common_shimmer_tile.dart';
+import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
@@ -12,12 +12,15 @@ import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
+import 'package:acadobs/features/students/presentation/widgets/time_table_card.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
+import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/custom_button_container.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
+import 'package:acadobs/shared/widgets/time_table_shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -45,6 +48,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         limit: 3,
         forStaff: true,
       );
+      context.read<TimeTableProvider>().fetchTimeTable(forStaff: true);
     });
   }
 
@@ -111,6 +115,53 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 color: Color(0xFF010101),
                 text: "Attendence",
                 ontap: () => showAttendanceBottomSheet(context),
+              ),
+
+              Consumer<TimeTableProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading) {
+                    return const Center(child: TimeTableShimmer());
+                  }
+
+                  if (provider.error != null) {
+                    return Text(
+                      provider.error!,
+                      style: const TextStyle(color: Colors.red),
+                    );
+                  }
+
+                  if (provider.timetableForStaff.isEmpty) {
+                    return emptyScreen(
+                      message: "No Time Table Avaliable",
+                      heightMultiplier: 5,
+                    );
+                  }
+
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    child: GridView.builder(
+                      itemCount: provider.timetableForStaff.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 0.7,
+                          ),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+
+                      itemBuilder: (context, index) {
+                        final item = provider.timetableForStaff[index];
+                        return TimeTableCard(
+                          periodnumber: item.periodNumber ?? 0,
+                          subject: item.subject!.subjectName ?? "",
+                          teacher: item.user!.name ?? "",
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
 
               SizedBox(height: 20),

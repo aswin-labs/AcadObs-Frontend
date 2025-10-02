@@ -15,7 +15,20 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
   bool get isLoadingTwo => _isLoadingTwo;
 
   final List<LeaveModel> _leaveRequests = [];
-  List<LeaveModel> get leaveRequests => _leaveRequests;
+  // List<LeaveModel> get leaveRequests => _leaveRequests;
+
+  String _filterStatus = "all";
+  List<LeaveModel> get leaveRequests {
+    if (_filterStatus == "all") return _leaveRequests;
+    return _leaveRequests
+        .where((leave) => leave.status == _filterStatus)
+        .toList();
+  }
+
+  void setFilter(String status) {
+    _filterStatus = status;
+    notifyListeners();
+  }
 
   //today leave request
   List<LeaveModel> get todayLeave =>
@@ -72,14 +85,11 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
     bool loadMore = false,
     bool forceRefresh = false,
     required int studentId,
+    bool forParent = true,
   }) async {
     if (_isLoading) return;
-
-    // If not loading more, check if already fetched once.
     if (!loadMore && !forceRefresh && _isFetchedOnce) return;
-
     _isLoading = true;
-
     try {
       if (loadMore) {
         _currentPage++;
@@ -92,13 +102,11 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
           .fetchAllStudentLeaveRequests(
             pageNo: _currentPage,
             studentId: studentId,
+            forParent: forParent,
           );
       log("API Response: ${response.data}, Status: ${response.statusCode}");
       if (response.statusCode == 200) {
         final data = response.data;
-
-        // log("data:$data");
-
         _totalPages = data['totalPages'];
         _currentPage = data['currentPage'];
 
@@ -108,14 +116,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
             leavesJson
                 .map((jsonItem) => LeaveModel.fromJson(jsonItem))
                 .toList();
-
-        //avoids the duplication
-        final ids = _leaveRequests.map((e) => e.id).toSet();
-        final newLeaves = fetchedLeaves.where(
-          (leave) => !ids.contains(leave.id),
-        );
-
-        _leaveRequests.addAll(newLeaves);
+        _leaveRequests.addAll(fetchedLeaves);
         _isFetchedOnce = true;
       } else {
         throw Exception('Failed to fetch Leaves: ${response.statusCode}');
@@ -148,6 +149,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
             toDate: toDate,
             leaveType: leaveType,
             reason: reason,
+            studentId: studentId,
           );
 
       if (response.statusCode == 201) {

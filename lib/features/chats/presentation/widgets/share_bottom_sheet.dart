@@ -141,8 +141,9 @@ class _ShareBottomSheetState extends State<ShareBottomSheet> {
                                             ),
                                           )
                                           .then((_) {
-                                            if (!mounted) return;
+                                            if (!context.mounted) return;
                                             provider.loadUsersList();
+
                                             Navigator.pop(context);
                                           });
                                       // Navigator.pop(context);
