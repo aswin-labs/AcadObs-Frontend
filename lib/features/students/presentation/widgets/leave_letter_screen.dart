@@ -35,6 +35,9 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
   void initState() {
     super.initState();
     _studentLeaveProvider = context.read<StudentLeaveRequestProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _studentLeaveProvider.setFilter("all");
+    });
     _studentLeaveProvider.fetchAllStudentLeaveRequests(
       studentId: widget.studentId,
       forParent: widget.forParent,
@@ -67,131 +70,128 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
-        child: CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 55,
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(height: Responsive.height * 3),
-                    Consumer<StudentLeaveRequestProvider>(
-                      builder: (context, provider, _) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            SizedBox(
-                              width: Responsive.width * 30,
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: DropdownButtonFormField<String>(
-                                  decoration: InputDecoration(
-                                    labelText: "Filter by Status",
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 10,
-                                    ),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        12,
-                                      ), // rounded corners
-                                    ),
-
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                      borderSide: const BorderSide(
-                                        color: Colors.blue,
-                                        width: 2,
-                                      ),
-                                    ),
-                                  ),
-                                  value:
-                                      provider.leaveRequests.isEmpty
-                                          ? "all"
-                                          : provider.leaveRequests.first.status
-                                                  ?.toLowerCase() ??
-                                              "all",
-                                  items: const [
-                                    DropdownMenuItem(
-                                      value: "all",
-                                      child: Text(
-                                        "All",
-                                        style: TextStyle(fontSize: 12),
-                                      ),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "approved",
-                                      child: Text(
-                                        "Approved",
-                                        style: TextStyle(fontSize: 12),
-                                      ),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "pending",
-                                      child: Text(
-                                        "Pending",
-                                        style: TextStyle(fontSize: 12),
-                                      ),
-                                    ),
-                                    DropdownMenuItem(
-                                      value: "rejected",
-                                      child: Text(
-                                        "Rejected",
-                                        style: TextStyle(fontSize: 12),
-                                      ),
-                                    ),
-                                  ],
-                                  onChanged: (value) {
-                                    if (value != null) {
-                                      provider.setFilter(value);
-                                    }
-                                  },
+        onRefresh: () async {
+          await context
+              .read<StudentLeaveRequestProvider>()
+              .fetchAllStudentLeaveRequests(
+                studentId: widget.studentId,
+                forParent: widget.forParent,
+                forceRefresh: true,
+              );
+        },
+        child: Consumer<StudentLeaveRequestProvider>(
+          builder: (context, provider, _) {
+            return CustomScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                // Filter Dropdown
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 75,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          width: Responsive.width * 30,
+                          child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              labelText: "Filter by Status",
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: Colors.blue,
+                                  width: 2,
                                 ),
                               ),
                             ),
-                          ],
-                        );
-                      },
+                            value: provider.filterStatus,
+                            items: const [
+                              DropdownMenuItem(
+                                value: "all",
+                                child: Text(
+                                  "All",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: "approved",
+                                child: Text(
+                                  "Approved",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: "pending",
+                                child: Text(
+                                  "Pending",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                              DropdownMenuItem(
+                                value: "rejected",
+                                child: Text(
+                                  "Rejected",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                provider.setFilter(value);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
                     ),
+                  ),
+                ),
 
-                    Consumer<StudentLeaveRequestProvider>(
-                      builder: (context, provider, _) {
-                        if (provider.isLoading &&
-                            provider.leaveRequests.isEmpty) {
+                // Shimmer / Empty / List
+                if (provider.isLoading && provider.leaveRequests.isEmpty)
+                  SliverFillRemaining(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 30),
+                      child: commonShimmerList(),
+                    ),
+                  )
+                else if (provider.leaveRequests.isEmpty)
+                  SliverFillRemaining(
+                    child: emptyScreen(
+                      message: "No Leave Requests Found",
+                      heightMultiplier: 16,
+                    ),
+                  )
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (index < provider.leaveRequests.length) {
+                          final leave = provider.leaveRequests[index];
+                          final leaveStatusStyle = getLeaveStatusStyle(
+                            leave.status ?? "",
+                          );
+
                           return Padding(
-                            padding: const EdgeInsets.only(top: 40),
-                            child: commonShimmerList(),
-                          );
-                        }
-                        if (provider.leaveRequests.isEmpty) {
-                          return emptyScreen(
-                            message: "No Leave Requsts Found",
-                            heightMultiplier: 16,
-                          );
-                        }
-                        return ListView.builder(
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          itemCount: provider.leaveRequests.length,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            final leave = provider.leaveRequests[index];
-                            final leaveStatusStyle = getLeaveStatusStyle(
-                              leave.status ?? "",
-                            );
-
-                            return ItemCard(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: ItemCard(
                               title: '${leave.leaveType} leave',
                               description: leave.reason ?? "",
                               status: leave.status ?? "",
@@ -207,35 +207,25 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
                               icon: leaveStatusStyle.icon,
                               iconColor: leaveStatusStyle.iconColor,
                               backgroundColor: leaveStatusStyle.backgroundColor,
-                            );
-                          },
-                        );
+                            ),
+                          );
+                        } else {
+                          // Loader row at bottom
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
                       },
+                      childCount:
+                          provider.leaveRequests.length +
+                          (provider.isLoading && provider.hasMore ? 1 : 0),
                     ),
-                    Consumer<StudentLeaveRequestProvider>(
-                      builder: (context, provider, _) {
-                        return provider.isLoading && provider.hasMore
-                            ? const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                            : const SizedBox();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+                  ),
+              ],
+            );
+          },
         ),
-        onRefresh: () async {
-          await context
-              .read<StudentLeaveRequestProvider>()
-              .fetchAllStudentLeaveRequests(
-                studentId: widget.studentId,
-                forParent: widget.forParent,
-              );
-        },
       ),
 
       floatingActionButton:
@@ -248,7 +238,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
                       studentId: widget.studentId,
                     ),
               )
-              : SizedBox.shrink(),
+              : const SizedBox.shrink(),
     );
   }
 }

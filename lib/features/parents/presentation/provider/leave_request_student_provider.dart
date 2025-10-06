@@ -32,6 +32,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
   // List<LeaveModel> get leaveRequests => _leaveRequests;
 
   String _filterStatus = "all";
+  String get filterStatus => _filterStatus;
   List<LeaveModel> get leaveRequests {
     if (_filterStatus == "all") return _leaveRequests;
     return _leaveRequests
@@ -92,8 +93,6 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
 
   bool get hasMore => _currentPage < _totalPages;
 
-  bool _isFetchedOnce = false;
-
   // Fetch Staff Duties
   Future<void> fetchAllStudentLeaveRequests({
     bool loadMore = false,
@@ -101,8 +100,6 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
     required int studentId,
     bool forParent = true,
   }) async {
-    if (_isLoading) return;
-    if (!loadMore && !forceRefresh && _isFetchedOnce) return;
     _isLoading = true;
     try {
       if (loadMore) {
@@ -110,7 +107,6 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
       } else {
         _currentPage = 1;
         _leaveRequests.clear();
-        _isFetchedOnce = false;
       }
       final response = await StudentLeaveRequestServices()
           .fetchAllStudentLeaveRequests(
@@ -131,7 +127,6 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
                 .map((jsonItem) => LeaveModel.fromJson(jsonItem))
                 .toList();
         _leaveRequests.addAll(fetchedLeaves);
-        _isFetchedOnce = true;
       } else {
         throw Exception('Failed to fetch Leaves: ${response.statusCode}');
       }
