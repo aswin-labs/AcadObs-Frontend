@@ -194,8 +194,6 @@ class StudentProvider extends ChangeNotifier {
 
   bool get hasMore => _currentPage < _totalPages;
 
-  bool _isFetchedOnce = false;
-
   final List<Notices> _notices = [];
   List<Notices> get notices => _notices;
 
@@ -204,11 +202,6 @@ class StudentProvider extends ChangeNotifier {
     bool forceRefresh = false,
     required int studentId,
   }) async {
-    if (_isLoading) return;
-
-    // If not loading more, check if already fetched once.
-    if (!loadMore && !forceRefresh && _isFetchedOnce) return;
-
     _isLoading = true;
 
     try {
@@ -217,7 +210,6 @@ class StudentProvider extends ChangeNotifier {
       } else {
         _currentPage = 1;
         _notices.clear();
-        _isFetchedOnce = false;
       }
       final response = await StudentServices().fetchNoticeByStudentId(
         pageNo: _currentPage,
@@ -226,9 +218,6 @@ class StudentProvider extends ChangeNotifier {
       log("API Response: ${response.data}, Status: ${response.statusCode}");
       if (response.statusCode == 200) {
         final data = response.data;
-
-        // log("data:$data");
-
         _totalPages = data['totalPages'];
         _currentPage = data['currentPage'];
 
@@ -237,7 +226,6 @@ class StudentProvider extends ChangeNotifier {
         final List<Notices> fetchedNotices =
             noticeJson.map((jsonItem) => Notices.fromJson(jsonItem)).toList();
         _notices.addAll(fetchedNotices);
-        _isFetchedOnce = true;
       } else {
         throw Exception('Failed to fetch Notices: ${response.statusCode}');
       }

@@ -4,7 +4,6 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
 import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
-import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
@@ -61,77 +60,71 @@ class _StudentNoticeTabState extends State<StudentNoticeTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
-        child: CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 55,
-                ),
-                child: Column(
-                  children: [
-                    Consumer<StudentProvider>(
-                      builder: (context, provider, _) {
-                        if (provider.isLoading && provider.notices.isEmpty) {
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 40),
-                            child: commonShimmerList(),
-                          );
-                        }
-                        if (provider.notices.isEmpty) {
-                          return emptyScreen(
-                            message: "No Notices Found",
-                            heightMultiplier: 16,
-                          );
-                        }
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: provider.notices.length,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemBuilder: (context, index) {
-                            final notices = provider.notices[index];
-                            return NoticeCard(
-                              icon: Icons.notifications_none,
-                              title: notices.title ?? "",
-                              date: notices.date,
-                              time: DateFormatter.formatDateTime(
-                                notices.createdAt,
-                              ),
-                              onTap: () {
-                                context.pushNamed(
-                                  RouteConstants.noticedetails,
-                                  extra: notices,
-                                );
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-                    Consumer<StudentProvider>(
-                      builder: (context, provider, _) {
-                        return provider.isLoading && provider.hasMore
-                            ? const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                            : const SizedBox();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
         onRefresh: () async {
-          await context
-              .read<StudentLeaveRequestProvider>()
-              .fetchAllStudentLeaveRequests(studentId: widget.studentId);
+          await context.read<StudentProvider>().fetchNoticeByStudentId(
+            studentId: widget.studentId,
+            forceRefresh: true,
+          );
         },
+        child: Consumer<StudentProvider>(
+          builder: (context, provider, _) {
+            return CustomScrollView(
+              controller: _scrollController,
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(child: SizedBox(height: 90)),
+                // Content
+                if (provider.isLoading && provider.notices.isEmpty)
+                  SliverFillRemaining(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 90),
+                      child: commonShimmerList(),
+                    ),
+                  )
+                else if (provider.notices.isEmpty)
+                  SliverFillRemaining(
+                    child: emptyScreen(
+                      message: "No Notices Found",
+                      heightMultiplier: 16,
+                    ),
+                  )
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (index < provider.notices.length) {
+                          final notice = provider.notices[index];
+                          return NoticeCard(
+                            icon: Icons.notifications_none,
+                            title: notice.title ?? "",
+                            date: notice.date,
+                            time: DateFormatter.formatDateTime(
+                              notice.createdAt,
+                            ),
+                            onTap: () {
+                              context.pushNamed(
+                                RouteConstants.noticedetails,
+                                extra: notice,
+                              );
+                            },
+                          );
+                        } else {
+                          // Loader row at bottom
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+                      },
+                      childCount:
+                          provider.notices.length +
+                          (provider.isLoading && provider.hasMore ? 1 : 0),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

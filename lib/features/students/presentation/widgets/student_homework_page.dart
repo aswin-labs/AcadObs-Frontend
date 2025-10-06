@@ -1,7 +1,6 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
-import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/homework/data/models/homework_model.dart';
 import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -50,7 +49,7 @@ class _StudentHomeworkPageState extends State<StudentHomeworkPage> {
 
     if (isNearBottom &&
         !_homeworkProvider.isLoading &&
-        _homeworkProvider.hasMore) {
+        _homeworkProvider.hasMoreForStudent) {
       _homeworkProvider.fetchHomeworksByStudentId(
         forParent: widget.forParent,
         studentId: widget.studentId,
@@ -68,78 +67,68 @@ class _StudentHomeworkPageState extends State<StudentHomeworkPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 55),
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            Consumer<HomeworkProvider>(
-              builder: (context, provider, _) {
-                if (provider.isLoading && provider.studentHomeworks.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 40),
-                    child: commonShimmerList(),
-                  );
-                }
+      body: Consumer<HomeworkProvider>(
+        builder: (context, provider, _) {
+          if (provider.isLoading && provider.studentHomeworks.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.only(top: 90),
+              child: commonShimmerList(),
+            );
+          }
 
-                if (provider.studentHomeworks.isEmpty) {
-                  return emptyScreen(
-                    message: 'No Homeworks Found.',
-                    heightMultiplier: 16,
-                  );
-                }
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: provider.studentHomeworks.length,
+          if (provider.studentHomeworks.isEmpty) {
+            return emptyScreen(
+              message: 'No Homeworks Found.',
+              heightMultiplier: 16,
+            );
+          }
 
-                  itemBuilder: (context, index) {
-                    final homework = provider.studentHomeworks[index];
-                    return ItemCard(
+          return ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 90),
+            physics: const BouncingScrollPhysics(),
+            itemCount:
+                provider.studentHomeworks.length +
+                (provider.isLoading && provider.hasMoreForStudent ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index < provider.studentHomeworks.length) {
+                final homework = provider.studentHomeworks[index];
+                return ItemCard(
+                  title: homework.homework?.title ?? "N/A",
+                  description: DateFormatter.formatDateTime(
+                    homework.homework?.dueDate ?? DateTime.now(),
+                  ),
+                  onTap: () {
+                    final homeworkItem = HomeworkModel(
+                      forStudent: true,
                       title: homework.homework?.title ?? "N/A",
-                      description: DateFormatter.formatDateTime(
-                        homework.homework?.dueDate ?? DateTime.now(),
-                      ),
-                      onTap: () {
-                        final homeworkItem = HomeworkModel(
-                          forStudent: true,
-                          title: homework.homework?.title ?? "N/A",
-                          description: homework.homework?.description ?? "N/A",
-                          dueDate: homework.homework?.dueDate,
-                          studentHomeworkId: homework.id,
-                          studentPoints: homework.points,
-                          forParent: widget.forParent,
-                          guardianIdForChat: widget.guardianIdForChat,
-                          guardianNameForChat: widget.guardianNameForChat,
-                          user: homework.homework?.user,
-                        );
-                        context.pushNamed(
-                          RouteConstants.homeworkDetails,
-                          extra: homeworkItem,
-                        );
-                      },
-                      icon: LucideIcons.clipboardList,
-                      iconColor: Color(0xFFB14F6F),
-                      backgroundColor: Color(0xFFFFCEDE),
+                      description: homework.homework?.description ?? "N/A",
+                      dueDate: homework.homework?.dueDate,
+                      studentHomeworkId: homework.id,
+                      studentPoints: homework.points,
+                      forParent: widget.forParent,
+                      guardianIdForChat: widget.guardianIdForChat,
+                      guardianNameForChat: widget.guardianNameForChat,
+                      user: homework.homework?.user,
+                    );
+                    context.pushNamed(
+                      RouteConstants.homeworkDetails,
+                      extra: homeworkItem,
                     );
                   },
+                  icon: LucideIcons.clipboardList,
+                  iconColor: const Color(0xFFB14F6F),
+                  backgroundColor: const Color(0xFFFFCEDE),
                 );
-              },
-            ),
-            Consumer<HomeworkProvider>(
-              builder: (context, provider, _) {
-                return provider.isLoading && provider.hasMoreForStudent
-                    ? const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox();
-              },
-            ),
-
-            SizedBox(height: Responsive.height * 4),
-          ],
-        ),
+              } else {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+            },
+          );
+        },
       ),
     );
   }

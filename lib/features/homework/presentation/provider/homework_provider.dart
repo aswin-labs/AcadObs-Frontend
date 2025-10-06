@@ -257,20 +257,6 @@ class HomeworkProvider extends ChangeNotifier {
     }
   }
 
-  //homework list
-  // List<Map<String, dynamic>> get studentRankingsList {
-  //   return singleHomework?.studentHomeworkStatus
-  //           ?.map(
-  //             (status) => {
-  //               "student_id": status.student?.id,
-  //               "status": "submitted",
-  //               "points": _studentPoints[status.student?.id ?? 0] ?? 0,
-  //               "remark": _studentRemarks[status.student?.id ?? 0] ?? "",
-  //             },
-  //           )
-  //           .toList() ??
-  //       [];
-  // }
 
   //homework ranking
   Future<void> homeworkRanking({
@@ -323,12 +309,11 @@ class HomeworkProvider extends ChangeNotifier {
       } else {
         _currentPageForStudent = 1;
         _studentHomeworks.clear();
-        // _isFetchedOnceForStudent = false;
       }
       final response = await HomeworkServices().fetchHomeworkByStudentId(
         studentId: studentId,
         forParent: forParent,
-        pageNo: _currentPage,
+        pageNo: _currentPageForStudent,
       );
       if (response.statusCode == 200) {
         final data = response.data;
@@ -344,7 +329,6 @@ class HomeworkProvider extends ChangeNotifier {
                 .toList();
 
         _studentHomeworks.addAll(fetchHomeworks);
-        // _isFetchedOnceForStudent = true;
       } else {
         throw Exception('Failed to fetch homeworks: ${response.statusCode}');
       }

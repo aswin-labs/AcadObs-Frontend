@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
+import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 // import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
@@ -10,10 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class HomeworkServices {
-  final int schoolId = 1;
-  final int teacherId = 3;
-  // final HomeworkModel homeworkmodel;
-
   // Create Homework
   Future<Response> createHomework({
     required BuildContext context,
@@ -29,6 +26,7 @@ class HomeworkServices {
       'homeworkFile',
     );
     final fileUploadPath = fileUpload?.path;
+    final teacherId = await AuthStorageService().getUserId();
     final formData = {
       "teacher_id": teacherId,
       "class_id": classId,
@@ -55,6 +53,8 @@ class HomeworkServices {
 
   // Get homeworks by teacher
   Future<Response> fetchHomeworksByTeacher({required int pageNo}) async {
+    final teacherId = await AuthStorageService().getUserId();
+
     final response = await ApiServices.get(
       "${ApiEndpoints.homeworkByTeacher}?teacher_id=$teacherId&limit=${AppConstants.paginationLimit}&page=$pageNo",
     );
