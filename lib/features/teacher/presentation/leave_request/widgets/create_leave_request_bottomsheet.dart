@@ -181,29 +181,140 @@ void showCreateLeaveRequesBottomSheet(
                       builder: (context, provider, _) {
                         return CommonButton(
                           onPressed: () {
-                            final leaveType = context
-                                .read<DropdownProvider>()
-                                .getSelectedItem('leavetype');
+                            if (formKey.currentState?.validate() ?? false) {
+                              final leaveType = context
+                                  .read<DropdownProvider>()
+                                  .getSelectedItem('leavetype');
 
-                            context
-                                .read<StudentLeaveRequestProvider>()
-                                .createStudentLeaveRequest(
-                                  context: context,
-                                  fromDate: fromDateController.text,
-                                  toDate: toDateController.text,
-                                  leaveType: leaveType,
-                                  reason: reasonController.text,
-                                  studentId: studentId,
-                                );
+                              context
+                                  .read<StudentLeaveRequestProvider>()
+                                  .createStudentLeaveRequest(
+                                    context: context,
+                                    fromDate: fromDateController.text,
+                                    toDate: toDateController.text,
+                                    leaveType: leaveType,
+                                    reason: reasonController.text,
+                                    studentId: studentId,
+                                  );
+                            }
                           },
 
                           widget:
-                              provider.isLoadingTwo
+                              provider
+                                      .isLoadingTwo // Check general loading state
                                   ? ButtonLoading()
-                                  : Text('Submit'),
+                                  : provider.isFileUploading
+                                  ? Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16.0,
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Uploading: ${(provider.uploadProgress * 100).toStringAsFixed(0)}%',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        SizedBox(
+                                          height: 4,
+                                          child: LinearProgressIndicator(
+                                            value: provider.uploadProgress,
+                                            backgroundColor: Colors.white
+                                                .withAlpha(128),
+                                            valueColor:
+                                                const AlwaysStoppedAnimation<
+                                                  Color
+                                                >(Colors.white),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                  : const Text('Submit'),
                         );
                       },
                     ),
+                // : Consumer<StudentLeaveRequestProvider>(
+                //   builder: (context, provider, _) {
+                //     return CommonButton(
+                //       onPressed: () {
+                //         if (formKey.currentState?.validate() ?? false) {
+                //           final leaveType = context
+                //               .read<DropdownProvider>()
+                //               .getSelectedItem('leavetype');
+
+                //           context
+                //               .read<StudentLeaveRequestProvider>()
+                //               .createStudentLeaveRequest(
+                //                 context: context,
+                //                 fromDate: fromDateController.text,
+                //                 toDate: toDateController.text,
+                //                 leaveType: leaveType,
+                //                 reason: reasonController.text,
+                //                 studentId: studentId,
+                //               );
+                //         }
+                //       },
+                //       widget:
+                //           provider.isLoadingTwo
+                //               ? ButtonLoading()
+                //               : provider.isFileUploading
+                //               ? Padding(
+                //                 padding: const EdgeInsets.symmetric(
+                //                   horizontal: 16.0,
+                //                 ),
+                //                 child: Column(
+                //                   mainAxisSize: MainAxisSize.min,
+                //                   children: [
+                //                     Text(
+                //                       'Uploading: ${(provider.uploadProgress * 100).toStringAsFixed(0)}%',
+                //                       style: TextStyle(color: Colors.white),
+                //                     ),
+                //                     const SizedBox(height: 8),
+                //                     SizedBox(
+                //                       height: 4,
+                //                       child: LinearProgressIndicator(
+                //                         value: provider.uploadProgress,
+                //                         backgroundColor: Colors.white
+                //                             .withOpacity(0.5),
+                //                         valueColor:
+                //                             const AlwaysStoppedAnimation<
+                //                               Color
+                //                             >(Colors.white),
+                //                       ),
+                //                     ),
+                //                   ],
+                //                 ),
+                //               )
+                //               : const Text(
+                //                 'Submit',
+                //               ), // Fallback to submit text
+                //       // onPressed: () {
+                //       //   final leaveType = context
+                //       //       .read<DropdownProvider>()
+                //       //       .getSelectedItem('leavetype');
+
+                //       //   context
+                //       //       .read<StudentLeaveRequestProvider>()
+                //       //       .createStudentLeaveRequest(
+                //       //         context: context,
+                //       //         fromDate: fromDateController.text,
+                //       //         toDate: toDateController.text,
+                //       //         leaveType: leaveType,
+                //       //         reason: reasonController.text,
+                //       //         studentId: studentId,
+                //       //       );
+                //       // },
+                //       // widget:
+                //       //     provider.isLoadingTwo
+                //       //         ? ButtonLoading()
+                //       //         : Text('Submit'),
+                //     );
+                //   },
+                // ),
               ],
             ),
           ),
