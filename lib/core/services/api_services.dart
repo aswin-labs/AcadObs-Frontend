@@ -39,10 +39,24 @@ class ApiServices {
     String endpoint,
     dynamic data, {
     bool isFormData = false,
+    ProgressCallback? onSendProgress,
   }) async {
     try {
       final requestData = _formatData(data, isFormData);
-      return await _dio.post(endpoint, data: requestData);
+      // final requestData =
+      //     isFormData && data is Map<String, dynamic>
+      //         ? FormData.fromMap(data)
+      //         : data;
+      return await _dio.post(
+        endpoint,
+        data: requestData,
+        onSendProgress: onSendProgress,
+      );
+      // return await _dio.post(
+      //   endpoint,
+      //   data: requestData,
+      //   onSendProgress: onSendProgress,
+      // );
     } on DioException catch (e) {
       throw Exception('POST request failed: $e');
     }

@@ -21,6 +21,7 @@ class StudentLeaveRequestServices {
     required String reason,
     required int studentId,
     String? leaveDuration,
+    ProgressCallback? onSendProgress,
   }) async {
     final fileUpload = context.read<FilePickerProvider>().getFile('attachment');
     final fileUploadPath = fileUpload?.path;
@@ -43,6 +44,7 @@ class StudentLeaveRequestServices {
       ApiEndpoints.createStudentLeaveRequest,
       formData,
       isFormData: true,
+      onSendProgress:onSendProgress,
     );
     log(response.toString());
     return response;

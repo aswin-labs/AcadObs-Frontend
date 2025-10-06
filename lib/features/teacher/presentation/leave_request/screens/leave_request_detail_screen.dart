@@ -80,6 +80,79 @@ class LeaveRequestDetailScreen extends StatelessWidget {
                       color: leaveStatusStyle.iconColor,
                     ),
                   ),
+
+                  SizedBox(height: 20),
+                  if (leave.attachment != null && leave.attachment!.isNotEmpty)
+                    Text(
+                      "Attachment:",
+                      style: context.textTheme.bodyMedium!.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  SizedBox(height: 10),
+
+                  Container(
+                    width: 300,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: context.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 8,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                      border: Border.all(
+                        color: context.colorScheme.outline.withAlpha(102),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {},
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 60,
+                            height: 60,
+                            margin: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: context.colorScheme.primary.withAlpha(26),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              Icons.insert_drive_file_rounded,
+                              size: 36,
+                              color: Colors.red,
+                            ),
+                          ),
+
+                          Expanded(
+                            child: Text(
+                              leave.attachment ?? "No Attachment",
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
+                              style: context.textTheme.bodyLarge!.copyWith(
+                                color: context.colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          // Padding(
+                          //   padding: const EdgeInsets.only(right: 12.0),
+                          //   child: Icon(
+                          //     Icons.download_rounded,
+                          //     color: Colors.black,
+                          //   ),
+                          // ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(height: Responsive.height * 2),
                 ],
               ),
             ),

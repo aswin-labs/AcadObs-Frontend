@@ -14,6 +14,20 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
   bool _isLoadingTwo = false;
   bool get isLoadingTwo => _isLoadingTwo;
 
+  double _uploadProgress = 0.0;
+  double get uploadProgress => _uploadProgress;
+
+  bool _isFileUploading = false;
+  bool get isFileUploading => _isFileUploading;
+
+  void _setUploadProgress(int sent, int total) {
+    if (total != -1) {
+      _uploadProgress = sent / total;
+      _isFileUploading = true;
+      notifyListeners();
+    }
+  }
+
   final List<LeaveModel> _leaveRequests = [];
   // List<LeaveModel> get leaveRequests => _leaveRequests;
 
@@ -139,6 +153,8 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
     required int studentId,
   }) async {
     _isLoadingTwo = true;
+    _isFileUploading = false;
+    _uploadProgress = 0.0;
     PopupLoader.show(context, message: "Sending Leave Request...");
     notifyListeners();
     try {
@@ -150,6 +166,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
             leaveType: leaveType,
             reason: reason,
             studentId: studentId,
+            onSendProgress: _setUploadProgress,
           );
 
       if (response.statusCode == 201) {
@@ -179,6 +196,8 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
       log(response.statusCode.toString());
       log('response: ${response.toString()}');
     } catch (e) {
+      _isFileUploading = false;
+      _uploadProgress = 0.0;
       log(e.toString());
       if (e is DioException) {
         log("Backend response data: ${e.response?.data}");
@@ -186,6 +205,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
       notifyListeners();
     } finally {
       _isLoadingTwo = false;
+      _isFileUploading = false;
       notifyListeners();
     }
   }

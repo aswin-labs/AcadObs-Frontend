@@ -47,7 +47,6 @@ class CustomFilePicker extends StatelessWidget {
                     if (pickedFile != null) {
                       final fileSize = pickedFile.size;
 
-
                       if (fileSize > 5 * 1024 * 1024) {
                         if (!context.mounted) return;
                         state.didChange(null);
@@ -86,24 +85,64 @@ class CustomFilePicker extends StatelessWidget {
                       borderRadius: BorderRadius.circular(25),
                       border: Border.all(color: Colors.grey),
                     ),
-
                     child: Row(
                       children: [
                         Expanded(
                           child: Text(
                             file?.name ?? "No File selected",
-                            // fileProvider.getFile(fieldName)?.name ??
-                            //     'No file selected',
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              color: Colors.black54,
+                              color:
+                                  file != null
+                                      ? Colors.black87
+                                      : Colors.black54,
                             ),
                           ),
                         ),
-                        const Icon(Icons.upload_file, color: Colors.grey),
+
+                        if (file != null)
+                          Icon(
+                            Icons.check_circle,
+                            color: Colors.green,
+                            size: 24,
+                          )
+                        else
+                          const Icon(Icons.upload_file, color: Colors.grey),
+                        if (file != null)
+                          IconButton(
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              provider.clearFile(fieldName);
+                              state.didChange(null);
+                              state.validate();
+                            },
+                            icon: const Icon(
+                              Icons.close,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                          ),
                       ],
                     ),
+                    // child: Row(
+                    //   children: [
+                    //     Expanded(
+                    //       child: Text(
+                    //         file?.name ?? "No File selected",
+                    //         // fileProvider.getFile(fieldName)?.name ??
+                    //         //     'No file selected',
+                    //         overflow: TextOverflow.ellipsis,
+                    //         style: const TextStyle(
+                    //           fontSize: 14,
+                    //           color: Colors.black54,
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     const Icon(Icons.upload_file, color: Colors.grey),
+                    //   ],
+                    // ),
                   ),
                 );
               },
