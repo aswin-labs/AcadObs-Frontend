@@ -6,6 +6,7 @@ import 'package:acadobs/features/students/acheivement/achievement_edit_screen.da
 
 import 'package:acadobs/features/students/presentation/widgets/time_table_day_tab.dart';
 import 'package:acadobs/features/teacher/data/models/note_model.dart';
+import 'package:acadobs/features/teacher/presentation/leave_request/screens/student_leaves_screen.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_listing_screen.dart';
 import 'package:acadobs/features/events/data/models/event_model.dart';
@@ -318,6 +319,15 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       final studentId = state.extra as int;
       return TimeTableDayTab(studentId: studentId);
+    },
+  ),
+
+  //student leave request view for teacher
+  GoRoute(
+    path: '/studentLeaveLetter',
+    name: RouteConstants.studentLeaveLetter,
+    builder: (context, state) {
+      return StudentLeavesScreen();
     },
   ),
 ];

@@ -209,4 +209,53 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  int get currentPage => _currentPage;
+  int get totalPages => _totalPages;
+
+  //student leave request for the class teacher
+  Future<void> getStudentLeaveRequestsForClassTeacher({
+    bool loadMore = false,
+    bool forceRefresh = false,
+  }) async {
+    if (_isLoading) return;
+    if (!loadMore && !forceRefresh && _isFetchedOnce) return;
+    _isLoading = true;
+    notifyListeners();
+    try {
+      if (loadMore) {
+        _currentPage++;
+      } else {
+        _currentPage = 1;
+        _leaveRequests.clear();
+        _isFetchedOnce = false;
+      }
+      final response =
+          await StudentLeaveRequestServices()
+              .getStudentLeaveRequestsForClassTeacher();
+      log(response.toString());
+      if (response.statusCode == 200) {
+        final data = response.data;
+        _totalPages = data['totalPages'];
+        _currentPage = data['currentPage'];
+
+        // final List leavesJson = data['leaves'];
+        final List<dynamic> leavesJson = data['leaveRequests'] ?? [];
+
+        final List<LeaveModel> fetchedLeaves =
+            leavesJson
+                .map((jsonItem) => LeaveModel.fromJson(jsonItem))
+                .toList();
+        _leaveRequests.addAll(fetchedLeaves);
+        _isFetchedOnce = true;
+      } else {
+        throw Exception("failed to fetch leaves:${response.statusCode}");
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }
