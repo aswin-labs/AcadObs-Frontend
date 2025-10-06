@@ -44,7 +44,7 @@ class StudentLeaveRequestServices {
       ApiEndpoints.createStudentLeaveRequest,
       formData,
       isFormData: true,
-      onSendProgress:onSendProgress,
+      onSendProgress: onSendProgress,
     );
     log(response.toString());
     return response;
@@ -54,12 +54,19 @@ class StudentLeaveRequestServices {
   Future<Response> fetchAllStudentLeaveRequests({
     required int pageNo,
     required int studentId,
-   required bool forParent
+    required bool forParent,
   }) async {
     final url = await ApiServices.get(
-      forParent? "${ApiEndpoints.getStudentLeaveRequest}/$studentId&pageNo=$pageNo&limit=${AppConstants.paginationLimit}":
-      "${ApiEndpoints.studentLeaveRequestStaff}/$studentId&pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
+      forParent
+          ? "${ApiEndpoints.getStudentLeaveRequest}/$studentId&pageNo=$pageNo&limit=${AppConstants.paginationLimit}"
+          : "${ApiEndpoints.studentLeaveRequestStaff}/$studentId&pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return url;
+  }
+
+  //get student leave request for the class teacher
+  Future<Response> getStudentLeaveRequestsForClassTeacher() async {
+    final response = await ApiServices.get(ApiEndpoints.studentLeaveLetter);
+    return response;
   }
 }

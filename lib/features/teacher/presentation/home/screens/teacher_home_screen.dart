@@ -116,6 +116,14 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 text: "Attendence",
                 ontap: () => showAttendanceBottomSheet(context),
               ),
+              SizedBox(height: 10),
+              CustomButtonContainer(
+                color: Colors.red,
+                text: "Student leaves",
+                ontap: () {
+                  context.pushNamed(RouteConstants.studentLeaveLetter);
+                },
+              ),
 
               Consumer<TimeTableProvider>(
                 builder: (context, provider, _) {
