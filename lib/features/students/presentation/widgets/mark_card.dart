@@ -20,6 +20,7 @@ class MarkCard extends StatelessWidget {
     return Column(
       children: [
         Container(
+          width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.black,
             borderRadius: BorderRadius.only(
@@ -27,74 +28,100 @@ class MarkCard extends StatelessWidget {
               topRight: Radius.circular(20),
             ),
           ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 10,
-                  bottom: 10,
-                ),
-                child: Row(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                //title
+                Row(
                   children: [
                     Text('>>', style: TextStyle(color: Colors.white)),
-                    Text(capitalizeEachWord(examtitle), style: TextStyle(color: Color(0xFFE9FF42))),
+                    Flexible(
+                      child: Text(
+                        capitalizeEachWord(examtitle),
+                        style: TextStyle(color: Color(0xFFE9FF42)),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                  top: 10,
-                  bottom: 10,
-                ),
-                child: Row(
+                const SizedBox(height: 8),
+                // header
+                Row(
                   children: [
-                    Text("Subject", style: TextStyle(color: Colors.white)),
-                    SizedBox(width: 165),
-                    Text("Mark", style: TextStyle(color: Colors.white)),
-                    SizedBox(width: 20),
-                    Text("Total", style: TextStyle(color: Colors.white)),
+                    Expanded(
+                      flex: 4,
+                      child: Text(
+                        "Subject",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    // SizedBox(width: 165),
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        "Mark",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    // SizedBox(width: 20),
+                    Expanded(
+                      flex: 2,
+                      child: Text(
+                        "Total",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
+        //bottom white section
+        Container(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
             ),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 20,
-                right: 20,
-                top: 10,
-                bottom: 10,
-              ),
-              child: Row(
-                children: [
-                  Text(
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: Text(
                     capitalizeEachWord(subject),
+                    style: TextStyle(color: Colors.black, fontSize: 15),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    mark.toString(),
                     style: TextStyle(color: Colors.black),
                   ),
-                  SizedBox(width: 170),
-                  Text(mark.toString(), style: TextStyle(color: Colors.black)),
-                  SizedBox(width: 30),
-                  Text(total.toString(), style: TextStyle(color: Colors.black)),
-                ],
-              ),
+                ),
+
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    total.toString(),
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
+        SizedBox(height: 10),
       ],
     );
   }

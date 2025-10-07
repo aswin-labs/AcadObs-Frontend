@@ -25,6 +25,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
@@ -431,6 +432,16 @@ class FabOptionsDialog extends StatelessWidget {
                     label: 'Students',
                     onTap: () {
                       context.pushNamed(RouteConstants.studentListing);
+                      Navigator.pop(context);
+                    },
+                  ),
+                  Divider(height: 0, color: Color(0xFFE6E6E6)),
+                  _OptionTile(
+                    icon: LucideIcons.badgeCheck,
+                    label: 'Achievements',
+                    onTap: () {
+                      context.pushNamed(RouteConstants.getAchievement);
+                      // context.pushNamed(RouteConstants.studentListing);
                       Navigator.pop(context);
                     },
                   ),
