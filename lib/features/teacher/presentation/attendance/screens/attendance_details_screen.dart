@@ -103,13 +103,19 @@ class _AttendanceDetailsScreenState extends State<AttendanceDetailsScreen> {
                                   .recordedAttendance
                                   ?.studentRecords?[index];
                           final student = studentData?.student;
+                          final isLeaveApproved =
+                              studentData?.remarks == "Full-day Leave approved";
                           return AttendanceTakingWidget(
                             studentId: student?.id ?? 0,
                             rollNo: student?.rollNumber ?? 0,
                             studentName: student?.fullName ?? "",
                             alreadyTaken: true,
                             currentStatus: studentData?.status ?? "",
-                            remarks: studentData?.remarks,
+                            remarks:
+                                isLeaveApproved
+                                    ? "Approved"
+                                    : studentData?.remarks,
+                            isLeaveApproved: isLeaveApproved,
                           );
                         },
                       );

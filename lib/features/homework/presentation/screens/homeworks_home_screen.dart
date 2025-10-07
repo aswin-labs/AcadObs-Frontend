@@ -7,6 +7,7 @@ import 'package:acadobs/features/homework/presentation/provider/homework_provide
 import 'package:acadobs/features/homework/presentation/widgets/create_homework_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -129,9 +130,8 @@ class _HomeworksHomeScreenState extends State<HomeworksHomeScreen> {
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(16),
-        child: FloatingActionButton(
+        child: CommonFloatingButton(
           onPressed: () => showCreateHomeworkBottomSheet(context: context),
-          child: Icon(LucideIcons.plus, weight: 1, color: Colors.grey),
         ),
       ),
     );
