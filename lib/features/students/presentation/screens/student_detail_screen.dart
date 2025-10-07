@@ -129,9 +129,9 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           return ProfileContainer(
                             imagePath: student?.image ?? "",
                             name: student?.fullName ?? "",
-                            present: "1",
-                            absent: "2",
-                            late: "3",
+                            present: "0",
+                            absent: "0",
+                            late: "0",
                             description: student?.classGrade?.classname,
                           );
                         },
@@ -150,7 +150,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 sliver: SliverAppBar(
                   pinned: true,
 
-                  // backgroundColor: Colors.grey.shade200,
                   bottom: PreferredSize(
                     preferredSize: const Size.fromHeight(0),
                     child: Padding(

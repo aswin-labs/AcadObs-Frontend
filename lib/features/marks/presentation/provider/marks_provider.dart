@@ -123,6 +123,7 @@ class MarksProvider extends ChangeNotifier {
         studentMarks: studentMarks,
       );
       if (response.statusCode == 201) {
+        await fetchAddedMarks(forceRefresh: true);
         if (!context.mounted) return;
         PopupLoader.hide(context);
         Navigator.pop(context);

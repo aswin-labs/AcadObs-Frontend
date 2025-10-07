@@ -165,9 +165,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                       itemBuilder: (context, index) {
                         final item = provider.timetableForStaff[index];
                         return TimeTableCard(
+                          forStaff: true,
                           periodnumber: item.periodNumber ?? 0,
                           subject: item.subject?.subjectName ?? "N/A",
-                          teacher: item.user?.name ?? "N/A",
+                          description:
+                              item.timeTableModelClass?.classname ?? "N/A",
                         );
                       },
                     ),
@@ -175,7 +177,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 },
               ),
 
-              SizedBox(height: 20),
+              // SizedBox(height: 20),
               Row(
                 children: [
                   Text(
@@ -203,17 +205,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     return const Center(child: CommonShimmerTile());
                   }
                   if (notices.isEmpty) {
-                    return Column(
-                      children: [
-                        Icon(
-                          Icons.notifications_off_rounded,
-                          color: Colors.grey,
-                        ),
-                        Text(
-                          "No Notices avaliable",
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
+                    return emptyScreen(
+                      message: "No Notices Avaliable",
+                      heightMultiplier: 5,
                     );
                   }
                   return Column(
@@ -268,14 +262,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   if (provider.isLoading) {
                     return Center(child: CommonShimmerTile());
                   } else if (events.isEmpty) {
-                    return Column(
-                      children: [
-                        Icon(Icons.event_busy_rounded, color: Colors.grey),
-                        Text(
-                          "No Events Avaliable",
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
+                    return emptyScreen(
+                      message: "No Events Avaliable",
+                      heightMultiplier: 5,
                     );
                   }
 
@@ -330,14 +319,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   if (provider.isLoading) {
                     return Center(child: CommonShimmerTile());
                   } else if (news.isEmpty) {
-                    return Column(
-                      children: [
-                        Icon(Icons.event_busy_rounded, color: Colors.grey),
-                        Text(
-                          "No News Avaliable",
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
+                    return emptyScreen(
+                      message: "No News Avaliable",
+                      heightMultiplier: 5,
                     );
                   }
 

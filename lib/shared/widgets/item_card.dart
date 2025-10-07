@@ -24,8 +24,8 @@ class ItemCard extends StatelessWidget {
     this.backgroundColor = const Color(0xFFCEFFD3),
     this.iconColor = const Color(0xFF5DD168),
     this.icon = LucideIcons.filePlus2,
-    this.bottomRadius = 8,
-    this.topRadius = 8,
+    this.bottomRadius = 10,
+    this.topRadius = 10,
     this.date = "",
   });
 
@@ -34,9 +34,10 @@ class ItemCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: InkWell(
+        borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
@@ -45,35 +46,43 @@ class ItemCard extends StatelessWidget {
               topLeft: Radius.circular(topRadius),
               topRight: Radius.circular(topRadius),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
                 children: [
                   CircleAvatar(
-                    radius: 22,
+                    radius: 26,
                     backgroundColor: backgroundColor,
-                    child: Icon(icon, color: iconColor),
+                    child: Icon(icon, color: iconColor, size: 22),
                   ),
-                  SizedBox(width: 15),
+                  const SizedBox(width: 18),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         capitalizeEachWord(title),
                         style: context.textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15,
                         ),
                       ),
-                      SizedBox(height: 2),
+                      const SizedBox(height: 4),
                       Text(
                         description,
-                        style: TextStyle(
-                          color: Color(0xFF949494),
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                        style: const TextStyle(
+                          color: Color(0xFF6B6B6B),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -81,16 +90,24 @@ class ItemCard extends StatelessWidget {
                 ],
               ),
               Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
                     capitalizeEachWord(status),
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                       color: iconColor,
                     ),
                   ),
-                  Text(date, style: TextStyle(fontSize: 10)),
+                  const SizedBox(height: 3),
+                  Text(
+                    date,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: Color(0xFF6B6B6B),
+                    ),
+                  ),
                 ],
               ),
             ],

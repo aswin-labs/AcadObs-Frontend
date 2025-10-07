@@ -14,6 +14,7 @@ class AttendanceTakingWidget extends StatefulWidget {
   final bool alreadyTaken;
   final String currentStatus;
   final String? remarks;
+  final bool? isLeaveApproved;
 
   const AttendanceTakingWidget({
     super.key,
@@ -23,6 +24,7 @@ class AttendanceTakingWidget extends StatefulWidget {
     this.alreadyTaken = false,
     this.currentStatus = '',
     this.remarks,
+    this.isLeaveApproved = false,
   });
 
   @override
@@ -61,8 +63,11 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
           children: [
             Container(
               padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                color: Color(0xFFFFFFFF),
+              decoration: BoxDecoration(
+                color:
+                    widget.isLeaveApproved == true
+                        ? const Color.fromARGB(255, 234, 142, 142)
+                        : Color(0xFFFFFFFF),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(8),
                   topRight: Radius.circular(8),
@@ -94,7 +99,10 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                         widget.remarks != null ? " ${widget.remarks}" : "",
                         style: Theme.of(context).textTheme.bodySmall!.copyWith(
                           fontSize: 12,
-                          color: const Color(0xFF7C7C7C),
+                          color:
+                              widget.isLeaveApproved == true
+                                  ? Colors.white
+                                  : const Color(0xFF7C7C7C),
                         ),
                       )
                       : shouldShowRemarks
