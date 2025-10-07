@@ -125,6 +125,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 },
               ),
 
+              SizedBox(height: 10),
+
               Consumer<TimeTableProvider>(
                 builder: (context, provider, _) {
                   if (provider.isLoading) {
@@ -146,7 +148,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   }
 
                   return SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.4,
+                    height: MediaQuery.of(context).size.height * 0.3,
                     child: GridView.builder(
                       itemCount: provider.timetableForStaff.length,
                       gridDelegate:
@@ -163,8 +165,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         final item = provider.timetableForStaff[index];
                         return TimeTableCard(
                           periodnumber: item.periodNumber ?? 0,
-                          subject: item.subject!.subjectName ?? "",
-                          teacher: item.user!.name ?? "",
+                          subject: item.subject?.subjectName ?? "N/A",
+                          teacher: item.user?.name ?? "N/A",
                         );
                       },
                     ),

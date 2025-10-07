@@ -205,6 +205,9 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
     }
   }
 
+  bool _isFetchedOnce = false;
+  bool get isFetchedOnce => _isFetchedOnce;
+
   int get currentPage => _currentPage;
   int get totalPages => _totalPages;
 
