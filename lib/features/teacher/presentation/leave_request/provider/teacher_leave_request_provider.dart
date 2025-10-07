@@ -2,9 +2,11 @@ import 'dart:developer';
 
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/popup_loader.dart';
+import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
 import 'package:acadobs/features/teacher/data/services/teacher_leave_request_services.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class TeacherLeaveRequestProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -116,6 +118,41 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
     } catch (e) {
       log(e.toString());
       notifyListeners();
+    } finally {
+      _isLoadingTwo = false;
+      notifyListeners();
+    }
+  }
+
+  // student leave permission
+  Future<void> studentLeavePermission({
+    required BuildContext context,
+    required int leaveRequestId,
+    required String status,
+  }) async {
+    _isLoadingTwo = true;
+    notifyListeners();
+    try {
+      final response = await TeacherLeaveRequestServices()
+          .studentLeavePermission(
+            leaveRequestId: leaveRequestId,
+            status: status,
+          );
+      if (response.statusCode == 200) {
+        if (!context.mounted) return;
+
+        context
+            .read<StudentLeaveRequestProvider>()
+            .getStudentLeaveRequestsForClassTeacher(forceRefresh: true);
+        CustomSnackbar.show(
+          context,
+          message: "Status Changed Successfully",
+          type: SnackbarType.info,
+        );
+        Navigator.pop(context);
+      }
+    } catch (e) {
+      log(e.toString());
     } finally {
       _isLoadingTwo = false;
       notifyListeners();

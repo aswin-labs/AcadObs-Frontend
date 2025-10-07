@@ -41,10 +41,11 @@ class LoginScreen extends StatelessWidget {
               SizedBox(height: Responsive.height * 5),
 
               CustomTextfield(
-                hintText: "Username",
+                hintText: "Email",
                 iconData: Icon(Icons.person_outline),
                 controller: emailController,
-                onTap: null, // No tap event required for username input
+                onTap: null,
+                keyBoardtype: TextInputType.emailAddress,
                 validator: (value) => FormValidator.validateEmail(value),
               ),
               SizedBox(height: Responsive.height * 2),

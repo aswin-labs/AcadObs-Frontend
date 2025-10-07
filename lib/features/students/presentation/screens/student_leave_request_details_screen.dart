@@ -5,9 +5,12 @@ import 'package:acadobs/core/utils/helpers/leave_status_style.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
 import 'package:acadobs/features/teacher/presentation/duties/widgets/date_label_container.dart';
+import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/item_detail_screen_container.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class StudentLeaveRequestDetailsScreen extends StatelessWidget {
   final LeaveModel leave;
@@ -42,7 +45,7 @@ class StudentLeaveRequestDetailsScreen extends StatelessWidget {
                   ),
                   SizedBox(height: Responsive.height * 1),
                   Text(
-                    leave.reason??"",
+                    leave.reason ?? "",
                     style: context.textTheme.bodySmall!.copyWith(
                       color: Color(0xFF949494),
                       fontWeight: FontWeight.bold,
@@ -60,7 +63,9 @@ class StudentLeaveRequestDetailsScreen extends StatelessWidget {
                       SizedBox(width: Responsive.width * 5),
                       DateLabelContainer(
                         label: "End date",
-                        dateText: DateFormatter.formatDateString(leave.toDate.toString()),
+                        dateText: DateFormatter.formatDateString(
+                          leave.toDate.toString(),
+                        ),
                       ),
                     ],
                   ),
@@ -77,6 +82,38 @@ class StudentLeaveRequestDetailsScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       color: leaveStatusStyle.iconColor,
                     ),
+                  ),
+                  Consumer<TeacherLeaveRequestProvider>(
+                    builder: (context, provider, _) {
+                      return Column(
+                        children: [
+                          SizedBox(height: Responsive.height * 4),
+                          CommonButton(
+                            onPressed: () {
+                              provider.studentLeavePermission(
+                                context: context,
+                                leaveRequestId: leave.id ?? 0,
+                                status: "approved",
+                              );
+                            },
+                            widget: Text("Approve"),
+                            backgroundColor: Color(0xFF14601C),
+                          ),
+                          SizedBox(height: Responsive.height * 2),
+                          CommonButton(
+                            onPressed: () {
+                              provider.studentLeavePermission(
+                                context: context,
+                                leaveRequestId: leave.id ?? 0,
+                                status: "rejected",
+                              );
+                            },
+                            widget: Text("Reject"),
+                            backgroundColor: Color.fromARGB(255, 231, 42, 42),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
