@@ -62,44 +62,44 @@ class NoticeDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            notices.file != null
-                ? Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 12,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black26),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.picture_as_pdf_outlined,
-                        color: Colors.black87,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          notices.file!.split('/').last,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () async {
-                          final provider = context.read<FileDownloadProvider>();
-                          final fileName = notices.file!.split('/').last;
-                          provider.downloadNoticeFile(notices.file!, fileName);
-                        },
+            // notices.file != null
+            //     ? Container(
+            //       padding: const EdgeInsets.symmetric(
+            //         horizontal: 12,
+            //         vertical: 12,
+            //       ),
+            //       decoration: BoxDecoration(
+            //         border: Border.all(color: Colors.black26),
+            //         borderRadius: BorderRadius.circular(30),
+            //       ),
+            //       // child: Row(
+            //       //   children: [
+            //       //     const Icon(
+            //       //       Icons.picture_as_pdf_outlined,
+            //       //       color: Colors.black87,
+            //       //     ),
+            //       //     const SizedBox(width: 10),
+            //       //     // Expanded(
+            //       //     //   child: Text(
+            //       //     //     notices.file!.split('/').last,
+            //       //     //     overflow: TextOverflow.ellipsis,
+            //       //     //     style: const TextStyle(fontWeight: FontWeight.w500),
+            //       //     //   ),
+            //       //     // ),
+            //       //     // const SizedBox(width: 10),
+            //       //     // InkWell(
+            //       //     //   onTap: () async {
+            //       //     //     final provider = context.read<FileDownloadProvider>();
+            //       //     //     final fileName = notices.file!.split('/').last;
+            //       //     //     provider.downloadNoticeFile(notices.file!, fileName);
+            //       //     //   },
 
-                        child: const Icon(Icons.file_download_outlined),
-                      ),
-                    ],
-                  ),
-                )
-                : const SizedBox(),
+            //       //     //   child: const Icon(Icons.file_download_outlined),
+            //       //     // ),
+            //       //   ],
+            //       // ),
+            //     )
+            // : const SizedBox(),
             const SizedBox(height: 8),
 
             Consumer<FileDownloadProvider>(

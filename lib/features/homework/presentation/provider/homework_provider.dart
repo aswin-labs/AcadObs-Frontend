@@ -257,7 +257,6 @@ class HomeworkProvider extends ChangeNotifier {
     }
   }
 
-
   //homework ranking
   Future<void> homeworkRanking({
     required BuildContext context,
@@ -329,6 +328,7 @@ class HomeworkProvider extends ChangeNotifier {
                 .toList();
 
         _studentHomeworks.addAll(fetchHomeworks);
+        _studentHomeworks.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
       } else {
         throw Exception('Failed to fetch homeworks: ${response.statusCode}');
       }

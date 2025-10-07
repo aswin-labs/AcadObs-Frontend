@@ -19,12 +19,13 @@ class SingleStudentPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => showSingleStudentSelectionPopup(
-        context,
-        classId,
-        selectedStudent,
-        onStudentSelected,
-      ),
+      onTap:
+          () => showSingleStudentSelectionPopup(
+            context,
+            classId,
+            selectedStudent,
+            onStudentSelected,
+          ),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
@@ -70,44 +71,52 @@ Future<void> showSingleStudentSelectionPopup(
       return Consumer<StudentProvider>(
         builder: (context, provider, _) {
           final students = provider.students;
+          StudentModel? tempSelected = selectedStudent;
 
-          return AlertDialog(
-            title: const Text("Select Student"),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Divider(),
-                SizedBox(
-                  height: 320,
-                  width: 300,
-                  child: ListView.builder(
-                    itemCount: students.length,
-                    itemBuilder: (context, index) {
-                      final student = students[index];
+          return StatefulBuilder(
+            builder: (context, setState) {
+              return AlertDialog(
+                title: const Text("Select Student"),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Divider(),
+                    SizedBox(
+                      height: 320,
+                      width: 300,
+                      child: ListView.builder(
+                        itemCount: students.length,
+                        itemBuilder: (context, index) {
+                          final student = students[index];
 
-                      return RadioListTile<int>(
-                        title: Text(student.fullName),
-                        value: student.id,
-                        groupValue: selectedStudent?.id,
-                        onChanged: (_) {
-                          onStudentSelected(student); // update only this section
+                          return RadioListTile<int>(
+                            title: Text(student.fullName),
+                            value: student.id,
+                            groupValue: tempSelected?.id,
+                            onChanged: (_) {
+                              setState(() {
+                                tempSelected = student;
+                              });
+                              onStudentSelected(student);
+                            },
+                          );
                         },
-                      );
-                    },
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancel"),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Done"),
-              ),
-            ],
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Cancel"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Done"),
+                  ),
+                ],
+              );
+            },
           );
         },
       );
