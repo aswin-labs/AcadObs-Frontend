@@ -140,13 +140,6 @@ class LeaveRequestDetailScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          // Padding(
-                          //   padding: const EdgeInsets.only(right: 12.0),
-                          //   child: Icon(
-                          //     Icons.download_rounded,
-                          //     color: Colors.black,
-                          //   ),
-                          // ),
                         ],
                       ),
                     ),

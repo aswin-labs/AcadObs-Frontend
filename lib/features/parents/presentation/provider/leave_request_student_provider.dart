@@ -93,6 +93,8 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
 
   bool get hasMore => _currentPage < _totalPages;
 
+  bool _isFetchedOnce = false;
+
   // Fetch Staff Duties
   Future<void> fetchAllStudentLeaveRequests({
     bool loadMore = false,

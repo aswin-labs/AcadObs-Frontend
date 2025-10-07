@@ -7,6 +7,7 @@ import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart
 import 'package:acadobs/features/marks/presentation/widgets/add_marks_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -127,9 +128,8 @@ class _MarksHomeScreenState extends State<MarksHomeScreen> {
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(16),
-        child: FloatingActionButton(
+        child: CommonFloatingButton(
           onPressed: () => showAddMarksBottomSheet(context: context),
-          child: Icon(LucideIcons.plus, weight: 1, color: Colors.grey),
         ),
       ),
     );
