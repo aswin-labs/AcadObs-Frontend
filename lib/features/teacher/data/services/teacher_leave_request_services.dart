@@ -50,4 +50,15 @@ class TeacherLeaveRequestServices {
     );
     return response;
   }
+
+  // student leave request permission
+  Future<Response> studentLeavePermission({
+    required int leaveRequestId,
+    required String status,
+  }) async {
+    final response = await ApiServices.patch(
+      "${ApiEndpoints.studentLeavePermission}/$leaveRequestId?status=$status",
+    );
+    return response;
+  }
 }

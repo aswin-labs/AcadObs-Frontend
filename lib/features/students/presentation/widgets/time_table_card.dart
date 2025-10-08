@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class TimeTableCard extends StatelessWidget {
   final int periodnumber;
   final String subject;
-  final String teacher;
+  final String description;
+  final bool? forStaff;
   const TimeTableCard({
     super.key,
     required this.subject,
-    required this.teacher,
+    required this.description,
     required this.periodnumber,
+    this.forStaff = false,
   });
 
   @override
@@ -34,7 +36,10 @@ class TimeTableCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
                 color: Color(0xFFFFECCE),
               ),
-              child: Text(periodnumber.toString(), style: TextStyle(color: Color(0xFFA86637))),
+              child: Text(
+                periodnumber.toString(),
+                style: TextStyle(color: Color(0xFFA86637)),
+              ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -46,12 +51,12 @@ class TimeTableCard extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                const Icon(Icons.person, size: 16),
+                Icon(forStaff == true ? Icons.school : Icons.person, size: 16),
                 const SizedBox(width: 4),
 
                 Expanded(
                   child: Text(
-                    teacher,
+                    description,
                     style: TextStyle(fontSize: 10),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

@@ -1,6 +1,6 @@
 import 'package:acadobs/features/authentication/presentation/screens/school_selection_screen.dart';
 import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
-import 'package:acadobs/features/parents/data/services/student_leave_request_details_screen.dart';
+import 'package:acadobs/features/students/presentation/screens/student_leave_request_details_screen.dart';
 import 'package:acadobs/features/authentication/presentation/screens/profile_screen.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
 // import 'package:acadobs/features/teacher/presentation/homework/screens/homework_ranking_screen.dart';

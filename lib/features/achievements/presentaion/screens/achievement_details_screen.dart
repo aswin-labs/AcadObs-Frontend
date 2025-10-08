@@ -1,3 +1,4 @@
+import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_popup_menu.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
@@ -109,7 +110,13 @@ class AchievementDetailsScreen extends StatelessWidget {
             ),
 
             const SizedBox(height: 20),
-
+            Text(
+              "Prizes: ",
+              style: context.textTheme.bodyMedium!.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 10),
             // Students list
             Expanded(
               child: ListView.builder(
@@ -118,8 +125,12 @@ class AchievementDetailsScreen extends StatelessWidget {
                   final studentAchievement =
                       achievementModel.studentAchievements?[index];
                   return ProfileTile(
-                    name: studentAchievement?.student?.fullName ?? "",
-                    description: studentAchievement?.student?.regNo ?? "",
+                    name:
+                        "${studentAchievement?.student?.fullName ?? ""} - ${studentAchievement?.status ?? ""}",
+                    description:
+                        studentAchievement?.student?.studentClass?.classname ??
+                        "",
+                    suffixText: "",
                   );
                 },
               ),

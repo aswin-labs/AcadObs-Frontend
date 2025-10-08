@@ -10,8 +10,8 @@ import 'package:acadobs/shared/widgets/attendance_card_shimmer.dart';
 import 'package:acadobs/shared/widgets/time_table_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class StudentAttendenceTab extends StatefulWidget {
   final int studentId;
@@ -106,7 +106,7 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
                         extra: widget.studentId,
                       );
                     },
-                    child: Text("view"),
+                    child: Text("View"),
                   ),
                 ],
               ),
@@ -148,7 +148,7 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
                         return TimeTableCard(
                           periodnumber: item.periodNumber ?? 0,
                           subject: item.subject!.subjectName ?? "",
-                          teacher: item.user!.name ?? "",
+                          description: item.user!.name ?? "",
                         );
                       },
                     ),

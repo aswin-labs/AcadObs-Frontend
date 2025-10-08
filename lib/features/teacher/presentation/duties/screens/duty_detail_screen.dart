@@ -89,12 +89,6 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
                       ),
                     ],
                   ),
-                  // SizedBox(height: Responsive.height * 2),
-                  // DownloadFileTile(
-                  //   fileUrl: "fileUrl",
-                  //   title: "Download File",
-                  //   description: "Do you want to download this file? ",
-                  // ),
                   SizedBox(height: Responsive.height * 2),
                   Consumer<DutyProvider>(
                     builder: (context, provider, _) {
