@@ -130,7 +130,7 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                   ),
                   SizedBox(height: Responsive.height * 3),
                   Text(
-                    'Assigned by: ${widget.homework.user!.name}',
+                    'Assigned by: ${widget.homework.user?.name ?? ""}',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: Responsive.height * 3),
