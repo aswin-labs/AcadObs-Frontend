@@ -149,7 +149,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   }
 
                   return SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.3,
+                    height: MediaQuery.of(context).size.height * 0.35,
                     child: GridView.builder(
                       itemCount: provider.timetableForStaff.length,
                       gridDelegate:
