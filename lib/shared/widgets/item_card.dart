@@ -31,13 +31,29 @@ class ItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //Screen dimensions
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+
+    //Responsive sizes
+    final double avatarRadius = isTablet ? 32 : 26;
+    final double titleFontSize = isTablet ? 17 : 15;
+    final double descFontSize = isTablet ? 15 : 13;
+    final double dateFontSize = isTablet ? 13 : 11;
+    final double horizontalPadding = isTablet ? 20 : 14;
+    final double verticalPadding = isTablet ? 10 : 8;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+      padding: const EdgeInsets.only(bottom: 4),
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: verticalPadding,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
@@ -50,7 +66,7 @@ class ItemCard extends StatelessWidget {
               BoxShadow(
                 color: Colors.black12,
                 blurRadius: 4,
-                offset: Offset(0, 2),
+                offset: const Offset(0, 2),
               ),
             ],
           ),
@@ -58,57 +74,74 @@ class ItemCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 26,
-                    backgroundColor: backgroundColor,
-                    child: Icon(icon, color: iconColor, size: 22),
-                  ),
-                  const SizedBox(width: 18),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        capitalizeEachWord(title),
-                        style: context.textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15,
-                        ),
+              Expanded(
+                flex: 3,
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: avatarRadius,
+                      backgroundColor: backgroundColor,
+                      child: Icon(
+                        icon,
+                        color: iconColor,
+                        size: isTablet ? 26 : 22,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        description,
-                        style: const TextStyle(
-                          color: Color(0xFF6B6B6B),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    ),
+                    SizedBox(width: isTablet ? 20 : 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            capitalizeEachWord(title),
+                            style: context.textTheme.bodyMedium!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: titleFontSize,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            description,
+                            style: TextStyle(
+                              color: const Color(0xFF6B6B6B),
+                              fontSize: descFontSize,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    capitalizeEachWord(status),
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                      color: iconColor,
+
+              Expanded(
+                flex: 1,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      capitalizeEachWord(status),
+                      style: TextStyle(
+                        fontSize: dateFontSize,
+                        fontWeight: FontWeight.bold,
+                        color: iconColor,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    date,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Color(0xFF6B6B6B),
+                    const SizedBox(height: 3),
+                    Text(
+                      date,
+                      style: TextStyle(
+                        fontSize: dateFontSize,
+                        color: const Color(0xFF6B6B6B),
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
