@@ -1,5 +1,6 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
+import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
@@ -59,18 +60,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 50),
-                  const Text(
-                    'Welcome to  Acadobs',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                  Align(
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Welcome to  Acadobs',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
 
-                  const Text(
-                    'Login to your account',
-                    style: TextStyle(fontSize: 14, color: tSecondaryTextColor),
+                  Align(
+                    alignment: Alignment.center,
+                    child: const Text(
+                      'Login to your account',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: tSecondaryTextColor,
+                      ),
+                    ),
                   ),
                   SizedBox(height: Responsive.height * 5),
                   Container(
@@ -135,12 +145,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           Consumer<AuthProvider>(
                             builder: (context, provider, _) {
                               return CommonButton(
-                                onPressed:
-                                    () => context.read<AuthProvider>().login(
+                                onPressed: () {
+                                  if (passwordController.text.isEmpty ||
+                                      emailController.text.isEmpty) {
+                                    if (!context.mounted) return;
+                                    CustomSnackbar.show(
+                                      context,
+                                      message: "Required fields are missing",
+                                      type: SnackbarType.failure,
+                                    );
+                                  } else {
+                                    context.read<AuthProvider>().login(
                                       context: context,
                                       email: emailController.text,
                                       password: passwordController.text,
-                                    ),
+                                    );
+                                  }
+                                },
                                 widget:
                                     provider.isLoading
                                         ? ButtonLoading()
