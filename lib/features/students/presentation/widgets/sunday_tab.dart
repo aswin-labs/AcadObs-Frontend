@@ -71,6 +71,7 @@ class _SundayTabState extends State<SundayTab> {
                         subject: p.subject?.subjectName ?? "Unknown",
                         teacher: p.user?.name ?? "Unknown",
                         classname: p.periodClass?.classname ?? "-",
+                        periodNumber: p.periodNumber ?? 0,
                         onTap: () {},
                       );
                     },

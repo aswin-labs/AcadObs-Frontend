@@ -7,6 +7,9 @@ import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+const Color tPrimaryColor = Color(0xFF1E88E5);
+const Color tBackgroundColor = Color(0xFFF4F6F9);
+
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -14,18 +17,42 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   final AuthStorageService _authStorage = AuthStorageService();
+
+  late AnimationController _animationController;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _checkLogin();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _animation = Tween<double>(begin: 1.0, end: 1.15).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    _animationController.repeat(reverse: true);
+
+    // _checkLogin();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkLogin();
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   Future<void> _checkLogin() async {
     // Simulate splash delay (optional)
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 3));
 
     final token = await _authStorage.getToken();
     final userRole = await _authStorage.getUserRole();
@@ -60,9 +87,25 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
+      backgroundColor: tBackgroundColor,
       body: Center(
-        child: CircularProgressIndicator(), // simple loader
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedBuilder(
+              animation: _animationController,
+              builder: (context, child) {
+                return Transform.scale(scale: _animation.value, child: child);
+              },
+              child: SizedBox(
+                height: 150,
+                width: 150,
+                child: Image.asset('assets/logo.png', fit: BoxFit.contain),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
