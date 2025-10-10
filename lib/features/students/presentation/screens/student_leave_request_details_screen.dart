@@ -22,6 +22,7 @@ class StudentLeaveRequestDetailsScreen extends StatelessWidget {
     return Scaffold(
       appBar: CommonAppBar(title: "Leave Request", isBackButton: true),
       body: CustomScrollView(
+        physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
@@ -49,6 +50,20 @@ class StudentLeaveRequestDetailsScreen extends StatelessWidget {
                     style: context.textTheme.bodySmall!.copyWith(
                       color: Color(0xFF949494),
                       fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: Responsive.height * 2),
+                  Text(
+                    "Leave Duration: ",
+                    style: context.textTheme.bodyMedium!.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    capitalizeEachWord("${leave.leaveDuration} Day"),
+                    style: context.textTheme.bodyLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
                     ),
                   ),
                   SizedBox(height: Responsive.height * 4),
@@ -83,38 +98,50 @@ class StudentLeaveRequestDetailsScreen extends StatelessWidget {
                       color: leaveStatusStyle.iconColor,
                     ),
                   ),
-                  Consumer<TeacherLeaveRequestProvider>(
-                    builder: (context, provider, _) {
-                      return Column(
-                        children: [
-                          SizedBox(height: Responsive.height * 4),
-                          CommonButton(
-                            onPressed: () {
-                              provider.studentLeavePermission(
-                                context: context,
-                                leaveRequestId: leave.id ?? 0,
-                                status: "approved",
-                              );
-                            },
-                            widget: Text("Approve"),
-                            backgroundColor: Color(0xFF14601C),
-                          ),
-                          SizedBox(height: Responsive.height * 2),
-                          CommonButton(
-                            onPressed: () {
-                              provider.studentLeavePermission(
-                                context: context,
-                                leaveRequestId: leave.id ?? 0,
-                                status: "rejected",
-                              );
-                            },
-                            widget: Text("Reject"),
-                            backgroundColor: Color.fromARGB(255, 231, 42, 42),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+                  leave.forStudentLeavePermission == true
+                      ? Consumer<TeacherLeaveRequestProvider>(
+                        builder: (context, provider, _) {
+                          return Column(
+                            children: [
+                              SizedBox(height: Responsive.height * 4),
+                              leave.status == 'approved'
+                                  ? SizedBox.shrink()
+                                  : CommonButton(
+                                    onPressed: () {
+                                      provider.studentLeavePermission(
+                                        context: context,
+                                        leaveRequestId: leave.id ?? 0,
+                                        status: "approved",
+                                      );
+                                    },
+                                    widget: Text("Approve"),
+                                    backgroundColor: Color(0xFF14601C),
+                                  ),
+                              SizedBox(height: Responsive.height * 2),
+                              leave.status == 'rejected'
+                                  ? SizedBox.shrink()
+                                  : CommonButton(
+                                    onPressed: () {
+                                      provider.studentLeavePermission(
+                                        context: context,
+                                        leaveRequestId: leave.id ?? 0,
+                                        status: "rejected",
+                                      );
+                                    },
+                                    widget: Text("Reject"),
+                                    backgroundColor: Color.fromARGB(
+                                      255,
+                                      231,
+                                      42,
+                                      42,
+                                    ),
+                                  ),
+                            ],
+                          );
+                        },
+                      )
+                      : SizedBox.shrink(),
+                  SizedBox(height: Responsive.height * 4),
                 ],
               ),
             ),

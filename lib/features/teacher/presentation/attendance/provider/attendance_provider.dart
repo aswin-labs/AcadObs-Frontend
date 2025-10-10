@@ -42,7 +42,7 @@ class AttendanceProvider extends ChangeNotifier {
   bool _isFetchedOnce = false;
   bool get hasFetchedOnce => _isFetchedOnce;
 
-  final int _teacherId = 3;
+  // final int _teacherId = 3;
 
   final currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
@@ -217,7 +217,6 @@ class AttendanceProvider extends ChangeNotifier {
     try {
       final response = await AttendanceServices().submitAttendance(
         data: {
-          "teacher_id": _teacherId,
           "period": period,
           "class_id": classId,
           "date": date,

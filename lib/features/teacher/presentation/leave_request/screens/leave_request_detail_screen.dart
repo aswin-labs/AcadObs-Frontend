@@ -48,6 +48,20 @@ class LeaveRequestDetailScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  SizedBox(height: Responsive.height * 2),
+                  Text(
+                    "Leave Duration: ",
+                    style: context.textTheme.bodyMedium!.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    capitalizeEachWord("${leave.leaveDuration} Day"),
+                    style: context.textTheme.bodyLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
                   SizedBox(height: Responsive.height * 4),
                   Row(
                     children: [

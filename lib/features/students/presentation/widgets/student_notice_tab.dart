@@ -94,19 +94,22 @@ class _StudentNoticeTabState extends State<StudentNoticeTab> {
                       (context, index) {
                         if (index < provider.notices.length) {
                           final notice = provider.notices[index];
-                          return NoticeCard(
-                            icon: Icons.notifications_none,
-                            title: notice.title ?? "",
-                            date: notice.date,
-                            time: DateFormatter.formatDateTime(
-                              notice.createdAt,
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: NoticeCard(
+                              icon: Icons.notifications_none,
+                              title: notice.title ?? "",
+                              date: notice.date,
+                              time: DateFormatter.formatDateTime(
+                                notice.createdAt,
+                              ),
+                              onTap: () {
+                                context.pushNamed(
+                                  RouteConstants.noticedetails,
+                                  extra: notice,
+                                );
+                              },
                             ),
-                            onTap: () {
-                              context.pushNamed(
-                                RouteConstants.noticedetails,
-                                extra: notice,
-                              );
-                            },
                           );
                         } else {
                           // Loader row at bottom

@@ -8,6 +8,7 @@ class AuthStorageService {
   static const _kUser = 'user_data';
   static const _kSchoolId = 'school_id';
   static const _kSchoolName = 'school_name';
+  static const _kSchoolDetailsForTeacher = 'school_details_for_teacher';
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -15,6 +16,8 @@ class AuthStorageService {
       accessibility: KeychainAccessibility.first_unlock_this_device,
     ),
   );
+
+  // ***********Save*****************
 
   /// Save token and user data
   Future<void> saveUserCredentials({
@@ -30,14 +33,26 @@ class AuthStorageService {
     await _storage.write(key: _kSchoolId, value: schoolId);
   }
 
+  // Save school Name
+  Future<void> saveSchoolNameForParent({required String schoolName}) async {
+    await _storage.write(key: _kSchoolName, value: schoolName);
+  }
+
+  // Save school details for teacher
+  Future<void> saveSchoolDetailsForTeacher({
+    required Map<String, dynamic> schoolData,
+  }) async {
+    await _storage.write(
+      key: _kSchoolDetailsForTeacher,
+      value: jsonEncode(schoolData),
+    );
+  }
+
+  // **********Retrieve*****************
+
   // Get stored school id
   Future<String?> getSchoolIdForParent() async {
     return await _storage.read(key: _kSchoolId);
-  }
-
-    // Save school Name
-  Future<void> saveSchoolNameForParent({required String schoolName}) async {
-    await _storage.write(key: _kSchoolName, value: schoolName);
   }
 
   // Get stored school name
@@ -69,6 +84,13 @@ class AuthStorageService {
     final data = await getUserData();
     if (data == null) return null;
     return data['role'] as String?;
+  }
+
+  // Get school details for teacher
+  Future<Map<String, dynamic>?> getSchoolDetailsForTeacher() async {
+    final raw = await _storage.read(key: _kSchoolDetailsForTeacher);
+    if (raw == null) return null;
+    return jsonDecode(raw);
   }
 
   /// Clear everything (on logout)

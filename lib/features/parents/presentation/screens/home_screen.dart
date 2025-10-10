@@ -28,6 +28,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String? schoolName;
   @override
   void initState() {
     super.initState();
@@ -38,6 +39,15 @@ class _HomeScreenState extends State<HomeScreen> {
       forStaff: false,
     );
     context.read<NewsProvider>().fetchHomeLatestNews(limit: 3, forStaff: false);
+    _loadSchoolName();
+  }
+
+  Future<void> _loadSchoolName() async {
+    final authStorage = AuthStorageService();
+    final data = await authStorage.getSchoolNameForParent();
+    setState(() {
+      schoolName = data;
+    });
   }
 
   @override
@@ -69,38 +79,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   top: MediaQuery.of(context).size.height * 0.12,
                   left: 0,
                   right: 0,
-                  child: FutureBuilder<String?>(
-                    future: AuthStorageService().getSchoolNameForParent(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: CircularProgressIndicator(color: Colors.white),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(
-                          child: Text(
-                            "Error loading school name",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                              color: Colors.white,
+                  child: Center(
+                    child:
+                        schoolName == null
+                            ? CircularProgressIndicator(color: Colors.white,)
+                            : Text(
+                              schoolName ?? "",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 24,
+                                color: Colors.white,
+                              ),
                             ),
-                          ),
-                        );
-                      } else {
-                        final schoolName = snapshot.data ?? "Unknown School";
-                        return Center(
-                          child: Text(
-                            schoolName,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                              color: Colors.white,
-                            ),
-                          ),
-                        );
-                      }
-                    },
                   ),
                 ),
                 Positioned(

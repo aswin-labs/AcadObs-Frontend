@@ -4,10 +4,10 @@ import 'package:lucide_icons/lucide_icons.dart'; // Make sure this package is ad
 
 class StaffDetailsCard extends StatelessWidget {
   final String name;
-  final String designation;
+  final String qualifications;
   final String email;
   final String phone;
-  final String department;
+  final String subjects;
   final Color backgroundColor;
   final Color borderColor;
   final String profileImageUrl; // Can be empty for default avatar
@@ -15,10 +15,10 @@ class StaffDetailsCard extends StatelessWidget {
   const StaffDetailsCard({
     super.key,
     required this.name,
-    required this.designation,
+    required this.qualifications,
     required this.email,
     required this.phone,
-    required this.department,
+    required this.subjects,
     required this.backgroundColor,
     required this.borderColor,
     this.profileImageUrl = "",
@@ -61,14 +61,7 @@ class StaffDetailsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          _buildRow(
-            context,
-            LucideIcons.award,
-            "Designation",
-            designation,
-            iconSize,
-            fontSize,
-          ),
+         
           _buildRow(
             context,
             LucideIcons.mail,
@@ -88,8 +81,16 @@ class StaffDetailsCard extends StatelessWidget {
           _buildRow(
             context,
             LucideIcons.layers,
-            "Department",
-            department,
+            "Subjects",
+            subjects,
+            iconSize,
+            fontSize,
+          ),
+           _buildRow(
+            context,
+            LucideIcons.award,
+            "Qualifications",
+            qualifications,
             iconSize,
             fontSize,
           ),

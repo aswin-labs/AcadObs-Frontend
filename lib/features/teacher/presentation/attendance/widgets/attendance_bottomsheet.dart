@@ -1,11 +1,12 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
-import 'package:acadobs/shared/providers/subject_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
+import 'package:acadobs/shared/providers/subject_provider.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
@@ -29,6 +30,15 @@ void showAttendanceBottomSheet(BuildContext context) {
   context.read<SharedProvider>().resetClassNames();
   int? classId;
   String? className;
+
+  Future<List<String>> loadPeriods() async {
+    final authService = AuthStorageService();
+    final schoolData = await authService.getSchoolDetailsForTeacher();
+    if (schoolData == null) return [];
+    final periodCount = schoolData['period_count'];
+    if (periodCount == null) return [];
+    return List.generate(periodCount as int, (i) => '${i + 1}');
+  }
 
   showModalBottomSheet(
     context: context,
@@ -130,16 +140,38 @@ void showAttendanceBottomSheet(BuildContext context) {
                 ),
 
                 SizedBox(height: Responsive.height * 1),
-                CustomDropdown(
-                  dropdownKey: 'period',
-                  label: 'Select Period*',
-                  icon: LucideIcons.clock,
-                  items: AppConstants.periods,
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? 'Please select a period'
-                              : null,
+                FutureBuilder<List<String>>(
+                  future: loadPeriods(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+
+                    final periods = snapshot.data ?? [];
+
+                    if (periods.isEmpty) {
+                      return const Text('No periods found');
+                    }
+
+                    return CustomDropdown(
+                      dropdownKey: 'period',
+                      label: 'Select Period*',
+                      icon: LucideIcons.clock,
+                      items: periods,
+                      validator:
+                          (value) =>
+                              value == null || value.isEmpty
+                                  ? 'Please select a period'
+                                  : null,
+                    );
+                  },
                 ),
                 SizedBox(height: Responsive.height * 1),
                 SubjectPicker(),

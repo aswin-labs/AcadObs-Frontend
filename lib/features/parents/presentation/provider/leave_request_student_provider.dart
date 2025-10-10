@@ -147,6 +147,8 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
     required String leaveType,
     required String reason,
     required int studentId,
+    required String leaveDuration,
+    String? halfSection
   }) async {
     _isLoadingTwo = true;
     _isFileUploading = false;
@@ -163,6 +165,8 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
             reason: reason,
             studentId: studentId,
             onSendProgress: _setUploadProgress,
+            leaveDuration: leaveDuration,
+            halfSection:halfSection
           );
 
       if (response.statusCode == 201) {
