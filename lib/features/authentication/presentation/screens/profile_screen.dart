@@ -47,34 +47,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   children: [
                     _buildProfileHeader(context, userData!),
-                    // Row(
-                    //   children: [
-                    //     CircleAvatar(
-                    //       radius: 50,
-                    //       backgroundColor: Colors.grey,
-                    //       // backgroundImage: AssetImage("assets/school.jpg"), //dummy
-                    //       child: Icon(Icons.person, size: 40),
-                    //     ),
-                    //     SizedBox(width: 20),
-                    //     Column(
-                    //       crossAxisAlignment: CrossAxisAlignment.start,
-                    //       children: [
-                    //         Text(
-                    //           userData?['name'] ?? 'Unknown User',
-                    //           style: TextStyle(
-                    //             fontWeight: FontWeight.bold,
-                    //             fontSize: 20,
-                    //           ),
-                    //         ),
-                    //         SizedBox(height: 4),
-                    //         Text(
-                    //           userData?['email'] ?? 'No Email',
-                    //           style: TextStyle(color: Colors.grey),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ],
-                    // ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Container(decoration: BoxDecoration()),

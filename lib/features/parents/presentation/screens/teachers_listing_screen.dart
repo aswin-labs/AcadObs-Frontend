@@ -83,12 +83,19 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
                           itemCount: provider.staffs.length,
                           itemBuilder: (context, index) {
                             final staff = provider.staffs[index];
+                            final subjects = (staff.staff?.staffSubjects ?? [])
+                                .map(
+                                  (subject) =>
+                                      subject.subject?.subjectName ?? '',
+                                )
+                                .where((name) => name.isNotEmpty)
+                                .join(', ');
                             return StaffDetailsCard(
                               name: staff.name ?? "",
-                              designation: staff.email ?? "",
+                              subjects: subjects,
                               email: staff.email ?? "",
                               phone: staff.phone ?? "",
-                              department: "",
+                              qualifications: staff.staff?.qualification ?? "",
                               backgroundColor: Colors.white,
                               borderColor: Colors.blueGrey.shade100,
                             );

@@ -187,11 +187,9 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 // dashboardt
                 StudentAttendenceTab(
                   studentId: widget.studentId,
-                  // date: "2025-08-20",
                   date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
                 ),
 
-                // Text("Dashboard"),
 
                 //acheivment
                 Consumer<StudentProvider>(

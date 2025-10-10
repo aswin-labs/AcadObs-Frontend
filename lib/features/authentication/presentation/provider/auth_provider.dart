@@ -49,6 +49,8 @@ class AuthProvider with ChangeNotifier {
         if (userRole == 'guardian') {
           context.pushNamed(RouteConstants.schoolSelectionScreen);
         } else if (userRole == 'teacher') {
+          await fetchSchoolDetailsForTeacher();
+          if (!context.mounted) return;
           context.pushNamed(
             RouteConstants.bottomNavScreen,
             extra: UserType.teacher,
@@ -121,6 +123,26 @@ class AuthProvider with ChangeNotifier {
       await _storageService.saveSchoolNameForParent(
         schoolName: _selectedSchool!.school!.name!,
       );
+    }
+  }
+
+  // fetch school details for teacher
+  Future<void> fetchSchoolDetailsForTeacher() async {
+    _isLoading = true;
+    try {
+      final response = await AuthServices().fetchSchoolDetailsForTeacher();
+      if (response.statusCode == 200) {
+        log("School Details Fetched Successfully");
+        final data = response.data;
+        await _storageService.saveSchoolDetailsForTeacher(
+          schoolData: data['school'],
+        );
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }

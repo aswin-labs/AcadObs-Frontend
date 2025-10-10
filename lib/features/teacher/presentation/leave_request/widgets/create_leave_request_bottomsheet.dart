@@ -28,6 +28,8 @@ void showCreateLeaveRequesBottomSheet(
   final TextEditingController toDateController = TextEditingController();
   final TextEditingController reasonController = TextEditingController();
   context.read<DropdownProvider>().clearSelectedItem('leavetype');
+  context.read<DropdownProvider>().clearSelectedItem('leaveDuration');
+  context.read<DropdownProvider>().clearSelectedItem('halfSection');
   context.read<FilePickerProvider>().clearFile('attachment');
   showModalBottomSheet(
     context: context,
@@ -57,6 +59,13 @@ void showCreateLeaveRequesBottomSheet(
                 ),
                 SizedBox(height: Responsive.height * 3),
 
+                CustomDropdown(
+                  dropdownKey: 'leaveDuration',
+                  label: "Leave Duration",
+                  icon: Icons.lock_clock_outlined,
+                  items: ["half", "full"],
+                ),
+                SizedBox(height: Responsive.height * 1),
                 CustomDatePicker(
                   label: "Start Date*",
                   dateController: fromDateController,
@@ -76,48 +85,77 @@ void showCreateLeaveRequesBottomSheet(
                     return FormValidator.validateNotEmpty(value);
                   },
                 ),
-                SizedBox(height: Responsive.height * 1),
 
-                CustomDatePicker(
-                  label: "End Date*",
-                  dateController: toDateController,
-                  onDateSelected: (selectedDate) {
-                    toDateController.text = DateFormat(
-                      'dd/MM/yyyy',
-                    ).format(selectedDate);
-                  },
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime(
-                    DateTime.now().year,
-                    DateTime.now().month + 1,
-                    DateTime.now().day,
-                  ),
-                  initialDate: DateTime.now(),
-                  validator: (value) {
-                    final error = FormValidator.validateNotEmpty(value);
-                    if (error != null) return error;
-                    try {
-                      final fromDate = DateFormat(
-                        'dd/MM/yyyy',
-                      ).parse(fromDateController.text);
-                      final toDate = DateFormat('dd/MM/yyyy').parse(value!);
-                      if (fromDate.isAfter(toDate)) {
-                        return "End Date cannot be earlier than Start Date";
-                      }
-                    } catch (e) {
-                      final fromDate = DateFormat(
-                        'yyyy-MM-dd',
-                      ).parse(fromDateController.text);
-                      final toDate = DateFormat('yyyy-MM-dd').parse(value!);
-                      if (fromDate.isAfter(toDate)) {
-                        return "End Date cannot be earlier than Start Date";
-                      }
-                    }
-                    // return FormValidator.validateNotEmpty(value);
-                    return null;
+                Consumer<DropdownProvider>(
+                  builder: (context, provider, _) {
+                    final selectedLeaveDuration = provider.getSelectedItem(
+                      'leaveDuration',
+                    );
+                    return selectedLeaveDuration == 'half'
+                        ? Column(
+                          children: [
+                            SizedBox(height: Responsive.height * 1),
+                            CustomDropdown(
+                              dropdownKey: 'halfSection',
+                              label: "Select Section",
+                              icon: Icons.lock_clock_outlined,
+                              items: ["fornoon", "afternoon"],
+                            ),
+                            SizedBox(height: Responsive.height * 1),
+                          ],
+                        )
+                        : Column(
+                          children: [
+                            SizedBox(height: Responsive.height * 1),
+                            CustomDatePicker(
+                              label: "End Date*",
+                              dateController: toDateController,
+                              onDateSelected: (selectedDate) {
+                                toDateController.text = DateFormat(
+                                  'dd/MM/yyyy',
+                                ).format(selectedDate);
+                              },
+                              firstDate: DateTime.now(),
+                              lastDate: DateTime(
+                                DateTime.now().year,
+                                DateTime.now().month + 1,
+                                DateTime.now().day,
+                              ),
+                              initialDate: DateTime.now(),
+                              validator: (value) {
+                                final error = FormValidator.validateNotEmpty(
+                                  value,
+                                );
+                                if (error != null) return error;
+                                try {
+                                  final fromDate = DateFormat(
+                                    'dd/MM/yyyy',
+                                  ).parse(fromDateController.text);
+                                  final toDate = DateFormat(
+                                    'dd/MM/yyyy',
+                                  ).parse(value!);
+                                  if (fromDate.isAfter(toDate)) {
+                                    return "End Date cannot be earlier than Start Date";
+                                  }
+                                } catch (e) {
+                                  final fromDate = DateFormat(
+                                    'yyyy-MM-dd',
+                                  ).parse(fromDateController.text);
+                                  final toDate = DateFormat(
+                                    'yyyy-MM-dd',
+                                  ).parse(value!);
+                                  if (fromDate.isAfter(toDate)) {
+                                    return "End Date cannot be earlier than Start Date";
+                                  }
+                                }
+                                return null;
+                              },
+                            ),
+                            SizedBox(height: Responsive.height * 1),
+                          ],
+                        );
                   },
                 ),
-                SizedBox(height: Responsive.height * 1),
                 CustomTextfield(
                   iconData: Icon(LucideIcons.fileText),
                   controller: reasonController,
@@ -158,15 +196,26 @@ void showCreateLeaveRequesBottomSheet(
                             final leaveType = context
                                 .read<DropdownProvider>()
                                 .getSelectedItem('leavetype');
+                            final selectedLeaveDuration = context
+                                .read<DropdownProvider>()
+                                .getSelectedItem('leaveDuration');
+                            final halfSection = context
+                                .read<DropdownProvider>()
+                                .getSelectedItem('halfSection');
                             if (formKey.currentState?.validate() ?? false) {
                               context
                                   .read<TeacherLeaveRequestProvider>()
                                   .createLeaveRequest(
                                     context: context,
                                     fromDate: fromDateController.text,
-                                    toDate: toDateController.text,
+                                    toDate:
+                                        selectedLeaveDuration == 'half'
+                                            ? fromDateController.text
+                                            : toDateController.text,
                                     leaveType: leaveType,
                                     reason: reasonController.text,
+                                    leaveDuration: selectedLeaveDuration,
+                                    halfSection: halfSection,
                                   );
                             }
                           },
@@ -181,20 +230,31 @@ void showCreateLeaveRequesBottomSheet(
                       builder: (context, provider, _) {
                         return CommonButton(
                           onPressed: () {
+                            final selectedLeaveDuration = context
+                                .read<DropdownProvider>()
+                                .getSelectedItem('leaveDuration');
                             if (formKey.currentState?.validate() ?? false) {
                               final leaveType = context
                                   .read<DropdownProvider>()
                                   .getSelectedItem('leavetype');
+                              final halfSection = context
+                                  .read<DropdownProvider>()
+                                  .getSelectedItem('halfSection');
 
                               context
                                   .read<StudentLeaveRequestProvider>()
                                   .createStudentLeaveRequest(
                                     context: context,
                                     fromDate: fromDateController.text,
-                                    toDate: toDateController.text,
+                                    toDate:
+                                        selectedLeaveDuration == 'half'
+                                            ? fromDateController.text
+                                            : toDateController.text,
                                     leaveType: leaveType,
                                     reason: reasonController.text,
                                     studentId: studentId,
+                                    leaveDuration: selectedLeaveDuration,
+                                    halfSection: halfSection,
                                   );
                             }
                           },
@@ -237,84 +297,6 @@ void showCreateLeaveRequesBottomSheet(
                         );
                       },
                     ),
-                // : Consumer<StudentLeaveRequestProvider>(
-                //   builder: (context, provider, _) {
-                //     return CommonButton(
-                //       onPressed: () {
-                //         if (formKey.currentState?.validate() ?? false) {
-                //           final leaveType = context
-                //               .read<DropdownProvider>()
-                //               .getSelectedItem('leavetype');
-
-                //           context
-                //               .read<StudentLeaveRequestProvider>()
-                //               .createStudentLeaveRequest(
-                //                 context: context,
-                //                 fromDate: fromDateController.text,
-                //                 toDate: toDateController.text,
-                //                 leaveType: leaveType,
-                //                 reason: reasonController.text,
-                //                 studentId: studentId,
-                //               );
-                //         }
-                //       },
-                //       widget:
-                //           provider.isLoadingTwo
-                //               ? ButtonLoading()
-                //               : provider.isFileUploading
-                //               ? Padding(
-                //                 padding: const EdgeInsets.symmetric(
-                //                   horizontal: 16.0,
-                //                 ),
-                //                 child: Column(
-                //                   mainAxisSize: MainAxisSize.min,
-                //                   children: [
-                //                     Text(
-                //                       'Uploading: ${(provider.uploadProgress * 100).toStringAsFixed(0)}%',
-                //                       style: TextStyle(color: Colors.white),
-                //                     ),
-                //                     const SizedBox(height: 8),
-                //                     SizedBox(
-                //                       height: 4,
-                //                       child: LinearProgressIndicator(
-                //                         value: provider.uploadProgress,
-                //                         backgroundColor: Colors.white
-                //                             .withOpacity(0.5),
-                //                         valueColor:
-                //                             const AlwaysStoppedAnimation<
-                //                               Color
-                //                             >(Colors.white),
-                //                       ),
-                //                     ),
-                //                   ],
-                //                 ),
-                //               )
-                //               : const Text(
-                //                 'Submit',
-                //               ), // Fallback to submit text
-                //       // onPressed: () {
-                //       //   final leaveType = context
-                //       //       .read<DropdownProvider>()
-                //       //       .getSelectedItem('leavetype');
-
-                //       //   context
-                //       //       .read<StudentLeaveRequestProvider>()
-                //       //       .createStudentLeaveRequest(
-                //       //         context: context,
-                //       //         fromDate: fromDateController.text,
-                //       //         toDate: toDateController.text,
-                //       //         leaveType: leaveType,
-                //       //         reason: reasonController.text,
-                //       //         studentId: studentId,
-                //       //       );
-                //       // },
-                //       // widget:
-                //       //     provider.isLoadingTwo
-                //       //         ? ButtonLoading()
-                //       //         : Text('Submit'),
-                //     );
-                //   },
-                // ),
               ],
             ),
           ),

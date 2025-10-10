@@ -1,5 +1,6 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
+import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/leave_status_style.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
@@ -75,17 +76,30 @@ class _StudentLeavesScreenState extends State<StudentLeavesScreen> {
                     leaveRequest.status ?? "",
                   );
                   return ItemCard(
-                    title:
-                        "${leave.student?.fullName ?? ""} - ${leave.leaveType} Leave",
-                    description: leave.reason ?? "",
+                    title: leave.student?.fullName ?? "",
+                    description: DateFormatter.formatDateTime(
+                      leave.fromDate ?? DateTime.now(),
+                    ),
                     status: leaveRequest.status ?? "",
                     backgroundColor: leaveStatusStyle.backgroundColor,
                     icon: leaveStatusStyle.icon,
                     iconColor: leaveStatusStyle.iconColor,
                     onTap: () {
+                      final updatedLeave = LeaveModel(
+                        forStudentLeavePermission: true,
+                        leaveDuration: leave.leaveDuration,
+                        leaveType: leave.leaveType,
+                        reason: leave.reason,
+                        fromDate: leave.fromDate,
+                        toDate: leave.toDate,
+                        attachment: leave.attachment,
+                        adminRemarks: leave.adminRemarks,
+                        status: leave.status,
+                        id: leave.id,
+                      );
                       context.pushNamed(
                         RouteConstants.studentLeaveLetterScreen,
-                        extra: leave,
+                        extra: updatedLeave,
                       );
                     },
                   );

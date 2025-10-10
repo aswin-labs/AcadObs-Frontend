@@ -23,6 +23,7 @@ class ApiEndpoints {
       "/staff/getTodayTimetableForStaff";
   static const String getAllDayTimetableForStaff =
       "/staff/getAllDayTimetableForStaff";
+  static const String schoolDetailsForTeacher = "/staff/getSchoolDetails";
 
   // duties
   static const String staffDuties = "/staff/duties";

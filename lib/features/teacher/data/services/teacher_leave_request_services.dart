@@ -18,17 +18,18 @@ class TeacherLeaveRequestServices {
     required String toDate,
     required String leaveType,
     required String reason,
-    String? leaveDuration,
+    required String leaveDuration,
+    String? halfSection
   }) async {
     final fileUpload = context.read<FilePickerProvider>().getFile('attachment');
     final fileUploadPath = fileUpload?.path;
     final formData = {
-      // "school_id": schoolId,
-      // "user_id": userId,
       "from_date": fromDate,
       "to_date": toDate,
       "leave_type": leaveType.toLowerCase(),
       "reason": reason,
+      "leave_duration":leaveDuration,
+      "half_section": halfSection,
       if (fileUploadPath != null)
         "attachment": await MultipartFile.fromFile(
           fileUploadPath,

@@ -21,4 +21,11 @@ class AuthServices {
     return response;
   }
 
+  // fetch school details for teacher
+  Future<Response> fetchSchoolDetailsForTeacher() async {
+    final response = await ApiServices.get(
+      ApiEndpoints.schoolDetailsForTeacher,
+    );
+    return response;
+  }
 }

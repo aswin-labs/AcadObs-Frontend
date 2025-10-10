@@ -82,6 +82,8 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
     required String toDate,
     required String leaveType,
     required String reason,
+    required String leaveDuration,
+    String? halfSection,
   }) async {
     _isLoadingTwo = true;
     PopupLoader.show(context, message: "Sending Leave Request...");
@@ -93,6 +95,8 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
         toDate: toDate,
         leaveType: leaveType,
         reason: reason,
+        leaveDuration: leaveDuration,
+        halfSection: halfSection,
       );
       if (response.statusCode == 201) {
         await fetchAllLeaveRequests(forceRefresh: true);
@@ -104,8 +108,7 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
           message: "Leave Request Submitted Successfully",
           type: SnackbarType.success,
         );
-      }
-      if (response.statusCode == 400) {
+      } else {
         if (!context.mounted) return;
         PopupLoader.hide(context);
         Navigator.pop(context);
@@ -131,6 +134,7 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
     required String status,
   }) async {
     _isLoadingTwo = true;
+    PopupLoader.show(context, message: "Changing Leave Status...");
     notifyListeners();
     try {
       final response = await TeacherLeaveRequestServices()
@@ -140,7 +144,7 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
           );
       if (response.statusCode == 200) {
         if (!context.mounted) return;
-
+        PopupLoader.hide(context);
         context
             .read<StudentLeaveRequestProvider>()
             .getStudentLeaveRequestsForClassTeacher(forceRefresh: true);
@@ -150,6 +154,9 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
           type: SnackbarType.info,
         );
         Navigator.pop(context);
+      } else {
+        if (!context.mounted) return;
+        PopupLoader.hide(context);
       }
     } catch (e) {
       log(e.toString());

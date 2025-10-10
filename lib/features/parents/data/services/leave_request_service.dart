@@ -20,7 +20,8 @@ class StudentLeaveRequestServices {
     required String leaveType,
     required String reason,
     required int studentId,
-    String? leaveDuration,
+    required leaveDuration,
+    String? halfSection,
     ProgressCallback? onSendProgress,
   }) async {
     final fileUpload = context.read<FilePickerProvider>().getFile('attachment');
@@ -34,6 +35,8 @@ class StudentLeaveRequestServices {
       "leave_type": leaveType.toLowerCase(),
       "reason": reason,
       "student_id": studentId,
+      "leave_duration":leaveDuration,
+      "half_section":halfSection,
       if (fileUploadPath != null)
         "attachment": await MultipartFile.fromFile(
           fileUploadPath,
