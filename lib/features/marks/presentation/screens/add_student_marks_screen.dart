@@ -8,7 +8,7 @@ import 'package:acadobs/features/marks/data/models/marks_upload_model.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/marks/presentation/widgets/grade_card.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/common_floating_action_button.dart';
+import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -29,15 +29,15 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
   void initState() {
     super.initState();
     studentProvider = context.read<StudentProvider>();
-    studentProvider.fetchStudentsByClassId(context:context, classId: widget.marks.classId).then((
-      _,
-    ) {
-      final students = studentProvider.students;
-      for (var i = 0; i < students.length; i++) {
-        _marksControllers[i] = TextEditingController();
-      }
-      setState(() {});
-    });
+    studentProvider
+        .fetchStudentsByClassId(context: context, classId: widget.marks.classId)
+        .then((_) {
+          final students = studentProvider.students;
+          for (var i = 0; i < students.length; i++) {
+            _marksControllers[i] = TextEditingController();
+          }
+          setState(() {});
+        });
   }
 
   // submit button
@@ -149,6 +149,13 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
                           );
                         },
                       ),
+                      SizedBox(height: 30),
+                      CommonButton(
+                        onPressed: () {
+                          submitMarks(context);
+                        },
+                        widget: Text('Submit'),
+                      ),
                     ],
                   ),
                 ),
@@ -157,13 +164,13 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
           ],
         ),
       ),
-      floatingActionButton: CommonFloatingActionButton(
-        onPressed: () {
-          submitMarks(context);
-        },
-        text: "Submit",
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // floatingActionButton: CommonFloatingActionButton(
+      //   onPressed: () {
+      //     submitMarks(context);
+      //   },
+      //   text: "Submit",
+      // ),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

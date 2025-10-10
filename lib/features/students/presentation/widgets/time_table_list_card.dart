@@ -13,6 +13,7 @@ class TimeTableListCard extends StatelessWidget {
   final Color backgroundColor;
   final Color iconColor;
   final IconData icon;
+  final int periodNumber;
 
   final void Function() onTap;
 
@@ -28,6 +29,7 @@ class TimeTableListCard extends StatelessWidget {
     this.icon = LucideIcons.clipboardList,
     this.bottomRadius = 8,
     this.topRadius = 8,
+    required this.periodNumber,
   });
 
   @override
@@ -71,7 +73,7 @@ class TimeTableListCard extends StatelessWidget {
                           color: Color(0xFFFFECCE),
                         ),
                         child: Text(
-                          "9:00",
+                          '$periodNumber',
                           style: TextStyle(color: Color(0xFFA86637)),
                         ),
                       ),

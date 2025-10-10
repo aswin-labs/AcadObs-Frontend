@@ -119,7 +119,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               ),
               SizedBox(height: 10),
               CustomButtonContainer(
-                color: Colors.red,
+                color: Color(0xFF20C997),
                 text: "Student leaves",
                 ontap: () {
                   context.pushNamed(RouteConstants.studentLeaveLetter);
