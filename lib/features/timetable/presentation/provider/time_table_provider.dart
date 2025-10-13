@@ -11,6 +11,9 @@ class TimeTableProvider extends ChangeNotifier {
   final Map<int, List<TimeTableModel>> _timeTableByDay = {};
   Map<int, List<TimeTableModel>> get timeTableByDay => _timeTableByDay;
 
+  final List<Substitution> _substitution = [];
+  List<Substitution> get substitution => _substitution;
+
   // NEW: Support for GetTodayTimeTable model
   final List<GetTodayTimeTable> _allDayTimeTables = [];
   List<GetTodayTimeTable> get allDayTimeTables => _allDayTimeTables;
@@ -70,6 +73,20 @@ class TimeTableProvider extends ChangeNotifier {
             _timetableForStaff
               ..clear()
               ..addAll(fetchedTimetable);
+          }
+          //substitution
+          if (data != null && data['substitutions'] != null) {
+            final List substitutionsJson = data['substitutions'];
+            log("substitutions JSON: $substitutionsJson");
+
+            final List<Substitution> fetchedsubstitutions =
+                substitutionsJson
+                    .map((item) => Substitution.fromJson(item))
+                    .toList();
+
+            _substitution
+              ..clear()
+              ..addAll(fetchedsubstitutions);
           }
         }
 

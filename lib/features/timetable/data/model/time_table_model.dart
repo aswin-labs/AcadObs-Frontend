@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:acadobs/shared/models/class_grade_model.dart';
+import 'package:acadobs/shared/models/subject_model.dart';
+import 'package:acadobs/shared/models/user_model.dart';
+
 TimeTableModel timeTableModelFromJson(String str) =>
     TimeTableModel.fromJson(json.decode(str));
-
-String timeTableModelToJson(TimeTableModel data) => json.encode(data.toJson());
 
 class TimeTableModel {
   int? id;
@@ -15,9 +17,9 @@ class TimeTableModel {
   int? staffId;
   DateTime? createdAt;
   DateTime? updatedAt;
-  User? user;
-  Subject? subject;
-  Class? timeTableModelClass;
+  UserModel? user;
+  SubjectModel? subject;
+  ClassGradeModel? classGrade;
 
   TimeTableModel({
     this.id,
@@ -31,7 +33,7 @@ class TimeTableModel {
     this.updatedAt,
     this.user,
     this.subject,
-    this.timeTableModelClass,
+    this.classGrade,
   });
 
   factory TimeTableModel.fromJson(Map<String, dynamic> json) => TimeTableModel(
@@ -46,60 +48,65 @@ class TimeTableModel {
         json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
     updatedAt:
         json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
-    user: json["User"] == null ? null : User.fromJson(json["User"]),
-    subject: json["Subject"] == null ? null : Subject.fromJson(json["Subject"]),
-    timeTableModelClass:
-        json["Class"] == null ? null : Class.fromJson(json["Class"]),
+    user: json["User"] == null ? null : UserModel.fromJson(json["User"]),
+    subject:
+        json["Subject"] == null ? null : SubjectModel.fromJson(json["Subject"]),
+    classGrade:
+        json["Class"] == null ? null : ClassGradeModel.fromJson(json["Class"]),
   );
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "school_id": schoolId,
-    "class_id": classId,
-    "day_of_week": dayOfWeek,
-    "period_number": periodNumber,
-    "subject_id": subjectId,
-    "staff_id": staffId,
-    "createdAt": createdAt?.toIso8601String(),
-    "updatedAt": updatedAt?.toIso8601String(),
-    "User": user?.toJson(),
-    "Subject": subject?.toJson(),
-    "Class": timeTableModelClass?.toJson(),
-  };
 }
 
-class Subject {
+class Substitution {
   int? id;
-  String? subjectName;
+  int? schoolId;
+  int? timetableId;
+  int? subStaffId;
+  DateTime? date;
+  int? subjectId;
+  String? reason;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  TimeTableModel? timeTable;
+  UserModel? user;
+  ClassGradeModel? classGrade;
 
-  Subject({this.id, this.subjectName});
+  SubjectModel? subject;
 
-  factory Subject.fromJson(Map<String, dynamic> json) =>
-      Subject(id: json["id"], subjectName: json["subject_name"]);
+  Substitution({
+    this.id,
+    this.createdAt,
+    this.date,
+    this.reason,
+    this.schoolId,
+    this.subStaffId,
+    this.subjectId,
+    this.timetableId,
+    this.updatedAt,
+    this.classGrade,
+    this.subject,
+    this.timeTable,
+    this.user,
+  });
 
-  Map<String, dynamic> toJson() => {"id": id, "subject_name": subjectName};
-}
-
-class Class {
-  int? id;
-  String? classname;
-
-  Class({this.id, this.classname});
-
-  factory Class.fromJson(Map<String, dynamic> json) =>
-      Class(id: json["id"], classname: json["classname"]);
-
-  Map<String, dynamic> toJson() => {"id": id, "classname": classname};
-}
-
-class User {
-  int? id;
-  String? name;
-
-  User({this.id, this.name});
-
-  factory User.fromJson(Map<String, dynamic> json) =>
-      User(id: json["id"], name: json["name"]);
-
-  Map<String, dynamic> toJson() => {"id": id, "name": name};
+  factory Substitution.fromJson(Map<String, dynamic> json) => Substitution(
+    id: json["id"],
+    schoolId: json["school_id"],
+    timetableId: json["timetable_id"],
+    subjectId: json["subject_id"],
+    subStaffId: json["sub_staff_id"],
+    reason: json["reason"],
+    createdAt:
+        json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+    updatedAt:
+        json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
+    timeTable:
+        json["Timetable"] == null
+            ? null
+            : TimeTableModel.fromJson(json["Timetable"]),
+    user: json["User"] == null ? null : UserModel.fromJson(json["User"]),
+    subject:
+        json["Subject"] == null ? null : SubjectModel.fromJson(json["Subject"]),
+    classGrade:
+        json["Class"] == null ? null : ClassGradeModel.fromJson(json["Class"]),
+  );
 }
