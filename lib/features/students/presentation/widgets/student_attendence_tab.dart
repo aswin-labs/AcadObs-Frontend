@@ -147,8 +147,8 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
                         final item = provider.timetable[index];
                         return TimeTableCard(
                           periodnumber: item.periodNumber ?? 0,
-                          subject: item.subject!.subjectName ?? "",
-                          description: item.user!.name ?? "",
+                          subject: item.subject?.subjectName ?? "",
+                          description: item.user?.name ?? "",
                         );
                       },
                     ),

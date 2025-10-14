@@ -168,8 +168,67 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           forStaff: true,
                           periodnumber: item.periodNumber ?? 0,
                           subject: item.subject?.subjectName ?? "N/A",
+                          description: item.classGrade?.classname ?? "N/A",
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+
+              SizedBox(height: 5),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Substitution",
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+              SizedBox(height: 5),
+              //substitution
+              Consumer<TimeTableProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading) {
+                    return const Center(child: TimeTableShimmer());
+                  }
+
+                  if (provider.error != null) {
+                    return Text(
+                      provider.error!,
+                      style: const TextStyle(color: Colors.red),
+                    );
+                  }
+
+                  if (provider.timetableForStaff.isEmpty) {
+                    return emptyScreen(
+                      message: "No substitution Avaliable",
+                      heightMultiplier: 5,
+                    );
+                  }
+
+                  return SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.35,
+                    child: GridView.builder(
+                      itemCount: provider.substitution.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 0.7,
+                          ),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+
+                      itemBuilder: (context, index) {
+                        final item = provider.substitution[index];
+                        return TimeTableCard(
+                          forStaff: true,
+                          // periodnumber: item.periodNumber ?? 0,
+                          periodnumber: item.timeTable?.periodNumber ?? 0,
+                          subject: item.subject?.subjectName ?? "",
                           description:
-                              item.timeTableModelClass?.classname ?? "N/A",
+                              item.timeTable?.classGrade?.classname ?? "",
                         );
                       },
                     ),
