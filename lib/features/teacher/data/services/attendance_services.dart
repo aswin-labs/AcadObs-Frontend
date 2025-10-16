@@ -1,19 +1,19 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
-import 'package:acadobs/core/utils/storage_services.dart';
+import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 
 class AttendanceServices {
-  final int _teacherId = StorageServices.getUserId; // to be changed
   // attendance by class and date
   Future<Response> fetchAttendanceByClassIdAndDate({
     required int classId,
     required String date,
     required int period,
   }) async {
+    final teacherId = await AuthStorageService().getUserId();
     final response = await ApiServices.get(
-      '${ApiEndpoints.attendanceByClassIdAndDate}?class_id=$classId&date=$date&period=$period&teacher_id=$_teacherId',
+      '${ApiEndpoints.attendanceByClassIdAndDate}?class_id=$classId&date=$date&period=$period&teacher_id=$teacherId',
     );
     return response;
   }
@@ -31,8 +31,10 @@ class AttendanceServices {
     required String date,
     required int pageNo,
   }) async {
+    final teacherId = await AuthStorageService().getUserId();
+
     final response = await ApiServices.get(
-      '${ApiEndpoints.attendanceByTeacher}?teacher_id=$_teacherId&page=$pageNo&limit=${AppConstants.paginationLimit}&date=$date',
+      '${ApiEndpoints.attendanceByTeacher}?teacher_id=$teacherId&page=$pageNo&limit=${AppConstants.paginationLimit}&date=$date',
     );
     return response;
   }

@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
-import 'package:acadobs/core/utils/storage_services.dart';
+import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,6 @@ import 'package:provider/provider.dart';
 import '../../../../shared/providers/file_picker_provider.dart';
 
 class StudentLeaveRequestServices {
-  final int schoolId = StorageServices.getSchoolId;
   // create leave request
   Future<Response> createStudentLeaveRequest({
     required BuildContext context,
@@ -26,17 +25,17 @@ class StudentLeaveRequestServices {
   }) async {
     final fileUpload = context.read<FilePickerProvider>().getFile('attachment');
     final fileUploadPath = fileUpload?.path;
+    final schoolId = await AuthStorageService().getSchoolIdForParent();
 
     final formData = FormData.fromMap({
       "school_id": schoolId,
-      // "user_id": userId,
       "from_date": fromDate,
       "to_date": toDate,
       "leave_type": leaveType.toLowerCase(),
       "reason": reason,
       "student_id": studentId,
-      "leave_duration":leaveDuration,
-      "half_section":halfSection,
+      "leave_duration": leaveDuration,
+      "half_section": halfSection,
       if (fileUploadPath != null)
         "attachment": await MultipartFile.fromFile(
           fileUploadPath,

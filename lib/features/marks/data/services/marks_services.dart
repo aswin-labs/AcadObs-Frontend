@@ -1,13 +1,13 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
-import 'package:acadobs/core/utils/storage_services.dart';
+import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 
 class MarksServices {
   // fetch marks added by teacher
-  final int teacherId = StorageServices.getUserId;
   Future<Response> fetchMarksAddedByTeacher({required int pageNo}) async {
+    final teacherId = await AuthStorageService().getUserId();
     final response = await ApiServices.get(
       "${ApiEndpoints.marksAddedByTeacher}?recorded_by=$teacherId&limit=${AppConstants.paginationLimit}&page=$pageNo",
     );
@@ -29,6 +29,7 @@ class MarksServices {
     required int totalMarks,
     required List<Map<String, dynamic>> studentMarks,
   }) async {
+    final teacherId = await AuthStorageService().getUserId();
     final response = await ApiServices.post(ApiEndpoints.marks, {
       "class_id": classId,
       "subject_id": subjectId,
