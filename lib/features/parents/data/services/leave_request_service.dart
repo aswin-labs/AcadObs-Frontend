@@ -71,4 +71,12 @@ class StudentLeaveRequestServices {
     final response = await ApiServices.get(ApiEndpoints.studentLeaveLetter);
     return response;
   }
+
+  //notification
+  Future<Response> getLeaveRequestNotification() async {
+    final response = await ApiServices.get(
+      ApiEndpoints.leaveRequestNotification,
+    );
+    return response;
+  }
 }

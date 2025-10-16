@@ -61,9 +61,14 @@ class HomeworkProvider extends ChangeNotifier {
     if (!loadMore && !forceRefresh && _isFetchedOnce) return;
 
     _isLoading = true;
+    notifyListeners();
 
     try {
       if (loadMore) {
+        if (_currentPage >= _totalPages) {
+          _isLoading = false;
+          return;
+        }
         _currentPage++;
       } else {
         _currentPage = 1;
@@ -79,14 +84,27 @@ class HomeworkProvider extends ChangeNotifier {
         _totalPages = data['totalPages'];
         _currentPage = data['currentPage'];
 
-        final List homeworksJson = data['homework'];
+        // final List homeworksJson = data['homework'] ?? [];
+        final groupedHomework = data['groupedHomework'] ?? {};
 
-        final List<HomeworkModel> fetchHomeworks =
-            homeworksJson
+        final List allHomeworks = [];
+        groupedHomework.forEach((date, list) {
+          if (list is List) {
+            allHomeworks.addAll(list);
+          }
+        });
+
+        final List<HomeworkModel> fetchedHomeworks =
+            allHomeworks
                 .map((jsonItem) => HomeworkModel.fromJson(jsonItem))
                 .toList();
 
-        _homeworks.addAll(fetchHomeworks);
+        // final List<HomeworkModel> fetchHomeworks =
+        //     homeworksJson
+        //         .map((jsonItem) => HomeworkModel.fromJson(jsonItem))
+        //         .toList();
+
+        _homeworks.addAll(fetchedHomeworks);
         _isFetchedOnce = true;
       } else {
         throw Exception('Failed to fetch homeworks: ${response.statusCode}');

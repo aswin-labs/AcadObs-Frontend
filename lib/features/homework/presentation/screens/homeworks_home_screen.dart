@@ -29,7 +29,7 @@ class _HomeworksHomeScreenState extends State<HomeworksHomeScreen> {
   void initState() {
     super.initState();
     _homeworkProvider = context.read<HomeworkProvider>();
-    _homeworkProvider.fetchHomeworks();
+    _homeworkProvider.fetchHomeworks(forceRefresh: true);
     _scrollController.addListener(_scrollListener);
   }
 
