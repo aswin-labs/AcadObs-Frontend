@@ -41,6 +41,8 @@ class ApiEndpoints {
   static const String studentLeaveLetter =
       "/staff/getStudentLeaveRequestsForClassTeacher";
   static const String studentLeavePermission = "/staff/leaveRequestpermission";
+  static const String leaveRequestNotification =
+      "/staff/getNavigationBarCounts";
 
   // homeworks
   static const String homeworks = "/staff/homeworks";

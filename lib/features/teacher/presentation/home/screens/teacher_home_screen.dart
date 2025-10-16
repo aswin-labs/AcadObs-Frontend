@@ -12,6 +12,7 @@ import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
+import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/students/presentation/widgets/time_table_card.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
@@ -50,6 +51,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         forStaff: true,
       );
       context.read<TimeTableProvider>().fetchTimeTable(forStaff: true);
+      context.read<StudentLeaveRequestProvider>().getLeaveRequestNotification();
     });
   }
 
@@ -118,12 +120,62 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 ontap: () => showAttendanceBottomSheet(context),
               ),
               SizedBox(height: 10),
-              CustomButtonContainer(
-                color: Color(0xFF20C997),
-                text: "Student leaves",
-                ontap: () {
-                  context.pushNamed(RouteConstants.studentLeaveLetter);
-                },
+              //leave request with the notification alert
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  CustomButtonContainer(
+                    color: const Color(0xFF20C997),
+                    text: "Student leaves",
+                    ontap: () {
+                      context.pushNamed(RouteConstants.studentLeaveLetter);
+                    },
+                  ),
+
+                  Positioned(
+                    top: 15,
+                    right: 10,
+                    child: Consumer<StudentLeaveRequestProvider>(
+                      builder: (context, provider, _) {
+                        final pendingCount = provider.leaveNotificationCount;
+
+                        if (pendingCount == 0) return const SizedBox();
+
+                        return Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 1),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 20,
+                            minHeight: 20,
+                          ),
+                          child: Center(
+                            child: Text(
+                              pendingCount > 99 ? '99+' : '$pendingCount',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        );
+                        // return CustomButtonContainer(
+                        //   color: Color(0xFF20C997),
+                        //   text: "Student leaves",
+                        //   ontap: () {
+                        //     context.pushNamed(
+                        //       RouteConstants.studentLeaveLetter,
+                        //     );
+                        //   },
+                        // );
+                      },
+                    ),
+                  ),
+                ],
               ),
 
               SizedBox(height: 10),

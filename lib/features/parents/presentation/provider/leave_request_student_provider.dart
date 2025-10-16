@@ -93,7 +93,6 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
 
   bool get hasMore => _currentPage < _totalPages;
 
-
   // Fetch Staff Duties
   Future<void> fetchAllStudentLeaveRequests({
     bool loadMore = false,
@@ -249,6 +248,29 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
         _isFetchedOnce = true;
       } else {
         throw Exception("failed to fetch leaves:${response.statusCode}");
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  } //notification for the leave request
+
+  int _leaveNotificationCount = 0;
+  int get leaveNotificationCount => _leaveNotificationCount;
+
+  Future<void> getLeaveRequestNotification() async {
+    _isLoading = true;
+  
+    // notifyListeners();
+    try {
+      final response =
+          await StudentLeaveRequestServices().getLeaveRequestNotification();
+      if (response.statusCode == 200) {
+        final data = response.data;
+        _leaveNotificationCount = data['studentLeaveRequestCount'] ?? 0;
+        log(_leaveNotificationCount.toString());
       }
     } catch (e) {
       log(e.toString());
