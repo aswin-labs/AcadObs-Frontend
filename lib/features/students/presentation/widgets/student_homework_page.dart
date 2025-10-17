@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
@@ -99,6 +101,7 @@ class _StudentHomeworkPageState extends State<StudentHomeworkPage> {
                     homework.homework?.dueDate ?? DateTime.now(),
                   ),
                   onTap: () {
+                    log((homework.homework?.subject).toString());
                     final homeworkItem = HomeworkModel(
                       forStudent: true,
                       title: homework.homework?.title ?? "N/A",
@@ -110,6 +113,7 @@ class _StudentHomeworkPageState extends State<StudentHomeworkPage> {
                       guardianIdForChat: widget.guardianIdForChat,
                       guardianNameForChat: widget.guardianNameForChat,
                       user: homework.homework?.user,
+                      subject: homework.homework?.subject,
                     );
                     context.pushNamed(
                       RouteConstants.homeworkDetails,

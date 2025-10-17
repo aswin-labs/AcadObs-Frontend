@@ -35,7 +35,7 @@ class StudentLeaveRequestServices {
       "reason": reason,
       "student_id": studentId,
       "leave_duration": leaveDuration,
-      "half_section": halfSection,
+      if (leaveDuration == 'half') "half_section": halfSection,
       if (fileUploadPath != null)
         "attachment": await MultipartFile.fromFile(
           fileUploadPath,

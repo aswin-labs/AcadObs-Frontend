@@ -22,27 +22,23 @@ class HomeworksHomeScreen extends StatefulWidget {
 }
 
 class _HomeworksHomeScreenState extends State<HomeworksHomeScreen> {
-  late final HomeworkProvider _homeworkProvider;
   final ScrollController _scrollController = ScrollController();
+  late final HomeworkProvider _provider;
 
   @override
   void initState() {
     super.initState();
-    _homeworkProvider = context.read<HomeworkProvider>();
-    _homeworkProvider.fetchHomeworks(forceRefresh: true);
-    _scrollController.addListener(_scrollListener);
-  }
+    _provider = context.read<HomeworkProvider>();
+    _provider.fetchHomeworks(forceRefresh: true);
 
-  void _scrollListener() {
-    final isNearBottom =
-        _scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200;
-
-    if (isNearBottom &&
-        !_homeworkProvider.isLoading &&
-        _homeworkProvider.hasMore) {
-      _homeworkProvider.fetchHomeworks(loadMore: true);
-    }
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          !_provider.isLoading &&
+          _provider.hasMore) {
+        _provider.fetchHomeworks(loadMore: true);
+      }
+    });
   }
 
   @override
@@ -56,76 +52,74 @@ class _HomeworksHomeScreenState extends State<HomeworksHomeScreen> {
     return Scaffold(
       appBar: CommonAppBar(title: "Homeworks", isBackButton: true),
       body: RefreshIndicator(
-        onRefresh: () async {
-          await context.read<HomeworkProvider>().fetchHomeworks(
-            forceRefresh: true,
-          );
-        },
-        child: CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(
-            parent: AlwaysScrollableScrollPhysics(),
-          ),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: context.paddingHorizontal.add(
-                  EdgeInsets.only(top: Responsive.height * 2),
-                ),
-                child: Column(
+        onRefresh: () => _provider.fetchHomeworks(forceRefresh: true),
+        child: Consumer<HomeworkProvider>(
+          builder: (context, provider, _) {
+            if (provider.isLoading && provider.homeworks.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: commonShimmerList(),
+              );
+            }
+
+            if (provider.homeworks.isEmpty) {
+              return emptyScreen(message: 'No Homeworks Found.');
+            }
+
+            return ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              itemCount: provider.homeworks.length + (provider.hasMore ? 2 : 1),
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return SizedBox(height: Responsive.height * 3);
+                }
+
+                if (index == provider.homeworks.length + 1) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                final grouped = provider.homeworks[index - 1];
+
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Consumer<HomeworkProvider>(
-                      builder: (context, provider, _) {
-                        if (provider.isLoading && provider.homeworks.isEmpty) {
-                          return commonShimmerList();
-                        }
-
-                        if (provider.homeworks.isEmpty) {
-                          return emptyScreen(message: 'No Homeworks Found.');
-                        }
-
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: provider.homeworks.length,
-                          itemBuilder: (context, index) {
-                            final homework = provider.homeworks[index];
-
-                            return ItemCard(
-                              title: homework.title ?? "",
-                              description:
-                                  "Due: ${DateFormatter.formatDateString(homework.dueDate.toString())}",
-                              iconColor: Color(0xFFB14F6F),
-                              backgroundColor: Color(0xFFFFCEDE),
-                              icon: LucideIcons.clipboardList,
-                              onTap:
-                                  () => context.pushNamed(
-                                    RouteConstants.homeworkDetails,
-                                    extra: homework,
-                                  ),
-                            );
-                          },
-                        );
-                      },
+                    Text(
+                      DateFormatter.formatDateTime(
+                        grouped.date ?? DateTime.now(),
+                      ),
+                      style: context.textTheme.titleSmall!.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    Consumer<HomeworkProvider>(
-                      builder: (context, provider, _) {
-                        return provider.isLoading && provider.hasMore
-                            ? const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                            : const SizedBox();
-                      },
+                    SizedBox(height: Responsive.height * 1),
+                    ...grouped.homeworks!.map(
+                      (hw) => ItemCard(
+                        title: hw.title ?? "",
+                        description:
+                            "Due: ${DateFormatter.formatDateTime(hw.dueDate ?? DateTime.now())}",
+                        iconColor: const Color(0xFFB14F6F),
+                        backgroundColor: const Color(0xFFFFCEDE),
+                        icon: LucideIcons.clipboardList,
+                        onTap:
+                            () => context.pushNamed(
+                              RouteConstants.homeworkDetails,
+                              extra: hw,
+                            ),
+                      ),
                     ),
-
-                    SizedBox(height: Responsive.height * 4),
+                    SizedBox(height: Responsive.height * 2),
                   ],
-                ),
-              ),
-            ),
-          ],
+                );
+              },
+            );
+          },
         ),
       ),
       floatingActionButton: Padding(
