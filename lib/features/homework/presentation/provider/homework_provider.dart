@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
+import 'package:acadobs/features/homework/data/models/gouped_homework_model.dart';
 import 'package:acadobs/features/homework/data/models/homework_model.dart';
 import 'package:acadobs/features/homework/data/models/student_homework_model.dart';
 import 'package:acadobs/features/homework/data/services/homework_services.dart';
@@ -17,8 +18,8 @@ class HomeworkProvider extends ChangeNotifier {
   bool _isLoadingTwo = false;
   bool get isLoadingTwo => _isLoadingTwo;
 
-  final List<HomeworkModel> _homeworks = [];
-  List<HomeworkModel> get homeworks => _homeworks;
+  final List<GroupedHomework> _homeworks = [];
+  List<GroupedHomework> get homeworks => _homeworks;
 
   final List<StudentHomeworkModel> _studentHomeworks = [];
   List<StudentHomeworkModel> get studentHomeworks => _studentHomeworks;
@@ -61,7 +62,6 @@ class HomeworkProvider extends ChangeNotifier {
     if (!loadMore && !forceRefresh && _isFetchedOnce) return;
 
     _isLoading = true;
-    notifyListeners();
 
     try {
       if (loadMore) {
@@ -84,26 +84,12 @@ class HomeworkProvider extends ChangeNotifier {
         _totalPages = data['totalPages'];
         _currentPage = data['currentPage'];
 
-        // final List homeworksJson = data['homework'] ?? [];
-        final groupedHomework = data['groupedHomework'] ?? {};
+        final List homeworksJson = data['groupedHomework'];
 
-        final List allHomeworks = [];
-        groupedHomework.forEach((date, list) {
-          if (list is List) {
-            allHomeworks.addAll(list);
-          }
-        });
-
-        final List<HomeworkModel> fetchedHomeworks =
-            allHomeworks
-                .map((jsonItem) => HomeworkModel.fromJson(jsonItem))
+        final List<GroupedHomework> fetchedHomeworks =
+            homeworksJson
+                .map((json) => GroupedHomework.fromJson(json))
                 .toList();
-
-        // final List<HomeworkModel> fetchHomeworks =
-        //     homeworksJson
-        //         .map((jsonItem) => HomeworkModel.fromJson(jsonItem))
-        //         .toList();
-
         _homeworks.addAll(fetchedHomeworks);
         _isFetchedOnce = true;
       } else {
@@ -257,7 +243,8 @@ class HomeworkProvider extends ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        _homeworks.removeWhere((hw) => hw.id == singleHomework?.id);
+        await fetchHomeworks(forceRefresh: true);
+        // _homeworks.removeWhere((hw) => hw.id == singleHomework?.id);
         singleHomework = null;
         notifyListeners();
         CustomSnackbar.show(

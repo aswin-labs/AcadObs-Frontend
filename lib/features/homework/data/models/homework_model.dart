@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:acadobs/features/homework/data/models/student_homework_status.dart';
+import 'package:acadobs/shared/models/class_grade_model.dart';
+import 'package:acadobs/shared/models/subject_model.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 
 HomeworkModel homeworkModelFromJson(String str) =>
@@ -29,11 +31,13 @@ class HomeworkModel {
   DateTime? updatedAt;
   UserModel? user;
   List<StudentHomeworkStatus>? studentHomeworkStatus;
+  SubjectModel? subject;
+  ClassGradeModel? classGrade;
 
   HomeworkModel({
     this.forStudent = false,
     this.forParent = false,
-    this.studentHomeworkId=0,
+    this.studentHomeworkId = 0,
     this.guardianIdForChat = 0,
     this.guardianNameForChat = "",
     this.studentStatus = "N/A",
@@ -53,6 +57,8 @@ class HomeworkModel {
     this.updatedAt,
     this.user,
     this.studentHomeworkStatus,
+    this.subject,
+    this.classGrade,
   });
 
   factory HomeworkModel.fromJson(Map<String, dynamic> json) => HomeworkModel(
@@ -81,5 +87,9 @@ class HomeworkModel {
                 (x) => StudentHomeworkStatus.fromJson(x),
               ),
             ),
+    subject:
+        json["Subject"] == null ? null : SubjectModel.fromJson(json["Subject"]),
+    classGrade:
+        json["Class"] == null ? null : ClassGradeModel.fromJson(json["Class"]),
   );
 }

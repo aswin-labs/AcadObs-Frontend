@@ -26,7 +26,7 @@ class TeacherLeaveRequestServices {
       "leave_type": leaveType.toLowerCase(),
       "reason": reason,
       "leave_duration": leaveDuration,
-      "half_section": halfSection,
+      if (leaveDuration == 'half') "half_section": halfSection,
       if (fileUploadPath != null)
         "attachment": await MultipartFile.fromFile(
           fileUploadPath,

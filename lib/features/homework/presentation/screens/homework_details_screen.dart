@@ -96,113 +96,137 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
               padding: context.paddingHorizontal.add(
                 EdgeInsets.only(top: Responsive.height * 2),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ItemDetailScreenContainer(
-                    iconColor: Color(0xFFB14F6F),
-                    backgroundColor: Color(0xFFFFCEDE),
-                    icon: LucideIcons.clipboardList,
-                  ),
-                  SizedBox(height: Responsive.height * 3),
-                  Text(
-                    capitalizeEachWord(widget.homework.title ?? ""),
-                    style: context.textTheme.titleLarge!.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: Responsive.height * 1),
-                  Text(
-                    widget.homework.description ?? "",
-                    style: context.textTheme.bodySmall!.copyWith(
-                      color: Color(0xFF949494),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: Responsive.height * 1),
-                  Text(
-                    "Due: ${DateFormatter.formatDateString(widget.homework.dueDate.toString())}",
+              child: Consumer<HomeworkProvider>(
+                builder: (context, provider, _) {
+                  final singleHomework = provider.singleHomework;
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ItemDetailScreenContainer(
+                        iconColor: Color(0xFFB14F6F),
+                        backgroundColor: Color(0xFFFFCEDE),
+                        icon: LucideIcons.clipboardList,
+                      ),
+                      SizedBox(height: Responsive.height * 3),
+                      Text(
+                        capitalizeEachWord(widget.homework.title ?? ""),
+                        style: context.textTheme.titleLarge!.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: Responsive.height * 1),
+                      Text(
+                        widget.homework.description ?? "",
+                        style: context.textTheme.bodySmall!.copyWith(
+                          color: Color(0xFF949494),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: Responsive.height * 1),
+                      Text(
+                        "Due: ${DateFormatter.formatDateString(widget.homework.dueDate.toString())}",
 
-                    style: context.textTheme.bodySmall!.copyWith(
-                      color: Color(0xFF949494),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: Responsive.height * 3),
-                  Text(
-                    'Assigned by: ${widget.homework.user?.name ?? ""}',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: Responsive.height * 3),
-
-                  widget.homework.forStudent == true
-                      ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Homework Status:",
-                            style: context.textTheme.titleMedium!.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                        style: context.textTheme.bodySmall!.copyWith(
+                          color: Color(0xFF949494),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: Responsive.height * 3),
+                      widget.homework.forStudent == true
+                          ? Text(
+                            'Subject: ${widget.homework.subject?.subjectName ?? ""}',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )
+                          : Text(
+                            'Subject ${singleHomework?.subject?.subjectName ?? ""}',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(height: Responsive.height * 2),
-                          Row(
-                            children: List.generate(5, (index) {
-                              final points = widget.homework.studentPoints ?? 0;
-                              return Icon(
-                                index < points ? Icons.star : Icons.star_border,
-                                color:
+                      SizedBox(height: Responsive.height * 3),
+                      widget.homework.forStudent == true
+                          ? Text(
+                            'Assigned by: ${widget.homework.user?.name ?? ""}',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          )
+                          : SizedBox.shrink(),
+                      SizedBox(height: Responsive.height * 3),
+
+                      widget.homework.forStudent == true
+                          ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Homework Status:",
+                                style: context.textTheme.titleMedium!.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: Responsive.height * 2),
+                              Row(
+                                children: List.generate(5, (index) {
+                                  final points =
+                                      widget.homework.studentPoints ?? 0;
+                                  return Icon(
                                     index < points
-                                        ? Colors.amber
-                                        : Colors.grey.shade400,
-                                size: 30,
-                              );
-                            }),
-                          ),
-                        ],
-                      )
-                      : Consumer<HomeworkProvider>(
-                        builder: (context, provider, _) {
-                          return GestureDetector(
-                            onTap: () {
-                              context.pushNamed(
-                                RouteConstants.homeworkRankingScreen,
-                                extra: provider.singleHomework,
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color:
+                                        index < points
+                                            ? Colors.amber
+                                            : Colors.grey.shade400,
+                                    size: 30,
+                                  );
+                                }),
+                              ),
+                            ],
+                          )
+                          : Consumer<HomeworkProvider>(
+                            builder: (context, provider, _) {
+                              return GestureDetector(
+                                onTap: () {
+                                  context.pushNamed(
+                                    RouteConstants.homeworkRankingScreen,
+                                    extra: provider.singleHomework,
+                                  );
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: Responsive.radius * 6,
+                                        backgroundColor: const Color(
+                                          0xffF4F4F4,
+                                        ),
+                                        child: const Icon(
+                                          Icons.fact_check_outlined,
+                                          size: 25,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      SizedBox(width: Responsive.width * 20),
+
+                                      Text(
+                                        'Mark Homework',
+                                        style: context.textTheme.bodyMedium!
+                                            .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               );
                             },
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: Responsive.radius * 6,
-                                    backgroundColor: const Color(0xffF4F4F4),
-                                    child: const Icon(
-                                      Icons.fact_check_outlined,
-                                      size: 25,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  SizedBox(width: Responsive.width * 20),
+                          ),
 
-                                  Text(
-                                    'Mark Homework',
-                                    style: context.textTheme.bodyMedium!
-                                        .copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-
-                  SizedBox(height: Responsive.height * 4),
-                ],
+                      SizedBox(height: Responsive.height * 4),
+                    ],
+                  );
+                },
               ),
             ),
           ),
