@@ -147,7 +147,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
     required String reason,
     required int studentId,
     required String leaveDuration,
-    String? halfSection
+    String? halfSection,
   }) async {
     _isLoadingTwo = true;
     _isFileUploading = false;
@@ -165,7 +165,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
             studentId: studentId,
             onSendProgress: _setUploadProgress,
             leaveDuration: leaveDuration,
-            halfSection:halfSection
+            halfSection: halfSection,
           );
 
       if (response.statusCode == 201) {
@@ -237,6 +237,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
               .getStudentLeaveRequestsForClassTeacher();
       log(response.toString());
       if (response.statusCode == 200) {
+        await getLeaveRequestNotification();
         final data = response.data;
         _totalPages = data['totalPages'];
         _currentPage = data['currentPage'];
@@ -266,7 +267,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
 
   Future<void> getLeaveRequestNotification() async {
     _isLoading = true;
-  
+
     // notifyListeners();
     try {
       final response =
