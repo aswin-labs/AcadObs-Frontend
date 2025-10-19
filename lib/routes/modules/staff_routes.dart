@@ -52,7 +52,7 @@ List<GoRoute> staffRoutes = [
     path: '/dutyDetail',
     name: RouteConstants.dutyDetail,
     builder: (context, state) {
-      final StaffDuty staffDuty = state.extra as StaffDuty;
+      final Duty staffDuty = state.extra as Duty;
       return DutyDetailScreen(staffDuty: staffDuty);
     },
   ),
