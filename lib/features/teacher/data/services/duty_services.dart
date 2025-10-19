@@ -63,4 +63,12 @@ class DutyServices {
     );
     return response;
   }
+
+  // fetch individual duties
+  Future<Response> fetchSingleDuties({required int dutyId}) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.staffDuties}/$dutyId",
+    );
+    return response;
+  }
 }

@@ -16,10 +16,12 @@ class DutyProvider extends ChangeNotifier {
   bool _isLoadingTwo = false;
   bool get isLoadingTwo => _isLoadingTwo;
 
-  final List<StaffDuty> _staffDuties = [];
-  List<StaffDuty> get staffDuties => _staffDuties;
+  final List<GroupedDuty> _staffDuties = [];
+  List<GroupedDuty> get staffDuties => _staffDuties;
 
   UpdatedDutyResponse? updatedDutyResponse;
+
+  Duty? singleDuty;
 
   int _currentPage = 1;
   int _totalPages = 1;
@@ -59,8 +61,10 @@ class DutyProvider extends ChangeNotifier {
 
         final List dutiesJson = data['duties'];
 
-        final List<StaffDuty> fetchedDuties =
-            dutiesJson.map((jsonItem) => StaffDuty.fromJson(jsonItem)).toList();
+        final List<GroupedDuty> fetchedDuties =
+            dutiesJson
+                .map((jsonItem) => GroupedDuty.fromJson(jsonItem))
+                .toList();
 
         _staffDuties.addAll(fetchedDuties);
         _isFetchedOnce = true;
@@ -202,6 +206,23 @@ class DutyProvider extends ChangeNotifier {
       log(e.toString());
     } finally {
       _isLoadingTwo = false;
+      notifyListeners();
+    }
+  }
+
+  //get single duty
+  Future<void> fetchSingleDuties({required int dutyId}) async {
+    _isLoading = true;
+    try {
+      final response = await DutyServices().fetchSingleDuties(dutyId: dutyId);
+      if (response.statusCode == 200) {
+        final data = response.data;
+        singleDuty = Duty.fromJson(data);
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
