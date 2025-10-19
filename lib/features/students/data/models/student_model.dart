@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:acadobs/features/teacher/data/models/attendance/attendance_status_model.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/models/user_model.dart';
 
@@ -26,6 +27,7 @@ class StudentModel {
   DateTime? updatedAt;
   ClassGradeModel? classGrade;
   UserModel? user;
+  List<AttendanceStatusModel>? studentRecords;
 
   StudentModel({
     required this.id,
@@ -47,6 +49,7 @@ class StudentModel {
     this.updatedAt,
     this.classGrade,
     this.user,
+    this.studentRecords,
   });
 
   factory StudentModel.fromJson(Map<String, dynamic> json) => StudentModel(
@@ -78,5 +81,13 @@ class StudentModel {
     classGrade:
         json["Class"] == null ? null : ClassGradeModel.fromJson(json["Class"]),
     user: json["User"] == null ? null : UserModel.fromJson(json["User"]),
+    studentRecords:
+        json["AttendanceMarkeds"] == null
+            ? []
+            : List<AttendanceStatusModel>.from(
+              json["AttendanceMarkeds"]!.map(
+                (x) => AttendanceStatusModel.fromJson(x),
+              ),
+            ),
   );
 }
