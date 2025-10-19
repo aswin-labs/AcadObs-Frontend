@@ -181,7 +181,12 @@ class _AttendanceTakingScreenState extends State<AttendanceTakingScreen> {
                         itemCount: provider.students.length,
                         itemBuilder: (context, index) {
                           final student = provider.students[index];
+                          final isLeaveApproved =
+                              student.studentRecords?.isNotEmpty;
+
                           return AttendanceTakingWidget(
+                            isLeaveApproved: isLeaveApproved,
+                            alreadyTaken: isLeaveApproved ?? false,
                             studentId: student.id,
                             rollNo: student.rollNumber ?? 0,
                             studentName: student.fullName,

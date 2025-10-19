@@ -60,15 +60,19 @@ class StudentLeaveRequestServices {
   }) async {
     final url = await ApiServices.get(
       forParent
-          ? "${ApiEndpoints.getStudentLeaveRequest}/$studentId&pageNo=$pageNo&limit=${AppConstants.paginationLimit}"
-          : "${ApiEndpoints.studentLeaveRequestStaff}/$studentId&pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
+          ? "${ApiEndpoints.getStudentLeaveRequest}/$studentId?pageNo=$pageNo&limit=${AppConstants.paginationLimit}"
+          : "${ApiEndpoints.studentLeaveRequestStaff}/$studentId?pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return url;
   }
 
   //get student leave request for the class teacher
-  Future<Response> getStudentLeaveRequestsForClassTeacher() async {
-    final response = await ApiServices.get(ApiEndpoints.studentLeaveLetter);
+  Future<Response> getStudentLeaveRequestsForClassTeacher({
+    required int pageNo,
+  }) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.studentLeaveLetter}?pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
+    );
     return response;
   }
 
