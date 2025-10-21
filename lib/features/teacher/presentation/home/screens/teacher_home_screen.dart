@@ -163,22 +163,20 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                             ),
                           ),
                         );
-                        // return CustomButtonContainer(
-                        //   color: Color(0xFF20C997),
-                        //   text: "Student leaves",
-                        //   ontap: () {
-                        //     context.pushNamed(
-                        //       RouteConstants.studentLeaveLetter,
-                        //     );
-                        //   },
-                        // );
                       },
                     ),
                   ),
                 ],
               ),
 
-              SizedBox(height: 10),
+              SizedBox(height: Responsive.height * 5),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "Today Timetable",
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
 
               Consumer<TimeTableProvider>(
                 builder: (context, provider, _) {
@@ -208,7 +206,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 4,
                             crossAxisSpacing: 8,
-                            mainAxisSpacing: 10,
+                            // mainAxisSpacing: 10,
                             childAspectRatio: 0.7,
                           ),
                       shrinkWrap: true,
@@ -251,7 +249,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     );
                   }
 
-                  if (provider.timetableForStaff.isEmpty) {
+                  if (provider.substitution.isEmpty) {
                     return emptyScreen(
                       message: "No substitution Avaliable",
                       heightMultiplier: 5,

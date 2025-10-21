@@ -1,6 +1,5 @@
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
-import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -9,8 +8,7 @@ import 'package:provider/provider.dart';
 const Color tPrimaryColor = Color(0xFF1E88E5);
 
 class ProfileScreen extends StatefulWidget {
-  final UserModel usermodel;
-  const ProfileScreen({super.key, required this.usermodel});
+  const ProfileScreen({super.key});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
