@@ -117,7 +117,7 @@ class NewsProvider extends ChangeNotifier {
     required bool forStaff,
   }) async {
     _isLoading = true;
-    notifyListeners();
+    // notifyListeners();
     try {
       final response = await _newsService.fetchLatestNews(
         pageNo: 1,

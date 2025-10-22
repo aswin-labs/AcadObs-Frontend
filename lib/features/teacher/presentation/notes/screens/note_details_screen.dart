@@ -139,40 +139,40 @@ class _NoteDetailsScreenState extends State<NoteDetailsScreen> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      InkWell(
-                        onTap: () async {
-                          final provider = context.read<FileDownloadProvider>();
-                          final fileName =
-                              widget.note.noteAttachment!.split('/').last;
-                          provider.downloadNoticeFile(
-                            widget.note.noteAttachment!,
-                            fileName,
-                          );
-                        },
+                      // InkWell(
+                      //   onTap: () async {
+                      //     final provider = context.read<FileDownloadProvider>();
+                      //     final fileName =
+                      //         widget.note.noteAttachment!.split('/').last;
+                      //     provider.downloadNoticeFile(
+                      //       widget.note.noteAttachment!,
+                      //       fileName,
+                      //     );
+                      //   },
 
-                        child: const Icon(Icons.file_download_outlined),
-                      ),
+                      //   child: const Icon(Icons.file_download_outlined),
+                      // ),
                     ],
                   ),
                 )
                 : const SizedBox(),
             const SizedBox(height: 8),
 
-            Consumer<FileDownloadProvider>(
-              builder: (context, provider, _) {
-                if (provider.isDownloading) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      LinearProgressIndicator(value: provider.progress),
-                      const SizedBox(height: 4),
-                      Text('${(provider.progress * 100).toStringAsFixed(0)}%'),
-                    ],
-                  );
-                }
-                return const SizedBox();
-              },
-            ),
+            // Consumer<FileDownloadProvider>(
+            //   builder: (context, provider, _) {
+            //     if (provider.isDownloading) {
+            //       return Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children: [
+            //           LinearProgressIndicator(value: provider.progress),
+            //           const SizedBox(height: 4),
+            //           Text('${(provider.progress * 100).toStringAsFixed(0)}%'),
+            //         ],
+            //       );
+            //     }
+            //     return const SizedBox();
+            //   },
+            // ),
           ],
         ),
       ),

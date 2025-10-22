@@ -7,7 +7,6 @@ import 'package:acadobs/features/events/presentation/provider/event_provider.dar
 import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
-import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -33,7 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     context.read<ParentProvider>().fetchStudentsUnderParentBySchoolId();
-    context.read<NoticeProvider>().fetchLatestNotices(limit: 3);
     context.read<EventProvider>().fetchHomeLatestEvents(
       limit: 3,
       forStaff: false,
@@ -82,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Center(
                     child:
                         schoolName == null
-                            ? CircularProgressIndicator(color: Colors.white,)
+                            ? CircularProgressIndicator(color: Colors.white)
                             : Text(
                               schoolName ?? "",
                               style: TextStyle(
@@ -144,7 +142,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-
                   Consumer<ParentProvider>(
                     builder: (context, provider, _) {
                       return ListView.builder(

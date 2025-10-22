@@ -3,4 +3,5 @@ class MediaEndpoints {
   static const String schoolLogos = "/uploads/school_logos/";
   static const String eventImages = "/uploads/event_files/";
   static const String newsImages = "/uploads/news_files/";
+  static const String leaveRequests = "/uploads/leave_requests/";
 }

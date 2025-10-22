@@ -3,11 +3,15 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/leave_status_style.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
 import 'package:acadobs/features/teacher/presentation/duties/widgets/date_label_container.dart';
+import 'package:acadobs/shared/providers/file_download_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/download_button.dart';
 import 'package:acadobs/shared/widgets/item_detail_screen_container.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LeaveRequestDetailScreen extends StatelessWidget {
   final LeaveModel leave;
@@ -157,6 +161,19 @@ class LeaveRequestDetailScreen extends StatelessWidget {
                         ],
                       ),
                     ),
+                  ),
+                  Consumer<FileDownloadProvider>(
+                    builder: (context, provider, _) {
+                      return DownloadButton(
+                        onTap:
+                            () => provider.downloadFile(
+                              fileName:
+                                  "${MediaEndpoints.leaveRequests}${leave.attachment}",
+                            ),
+                        isDownloading: provider.isDownloading,
+                        progress: provider.progress,
+                      );
+                    },
                   ),
 
                   SizedBox(height: Responsive.height * 2),

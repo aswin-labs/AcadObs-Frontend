@@ -133,7 +133,6 @@ class EventProvider extends ChangeNotifier {
     
   Future<void> fetchHomeLatestEvents({int limit = 3,required bool forStaff, }) async {
     _isLoading = true;
-    notifyListeners();
     try {
       final response = await _eventServices.fetchLatestEvents(
         forStaff: forStaff,
