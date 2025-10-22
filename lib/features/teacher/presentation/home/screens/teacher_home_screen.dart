@@ -108,16 +108,25 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               SizedBox(height: 30),
 
               SizedBox(height: 20),
-              CustomButtonContainer(
-                color: Color(0xFF22AE22),
-                text: "Home Work",
-                ontap: () => context.pushNamed(RouteConstants.homeworks),
-              ),
-              SizedBox(height: 10),
-              CustomButtonContainer(
-                color: Color(0xFF010101),
-                text: "Attendence",
-                ontap: () => showAttendanceBottomSheet(context),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: CustomButtonContainer(
+                      color: Color(0XFF22AE22),
+                      text: "Home Work",
+                      ontap: () => context.pushNamed(RouteConstants.homeworks),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: CustomButtonContainer(
+                      color: Color(0XFF010101),
+                      text: "Attendence",
+                      ontap: () => showAttendanceBottomSheet(context),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 10),
               //leave request with the notification alert
@@ -125,7 +134,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 clipBehavior: Clip.none,
                 children: [
                   CustomButtonContainer(
-                    color: const Color(0xFF20C997),
+                    color: Color(0XFF20C997),
                     text: "Student leaves",
                     ontap: () {
                       context.pushNamed(RouteConstants.studentLeaveLetter);
@@ -169,124 +178,131 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 ],
               ),
 
-              SizedBox(height: Responsive.height * 5),
+              SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Today Timetable",
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-
-              Consumer<TimeTableProvider>(
-                builder: (context, provider, _) {
-                  if (provider.isLoading) {
-                    return const Center(child: TimeTableShimmer());
-                  }
-
-                  if (provider.error != null) {
-                    return Text(
-                      provider.error!,
-                      style: const TextStyle(color: Colors.red),
-                    );
-                  }
-
-                  if (provider.timetableForStaff.isEmpty) {
-                    return emptyScreen(
-                      message: "No Time Table Avaliable",
-                      heightMultiplier: 5,
-                    );
-                  }
-
-                  return SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.35,
-                    child: GridView.builder(
-                      itemCount: provider.timetableForStaff.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            crossAxisSpacing: 8,
-                            // mainAxisSpacing: 10,
-                            childAspectRatio: 0.7,
-                          ),
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-
-                      itemBuilder: (context, index) {
-                        final item = provider.timetableForStaff[index];
-                        return TimeTableCard(
-                          forStaff: true,
-                          periodnumber: item.periodNumber ?? 0,
-                          subject: item.subject?.subjectName ?? "N/A",
-                          description: item.classGrade?.classname ?? "N/A",
-                        );
-                      },
-                    ),
-                  );
-                },
-              ),
-
-              SizedBox(height: 5),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Substitution",
+                  "Today's TimeTable",
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
               SizedBox(height: 5),
+              _buildTimeTableSection(context),
+
+              // Consumer<TimeTableProvider>(
+              //   builder: (context, provider, _) {
+              //     if (provider.isLoading) {
+              //       return const Center(child: TimeTableShimmer());
+              //     }
+
+              //     if (provider.error != null) {
+              //       return Text(
+              //         provider.error!,
+              //         style: const TextStyle(color: Colors.red),
+              //       );
+              //     }
+
+              //     if (provider.timetableForStaff.isEmpty) {
+              //       return emptyScreen(
+              //         message: "No Time Table Avaliable",
+              //         heightMultiplier: 5,
+              //       );
+              //     }
+
+              //     return SizedBox(
+              //       height: MediaQuery.of(context).size.height * 0.35,
+              //       child: GridView.builder(
+              //         itemCount: provider.timetableForStaff.length,
+              //         gridDelegate:
+              //             const SliverGridDelegateWithFixedCrossAxisCount(
+              //               crossAxisCount: 4,
+              //               crossAxisSpacing: 8,
+              //               mainAxisSpacing: 10,
+              //               childAspectRatio: 0.7,
+              //             ),
+              //         shrinkWrap: true,
+              //         physics: const NeverScrollableScrollPhysics(),
+
+              //         itemBuilder: (context, index) {
+              //           final item = provider.timetableForStaff[index];
+              //           return TimeTableCard(
+              //             forStaff: true,
+              //             periodnumber: item.periodNumber ?? 0,
+              //             subject: item.subject?.subjectName ?? "N/A",
+              //             description: item.classGrade?.classname ?? "N/A",
+              //           );
+              //         },
+              //       ),
+              //     );
+              //   },
+              // ),
+              SizedBox(height: 5),
+              // Align(
+              //   alignment: Alignment.centerLeft,
+              //   child: Text(
+              //     "Substitution",
+              //     style: TextStyle(fontWeight: FontWeight.w700),
+              //   ),
+              // ),
+              // SizedBox(height: 5),
               //substitution
+              // Consumer<TimeTableProvider>(
+              //   builder: (context, provider, _) {
+              //     if (provider.isLoading) {
+              //       return const Center(child: TimeTableShimmer());
+              //     }
+
+              //     if (provider.error != null) {
+              //       return Text(
+              //         provider.error!,
+              //         style: const TextStyle(color: Colors.red),
+              //       );
+              //     }
+
+              //     if (provider.timetableForStaff.isEmpty) {
+              //       return emptyScreen(
+              //         message: "No substitution Avaliable",
+              //         heightMultiplier: 5,
+              //       );
+              //     }
+
+              //     return SizedBox(
+              //       height: MediaQuery.of(context).size.height * 0.35,
+              //       child: GridView.builder(
+              //         itemCount: provider.substitution.length,
+              //         gridDelegate:
+              //             const SliverGridDelegateWithFixedCrossAxisCount(
+              //               crossAxisCount: 4,
+              //               crossAxisSpacing: 8,
+              //               mainAxisSpacing: 10,
+              //               childAspectRatio: 0.7,
+              //             ),
+              //         shrinkWrap: true,
+              //         physics: const NeverScrollableScrollPhysics(),
+
+              //         itemBuilder: (context, index) {
+              //           final item = provider.substitution[index];
+              //           return TimeTableCard(
+              //             forStaff: true,
+              //             // periodnumber: item.periodNumber ?? 0,
+              //             periodnumber: item.timeTable?.periodNumber ?? 0,
+              //             subject: item.subject?.subjectName ?? "",
+              //             description:
+              //                 item.timeTable?.classGrade?.classname ?? "",
+              //           );
+              //         },
+              //       ),
+              //     );
+              //   },
+              // ),
               Consumer<TimeTableProvider>(
                 builder: (context, provider, _) {
-                  if (provider.isLoading) {
-                    return const Center(child: TimeTableShimmer());
-                  }
-
-                  if (provider.error != null) {
-                    return Text(
-                      provider.error!,
-                      style: const TextStyle(color: Colors.red),
-                    );
-                  }
-
-                  if (provider.substitution.isEmpty) {
-                    return emptyScreen(
-                      message: "No substitution Avaliable",
-                      heightMultiplier: 5,
-                    );
-                  }
-
-                  return SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.35,
-                    child: GridView.builder(
-                      itemCount: provider.substitution.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 10,
-                            childAspectRatio: 0.7,
-                          ),
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-
-                      itemBuilder: (context, index) {
-                        final item = provider.substitution[index];
-                        return TimeTableCard(
-                          forStaff: true,
-                          // periodnumber: item.periodNumber ?? 0,
-                          periodnumber: item.timeTable?.periodNumber ?? 0,
-                          subject: item.subject?.subjectName ?? "",
-                          description:
-                              item.timeTable?.classGrade?.classname ?? "",
-                        );
-                      },
-                    ),
-                  );
+                  return provider.substitution.isEmpty
+                      ? SizedBox.shrink()
+                      : _buildSubstitutionSection(context);
                 },
               ),
-
-              // SizedBox(height: 20),
+              SizedBox(height: 20),
               Row(
                 children: [
                   Text(
@@ -567,4 +583,135 @@ class _OptionTile extends StatelessWidget {
       onTap: onTap,
     );
   }
+}
+
+Widget _buildSubstitutionSection(BuildContext context) {
+  return Consumer<TimeTableProvider>(
+    builder: (context, provider, _) {
+      if (provider.isLoading) {
+        return const TimeTableShimmer();
+      }
+
+      if (provider.error != null) {
+        return _buildErrorCard(provider.error!);
+      }
+
+      if (provider.substitution.isEmpty) {
+        return emptyScreen(
+          message: "No substitution Avaliable",
+          heightMultiplier: 5,
+        );
+      }
+
+      return Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Substitution",
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+          SizedBox(height: 5),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey[200]!),
+            ),
+            padding: const EdgeInsets.all(12),
+            child: GridView.builder(
+              itemCount: provider.substitution.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 10,
+                childAspectRatio: 0.7,
+              ),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                final item = provider.substitution[index];
+                return TimeTableCard(
+                  forStaff: true,
+                  periodnumber: item.timeTable?.periodNumber ?? 0,
+                  subject: item.subject?.subjectName ?? "",
+                  description: item.timeTable?.classGrade?.classname ?? "",
+                );
+              },
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Widget _buildErrorCard(String error) {
+  return Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.red[50],
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: Colors.red[200]!),
+    ),
+    child: Row(
+      children: [
+        Icon(Icons.error_outline, color: Colors.red[700]),
+        const SizedBox(width: 12),
+        Expanded(child: Text(error, style: TextStyle(color: Colors.red[700]))),
+      ],
+    ),
+  );
+}
+
+Widget _buildTimeTableSection(BuildContext context) {
+  return Consumer<TimeTableProvider>(
+    builder: (context, provider, _) {
+      if (provider.isLoading) {
+        return const TimeTableShimmer();
+      }
+
+      if (provider.error != null) {
+        return _buildErrorCard(provider.error!);
+      }
+
+      if (provider.timetableForStaff.isEmpty) {
+        return emptyScreen(
+          message: "No Time Table Avaliable",
+          heightMultiplier: 5,
+        );
+      }
+
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey[200]!),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: GridView.builder(
+          itemCount: provider.timetableForStaff.length,
+
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 150, // max width per card
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 10,
+            childAspectRatio: 0.7,
+          ),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) {
+            final item = provider.timetableForStaff[index];
+            return TimeTableCard(
+              forStaff: true,
+              periodnumber: item.periodNumber ?? 0,
+              subject: item.subject?.subjectName ?? "N/A",
+              description: item.classGrade?.classname ?? "N/A",
+            );
+          },
+        ),
+      );
+    },
+  );
 }
