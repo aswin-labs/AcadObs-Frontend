@@ -141,39 +141,6 @@ class _EventListScreenState extends State<EventListScreen> {
                   ),
                 ),
               ),
-              // child: ListView.builder(
-              //   physics: const BouncingScrollPhysics(),
-              //   itemCount:
-              //       eventProvider.events.length +
-              //       (eventProvider.hasMore ? 1 : 0),
-              //   itemBuilder: (context, index) {
-              //     if (index == eventProvider.events.length) {
-              //       return const Center(
-              //         child: Padding(
-              //           padding: EdgeInsets.all(12.0),
-
-              //           child: CircularProgressIndicator(),
-              //         ),
-              //       );
-              //     }
-              //     final event = eventProvider.events[index];
-              //     return Padding(
-              //       padding: const EdgeInsets.symmetric(vertical: 1),
-              //       //time: TimeFormatter.formatTime(notice.createdAt),
-              //       child: EventCard(
-              //         time: TimeFormatter.formatTime(
-              //           event.createdAt ?? DateTime.now(),
-              //         ),
-              //         event: event,
-              //         onViewTap:
-              //             () => context.pushNamed(
-              //               RouteConstants.eventlistdetails,
-              //               extra: event,
-              //             ),
-              //       ),
-              //     );
-              //   },
-              // ),
             );
           }
         },

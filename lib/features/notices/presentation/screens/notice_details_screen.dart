@@ -102,21 +102,21 @@ class NoticeDetailsScreen extends StatelessWidget {
             // : const SizedBox(),
             const SizedBox(height: 8),
 
-            Consumer<FileDownloadProvider>(
-              builder: (context, provider, _) {
-                if (provider.isDownloading) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      LinearProgressIndicator(value: provider.progress),
-                      const SizedBox(height: 4),
-                      Text('${(provider.progress * 100).toStringAsFixed(0)}%'),
-                    ],
-                  );
-                }
-                return const SizedBox();
-              },
-            ),
+            // Consumer<FileDownloadProvider>(
+            //   builder: (context, provider, _) {
+            //     if (provider.isDownloading) {
+            //       return Column(
+            //         crossAxisAlignment: CrossAxisAlignment.start,
+            //         children: [
+            //           LinearProgressIndicator(value: provider.progress),
+            //           const SizedBox(height: 4),
+            //           Text('${(provider.progress * 100).toStringAsFixed(0)}%'),
+            //         ],
+            //       );
+            //     }
+            //     return const SizedBox();
+            //   },
+            // ),
           ],
         ),
       ),
