@@ -186,7 +186,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
-              SizedBox(height: 5),
+              SizedBox(height: 10),
               _buildTimeTableSection(context),
 
               // Consumer<TimeTableProvider>(
