@@ -1,6 +1,5 @@
 import 'package:acadobs/features/achievements/data/services/achievement_service.dart';
 import 'package:acadobs/features/achievements/models/student_achievement_model.dart';
-
 import 'package:flutter/material.dart';
 
 class StudentAchievementProvider extends ChangeNotifier {
@@ -29,8 +28,6 @@ class StudentAchievementProvider extends ChangeNotifier {
     if (_isLoading && !isRefresh) return;
     _isLoading = true;
     _error = null;
-    notifyListeners();
-
     try {
       final response = await _acheivementService.fetchAchievementByStudentId(
         pageNo: pageNo,

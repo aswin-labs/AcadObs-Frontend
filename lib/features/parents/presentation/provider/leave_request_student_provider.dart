@@ -119,7 +119,6 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
     bool forParent = true,
   }) async {
     _isLoading = true;
-    notifyListeners();
 
     try {
       if (loadMore) {

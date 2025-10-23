@@ -135,7 +135,6 @@ class StudentProvider extends ChangeNotifier {
 
       _totalPeriod = 0;
       _status = [];
-      notifyListeners();
       log(" Sending request for studentId=$studentId, date=$date");
 
       final response = await StudentServices().fetchAttendanceByDate(
@@ -185,7 +184,7 @@ class StudentProvider extends ChangeNotifier {
     _isLoading = true;
     _totalPeriod = 0;
     _status = [];
-    notifyListeners();
+    // notifyListeners();
   }
 
   //////////////
