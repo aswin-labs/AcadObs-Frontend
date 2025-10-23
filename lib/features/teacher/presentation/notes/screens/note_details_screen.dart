@@ -3,7 +3,6 @@ import 'package:acadobs/core/utils/custom_popup_menu.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
-import 'package:acadobs/features/notices/presentation/provider/file_download_provider.dart';
 import 'package:acadobs/features/teacher/data/models/note_model.dart';
 import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';

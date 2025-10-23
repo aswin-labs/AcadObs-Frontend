@@ -45,7 +45,6 @@ class TimeTableProvider extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     _timetable.clear();
-    notifyListeners();
 
     try {
       final response = await _timeTableServices.fetchTimeTable(
@@ -132,8 +131,6 @@ class TimeTableProvider extends ChangeNotifier {
   }) async {
     _isLoading = true;
     _error = null;
-    notifyListeners();
-
     try {
       final response = await _timeTableServices.getAllDayTimeTableByStudentId(
         studentId: studentId,

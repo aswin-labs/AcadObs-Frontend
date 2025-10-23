@@ -21,7 +21,6 @@ import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
-import 'package:acadobs/shared/providers/file_download_provider.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
 import 'package:acadobs/shared/providers/subject_provider.dart';
@@ -76,9 +75,6 @@ getProviders() {
     //**************PARENTS****************//
     ChangeNotifierProvider(create: (_) => ParentProvider()),
 
-    //**************pdf download****************//
-    ChangeNotifierProvider(create: (_) => FileDownloadProvider()),
-
     //**************parent note ****************//
     ChangeNotifierProvider(create: (_) => ParentNoteProvider()),
 
@@ -88,7 +84,5 @@ getProviders() {
     //**************time table ****************//
     ChangeNotifierProvider(create: (_) => TimeTableProvider()),
 
-    //**************File downloader ****************//
-    ChangeNotifierProvider(create: (_) => FileDownloadProvider()),
   ];
 }

@@ -221,9 +221,6 @@ class MarksProvider extends ChangeNotifier {
   }) async {
     if (_isLoading) return;
 
-    // If not loading more, check if already fetched once.
-    // if (!loadMore && !forceRefresh) return;
-
     _isLoading = true;
 
     try {

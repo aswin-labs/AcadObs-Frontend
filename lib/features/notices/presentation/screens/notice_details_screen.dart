@@ -1,11 +1,10 @@
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
-import 'package:acadobs/features/notices/presentation/provider/file_download_provider.dart';
+import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/parents/data/models/notice_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-
+import 'package:acadobs/shared/widgets/download_file_card.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class NoticeDetailsScreen extends StatelessWidget {
   final Notices notices;
@@ -62,61 +61,12 @@ class NoticeDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            // notices.file != null
-            //     ? Container(
-            //       padding: const EdgeInsets.symmetric(
-            //         horizontal: 12,
-            //         vertical: 12,
-            //       ),
-            //       decoration: BoxDecoration(
-            //         border: Border.all(color: Colors.black26),
-            //         borderRadius: BorderRadius.circular(30),
-            //       ),
-            //       // child: Row(
-            //       //   children: [
-            //       //     const Icon(
-            //       //       Icons.picture_as_pdf_outlined,
-            //       //       color: Colors.black87,
-            //       //     ),
-            //       //     const SizedBox(width: 10),
-            //       //     // Expanded(
-            //       //     //   child: Text(
-            //       //     //     notices.file!.split('/').last,
-            //       //     //     overflow: TextOverflow.ellipsis,
-            //       //     //     style: const TextStyle(fontWeight: FontWeight.w500),
-            //       //     //   ),
-            //       //     // ),
-            //       //     // const SizedBox(width: 10),
-            //       //     // InkWell(
-            //       //     //   onTap: () async {
-            //       //     //     final provider = context.read<FileDownloadProvider>();
-            //       //     //     final fileName = notices.file!.split('/').last;
-            //       //     //     provider.downloadNoticeFile(notices.file!, fileName);
-            //       //     //   },
-
-            //       //     //   child: const Icon(Icons.file_download_outlined),
-            //       //     // ),
-            //       //   ],
-            //       // ),
-            //     )
-            // : const SizedBox(),
+            notices.file != null
+                ? DownloadFileCard(
+                  fileName: "${MediaEndpoints.notices}${notices.file}",
+                )
+                : const SizedBox(),
             const SizedBox(height: 8),
-
-            // Consumer<FileDownloadProvider>(
-            //   builder: (context, provider, _) {
-            //     if (provider.isDownloading) {
-            //       return Column(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children: [
-            //           LinearProgressIndicator(value: provider.progress),
-            //           const SizedBox(height: 4),
-            //           Text('${(provider.progress * 100).toStringAsFixed(0)}%'),
-            //         ],
-            //       );
-            //     }
-            //     return const SizedBox();
-            //   },
-            // ),
           ],
         ),
       ),

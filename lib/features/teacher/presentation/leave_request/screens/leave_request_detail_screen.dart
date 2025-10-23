@@ -6,12 +6,10 @@ import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
 import 'package:acadobs/features/teacher/presentation/duties/widgets/date_label_container.dart';
-import 'package:acadobs/shared/providers/file_download_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/download_button.dart';
+import 'package:acadobs/shared/widgets/download_file_card.dart';
 import 'package:acadobs/shared/widgets/item_detail_screen_container.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class LeaveRequestDetailScreen extends StatelessWidget {
   final LeaveModel leave;
@@ -98,83 +96,24 @@ class LeaveRequestDetailScreen extends StatelessWidget {
                       color: leaveStatusStyle.iconColor,
                     ),
                   ),
+                  SizedBox(height: Responsive.height * 3),
 
-                  SizedBox(height: 20),
                   if (leave.attachment != null && leave.attachment!.isNotEmpty)
-                    Text(
-                      "Attachment:",
-                      style: context.textTheme.bodyMedium!.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  SizedBox(height: 10),
-
-                  Container(
-                    width: 300,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: context.colorScheme.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                          offset: Offset(0, 4),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Attachment:",
+                          style: context.textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        DownloadFileCard(
+                          fileName:
+                              "${MediaEndpoints.leaveRequests}${leave.attachment}",
                         ),
                       ],
-                      border: Border.all(
-                        color: context.colorScheme.outline.withAlpha(102),
-                        width: 1.0,
-                      ),
                     ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () {},
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 60,
-                            height: 60,
-                            margin: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: context.colorScheme.primary.withAlpha(26),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(
-                              Icons.insert_drive_file_rounded,
-                              size: 36,
-                              color: Colors.red,
-                            ),
-                          ),
-
-                          Expanded(
-                            child: Text(
-                              leave.attachment ?? "No Attachment",
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                              style: context.textTheme.bodyLarge!.copyWith(
-                                color: context.colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Consumer<FileDownloadProvider>(
-                    builder: (context, provider, _) {
-                      return DownloadButton(
-                        onTap:
-                            () => provider.downloadFile(
-                              fileName:
-                                  "${MediaEndpoints.leaveRequests}${leave.attachment}",
-                            ),
-                        isDownloading: provider.isDownloading,
-                        progress: provider.progress,
-                      );
-                    },
-                  ),
 
                   SizedBox(height: Responsive.height * 2),
                 ],
