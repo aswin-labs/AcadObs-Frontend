@@ -14,7 +14,8 @@ class AppColors {
   static const Color black = Colors.black;
 
   // Backgrounds and surfaces
-  static const Color background = Color(0xFFF4F4F4);
+  // static const Color background = Color(0xFFF4F4F4);
+  static const Color background = Color(0xFFF0F2F5);
   static const Color onBackground = Colors.black;
 
   static const Color surface = Color(0xFFF5F5F5); // Light gray surface
