@@ -179,15 +179,23 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               ),
 
               SizedBox(height: 20),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  "Today's TimeTable",
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
+              // Align(
+              //   alignment: Alignment.centerLeft,
+              //   child: Text(
+              //     "Today's TimeTable",
+              //     style: TextStyle(fontWeight: FontWeight.w700),
+              //   ),
+              // ),
+              // SizedBox(height: 10),
+
+              //time table for teacher
+              Consumer<TimeTableProvider>(
+                builder: (context, provider, _) {
+                  return provider.timeTableByDay.isEmpty
+                      ? SizedBox.shrink()
+                      : _buildTimeTableSection(context);
+                },
               ),
-              SizedBox(height: 10),
-              _buildTimeTableSection(context),
 
               // Consumer<TimeTableProvider>(
               //   builder: (context, provider, _) {
@@ -500,29 +508,41 @@ class FabOptionsDialog extends StatelessWidget {
         GestureDetector(
           onTap: () => Navigator.of(context).pop(),
           child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-            child: Container(color: Colors.black.withAlpha(50)),
+            filter: ImageFilter.blur(
+              sigmaX: 6,
+              sigmaY: 6,
+            ), // Slightly stronger blur for polish
+            child: Container(
+              color: Colors.black.withAlpha(77),
+            ), // Softer overlay
           ),
         ),
 
-        // Floating card at bottom right
         Positioned(
-          bottom: 90,
-          right: 90,
+          bottom: 100,
+          right: 60,
+          left: 60,
           child: Material(
             color: Colors.transparent,
             child: Container(
-              width: 220,
+              width: 240,
               decoration: BoxDecoration(
-                color: Color(0xFFFFFFFF),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Color(0xFFE6E6E6),
-                    blurRadius: 10,
+                    color: Colors.grey.withAlpha(51),
+                    blurRadius: 12,
+                    spreadRadius: 2,
                     offset: Offset(0, 4),
                   ),
                 ],
+                gradient: LinearGradient(
+                  // Subtle gradient for modern look
+                  colors: [Colors.white, Colors.grey.shade50],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -530,27 +550,36 @@ class FabOptionsDialog extends StatelessWidget {
                   _OptionTile(
                     icon: Icons.note_alt_outlined,
                     label: 'Leave Requests',
+                    iconColor: Color(
+                      0xFF26A69A,
+                    ), // Teal to match Student Leaves
                     onTap: () {
                       context.pushNamed(RouteConstants.staffLeaveRequestHome);
                       Navigator.pop(context);
                     },
                   ),
-                  Divider(height: 0, color: Color(0xFFE6E6E6)),
+                  Divider(
+                    height: 1,
+                    color: Colors.grey.shade200,
+                  ), // Softer divider
                   _OptionTile(
                     icon: Icons.menu_book_outlined,
                     label: 'Students',
+                    iconColor: Color(0xFF1E88E5), // Blue to match Attendance
                     onTap: () {
                       context.pushNamed(RouteConstants.studentListing);
                       Navigator.pop(context);
                     },
                   ),
-                  Divider(height: 0, color: Color(0xFFE6E6E6)),
+                  Divider(height: 1, color: Colors.grey.shade200),
                   _OptionTile(
                     icon: LucideIcons.badgeCheck,
                     label: 'Achievements',
+                    iconColor: Color(
+                      0xFFFF6B6B,
+                    ), // Coral Red to match Home Work
                     onTap: () {
                       context.pushNamed(RouteConstants.getAchievement);
-                      // context.pushNamed(RouteConstants.studentListing);
                       Navigator.pop(context);
                     },
                   ),
@@ -567,23 +596,141 @@ class FabOptionsDialog extends StatelessWidget {
 class _OptionTile extends StatelessWidget {
   final IconData icon;
   final String label;
+  final Color iconColor;
   final VoidCallback onTap;
 
   const _OptionTile({
     required this.icon,
     required this.label,
+    required this.iconColor,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: Colors.black),
-      title: Text(label, style: TextStyle(color: Colors.black)),
+    return InkWell(
       onTap: onTap,
+      splashColor: Colors.grey.withAlpha(25),
+      highlightColor: Colors.grey.withAlpha(12),
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        child: Row(
+          children: [
+            Icon(icon, color: iconColor, size: 28),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
+
+// class FabOptionsDialog extends StatelessWidget {
+//   const FabOptionsDialog({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Stack(
+//       children: [
+//         // Blurred background
+//         GestureDetector(
+//           onTap: () => Navigator.of(context).pop(),
+//           child: BackdropFilter(
+//             filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+//             child: Container(color: Colors.black.withAlpha(50)),
+//           ),
+//         ),
+
+//         // Floating card at bottom right
+//         Positioned(
+//           bottom: 90,
+//           right: 90,
+//           child: Material(
+//             color: Colors.transparent,
+//             child: Container(
+//               width: 220,
+//               decoration: BoxDecoration(
+//                 color: Color(0xFFFFFFFF),
+//                 borderRadius: BorderRadius.circular(10),
+//                 boxShadow: [
+//                   BoxShadow(
+//                     color: Color(0xFFE6E6E6),
+//                     blurRadius: 10,
+//                     offset: Offset(0, 4),
+//                   ),
+//                 ],
+//               ),
+//               child: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: [
+//                   _OptionTile(
+//                     icon: Icons.note_alt_outlined,
+//                     label: 'Leave Requests',
+//                     onTap: () {
+//                       context.pushNamed(RouteConstants.staffLeaveRequestHome);
+//                       Navigator.pop(context);
+//                     },
+//                   ),
+//                   Divider(height: 0, color: Color(0xFFE6E6E6)),
+//                   _OptionTile(
+//                     icon: Icons.menu_book_outlined,
+//                     label: 'Students',
+//                     onTap: () {
+//                       context.pushNamed(RouteConstants.studentListing);
+//                       Navigator.pop(context);
+//                     },
+//                   ),
+//                   Divider(height: 0, color: Color(0xFFE6E6E6)),
+//                   _OptionTile(
+//                     icon: LucideIcons.badgeCheck,
+//                     label: 'Achievements',
+//                     onTap: () {
+//                       context.pushNamed(RouteConstants.getAchievement);
+//                       // context.pushNamed(RouteConstants.studentListing);
+//                       Navigator.pop(context);
+//                     },
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
+// class _OptionTile extends StatelessWidget {
+//   final IconData icon;
+//   final String label;
+//   final VoidCallback onTap;
+
+//   const _OptionTile({
+//     required this.icon,
+//     required this.label,
+//     required this.onTap,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return ListTile(
+//       leading: Icon(icon, color: Colors.black),
+//       title: Text(label, style: TextStyle(color: Colors.black)),
+//       onTap: onTap,
+//     );
+//   }
+// }
 
 Widget _buildSubstitutionSection(BuildContext context) {
   return Consumer<TimeTableProvider>(
@@ -683,34 +830,46 @@ Widget _buildTimeTableSection(BuildContext context) {
         );
       }
 
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey[200]!),
-        ),
-        padding: const EdgeInsets.all(12),
-        child: GridView.builder(
-          itemCount: provider.timetableForStaff.length,
-
-          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-            maxCrossAxisExtent: 150, // max width per card
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 10,
-            childAspectRatio: 0.7,
+      return Column(
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "Today's TimeTable",
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
           ),
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            final item = provider.timetableForStaff[index];
-            return TimeTableCard(
-              forStaff: true,
-              periodnumber: item.periodNumber ?? 0,
-              subject: item.subject?.subjectName ?? "N/A",
-              description: item.classGrade?.classname ?? "N/A",
-            );
-          },
-        ),
+          SizedBox(height: 10),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey[200]!),
+            ),
+            padding: const EdgeInsets.all(12),
+            child: GridView.builder(
+              itemCount: provider.timetableForStaff.length,
+
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 150,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 10,
+                childAspectRatio: 0.7,
+              ),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemBuilder: (context, index) {
+                final item = provider.timetableForStaff[index];
+                return TimeTableCard(
+                  forStaff: true,
+                  periodnumber: item.periodNumber ?? 0,
+                  subject: item.subject?.subjectName ?? "N/A",
+                  description: item.classGrade?.classname ?? "N/A",
+                );
+              },
+            ),
+          ),
+        ],
       );
     },
   );
