@@ -3,11 +3,13 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/leave_status_style.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
 import 'package:acadobs/features/teacher/presentation/duties/widgets/date_label_container.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
+import 'package:acadobs/shared/widgets/download_file_card.dart';
 import 'package:acadobs/shared/widgets/item_detail_screen_container.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -60,7 +62,11 @@ class StudentLeaveRequestDetailsScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    capitalizeEachWord("${leave.leaveDuration} Day"),
+                    leave.leaveDuration == "full"
+                        ? capitalizeEachWord("${leave.leaveDuration} Day")
+                        : capitalizeEachWord(
+                          "${leave.leaveDuration} Day - (${leave.halfSection})",
+                        ),
                     style: context.textTheme.bodyLarge!.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.grey,
@@ -98,6 +104,24 @@ class StudentLeaveRequestDetailsScreen extends StatelessWidget {
                       color: leaveStatusStyle.iconColor,
                     ),
                   ),
+                  SizedBox(height: Responsive.height * 4),
+
+                  if (leave.attachment != null && leave.attachment!.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Attachment:",
+                          style: context.textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        DownloadFileCard(
+                          fileName:
+                              "${MediaEndpoints.leaveRequests}${leave.attachment}",
+                        ),
+                      ],
+                    ),
                   leave.forStudentLeavePermission == true
                       ? Consumer<TeacherLeaveRequestProvider>(
                         builder: (context, provider, _) {

@@ -26,16 +26,21 @@ class _StudentLeavesScreenState extends State<StudentLeavesScreen> {
   @override
   void initState() {
     super.initState();
-    studentLeaveProvider = context
-          .read<StudentLeaveRequestProvider>();
-   
-      studentLeaveProvider
-          .getStudentLeaveRequestsForClassTeacher(forceRefresh: true);
-          _scrollController.addListener((){
-            if (_scrollController.position.pixels>=_scrollController.position.maxScrollExtent - 200 && !studentLeaveProvider.isLoading && studentLeaveProvider.hasMore){
-              studentLeaveProvider.getStudentLeaveRequestsForClassTeacher(loadMore: true);
-            }
-          });
+    studentLeaveProvider = context.read<StudentLeaveRequestProvider>();
+
+    studentLeaveProvider.getStudentLeaveRequestsForClassTeacher(
+      forceRefresh: true,
+    );
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          !studentLeaveProvider.isLoading &&
+          studentLeaveProvider.hasMore) {
+        studentLeaveProvider.getStudentLeaveRequestsForClassTeacher(
+          loadMore: true,
+        );
+      }
+    });
   }
 
   @override
@@ -43,7 +48,10 @@ class _StudentLeavesScreenState extends State<StudentLeavesScreen> {
     return Scaffold(
       appBar: CommonAppBar(title: "Student Leaves", isBackButton: true),
       body: RefreshIndicator(
-        onRefresh: () => studentLeaveProvider.getStudentLeaveRequestsForClassTeacher(forceRefresh: true),
+        onRefresh:
+            () => studentLeaveProvider.getStudentLeaveRequestsForClassTeacher(
+              forceRefresh: true,
+            ),
         child: Consumer<StudentLeaveRequestProvider>(
           builder: (context, provider, _) {
             if (provider.isLoading && provider.studentLeaves.isEmpty) {
@@ -63,7 +71,8 @@ class _StudentLeavesScreenState extends State<StudentLeavesScreen> {
               physics: const AlwaysScrollableScrollPhysics(
                 parent: BouncingScrollPhysics(),
               ),
-              itemCount: provider.studentLeaves.length + (provider.hasMore ? 2 : 1),
+              itemCount:
+                  provider.studentLeaves.length + (provider.hasMore ? 2 : 1),
               itemBuilder: (context, index) {
                 if (index == 0) {
                   return SizedBox(height: Responsive.height * 3);
@@ -90,36 +99,40 @@ class _StudentLeavesScreenState extends State<StudentLeavesScreen> {
                       ),
                     ),
                     SizedBox(height: Responsive.height * 1),
-                    ...grouped.requests!.map(
-                      (leave) {
-            final leaveStatusStyle = getLeaveStatusStyle(
-                    leave.status ?? "",
-                  );
-                        return  ItemCard(
+                    ...grouped.requests!.map((leave) {
+                      final leaveStatusStyle = getLeaveStatusStyle(
+                        leave.status ?? "",
+                      );
+                      return ItemCard(
                         title: leave.student?.fullName ?? "",
-                           description: DateFormatter.formatDateTime(
-                      leave.fromDate ?? DateTime.now(),
-                    ),
-                         status: leave.status ?? "",
-                    backgroundColor: leaveStatusStyle.backgroundColor,
-                    icon: leaveStatusStyle.icon,
-                    iconColor: leaveStatusStyle.iconColor,
-                    onTap: () {
-                      final updatedLeave = LeaveModel(
-                        forStudentLeavePermission: true,
-                        fromDate: leave.fromDate,
-                        toDate: leave.toDate,
-                        status: leave.status,
-                        id: leave.id,
+                        description: DateFormatter.formatDateTime(
+                          leave.fromDate ?? DateTime.now(),
+                        ),
+                        status: leave.status ?? "",
+                        backgroundColor: leaveStatusStyle.backgroundColor,
+                        icon: leaveStatusStyle.icon,
+                        iconColor: leaveStatusStyle.iconColor,
+                        onTap: () {
+                          final updatedLeave = LeaveModel(
+                            forStudentLeavePermission: true,
+                            fromDate: leave.fromDate,
+                            toDate: leave.toDate,
+                            status: leave.status,
+                            id: leave.id,
+                            attachment: leave.attachment,
+                            leaveDuration: leave.leaveDuration,
+                            leaveType: leave.leaveType,
+                            reason: leave.reason,
+                            approvedBy: leave.approvedBy,
+                            halfSection: leave.halfSection,
+                          );
+                          context.pushNamed(
+                            RouteConstants.studentLeaveLetterScreen,
+                            extra: updatedLeave,
+                          );
+                        },
                       );
-                      context.pushNamed(
-                        RouteConstants.studentLeaveLetterScreen,
-                        extra: updatedLeave,
-                      );
-                    },
-                  );
-                      }
-                    ),
+                    }),
                     SizedBox(height: Responsive.height * 2),
                   ],
                 );
@@ -128,83 +141,6 @@ class _StudentLeavesScreenState extends State<StudentLeavesScreen> {
           },
         ),
       ),
-      // Consumer<StudentLeaveRequestProvider>(
-      //   builder: (context, provider, _) {
-      //     if (provider.isLoading && provider.leaveRequests.isEmpty) {
-      //       return commonShimmerList();
-      //     } else if (provider.leaveRequests.isEmpty) {
-      //       return emptyScreen(message: "No Leave Requests available");
-      //     }
-
-      //     final List<LeaveModel> leaves = provider.leaveRequests;
-
-      //     return RefreshIndicator(
-      //       onRefresh:
-      //           () => provider.getStudentLeaveRequestsForClassTeacher(
-      //             forceRefresh: true,
-      //           ),
-      //       child: NotificationListener<ScrollNotification>(
-      //         onNotification: (scrollNotification) {
-      //           if (!provider.isLoading &&
-      //               scrollNotification.metrics.pixels ==
-      //                   scrollNotification.metrics.maxScrollExtent &&
-      //               provider.currentPage < provider.totalPages) {
-      //             provider.getStudentLeaveRequestsForClassTeacher(
-      //               loadMore: true,
-      //             );
-      //           }
-      //           return false;
-      //         },
-      //         child: ListView.builder(
-      //           physics: const AlwaysScrollableScrollPhysics(
-      //             parent: BouncingScrollPhysics(),
-      //           ),
-      //           padding: const EdgeInsets.symmetric(
-      //             horizontal: 16,
-      //             vertical: 10,
-      //           ),
-      //           itemCount: leaves.length,
-      //           itemBuilder: (context, index) {
-      //             final leave = leaves[index];
-      //             final leaveRequest = provider.leaveRequests[index];
-      //             final leaveStatusStyle = getLeaveStatusStyle(
-      //               leaveRequest.status ?? "",
-      //             );
-      //             return 
-      // ItemCard(
-      //               title: leave.student?.fullName ?? "",
-      //               description: DateFormatter.formatDateTime(
-      //                 leave.fromDate ?? DateTime.now(),
-      //               ),
-      //               status: leaveRequest.status ?? "",
-      //               backgroundColor: leaveStatusStyle.backgroundColor,
-      //               icon: leaveStatusStyle.icon,
-      //               iconColor: leaveStatusStyle.iconColor,
-      //               onTap: () {
-      //                 final updatedLeave = LeaveModel(
-      //                   forStudentLeavePermission: true,
-      //                   leaveDuration: leave.leaveDuration,
-      //                   leaveType: leave.leaveType,
-      //                   reason: leave.reason,
-      //                   fromDate: leave.fromDate,
-      //                   toDate: leave.toDate,
-      //                   attachment: leave.attachment,
-      //                   adminRemarks: leave.adminRemarks,
-      //                   status: leave.status,
-      //                   id: leave.id,
-      //                 );
-      //                 context.pushNamed(
-      //                   RouteConstants.studentLeaveLetterScreen,
-      //                   extra: updatedLeave,
-      //                 );
-      //               },
-      //             );
-      //           },
-      //         ),
-      //       ),
-      //     );
-      //   },
-      // ),
     );
   }
 }
