@@ -24,11 +24,7 @@ class ItemDetailScreenContainer extends StatelessWidget {
           color: backgroundColor,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Icon(
-          icon,
-          size: Responsive.width * 50,
-          color: iconColor,
-        ),
+        child: Icon(icon, size: Responsive.width * 50, color: iconColor),
       ),
     );
   }

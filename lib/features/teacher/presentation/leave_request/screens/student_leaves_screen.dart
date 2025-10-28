@@ -96,6 +96,7 @@ class _StudentLeavesScreenState extends State<StudentLeavesScreen> {
                       ),
                       style: context.textTheme.titleSmall!.copyWith(
                         fontWeight: FontWeight.w600,
+                        fontSize: 12,
                       ),
                     ),
                     SizedBox(height: Responsive.height * 1),
