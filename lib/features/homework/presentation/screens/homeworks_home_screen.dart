@@ -96,6 +96,7 @@ class _HomeworksHomeScreenState extends State<HomeworksHomeScreen> {
                       ),
                       style: context.textTheme.titleSmall!.copyWith(
                         fontWeight: FontWeight.w600,
+                        fontSize: 12,
                       ),
                     ),
                     SizedBox(height: Responsive.height * 1),

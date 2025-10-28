@@ -50,7 +50,7 @@ class _DutyHomeScreenState extends State<DutyHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Duties", isBackButton: true),
+      appBar: CommonAppBar(title: "Duties", isBackButton: false),
       body: RefreshIndicator(
         onRefresh: () => _dutyProvider.fetchStaffDuties(),
         child: Consumer<DutyProvider>(
@@ -96,6 +96,7 @@ class _DutyHomeScreenState extends State<DutyHomeScreen> {
                       ),
                       style: context.textTheme.titleSmall!.copyWith(
                         fontWeight: FontWeight.w600,
+                        fontSize: 12,
                       ),
                     ),
                     SizedBox(height: Responsive.height * 1),

@@ -33,7 +33,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                     backgroundColor: const Color(0xFFD9D9D9),
                     child: const Icon(
                       Icons.arrow_back_ios_new,
-                      size: 16,
+                      size: 20,
                       color: Colors.black,
                     ),
                   ),
