@@ -4,11 +4,17 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthStorageService {
+
+  AuthStorageService._internal();
+  static final AuthStorageService _instance = AuthStorageService._internal();
+  factory AuthStorageService() => _instance;
+
   static const _kToken = 'auth_token';
   static const _kUser = 'user_data';
   static const _kSchoolId = 'school_id';
   static const _kSchoolName = 'school_name';
   static const _kSchoolDetailsForTeacher = 'school_details_for_teacher';
+  static const _kFcmToken = 'fcm_token';
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -46,6 +52,11 @@ class AuthStorageService {
       key: _kSchoolDetailsForTeacher,
       value: jsonEncode(schoolData),
     );
+  }
+
+  // Save fcm token
+  Future<void> saveFcmToken({required String fcmToken}) async {
+    await _storage.write(key: _kFcmToken, value: fcmToken);
   }
 
   // **********Retrieve*****************
@@ -91,6 +102,11 @@ class AuthStorageService {
     final raw = await _storage.read(key: _kSchoolDetailsForTeacher);
     if (raw == null) return null;
     return jsonDecode(raw);
+  }
+
+  // Get fcm token
+  Future<String?> getFcmToken() async {
+    return await _storage.read(key: _kFcmToken);
   }
 
   /// Clear everything (on logout)

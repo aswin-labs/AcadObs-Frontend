@@ -1,6 +1,7 @@
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthServices {
   // Login
@@ -26,6 +27,15 @@ class AuthServices {
     final response = await ApiServices.get(
       ApiEndpoints.schoolDetailsForTeacher,
     );
+    return response;
+  }
+
+  // send fcm token
+  Future<Response> sendFcmToken() async {
+    final token = await FirebaseMessaging.instance.getToken();
+    final response = await ApiServices.put(ApiEndpoints.guardianNotification, {
+      "fcm_token": token,
+    });
     return response;
   }
 }

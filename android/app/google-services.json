@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "999846872581",
+    "project_id": "acadobs-c32a5",
+    "storage_bucket": "acadobs-c32a5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:999846872581:android:839af38ee284756d56be6c",
+        "android_client_info": {
+          "package_name": "com.example.acadobs"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZPimuR-1RZmbb_irKusfA1XwLkqJcp6U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
