@@ -120,6 +120,12 @@ class _StudentLeavesScreenState extends State<StudentLeavesScreen> {
                             toDate: leave.toDate,
                             status: leave.status,
                             id: leave.id,
+                            attachment: leave.attachment,
+                            leaveDuration: leave.leaveDuration,
+                            leaveType: leave.leaveType,
+                            reason: leave.reason,
+                            approvedBy: leave.approvedBy,
+                            halfSection: leave.halfSection,
                           );
                           context.pushNamed(
                             RouteConstants.studentLeaveLetterScreen,
@@ -136,83 +142,6 @@ class _StudentLeavesScreenState extends State<StudentLeavesScreen> {
           },
         ),
       ),
-      // Consumer<StudentLeaveRequestProvider>(
-      //   builder: (context, provider, _) {
-      //     if (provider.isLoading && provider.leaveRequests.isEmpty) {
-      //       return commonShimmerList();
-      //     } else if (provider.leaveRequests.isEmpty) {
-      //       return emptyScreen(message: "No Leave Requests available");
-      //     }
-
-      //     final List<LeaveModel> leaves = provider.leaveRequests;
-
-      //     return RefreshIndicator(
-      //       onRefresh:
-      //           () => provider.getStudentLeaveRequestsForClassTeacher(
-      //             forceRefresh: true,
-      //           ),
-      //       child: NotificationListener<ScrollNotification>(
-      //         onNotification: (scrollNotification) {
-      //           if (!provider.isLoading &&
-      //               scrollNotification.metrics.pixels ==
-      //                   scrollNotification.metrics.maxScrollExtent &&
-      //               provider.currentPage < provider.totalPages) {
-      //             provider.getStudentLeaveRequestsForClassTeacher(
-      //               loadMore: true,
-      //             );
-      //           }
-      //           return false;
-      //         },
-      //         child: ListView.builder(
-      //           physics: const AlwaysScrollableScrollPhysics(
-      //             parent: BouncingScrollPhysics(),
-      //           ),
-      //           padding: const EdgeInsets.symmetric(
-      //             horizontal: 16,
-      //             vertical: 10,
-      //           ),
-      //           itemCount: leaves.length,
-      //           itemBuilder: (context, index) {
-      //             final leave = leaves[index];
-      //             final leaveRequest = provider.leaveRequests[index];
-      //             final leaveStatusStyle = getLeaveStatusStyle(
-      //               leaveRequest.status ?? "",
-      //             );
-      //             return
-      // ItemCard(
-      //               title: leave.student?.fullName ?? "",
-      //               description: DateFormatter.formatDateTime(
-      //                 leave.fromDate ?? DateTime.now(),
-      //               ),
-      //               status: leaveRequest.status ?? "",
-      //               backgroundColor: leaveStatusStyle.backgroundColor,
-      //               icon: leaveStatusStyle.icon,
-      //               iconColor: leaveStatusStyle.iconColor,
-      //               onTap: () {
-      //                 final updatedLeave = LeaveModel(
-      //                   forStudentLeavePermission: true,
-      //                   leaveDuration: leave.leaveDuration,
-      //                   leaveType: leave.leaveType,
-      //                   reason: leave.reason,
-      //                   fromDate: leave.fromDate,
-      //                   toDate: leave.toDate,
-      //                   attachment: leave.attachment,
-      //                   adminRemarks: leave.adminRemarks,
-      //                   status: leave.status,
-      //                   id: leave.id,
-      //                 );
-      //                 context.pushNamed(
-      //                   RouteConstants.studentLeaveLetterScreen,
-      //                   extra: updatedLeave,
-      //                 );
-      //               },
-      //             );
-      //           },
-      //         ),
-      //       ),
-      //     );
-      //   },
-      // ),
     );
   }
 }
