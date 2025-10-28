@@ -94,11 +94,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     ontap: () {
                       context.pushNamed(
                         RouteConstants.profileScreen,
-                        extra: UserModel(
-                          name: "Teacher One",
-                          role: "Teacher",
-                          email: "teacher@gmail.com",
-                        ),
+                        extra: UserModel(role: "teacher"),
                       );
                     },
                   ),

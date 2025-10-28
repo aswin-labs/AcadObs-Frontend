@@ -114,11 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ontap:
                         () => context.pushNamed(
                           RouteConstants.profileScreen,
-                          extra: UserModel(
-                            name: "Arun",
-                            role: "Teacher",
-                            email: "Arun@gmail.com",
-                          ),
+                          extra: UserModel(role: "guardian"),
                         ),
                   ),
                 ),

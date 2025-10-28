@@ -1,6 +1,6 @@
 class UserModel {
   int? id;
-  String name;
+  String? name;
   String role;
   String? email;
   String? phone;
@@ -8,7 +8,7 @@ class UserModel {
 
   UserModel({
     this.id,
-    required this.name,
+    this.name,
     required this.role,
     this.email,
     this.phone,

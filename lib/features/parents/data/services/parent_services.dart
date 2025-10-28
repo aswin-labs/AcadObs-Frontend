@@ -21,4 +21,16 @@ class ParentServices {
     log("Student under parent: ${response.data}");
     return response;
   }
+
+  Future<Response> changePassword({
+    required String newPassword,
+    required String oldPassword,
+  }) async {
+    final response = await ApiServices.put(ApiEndpoints.changePassword, {
+      'oldPassword': oldPassword,
+      'newPassword': newPassword,
+    });
+    log("Password changed successfully: ${response.data}");
+    return response;
+  }
 }

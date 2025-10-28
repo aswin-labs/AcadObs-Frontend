@@ -1,5 +1,7 @@
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
+import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +10,8 @@ import 'package:provider/provider.dart';
 const Color tPrimaryColor = Color(0xFF1E88E5);
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final UserModel user;
+  const ProfileScreen({super.key, required this.user});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -101,7 +104,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                           SizedBox(height: 5),
                           GestureDetector(
-                            onTap: () {},
+                            onTap: () {
+                              widget.user.role == "guardian"
+                                  ? context.pushNamed(
+                                    RouteConstants.changePassword,
+                                  )
+                                  : null;
+                            },
                             child: Container(
                               height: 40,
                               decoration: const BoxDecoration(
