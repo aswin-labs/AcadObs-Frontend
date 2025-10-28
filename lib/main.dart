@@ -1,11 +1,16 @@
+import 'package:acadobs/core/services/notification_services.dart';
 import 'package:acadobs/core/theme/theme.dart';
 import 'package:acadobs/core/utils/providers/providers.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/routes/app_router.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await NotificationServices().initNotification();
   runApp(const MyApp());
 }
 

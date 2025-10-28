@@ -47,6 +47,8 @@ class AuthProvider with ChangeNotifier {
         final userRole = await _storageService.getUserRole();
         if (!context.mounted) return;
         if (userRole == 'guardian') {
+          await AuthServices().sendFcmToken();
+          if (!context.mounted) return;
           context.pushNamed(RouteConstants.schoolSelectionScreen);
         } else if (userRole == 'teacher') {
           await fetchSchoolDetailsForTeacher();
@@ -80,7 +82,7 @@ class AuthProvider with ChangeNotifier {
   Future<void> logout(BuildContext context) async {
     await _storageService.clear();
     if (!context.mounted) return;
-    context.pushReplacementNamed(RouteConstants.loginScreen);
+    context.goNamed(RouteConstants.loginScreen);
     notifyListeners();
   }
 

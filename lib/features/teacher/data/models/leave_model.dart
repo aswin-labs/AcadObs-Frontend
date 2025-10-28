@@ -20,6 +20,7 @@ class LeaveModel {
   DateTime? fromDate;
   DateTime? toDate;
   String? status;
+  String? halfSection;
   dynamic adminRemarks;
   dynamic attachment;
   bool? trash;
@@ -41,6 +42,7 @@ class LeaveModel {
     this.fromDate,
     this.toDate,
     this.status,
+    this.halfSection,
     this.adminRemarks,
     this.attachment,
     this.trash,
@@ -65,6 +67,7 @@ class LeaveModel {
         json["from_date"] == null ? null : DateTime.parse(json["from_date"]),
     toDate: json["to_date"] == null ? null : DateTime.parse(json["to_date"]),
     status: json["status"],
+    halfSection: json["half_section"],
     adminRemarks: json["admin_remarks"],
     attachment: json["attachment"],
     trash: json["trash"],
