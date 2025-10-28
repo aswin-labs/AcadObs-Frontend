@@ -96,4 +96,5 @@ class ApiEndpoints {
   static const String fetchTimeTable = "/guardian/getTodayTimeTableByStudentId";
   static const String fetchAllDayTimeTable =
       "/guardian/getAllDayTimeTableByStudentId";
+  static const String changePassword = "/guardian/changePassword";
 }

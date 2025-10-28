@@ -66,4 +66,7 @@ class RouteConstants {
 
   // CHATS
   static const String chatScreen = "chatScreen";
+
+  //change password
+  static const String changePassword = "changePassword";
 }
