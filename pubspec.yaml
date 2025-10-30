@@ -57,6 +57,8 @@ dependencies:
   firebase_messaging: ^16.0.3
   firebase_core: ^4.2.0
   flutter_local_notifications: ^19.5.0
+  fl_chart: ^0.66.0
+
   # open_filex: ^4.7.0
 
 dev_dependencies:

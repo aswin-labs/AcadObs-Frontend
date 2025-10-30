@@ -69,4 +69,7 @@ class RouteConstants {
 
   //change password
   static const String changePassword = "changePassword";
+
+  //prediction
+  static const String prediction = "prediction";
 }
