@@ -23,14 +23,13 @@ class ProfileContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double containerHeight = MediaQuery.of(context).size.height * 0.09;
-    final double avatarRadius = 34.0; 
+    final double avatarRadius = 34.0;
 
     return Column(
       children: [
         Stack(
           alignment: Alignment.topCenter,
-          clipBehavior:
-              Clip.none, 
+          clipBehavior: Clip.none,
           children: [
             // Main container
             Container(
@@ -57,8 +56,10 @@ class ProfileContainer extends StatelessWidget {
                           color: const Color.fromARGB(255, 228, 225, 225),
                         ),
                     errorWidget:
-                        (context, url, error) =>
-                            const Icon(Icons.person_2_rounded, color: Colors.grey),
+                        (context, url, error) => const Icon(
+                          Icons.person_2_rounded,
+                          color: Colors.grey,
+                        ),
 
                     fit: BoxFit.cover,
                   ),
@@ -94,56 +95,56 @@ class ProfileContainer extends StatelessWidget {
           ),
         ),
         SizedBox(height: Responsive.height * 2),
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 14),
-          // height: containerHeight,
-          decoration: BoxDecoration(
-            color: AppColors.white,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _numberColumn(number: present, subText: "Present"),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 26),
-                width: 3,
-                color: Color(0xFFF4F4F4),
-              ),
-              _numberColumn(number: late, subText: "Late"),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 26),
-                width: 3,
-                color: Color(0xFFF4F4F4),
-              ),
-              _numberColumn(number: absent, subText: "Absent"),
-            ],
-          ),
-        ),
+        // Container(
+        //   padding: EdgeInsets.symmetric(vertical: 14),
+        //   // height: containerHeight,
+        //   decoration: BoxDecoration(
+        //     color: AppColors.white,
+        //     borderRadius: BorderRadius.circular(20),
+        //   ),
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //     children: [
+        //       _numberColumn(number: present, subText: "Present"),
+        //       Container(
+        //         padding: EdgeInsets.symmetric(vertical: 26),
+        //         width: 3,
+        //         color: Color(0xFFF4F4F4),
+        //       ),
+        //       _numberColumn(number: late, subText: "Late"),
+        //       Container(
+        //         padding: EdgeInsets.symmetric(vertical: 26),
+        //         width: 3,
+        //         color: Color(0xFFF4F4F4),
+        //       ),
+        //       _numberColumn(number: absent, subText: "Absent"),
+        //     ],
+        //   ),
+        // ),
       ],
     );
   }
 
-  Widget _numberColumn({required String number, required String subText}) {
-    return Row(
-      children: [
-        Column(
-          children: [
-            Text(
-              number,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              subText,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: Color(0xFF7C7C7C),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+  // Widget _numberColumn({required String number, required String subText}) {
+  //   return Row(
+  //     children: [
+  //       Column(
+  //         children: [
+  //           Text(
+  //             number,
+  //             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+  //           ),
+  //           Text(
+  //             subText,
+  //             style: TextStyle(
+  //               fontSize: 14,
+  //               fontWeight: FontWeight.w400,
+  //               color: Color(0xFF7C7C7C),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ],
+  //   );
+  // }
 }

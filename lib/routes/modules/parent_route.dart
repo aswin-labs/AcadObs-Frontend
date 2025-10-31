@@ -1,6 +1,7 @@
 import 'package:acadobs/features/authentication/presentation/screens/school_selection_screen.dart';
 import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
 import 'package:acadobs/features/parents/presentation/screens/change_password.dart';
+import 'package:acadobs/features/students/presentation/screens/prediction.dart';
 import 'package:acadobs/features/students/presentation/screens/student_leave_request_details_screen.dart';
 import 'package:acadobs/features/authentication/presentation/screens/profile_screen.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
@@ -49,6 +50,15 @@ List<GoRoute> parentRoutes = [
     name: RouteConstants.changePassword,
     builder: (context, state) {
       return ChangePassword();
+    },
+  ),
+
+  //ai prediction
+  GoRoute(
+    path: '/prediction',
+    name: RouteConstants.prediction,
+    builder: (context, state) {
+      return Prediction();
     },
   ),
 ];

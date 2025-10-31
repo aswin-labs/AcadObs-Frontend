@@ -13,10 +13,12 @@ import 'package:acadobs/features/students/presentation/widgets/student_homework_
 import 'package:acadobs/features/students/presentation/widgets/student_notice_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_profile_tab.dart';
 import 'package:acadobs/routes/router_constants.dart';
+// import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/profile_container.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+// import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 class StudentDetailScreen extends StatefulWidget {
@@ -136,12 +138,33 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           );
                         },
                       ),
+
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                        ),
+                        onPressed: () {
+                          context.pushNamed(RouteConstants.prediction);
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.auto_awesome),
+                            SizedBox(width: 10),
+                            Text(
+                              "See AI Prediction",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
               SliverPadding(
-                padding: EdgeInsets.only(bottom: Responsive.height * 2),
+                padding: EdgeInsets.only(bottom: Responsive.height * 0.1),
               ),
               SliverOverlapAbsorber(
                 handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
@@ -184,12 +207,11 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             padding: EdgeInsets.only(top: Responsive.height * 5),
             child: TabBarView(
               children: [
-                // dashboardt
+                // dashboard
                 StudentAttendenceTab(
                   studentId: widget.studentId,
                   date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
                 ),
-
 
                 //acheivment
                 Consumer<StudentProvider>(
