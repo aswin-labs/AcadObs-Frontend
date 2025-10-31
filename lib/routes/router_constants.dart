@@ -4,6 +4,7 @@ class RouteConstants {
   static const String bottomNavScreen = 'bottomNavScreen';
   static const String loginScreen = 'loginScreen';
   static const String splashScreen = 'splashScreen';
+  static const String noInternetScreen = 'noInternetScreen';
 
   //  SUPER ADMIN ROUTES
   static const String addSchool = 'addSchool';

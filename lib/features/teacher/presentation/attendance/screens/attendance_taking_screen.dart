@@ -166,6 +166,30 @@ class _AttendanceTakingScreenState extends State<AttendanceTakingScreen> {
                                   },
                                 )
                                 : SizedBox.shrink(),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: attendance?.studentRecords?.length,
+                              itemBuilder: (context, index) {
+                                final student =
+                                    attendance?.studentRecords?[index];
+                                // final isLeaveApproved =
+                                //     student.studentRecords?.isNotEmpty;
+                                final remarks =
+                                    student?.remarks == null
+                                        ? ""
+                                        : student?.remarks ?? "";
+                                return AttendanceTakingWidget(
+                                  // isLeaveApproved: isLeaveApproved,
+                                  remarks: remarks,
+                                  currentStatus: student?.status ?? "",
+                                  alreadyTaken: true,
+                                  studentId: student?.id ?? 0,
+                                  rollNo: student?.student?.rollNumber ?? 0,
+                                  studentName: student?.student?.fullName ?? "",
+                                );
+                              },
+                            ),
                           ],
                         );
                       }

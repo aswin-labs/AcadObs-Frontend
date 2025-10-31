@@ -5,6 +5,7 @@ import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/screens/chat_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/bottom_nav/presentation/bottom_nav_screen.dart';
+import 'package:acadobs/shared/widgets/no_internet_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final List<GoRoute> commonRoutes = [
@@ -39,6 +40,15 @@ final List<GoRoute> commonRoutes = [
     builder: (context, state) {
       final chat = state.extra as ChatModel;
       return ChatScreen(chatModel: chat);
+    },
+  ),
+
+  // No Internet
+  GoRoute(
+    path: '/noInternetScreen',
+    name: RouteConstants.noInternetScreen,
+    builder: (context, state) {
+      return NoInternetScreen();
     },
   ),
 ];

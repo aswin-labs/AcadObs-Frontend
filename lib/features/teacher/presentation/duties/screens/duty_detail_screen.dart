@@ -2,20 +2,18 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/duty_status_style.dart';
-
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/teacher/data/models/staff_duty_model.dart';
 import 'package:acadobs/features/teacher/presentation/duties/provider/duty_provider.dart';
 import 'package:acadobs/features/teacher/presentation/duties/widgets/add_remarks_and_file_bottomsheet.dart';
-
 import 'package:acadobs/features/teacher/presentation/duties/widgets/date_label_container.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
+import 'package:acadobs/shared/widgets/download_file_card.dart';
 import 'package:acadobs/shared/widgets/item_detail_screen_container.dart';
-
 import 'package:flutter/material.dart';
 import 'package:lucide_icons/lucide_icons.dart';
-
 import 'package:provider/provider.dart';
 
 class DutyDetailScreen extends StatefulWidget {
@@ -128,7 +126,7 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
                               color: Colors.grey,
                             ),
                           ),
-                          SizedBox(height: Responsive.height * 6),
+                          SizedBox(height: Responsive.height * 2),
 
                           if (displayStatus != "in_progress" &&
                               displayStatus != "completed")
@@ -159,24 +157,58 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
                               widget: Text("Mark As Completed"),
                               backgroundColor: Color(0xFF14601C),
                             ),
-                          SizedBox(height: Responsive.height * 10),
                         ],
                       );
                     },
                   ),
+                  SizedBox(height: Responsive.height * 3),
+
+                  if (widget.staffDuty.solvedFile != null &&
+                      widget.staffDuty.solvedFile!.isNotEmpty) ...[
+                    // Attachment Section Header
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.attach_file,
+                            size: 18,
+                            color: Colors.grey.shade700,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            "Attachment",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    DownloadFileCard(
+                      fileName:
+                          "${MediaEndpoints.duties}${widget.staffDuty.solvedFile}",
+                    ),
+                    SizedBox(height: Responsive.height * 10),
+                  ],
                 ],
               ),
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed:
-            () => showAddRemarksAndFileBottomSheet(
-              context,
-              dutyId: widget.staffDuty.duty?.id ?? 0,
-            ),
-        child: Icon(LucideIcons.filePlus2, weight: 1, color: Colors.grey),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16),
+        child: FloatingActionButton(
+          onPressed:
+              () => showAddRemarksAndFileBottomSheet(
+                context,
+                dutyId: widget.staffDuty.id ?? 0,
+              ),
+          child: Icon(LucideIcons.filePlus2, weight: 1, color: Colors.grey),
+        ),
       ),
     );
   }
