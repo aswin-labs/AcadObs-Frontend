@@ -74,6 +74,11 @@ class ApiEndpoints {
   static const String deleteAchievement = "/staff/achievements";
   static const String achievements = "/staff/achievements";
 
+  // teacher attendance
+  static const String teacherTodayAttendance = "/staff/todayAttendanceStatus";
+  static const String teacherCheckIn = "/staff/markSelfAttendance";
+  static const String teacherCheckOut = "/staff/markCheckOutSelfAttendance";
+
   //***********************GUARDIAN*************************
   static const String fetchLatestEventsGuardian = "/guardian/getLatestEvents";
   static const String fetchLatestNewsGuardian = "/guardian/getLatestNews";
