@@ -7,5 +7,11 @@ import 'package:go_router/go_router.dart';
 
 final GoRouter appRouter = GoRouter(
   initialLocation: '/',
-  routes: [...commonRoutes, ...superAdminRoutes, ...schoolAdminRoutes, ...staffRoutes, ...parentRoutes ],
+  routes: [
+    ...commonRoutes,
+    ...superAdminRoutes,
+    ...schoolAdminRoutes,
+    ...staffRoutes,
+    ...parentRoutes,
+  ],
 );

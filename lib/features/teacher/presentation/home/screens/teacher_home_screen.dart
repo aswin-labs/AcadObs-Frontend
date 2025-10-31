@@ -15,6 +15,8 @@ import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/students/presentation/widgets/time_table_card.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
+import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
+import 'package:acadobs/features/teacher/presentation/home/widgets/check_in_widget.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_model.dart';
@@ -37,21 +39,28 @@ class TeacherHomeScreen extends StatefulWidget {
 }
 
 class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
+  late EventProvider eventProvider;
+  late NoticeProvider noticeProvider;
+  late NewsProvider newsProvider;
+  late TimeTableProvider timeTableProvider;
+  late StudentLeaveRequestProvider studentLeaveRequestProvider;
+  late TeacherAttendanceProvider teacherAttendanceProvider;
   @override
   void initState() {
     super.initState();
+    eventProvider = context.read<EventProvider>();
+    noticeProvider = context.read<NoticeProvider>();
+    newsProvider = context.read<NewsProvider>();
+    timeTableProvider = context.read<TimeTableProvider>();
+    studentLeaveRequestProvider = context.read<StudentLeaveRequestProvider>();
+    teacherAttendanceProvider = context.read<TeacherAttendanceProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<EventProvider>().fetchHomeLatestEvents(
-        limit: 3,
-        forStaff: true,
-      );
-      context.read<NoticeProvider>().fetchHomeLatestNotices(limit: 3);
-      context.read<NewsProvider>().fetchHomeLatestNews(
-        limit: 3,
-        forStaff: true,
-      );
-      context.read<TimeTableProvider>().fetchTimeTable(forStaff: true);
-      context.read<StudentLeaveRequestProvider>().getLeaveRequestNotification();
+      eventProvider.fetchHomeLatestEvents(limit: 3, forStaff: true);
+      noticeProvider.fetchHomeLatestNotices(limit: 3);
+      newsProvider.fetchHomeLatestNews(limit: 3, forStaff: true);
+      timeTableProvider.fetchTimeTable(forStaff: true);
+      studentLeaveRequestProvider.getLeaveRequestNotification();
+      teacherAttendanceProvider.getTodayAttendanceStatus();
     });
   }
 
@@ -60,7 +69,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     return Scaffold(
       body: Padding(
         padding: context.paddingHorizontal.add(
-          EdgeInsets.only(top: Responsive.height * 5),
+          EdgeInsets.only(top: Responsive.height * 7),
         ),
         child: SingleChildScrollView(
           physics: BouncingScrollPhysics(),
@@ -103,7 +112,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
               SizedBox(height: 30),
 
-              SizedBox(height: 20),
+              CheckInWidget(),
+              SizedBox(height: 30),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -175,137 +186,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               ),
 
               SizedBox(height: 20),
-              // Align(
-              //   alignment: Alignment.centerLeft,
-              //   child: Text(
-              //     "Today's TimeTable",
-              //     style: TextStyle(fontWeight: FontWeight.w700),
-              //   ),
-              // ),
-              // SizedBox(height: 10),
-
-              //time table for teacher
-              Consumer<TimeTableProvider>(
-                builder: (context, provider, _) {
-                  return provider.timeTableByDay.isEmpty
-                      ? SizedBox.shrink()
-                      : _buildTimeTableSection(context);
-                },
-              ),
-
-              // Consumer<TimeTableProvider>(
-              //   builder: (context, provider, _) {
-              //     if (provider.isLoading) {
-              //       return const Center(child: TimeTableShimmer());
-              //     }
-
-              //     if (provider.error != null) {
-              //       return Text(
-              //         provider.error!,
-              //         style: const TextStyle(color: Colors.red),
-              //       );
-              //     }
-
-              //     if (provider.timetableForStaff.isEmpty) {
-              //       return emptyScreen(
-              //         message: "No Time Table Avaliable",
-              //         heightMultiplier: 5,
-              //       );
-              //     }
-
-              //     return SizedBox(
-              //       height: MediaQuery.of(context).size.height * 0.35,
-              //       child: GridView.builder(
-              //         itemCount: provider.timetableForStaff.length,
-              //         gridDelegate:
-              //             const SliverGridDelegateWithFixedCrossAxisCount(
-              //               crossAxisCount: 4,
-              //               crossAxisSpacing: 8,
-              //               mainAxisSpacing: 10,
-              //               childAspectRatio: 0.7,
-              //             ),
-              //         shrinkWrap: true,
-              //         physics: const NeverScrollableScrollPhysics(),
-
-              //         itemBuilder: (context, index) {
-              //           final item = provider.timetableForStaff[index];
-              //           return TimeTableCard(
-              //             forStaff: true,
-              //             periodnumber: item.periodNumber ?? 0,
-              //             subject: item.subject?.subjectName ?? "N/A",
-              //             description: item.classGrade?.classname ?? "N/A",
-              //           );
-              //         },
-              //       ),
-              //     );
-              //   },
-              // ),
+              _buildTimeTableSection(context),
               SizedBox(height: 5),
-              // Align(
-              //   alignment: Alignment.centerLeft,
-              //   child: Text(
-              //     "Substitution",
-              //     style: TextStyle(fontWeight: FontWeight.w700),
-              //   ),
-              // ),
-              // SizedBox(height: 5),
-              //substitution
-              // Consumer<TimeTableProvider>(
-              //   builder: (context, provider, _) {
-              //     if (provider.isLoading) {
-              //       return const Center(child: TimeTableShimmer());
-              //     }
-
-              //     if (provider.error != null) {
-              //       return Text(
-              //         provider.error!,
-              //         style: const TextStyle(color: Colors.red),
-              //       );
-              //     }
-
-              //     if (provider.timetableForStaff.isEmpty) {
-              //       return emptyScreen(
-              //         message: "No substitution Avaliable",
-              //         heightMultiplier: 5,
-              //       );
-              //     }
-
-              //     return SizedBox(
-              //       height: MediaQuery.of(context).size.height * 0.35,
-              //       child: GridView.builder(
-              //         itemCount: provider.substitution.length,
-              //         gridDelegate:
-              //             const SliverGridDelegateWithFixedCrossAxisCount(
-              //               crossAxisCount: 4,
-              //               crossAxisSpacing: 8,
-              //               mainAxisSpacing: 10,
-              //               childAspectRatio: 0.7,
-              //             ),
-              //         shrinkWrap: true,
-              //         physics: const NeverScrollableScrollPhysics(),
-
-              //         itemBuilder: (context, index) {
-              //           final item = provider.substitution[index];
-              //           return TimeTableCard(
-              //             forStaff: true,
-              //             // periodnumber: item.periodNumber ?? 0,
-              //             periodnumber: item.timeTable?.periodNumber ?? 0,
-              //             subject: item.subject?.subjectName ?? "",
-              //             description:
-              //                 item.timeTable?.classGrade?.classname ?? "",
-              //           );
-              //         },
-              //       ),
-              //     );
-              //   },
-              // ),
-              Consumer<TimeTableProvider>(
-                builder: (context, provider, _) {
-                  return provider.substitution.isEmpty
-                      ? SizedBox.shrink()
-                      : _buildSubstitutionSection(context);
-                },
-              ),
+              _buildSubstitutionSection(context),
               SizedBox(height: 20),
               Row(
                 children: [
@@ -632,102 +515,6 @@ class _OptionTile extends StatelessWidget {
   }
 }
 
-// class FabOptionsDialog extends StatelessWidget {
-//   const FabOptionsDialog({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Stack(
-//       children: [
-//         // Blurred background
-//         GestureDetector(
-//           onTap: () => Navigator.of(context).pop(),
-//           child: BackdropFilter(
-//             filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-//             child: Container(color: Colors.black.withAlpha(50)),
-//           ),
-//         ),
-
-//         // Floating card at bottom right
-//         Positioned(
-//           bottom: 90,
-//           right: 90,
-//           child: Material(
-//             color: Colors.transparent,
-//             child: Container(
-//               width: 220,
-//               decoration: BoxDecoration(
-//                 color: Color(0xFFFFFFFF),
-//                 borderRadius: BorderRadius.circular(10),
-//                 boxShadow: [
-//                   BoxShadow(
-//                     color: Color(0xFFE6E6E6),
-//                     blurRadius: 10,
-//                     offset: Offset(0, 4),
-//                   ),
-//                 ],
-//               ),
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   _OptionTile(
-//                     icon: Icons.note_alt_outlined,
-//                     label: 'Leave Requests',
-//                     onTap: () {
-//                       context.pushNamed(RouteConstants.staffLeaveRequestHome);
-//                       Navigator.pop(context);
-//                     },
-//                   ),
-//                   Divider(height: 0, color: Color(0xFFE6E6E6)),
-//                   _OptionTile(
-//                     icon: Icons.menu_book_outlined,
-//                     label: 'Students',
-//                     onTap: () {
-//                       context.pushNamed(RouteConstants.studentListing);
-//                       Navigator.pop(context);
-//                     },
-//                   ),
-//                   Divider(height: 0, color: Color(0xFFE6E6E6)),
-//                   _OptionTile(
-//                     icon: LucideIcons.badgeCheck,
-//                     label: 'Achievements',
-//                     onTap: () {
-//                       context.pushNamed(RouteConstants.getAchievement);
-//                       // context.pushNamed(RouteConstants.studentListing);
-//                       Navigator.pop(context);
-//                     },
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-// class _OptionTile extends StatelessWidget {
-//   final IconData icon;
-//   final String label;
-//   final VoidCallback onTap;
-
-//   const _OptionTile({
-//     required this.icon,
-//     required this.label,
-//     required this.onTap,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return ListTile(
-//       leading: Icon(icon, color: Colors.black),
-//       title: Text(label, style: TextStyle(color: Colors.black)),
-//       onTap: onTap,
-//     );
-//   }
-// }
-
 Widget _buildSubstitutionSection(BuildContext context) {
   return Consumer<TimeTableProvider>(
     builder: (context, provider, _) {
@@ -740,10 +527,7 @@ Widget _buildSubstitutionSection(BuildContext context) {
       }
 
       if (provider.substitution.isEmpty) {
-        return emptyScreen(
-          message: "No substitution Avaliable",
-          heightMultiplier: 5,
-        );
+        return SizedBox.shrink();
       }
 
       return Column(
@@ -820,10 +604,7 @@ Widget _buildTimeTableSection(BuildContext context) {
       }
 
       if (provider.timetableForStaff.isEmpty) {
-        return emptyScreen(
-          message: "No Time Table Avaliable",
-          heightMultiplier: 5,
-        );
+        return SizedBox.shrink();
       }
 
       return Column(

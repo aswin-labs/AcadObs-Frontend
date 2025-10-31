@@ -25,7 +25,6 @@ class RankingCard extends StatefulWidget {
 }
 
 class _RankingCardState extends State<RankingCard> {
-
   @override
   Widget build(BuildContext context) {
     final rankingProvider = Provider.of<HomeworkProvider>(context);
@@ -83,6 +82,42 @@ class _RankingCardState extends State<RankingCard> {
             ),
           ),
 
+          // GestureDetector(
+          //   onTap: () {
+          //     context.pushNamed(
+          //       RouteConstants.homeworkDetails,
+          //       extra: HomeworkModel(id: widget.homeworkId),
+          //     );
+          //   },
+          //   child: Padding(
+          //     padding: const EdgeInsets.only(left: 12),
+          //     child: Row(
+          //       mainAxisAlignment: MainAxisAlignment.start,
+          //       children: [
+          //         Container(
+          //           padding: const EdgeInsets.symmetric(
+          //             horizontal: 12,
+          //             vertical: 2,
+          //           ),
+          //           decoration: BoxDecoration(
+          //             color: Colors.blue.shade50,
+          //             borderRadius: BorderRadius.circular(8),
+          //             border: Border.all(color: Colors.blueAccent),
+          //           ),
+          //           child: const Text(
+          //             "To Homeworkscreen",
+          //             style: TextStyle(
+          //               color: Colors.blueAccent,
+          //               fontWeight: FontWeight.w600,
+          //               fontSize: 14,
+          //             ),
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+          // SizedBox(height: 10),
           const Divider(height: 1, color: Color(0xFFE0E0E0)),
 
           // Bottom Row: Stars and Chat icon

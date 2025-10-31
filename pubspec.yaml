@@ -51,14 +51,14 @@ dependencies:
   open_file: ^3.5.10
   permission_handler: ^12.0.1
   http: ^1.4.0
-  connectivity_plus: ^6.1.4
+  connectivity_plus: ^7.0.0
   socket_io_client: ^3.1.2
   flutter_secure_storage: ^9.2.4
   firebase_messaging: ^16.0.3
   firebase_core: ^4.2.0
   flutter_local_notifications: ^19.5.0
   fl_chart: ^0.66.0
-
+  geolocator: ^14.0.2
   # open_filex: ^4.7.0
 
 dev_dependencies:
