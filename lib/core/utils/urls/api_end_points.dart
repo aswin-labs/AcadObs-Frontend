@@ -8,6 +8,14 @@ class ApiEndpoints {
   // LOGIN
   static const String login = "/public/login";
 
+  // PROFILE SETTINGS
+  static const String staffChangePassword = "/staff/changePassword";
+  static const String guardianChangePassword = "/guardian/changePassword";
+  static const String guardianProfile = "/guardian/getProfileDetails";
+  static const String updateGuardianProfile = "/guardian/updateProfileDetails";
+  static const String updateProfilePhoto = "/guardian/updateDp";
+
+
   //*****************STAFF*********************
   static const String classesByYear = "/staff/getClassesByYear";
   static const String students = "/staff/students";
@@ -79,6 +87,8 @@ class ApiEndpoints {
   static const String teacherCheckIn = "/staff/markSelfAttendance";
   static const String teacherCheckOut = "/staff/markCheckOutSelfAttendance";
 
+  static const String staffProfile = "/staff/getProfileDetails";
+
   //***********************GUARDIAN*************************
   static const String fetchLatestEventsGuardian = "/guardian/getLatestEvents";
   static const String fetchLatestNewsGuardian = "/guardian/getLatestNews";
@@ -101,6 +111,6 @@ class ApiEndpoints {
   static const String fetchTimeTable = "/guardian/getTodayTimeTableByStudentId";
   static const String fetchAllDayTimeTable =
       "/guardian/getAllDayTimeTableByStudentId";
-  static const String changePassword = "/guardian/changePassword";
   static const String guardianNotification = "/guardian/updateFcmToken";
+  
 }

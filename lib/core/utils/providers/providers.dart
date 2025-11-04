@@ -9,6 +9,7 @@ import 'package:acadobs/features/notices/presentation/provider/notice_provider.d
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
+import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_achievement_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/provider/school_classes_provider.dart';
@@ -35,6 +36,7 @@ getProviders() {
     ChangeNotifierProvider(create: (_) => DropdownProvider()),
     ChangeNotifierProvider(create: (_) => SharedProvider()),
     ChangeNotifierProvider(create: (_) => AuthProvider()),
+    ChangeNotifierProvider(create: (_) => ProfileProvider()),
 
     //*************SUPER ADMIN*************//
     ChangeNotifierProvider(create: (_) => SchoolProvider()),

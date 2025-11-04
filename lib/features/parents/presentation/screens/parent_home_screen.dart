@@ -10,7 +10,6 @@ import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
-import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
 import 'package:acadobs/shared/widgets/profile_tile.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,14 +18,14 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class ParentHomeScreen extends StatefulWidget {
+  const ParentHomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<ParentHomeScreen> createState() => _ParentHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _ParentHomeScreenState extends State<ParentHomeScreen> {
   String? schoolName;
   @override
   void initState() {
@@ -114,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ontap:
                         () => context.pushNamed(
                           RouteConstants.profileScreen,
-                          extra: UserModel(role: "guardian"),
+                          extra: false,
                         ),
                   ),
                 ),

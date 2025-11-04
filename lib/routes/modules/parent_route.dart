@@ -1,24 +1,12 @@
 import 'package:acadobs/features/authentication/presentation/screens/school_selection_screen.dart';
 import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
-import 'package:acadobs/features/parents/presentation/screens/change_password.dart';
 import 'package:acadobs/features/students/presentation/screens/prediction.dart';
 import 'package:acadobs/features/students/presentation/screens/student_leave_request_details_screen.dart';
-import 'package:acadobs/features/authentication/presentation/screens/profile_screen.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
 import 'package:acadobs/routes/router_constants.dart';
-import 'package:acadobs/shared/models/user_model.dart';
 import 'package:go_router/go_router.dart';
 
 List<GoRoute> parentRoutes = [
-  GoRoute(
-    path: '/profilescreen',
-    name: RouteConstants.profileScreen,
-    builder: (context, state) {
-      final user = state.extra as UserModel;
-      return ProfileScreen(user: user);
-    },
-  ),
-
   GoRoute(
     path: '/studentleaveletterscreen',
     name: RouteConstants.studentLeaveLetterScreen,
@@ -41,15 +29,6 @@ List<GoRoute> parentRoutes = [
     name: RouteConstants.shareBottomSheet,
     builder: (context, state) {
       return ShareBottomSheet();
-    },
-  ),
-
-  //password
-  GoRoute(
-    path: '/changePassword',
-    name: RouteConstants.changePassword,
-    builder: (context, state) {
-      return ChangePassword();
     },
   ),
 

@@ -19,7 +19,6 @@ import 'package:acadobs/features/teacher/presentation/home/provider/teacher_atte
 import 'package:acadobs/features/teacher/presentation/home/widgets/check_in_widget.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
-import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/custom_button_container.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
@@ -103,7 +102,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     ontap: () {
                       context.pushNamed(
                         RouteConstants.profileScreen,
-                        extra: UserModel(role: "teacher"),
+                        extra: true,
                       );
                     },
                   ),

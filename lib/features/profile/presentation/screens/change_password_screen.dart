@@ -1,19 +1,20 @@
 import 'package:acadobs/core/utils/custom_snackbar.dart';
-import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
+import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class ChangePassword extends StatefulWidget {
-  const ChangePassword({super.key});
+class ChangePasswordScreen extends StatefulWidget {
+  final bool forStaff;
+  const ChangePasswordScreen({super.key, required this.forStaff});
 
   @override
-  State<ChangePassword> createState() => _ChangePasswordState();
+  State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
 }
 
-class _ChangePasswordState extends State<ChangePassword> {
+class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final oldPasswordController = TextEditingController();
   final newPasswordController = TextEditingController();
@@ -36,13 +37,14 @@ class _ChangePasswordState extends State<ChangePassword> {
       return;
     }
 
-    final provider = context.read<ParentProvider>();
+    final provider = context.read<ProfileProvider>();
     final oldPassword = oldPasswordController.text.trim();
     final newPassword = newPasswordController.text.trim();
 
     await provider.changePassword(
       oldPassword: oldPassword,
       newPassword: newPassword,
+      forStaff: widget.forStaff,
     );
 
     if (!mounted) return;
@@ -112,7 +114,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    CommonTextField(
+                    ChangePasswordTextField(
                       hintText: "Enter your current password",
                       controller: oldPasswordController,
                       isPassword: true,
@@ -142,7 +144,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    CommonTextField(
+                    ChangePasswordTextField(
                       hintText: "Enter your new password",
                       controller: newPasswordController,
                       isPassword: true,
@@ -178,7 +180,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    CommonTextField(
+                    ChangePasswordTextField(
                       hintText: "Re-enter your new password",
                       controller: confirmPasswordController,
                       isPassword: true,
@@ -236,7 +238,7 @@ class _ChangePasswordState extends State<ChangePassword> {
   }
 }
 
-class CommonTextField extends StatelessWidget {
+class ChangePasswordTextField extends StatelessWidget {
   final String hintText;
   final TextEditingController controller;
   final bool isPassword;
@@ -244,7 +246,7 @@ class CommonTextField extends StatelessWidget {
   final VoidCallback? onVisibilityToggle;
   final String? Function(String?)? validator;
 
-  const CommonTextField({
+  const ChangePasswordTextField({
     super.key,
     required this.hintText,
     required this.controller,
@@ -303,112 +305,3 @@ class CommonTextField extends StatelessWidget {
     );
   }
 }
-
-// import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
-// import 'package:acadobs/shared/widgets/common_appbar.dart';
-// import 'package:acadobs/shared/widgets/common_button.dart';
-// import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
-
-// class ChangePassword extends StatefulWidget {
-//   const ChangePassword({super.key});
-
-//   @override
-//   State<ChangePassword> createState() => _ChangePasswordState();
-// }
-
-// class _ChangePasswordState extends State<ChangePassword> {
-//   final oldPasswordController = TextEditingController();
-//   final newPasswordController = TextEditingController();
-
-//   @override
-//   void dispose() {
-//     oldPasswordController.dispose();
-//     newPasswordController.dispose();
-//     super.dispose();
-//   }
-
-//   void _onChangePassword() {
-//     final provider = context.read<ParentProvider>();
-
-//     final oldPassword = oldPasswordController.text.trim();
-//     final newPassword = newPasswordController.text.trim();
-
-//     if (oldPassword.isEmpty || newPassword.isEmpty) {
-//       ScaffoldMessenger.of(
-//         context,
-//       ).showSnackBar(const SnackBar(content: Text("Please fill all fields")));
-//       return;
-//     }
-
-//     provider.changePassword(oldPassword: oldPassword, newPassword: newPassword);
-
-//     ScaffoldMessenger.of(context).showSnackBar(
-//       const SnackBar(content: Text("Password changed successfully")),
-//     );
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: CommonAppBar(title: "Reset Password", isBackButton: true),
-//       body: Padding(
-//         padding: const EdgeInsets.all(16),
-//         child: Column(
-//           children: [
-//             Align(
-//               alignment: Alignment.centerLeft,
-//               child: Text(
-//                 "old password:",
-//                 style: TextStyle(fontWeight: FontWeight.w500),
-//               ),
-//             ),
-//             CommonTextField(
-//               hintText: "old password",
-//               controller: oldPasswordController,
-//             ),
-//             SizedBox(height: 20),
-//             Align(
-//               alignment: Alignment.centerLeft,
-//               child: Text(
-//                 "New password:",
-//                 style: TextStyle(fontWeight: FontWeight.w500),
-//               ),
-//             ),
-//             CommonTextField(
-//               hintText: "New password",
-//               controller: newPasswordController,
-//             ),
-
-//             SizedBox(height: 30),
-//             CommonButton(
-//               onPressed: _onChangePassword,
-//               widget: Text("Reset Password"),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class CommonTextField extends StatelessWidget {
-//   final String hintText;
-//   final TextEditingController controller;
-//   const CommonTextField({
-//     super.key,
-//     required this.hintText,
-//     required this.controller,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return TextFormField(
-//       controller: controller,
-//       decoration: InputDecoration(
-//         border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
-//         hintText: hintText,
-//       ),
-//     );
-//   }
-// }
