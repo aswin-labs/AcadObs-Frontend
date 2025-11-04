@@ -1,6 +1,5 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
-import 'package:acadobs/core/utils/custom_popup_menu.dart';
 import 'package:acadobs/features/profile/data/models/guardian_model.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
@@ -90,11 +89,23 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
         title: "My Profile",
         isBackButton: true,
         actions: [
-          CustomPopupMenu(
-            showDelete: false,
-            onEdit: () {
+          GestureDetector(
+            onTap: () {
               context.read<ProfileProvider>().enableEditProfile();
             },
+            child: Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Row(
+                children: [
+                  Icon(Icons.edit, size: 18),
+                  SizedBox(width: 5),
+                  Text(
+                    "Edit",
+                    style: TextStyle(color: Colors.black, fontSize: 18),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
