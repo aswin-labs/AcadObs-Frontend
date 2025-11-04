@@ -1,10 +1,8 @@
 import 'dart:io';
 
-import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
+import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lucide_icons/lucide_icons.dart';
-import 'package:provider/provider.dart';
 
 class UpdateProfilePhotoScreen extends StatefulWidget {
   const UpdateProfilePhotoScreen({super.key});
@@ -30,87 +28,60 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
     }
   }
 
-  Future<void> _uploadImage() async {
-    if (_selectedImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an image first')),
-      );
-      return;
-    }
-
-    await context.read<ProfileProvider>().updateProfilePhoto(_selectedImage!);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile photo updated successfully')),
+  void _showPickOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (_) => SafeArea(
+            child: Wrap(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.photo_library),
+                  title: const Text('Choose from Gallery'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.gallery);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.camera_alt),
+                  title: const Text('Take a Photo'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.camera);
+                  },
+                ),
+              ],
+            ),
+          ),
     );
-
-    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<ProfileProvider>();
-
     return Scaffold(
-      // appBar: AppBar(title: const Text("Edit Profile Photo")),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
+      appBar: CommonAppBar(title: "Edit Profile Photo", isBackButton: true,),
+      body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const SizedBox(height: 30),
-            // Profile photo preview
             CircleAvatar(
               radius: 70,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: Colors.grey.shade300,
               backgroundImage:
                   _selectedImage != null ? FileImage(_selectedImage!) : null,
               child:
                   _selectedImage == null
-                      ? const Icon(
-                        LucideIcons.user,
-                        size: 60,
-                        color: Colors.grey,
-                      )
+                      ? const Icon(Icons.person, size: 70, color: Colors.white)
                       : null,
             ),
-
-            const SizedBox(height: 30),
-
-            // Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  icon: const Icon(LucideIcons.image),
-                  label: const Text("Gallery"),
-                  onPressed: () => _pickImage(ImageSource.gallery),
-                ),
-                const SizedBox(width: 20),
-                ElevatedButton.icon(
-                  icon: const Icon(LucideIcons.camera),
-                  label: const Text("Camera"),
-                  onPressed: () => _pickImage(ImageSource.camera),
-                ),
-              ],
-            ),
-
-            const Spacer(),
-
-            // Upload button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon:
-                    provider.isLoading
-                        ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(LucideIcons.upload),
-                label: const Text("Upload Photo"),
-                onPressed: provider.isLoading ? null : _uploadImage,
-              ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _showPickOptions,
+              child: Text("Change Photo"),
             ),
           ],
         ),
@@ -118,6 +89,7 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
     );
   }
 }
+
 
 // void showEditProfilePhotoBottomheet ({
 //   required BuildContext context
