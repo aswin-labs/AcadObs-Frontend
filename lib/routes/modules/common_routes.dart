@@ -3,6 +3,10 @@ import 'package:acadobs/features/authentication/presentation/screens/login_scree
 import 'package:acadobs/features/authentication/presentation/screens/splash_screen.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/screens/chat_screen.dart';
+import 'package:acadobs/features/profile/presentation/screens/change_password_screen.dart';
+import 'package:acadobs/features/profile/presentation/screens/profile_details_screen.dart';
+import 'package:acadobs/features/profile/presentation/screens/profile_screen.dart';
+import 'package:acadobs/features/profile/presentation/widgets/update_profile_photo_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/bottom_nav/presentation/bottom_nav_screen.dart';
 import 'package:acadobs/shared/widgets/no_internet_screen.dart';
@@ -49,6 +53,43 @@ final List<GoRoute> commonRoutes = [
     name: RouteConstants.noInternetScreen,
     builder: (context, state) {
       return NoInternetScreen();
+    },
+  ),
+
+  GoRoute(
+    path: '/profilescreen',
+    name: RouteConstants.profileScreen,
+    builder: (context, state) {
+      final forStaff = state.extra as bool;
+      return ProfileScreen(forStaff: forStaff,);
+    },
+  ),
+
+   // Profile details
+  GoRoute(
+    path: '/profileDetails',
+    name: RouteConstants.profileDetails,
+    builder: (context, state) {
+      return ProfileDetailsScreen();
+    },
+  ),
+
+   // Update profile photo
+  GoRoute(
+    path: '/updateProfilePhoto',
+    name: RouteConstants.updateProfilePhoto,
+    builder: (context, state) {
+      return UpdateProfilePhotoScreen();
+    },
+  ),
+
+  // Change password
+  GoRoute(
+    path: '/changePassword',
+    name: RouteConstants.changePassword,
+    builder: (context, state) {
+      final bool forStaff = state.extra as bool;
+      return ChangePasswordScreen(forStaff: forStaff);
     },
   ),
 ];

@@ -5,6 +5,7 @@ class RouteConstants {
   static const String loginScreen = 'loginScreen';
   static const String splashScreen = 'splashScreen';
   static const String noInternetScreen = 'noInternetScreen';
+  static const String updateProfilePhoto = 'updateProfilePhoto';
 
   //  SUPER ADMIN ROUTES
   static const String addSchool = 'addSchool';
@@ -60,6 +61,7 @@ class RouteConstants {
   static const String addTeacherNoteSection = "addteachernotesection";
   static const String schoolSelectionScreen = "schoolSelectionScreen";
   static const String shareBottomSheet = "sharebottomsheet";
+  static const String profileDetails = 'profileDetails';
 
   // STUDENTS
   static const String studentListing = 'studentListing';

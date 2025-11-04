@@ -1,0 +1,136 @@
+import 'dart:developer';
+import 'dart:io';
+
+import 'package:acadobs/core/utils/custom_snackbar.dart';
+import 'package:acadobs/features/profile/data/models/guardian_model.dart';
+import 'package:acadobs/features/profile/data/services/profile_services.dart';
+import 'package:flutter/cupertino.dart';
+
+class ProfileProvider extends ChangeNotifier {
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+  bool _isLoadingTwo = false;
+  bool get isLoadingTwo => _isLoadingTwo;
+  GuardianModel? guardianProfile;
+  bool _editProfileEnabled = false;
+  bool get editProfileEnabled => _editProfileEnabled;
+  //change password
+  Future<void> changePassword({
+    required String newPassword,
+    required String oldPassword,
+    required bool forStaff,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final response = await ProfileServices().changePassword(
+        newPassword: newPassword,
+        oldPassword: oldPassword,
+        forStaff: forStaff,
+      );
+      if (response.statusCode == 200) {
+        log("password changed successfully: ${response.data}");
+      } else {
+        log("failed to change the password: ${response.data}");
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Fetch profile details
+  Future<void> fetchProfileDetails() async {
+    _isLoading = true;
+    try {
+      final response = await ProfileServices().fetchProfileDetails();
+
+      if (response.statusCode == 200 && response.data['guardian'] != null) {
+        guardianProfile = GuardianModel.fromJson(
+          Map<String, dynamic>.from(response.data['guardian']),
+        );
+      } else {
+        guardianProfile = null;
+      }
+    } catch (e) {
+      log('Error fetching guardian profile: $e');
+      guardianProfile = null;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Enable edit profile
+  void enableEditProfile() {
+    _editProfileEnabled = true;
+    notifyListeners();
+  }
+
+  // disable edit profile
+  void disableEditProfile() {
+    _editProfileEnabled = false;
+    notifyListeners();
+  }
+
+  // save profile details
+  Future<void> saveProfileDetails({
+    required BuildContext context,
+    required GuardianModel guardian,
+  }) async {
+    _isLoadingTwo = true;
+    notifyListeners();
+    try {
+      final response = await ProfileServices().updateProfileDetails(
+        guardian: guardian,
+      );
+      if (response.statusCode == 200) {
+        log('Profile updated successfully');
+        disableEditProfile();
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: 'Profile updated successfully',
+          type: SnackbarType.success,
+        );
+      } else {
+        log('Failed to update profile: ${response.statusCode}');
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: 'Failed to update profile',
+          type: SnackbarType.failure,
+        );
+      }
+    } catch (e) {
+      log('Error: $e');
+    } finally {
+      _isLoadingTwo = false;
+      notifyListeners();
+    }
+  }
+
+  // update profile photo
+  Future<void> updateProfilePhoto(File imageFile) async {
+  _isLoading = true;
+  notifyListeners();
+
+  try {
+    final response = await ProfileServices().updateProfilePhoto(imageFile);
+    if (response.statusCode == 200) {
+      log(" Profile photo updated successfully");
+      await fetchProfileDetails();
+    } else {
+      log(" Failed to update profile photo: ${response.statusCode}");
+    }
+  } catch (e) {
+    log("Error updating profile photo: $e");
+  } finally {
+    _isLoading = false;
+    notifyListeners();
+  }
+}
+
+}

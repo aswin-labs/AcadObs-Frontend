@@ -1,7 +1,6 @@
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
-import 'package:acadobs/shared/models/user_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -10,8 +9,8 @@ import 'package:provider/provider.dart';
 const Color tPrimaryColor = Color(0xFF1E88E5);
 
 class ProfileScreen extends StatefulWidget {
-  final UserModel user;
-  const ProfileScreen({super.key, required this.user});
+  final bool forStaff;
+  const ProfileScreen({super.key, required this.forStaff});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -74,66 +73,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           ),
                           SizedBox(height: 10),
-
-                          GestureDetector(
-                            onTap: () {},
-                            child: Container(
-                              height: 40,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                ),
-                                child: Row(
-                                  children: const [
-                                    Icon(Icons.edit),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      'Edit profile',
-                                      style: TextStyle(color: Colors.black),
-                                    ),
-                                    Spacer(),
-                                    Icon(Icons.arrow_forward_ios, size: 13),
-                                  ],
-                                ),
-                              ),
-                            ),
+                          _settingsTile(
+                            onTap: () {
+                              context.pushNamed(RouteConstants.profileDetails);
+                            },
+                            text: 'My Profile',
+                            icon: Icons.person,
                           ),
 
-                          SizedBox(height: 5),
-                          GestureDetector(
+                          _settingsTile(
                             onTap: () {
-                              widget.user.role == "guardian"
-                                  ? context.pushNamed(
-                                    RouteConstants.changePassword,
-                                  )
-                                  : null;
+                              context.pushNamed(
+                                RouteConstants.updateProfilePhoto, 
+                              );
                             },
-                            child: Container(
-                              height: 40,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                ),
-                                child: Row(
-                                  children: const [
-                                    Icon(Icons.lock_outline),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      'Change password',
-                                      style: TextStyle(color: Colors.black),
-                                    ),
-                                    Spacer(),
-                                    Icon(Icons.arrow_forward_ios, size: 13),
-                                  ],
-                                ),
-                              ),
-                            ),
+                            text: 'Edit Profile Photo',
+                            icon: Icons.edit,
+                          ),
+
+                          _settingsTile(
+                            onTap: () {
+                              context.pushNamed(
+                                RouteConstants.changePassword,
+                                extra: widget.forStaff,
+                              );
+                            },
+                            text: 'Change Password',
+                            icon: Icons.lock_outline,
                           ),
 
                           Padding(
@@ -174,6 +140,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
     );
   }
+}
+
+Widget _settingsTile({
+  required VoidCallback onTap,
+  required String text,
+  required IconData icon,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 5),
+    child: GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 40,
+        decoration: const BoxDecoration(color: Colors.white),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: [
+              Icon(icon),
+              SizedBox(width: 10),
+              Text(text, style: TextStyle(color: Colors.black)),
+              Spacer(),
+              Icon(Icons.arrow_forward_ios, size: 13),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 Widget _buildProfileHeader(BuildContext context, Map<String, dynamic> data) {
@@ -230,14 +225,8 @@ Widget _buildProfileHeader(BuildContext context, Map<String, dynamic> data) {
           children: [
             CircleAvatar(
               radius: avatarRadius,
-              backgroundColor: Colors.blue.withAlpha(
-                25,
-              ), // replace with tPrimaryColor
-              child: const Icon(
-                Icons.person,
-                size: 40,
-                color: Colors.blue, // replace with tPrimaryColor
-              ),
+              backgroundColor: Colors.blue.withAlpha(25),
+              child: const Icon(Icons.person, size: 40, color: Colors.blue),
             ),
             SizedBox(
               width:

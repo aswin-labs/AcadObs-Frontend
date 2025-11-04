@@ -6,7 +6,7 @@ import 'package:acadobs/features/chats/presentation/screens/chats_home_screen.da
 import 'package:acadobs/features/events/presentation/screens/event_list_screen.dart';
 import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
-import 'package:acadobs/features/parents/presentation/screens/home_screen.dart';
+import 'package:acadobs/features/parents/presentation/screens/parent_home_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/teachers_listing_screen.dart';
 // import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/screens/school_classes_screen.dart';
@@ -52,7 +52,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       ];
     } else if (userType == UserType.parent) {
       return [
-        HomeScreen(),
+        ParentHomeScreen(),
         EventListScreen(forStaff: false),
         NewsDetailsScreen(forStaff: false),
         ChatsHomeScreen(forParent: true),

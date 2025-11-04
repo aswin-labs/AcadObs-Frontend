@@ -28,30 +28,4 @@ class ParentProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  //change password
-  Future<void> changePassword({
-    required String newPassword,
-    required String oldPassword,
-  }) async {
-    _isLoading = true;
-    notifyListeners();
-    try {
-      final response = await ParentServices().changePassword(
-        newPassword: newPassword,
-        oldPassword: oldPassword,
-      );
-      if (response.statusCode == 200) {
-        log("password changed successfully: ${response.data}");
-        log("statuscode: ${response.statusCode}");
-      } else {
-        log("failed to change the password: ${response.data}");
-      }
-    } catch (e) {
-      log(e.toString());
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
-  }
 }
