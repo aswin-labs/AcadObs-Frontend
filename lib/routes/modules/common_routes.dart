@@ -61,11 +61,11 @@ final List<GoRoute> commonRoutes = [
     name: RouteConstants.profileScreen,
     builder: (context, state) {
       final forStaff = state.extra as bool;
-      return ProfileScreen(forStaff: forStaff,);
+      return ProfileScreen(forStaff: forStaff);
     },
   ),
 
-   // Profile details
+  // Profile details
   GoRoute(
     path: '/profileDetails',
     name: RouteConstants.profileDetails,
@@ -74,12 +74,13 @@ final List<GoRoute> commonRoutes = [
     },
   ),
 
-   // Update profile photo
+  // Update profile photo
   GoRoute(
     path: '/updateProfilePhoto',
     name: RouteConstants.updateProfilePhoto,
     builder: (context, state) {
-      return UpdateProfilePhotoScreen();
+      final bool forStaff = state.extra as bool;
+      return UpdateProfilePhotoScreen(forStaff: forStaff);
     },
   ),
 

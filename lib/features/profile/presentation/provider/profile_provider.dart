@@ -47,19 +47,19 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final response = await ProfileServices().fetchProfileDetails();
-      log("📦 Fetched guardian profile response: ${response.data}");
+      log("Fetched guardian profile response: ${response.data}");
       if (response.statusCode == 200 && response.data['guardian'] != null) {
         guardianProfile = GuardianModel.fromJson(
-          Map<String, dynamic>.from(response.data['guardian']),
+          Map<String, dynamic>.from(response.data),
         );
       } else {
-        log("⚠️ Guardian data missing in response");
+        log("Guardian data missing in response");
         guardianProfile = null;
       }
       notifyListeners();
     } catch (e, st) {
       log('Error fetching guardian profile: $e');
-      log('❌ Error fetching guardian profile: $e');
+      log(' Error fetching guardian profile: $e');
       log('Stack trace: $st');
       guardianProfile = null;
       notifyListeners();
@@ -119,13 +119,19 @@ class ProfileProvider extends ChangeNotifier {
   }
 
   // update profile photo
-  Future<void> updateProfilePhoto(File imageFile) async {
+  Future<void> updateProfilePhoto({
+    required File imageFile,
+    required bool forStaff,
+  }) async {
     _isLoading = true;
     notifyListeners();
     log("🟡 Starting profile photo upload...");
 
     try {
-      final response = await ProfileServices().updateProfilePhoto(imageFile);
+      final response = await ProfileServices().updateProfilePhoto(
+        forStaff: forStaff,
+        imageFile: imageFile,
+      );
       log("🟢 Upload response status: ${response.statusCode}");
 
       if (response.statusCode == 200) {

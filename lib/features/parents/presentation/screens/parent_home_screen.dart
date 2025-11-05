@@ -1,4 +1,3 @@
-import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
@@ -26,29 +25,25 @@ class ParentHomeScreen extends StatefulWidget {
 }
 
 class _ParentHomeScreenState extends State<ParentHomeScreen> {
-  String? schoolName;
+  late ParentProvider parentProvider;
   @override
   void initState() {
     super.initState();
-    context.read<ParentProvider>().fetchStudentsUnderParentBySchoolId();
+    parentProvider = context.read<ParentProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      parentProvider.loadSchoolName();
+    });
+    parentProvider.fetchStudentsUnderParentBySchoolId();
     context.read<EventProvider>().fetchHomeLatestEvents(
       limit: 3,
       forStaff: false,
     );
     context.read<NewsProvider>().fetchHomeLatestNews(limit: 3, forStaff: false);
-    _loadSchoolName();
-  }
-
-  Future<void> _loadSchoolName() async {
-    final authStorage = AuthStorageService();
-    final data = await authStorage.getSchoolNameForParent();
-    setState(() {
-      schoolName = data;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final schoolName = context.watch<ParentProvider>().schoolName;
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(
@@ -81,7 +76,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                         schoolName == null
                             ? CircularProgressIndicator(color: Colors.white)
                             : Text(
-                              schoolName ?? "",
+                              schoolName,
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 24,

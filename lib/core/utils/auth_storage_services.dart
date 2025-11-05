@@ -97,6 +97,13 @@ class AuthStorageService {
     return data['role'] as String?;
   }
 
+    /// Get user photo only
+  Future<String?> getUserPhoto() async {
+    final data = await getUserData();
+    if (data == null) return null;
+    return data['dp'] as String?;
+  }
+
   // Get school details for teacher
   Future<Map<String, dynamic>?> getSchoolDetailsForTeacher() async {
     final raw = await _storage.read(key: _kSchoolDetailsForTeacher);

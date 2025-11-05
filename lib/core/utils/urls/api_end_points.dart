@@ -13,7 +13,8 @@ class ApiEndpoints {
   static const String guardianChangePassword = "/guardian/changePassword";
   static const String guardianProfile = "/guardian/getProfileDetails";
   static const String updateGuardianProfile = "/guardian/updateProfileDetails";
-  static const String updateProfilePhoto = "/guardian/updateDp";
+  static const String updateProfilePhotoGuardian = "/guardian/updateDp";
+  static const String updateProfilePhotoStaff = "/staff/updateDp";
 
   //*****************STAFF*********************
   static const String classesByYear = "/staff/getClassesByYear";
