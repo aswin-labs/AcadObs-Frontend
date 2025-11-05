@@ -52,11 +52,11 @@ class ProfileServices {
   }
 
   // update profile photo
-  Future<Response> updateProfilePhoto(File imageFile) async {
+  Future<Response> updateProfilePhoto({required File imageFile, required bool forStaff}) async {
     log('Uploading profile photo...');
     log('File path: ${imageFile.path}');
     log(' File exists: ${await imageFile.exists()}');
-    log('Endpoint: ${ApiEndpoints.updateProfilePhoto}');
+    log('Endpoint: ${ApiEndpoints.updateProfilePhotoGuardian}');
     final formData = {'dp': await MultipartFile.fromFile(imageFile.path)};
 
     try {

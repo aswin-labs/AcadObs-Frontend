@@ -1,0 +1,158 @@
+[33m49ee394[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m, [m[1;31morigin/dev[m[33m)[m HEAD@{0}: pull origin dev: Fast-forward
+[33mfd8c5b1[m HEAD@{1}: checkout: moving from feat/editProfile to dev
+[33me9cc814[m[33m ([m[1;31morigin/feat/editProfile[m[33m, [m[1;32mfeat/editProfile[m[33m)[m HEAD@{2}: reset: moving to HEAD
+[33me9cc814[m[33m ([m[1;31morigin/feat/editProfile[m[33m, [m[1;32mfeat/editProfile[m[33m)[m HEAD@{3}: commit: bugfix(profile):guardian profile photo updated
+[33m0b9b2dc[m HEAD@{4}: pull origin dev: Fast-forward
+[33m5192035[m HEAD@{5}: commit: feat(profile):update profile photo on progress
+[33mff9c84a[m HEAD@{6}: commit: feat(profile):edit profile function for guardian
+[33mfd8c5b1[m HEAD@{7}: checkout: moving from dev to feat/editProfile
+[33mfd8c5b1[m HEAD@{8}: pull origin dev: Fast-forward
+[33mc29ef56[m HEAD@{9}: checkout: moving from feat/teacherAttendance to dev
+[33m3d68039[m[33m ([m[1;31morigin/feat/teacherAttendance[m[33m)[m HEAD@{10}: commit: feat(teacher):added teacher attendance function
+[33mc29ef56[m HEAD@{11}: checkout: moving from dev to feat/teacherAttendance
+[33mc29ef56[m HEAD@{12}: pull origin dev: Fast-forward
+[33meb99916[m HEAD@{13}: reset: moving to HEAD
+[33meb99916[m HEAD@{14}: pull origin dev: Fast-forward
+[33m04a8191[m HEAD@{15}: checkout: moving from bugfix/student to dev
+[33m10fda2f[m[33m ([m[1;31morigin/bugfix/student[m[33m)[m HEAD@{16}: commit: feat(notification):added notification on student leaves
+[33m2b3daf3[m HEAD@{17}: commit: bugfix(student): student leave design change
+[33m04a8191[m HEAD@{18}: checkout: moving from dev to bugfix/student
+[33m04a8191[m HEAD@{19}: pull origin dev: Fast-forward
+[33macf0cf3[m HEAD@{20}: checkout: moving from feat/download to dev
+[33m7f3a107[m[33m ([m[1;31morigin/feat/download[m[33m)[m HEAD@{21}: commit: feat(download):download notices
+[33mf8e55f0[m HEAD@{22}: checkout: moving from dev to feat/download
+[33macf0cf3[m HEAD@{23}: pull origin dev: Fast-forward
+[33mce45638[m HEAD@{24}: pull origin dev: Fast-forward
+[33m2986ed4[m HEAD@{25}: checkout: moving from feat/download to dev
+[33mf8e55f0[m HEAD@{26}: commit: feat(download): download function added
+[33m01efcb7[m[33m ([m[1;31morigin/bugfix/teacher[m[33m)[m HEAD@{27}: checkout: moving from bugfix/teacher to feat/download
+[33m01efcb7[m[33m ([m[1;31morigin/bugfix/teacher[m[33m)[m HEAD@{28}: commit: bugfix(teacher):simple fixes on homescreen
+[33m2986ed4[m HEAD@{29}: checkout: moving from dev to bugfix/teacher
+[33m2986ed4[m HEAD@{30}: pull origin dev: Fast-forward
+[33m618130c[m HEAD@{31}: pull origin dev: Fast-forward
+[33m52c3c57[m HEAD@{32}: checkout: moving from bugfix/attendance to dev
+[33md4a57b9[m[33m ([m[1;31morigin/bugfix/attendance[m[33m)[m HEAD@{33}: commit: bugfix(attendance): attendance after leave approval
+[33meced121[m HEAD@{34}: pull origin dev: Fast-forward
+[33m52c3c57[m HEAD@{35}: checkout: moving from dev to bugfix/attendance
+[33m52c3c57[m HEAD@{36}: pull origin dev: Fast-forward
+[33m68ff087[m HEAD@{37}: checkout: moving from bugfix/homework to dev
+[33mb246b64[m[33m ([m[1;31morigin/bugfix/homework[m[33m)[m HEAD@{38}: commit: bugfix(homework):grouped homeworks by date and fixed pagination
+[33m68ff087[m HEAD@{39}: checkout: moving from dev to bugfix/homework
+[33m68ff087[m HEAD@{40}: pull origin dev: Fast-forward
+[33m25e86b3[m HEAD@{41}: checkout: moving from bugfix/teacher to dev
+[33mdfcc43f[m HEAD@{42}: commit: bugfix(teacher):constant dummy id s changed
+[33m25e86b3[m HEAD@{43}: checkout: moving from dev to bugfix/teacher
+[33m25e86b3[m HEAD@{44}: pull origin dev: Fast-forward
+[33m2caa349[m HEAD@{45}: checkout: moving from feat/leaves to dev
+[33md239b83[m[33m ([m[1;31morigin/feat/leaves[m[33m)[m HEAD@{46}: commit: feat(leaves):added fornoon afternoon leaves
+[33m2caa349[m HEAD@{47}: checkout: moving from dev to feat/leaves
+[33m2caa349[m HEAD@{48}: pull origin dev: Fast-forward
+[33mda1b830[m HEAD@{49}: checkout: moving from bugfix/homework to dev
+[33m2e3357a[m HEAD@{50}: checkout: moving from bugfix/homework to bugfix/homework
+[33m2e3357a[m HEAD@{51}: commit (merge): merge conflicts
+[33m81021ec[m HEAD@{52}: commit: bugfix(homework):null value error fixed
+[33m3272e46[m HEAD@{53}: commit: bugfix(homework):null value error fixed
+[33mda1b830[m HEAD@{54}: checkout: moving from dev to bugfix/homework
+[33mda1b830[m HEAD@{55}: pull origin dev: Fast-forward
+[33m5d03205[m HEAD@{56}: checkout: moving from bugfix/attendance to dev
+[33m5dd9152[m HEAD@{57}: checkout: moving from bugfix/teacher to bugfix/attendance
+[33m5dd9152[m HEAD@{58}: commit: bugfix(attendance):on progress
+[33m5d03205[m HEAD@{59}: checkout: moving from dev to bugfix/teacher
+[33m5d03205[m HEAD@{60}: pull origin dev: Fast-forward
+[33mb70480f[m HEAD@{61}: checkout: moving from bugfix/studentleaves to dev
+[33m93c0ddf[m[33m ([m[1;31morigin/bugfix/studentleaves[m[33m)[m HEAD@{62}: commit: bugfix(studentleaves):student leave permission completed
+[33mb70480f[m HEAD@{63}: checkout: moving from dev to bugfix/studentleaves
+[33mb70480f[m HEAD@{64}: pull origin dev: Fast-forward
+[33mfc8be1f[m HEAD@{65}: checkout: moving from bugfix/teacher to dev
+[33m1b5bfb2[m HEAD@{66}: commit: feat(pagination):pagination inside student fixed
+[33m54e81a0[m HEAD@{67}: commit (merge): bugfix(leave):student leave listing fix
+[33md92b77c[m HEAD@{68}: commit: bugfix(teacher):leave request fix
+[33m47c4ba3[m[33m ([m[1;31morigin/bugfix/chats[m[33m)[m HEAD@{69}: checkout: moving from bugfix/chats to bugfix/teacher
+[33m47c4ba3[m[33m ([m[1;31morigin/bugfix/chats[m[33m)[m HEAD@{70}: commit: bugfix(chat):fixed bugs on chats
+[33mfc8be1f[m HEAD@{71}: checkout: moving from feat/context_chats to bugfix/chats
+[33mfc8be1f[m HEAD@{72}: checkout: moving from dev to feat/context_chats
+[33mfc8be1f[m HEAD@{73}: pull origin dev: Fast-forward
+[33m5db2dd1[m HEAD@{74}: checkout: moving from feat/notes to dev
+[33me8d740c[m[33m ([m[1;31morigin/feat/notes[m[33m)[m HEAD@{75}: commit: feat(chat):contextual chat on progress homework
+[33m9312d89[m HEAD@{76}: commit: bugfix(homework):homework instant remark updation pending
+[33m5db2dd1[m HEAD@{77}: checkout: moving from dev to feat/notes
+[33m5db2dd1[m HEAD@{78}: pull origin dev: Fast-forward
+[33m2dad202[m HEAD@{79}: checkout: moving from feat/chats to dev
+[33me94ac33[m HEAD@{80}: reset: moving to HEAD
+[33me94ac33[m HEAD@{81}: reset: moving to HEAD
+[33me94ac33[m HEAD@{82}: commit: bugfix(chat):notes navigation
+[33m0bb5a34[m[33m ([m[1;31morigin/feat/chats[m[33m)[m HEAD@{83}: commit: feat(chat):parent chat to staff
+[33m3fd0a1a[m HEAD@{84}: pull origin dev: Fast-forward
+[33m0c70c25[m HEAD@{85}: commit: feat(chats):staffs under schoolid is on progress
+[33m0435bd4[m HEAD@{86}: commit (merge): merge:conflicts resolved
+[33m8da6195[m HEAD@{87}: commit: bugfix(parent):parent homescreen fixes
+[33m79d6be2[m HEAD@{88}: pull origin dev: Fast-forward
+[33m1201014[m HEAD@{89}: commit: feat(chats):sharing chat is on progress
+[33m2dad202[m HEAD@{90}: checkout: moving from dev to feat/chats
+[33m2dad202[m HEAD@{91}: pull origin dev: Fast-forward
+[33me65234c[m HEAD@{92}: checkout: moving from chats to dev
+[33mc3c384b[m[33m ([m[1;31morigin/chats[m[33m)[m HEAD@{93}: commit (merge): feat(parent): students under parent completed
+[33m9b7e527[m HEAD@{94}: commit: feat(parent):student under parent
+[33m187bac8[m HEAD@{95}: commit: feat(chat):text chats completed
+[33me65234c[m HEAD@{96}: checkout: moving from dev to chats
+[33me65234c[m HEAD@{97}: commit: merge conflicts
+[33ma56151e[m HEAD@{98}: checkout: moving from feat/auth to dev
+[33m68b6466[m[33m ([m[1;31morigin/feat/auth[m[33m)[m HEAD@{99}: commit: feat(chat):chat userlist on progress
+[33m0d324e5[m HEAD@{100}: commit: feat(chat):caht on progress
+[33m6ddba6c[m HEAD@{101}: commit: feat(auth):login services added
+[33ma56151e[m HEAD@{102}: checkout: moving from dev to feat/auth
+[33ma56151e[m HEAD@{103}: checkout: moving from dev to dev
+[33ma56151e[m HEAD@{104}: pull origin dev: Fast-forward
+[33m8d19ed3[m HEAD@{105}: checkout: moving from achievements to dev
+[33m8031b0b[m[33m ([m[1;31morigin/achievements[m[33m)[m HEAD@{106}: commit: feat(achievement):add achievement completed
+[33m8d19ed3[m HEAD@{107}: checkout: moving from dev to achievements
+[33m8d19ed3[m HEAD@{108}: reset: moving to HEAD
+[33m8d19ed3[m HEAD@{109}: pull origin dev: Fast-forward
+[33m71a4c90[m HEAD@{110}: checkout: moving from feat/events to dev
+[33m0015725[m[33m ([m[1;31morigin/feat/events[m[33m)[m HEAD@{111}: commit: feat(events):events for guardian-seperate api
+[33m71a4c90[m HEAD@{112}: checkout: moving from dev to feat/events
+[33m71a4c90[m HEAD@{113}: pull origin dev: Fast-forward
+[33m3a08236[m HEAD@{114}: checkout: moving from feat/parent to dev
+[33mcdcad15[m[33m ([m[1;31morigin/feat/parent[m[33m)[m HEAD@{115}: commit (merge): merge(conflicts):conflicts resolved
+[33m017ae2f[m HEAD@{116}: checkout: moving from dev to feat/parent
+[33m3a08236[m HEAD@{117}: pull origin dev: Fast-forward
+[33m0195803[m HEAD@{118}: checkout: moving from feat/achievements to dev
+[33m4226dfa[m[33m ([m[1;31morigin/feat/achievements[m[33m)[m HEAD@{119}: commit (merge): feat(achievements):ui complete
+[33m20ad567[m HEAD@{120}: commit: feat(achievements):achievements adding started
+[33m0195803[m HEAD@{121}: checkout: moving from dev to feat/achievements
+[33m0195803[m HEAD@{122}: pull origin dev: Fast-forward
+[33mad20176[m HEAD@{123}: checkout: moving from marks to dev
+[33mbc7e656[m[33m ([m[1;31morigin/marks[m[33m)[m HEAD@{124}: commit: feat(marks):Mark editing completed
+[33mebb8ca0[m HEAD@{125}: pull origin dev: Fast-forward
+[33m62ce76b[m HEAD@{126}: commit: feat(marks):added student marks
+[33mf1c23d1[m HEAD@{127}: pull origin dev: Fast-forward
+[33m7cd1692[m HEAD@{128}: commit (merge): feat(marks):mark uploading on progress
+[33mab173f2[m HEAD@{129}: commit: feat(marks):mark services updation
+[33mad20176[m HEAD@{130}: checkout: moving from dev to marks
+[33mad20176[m HEAD@{131}: pull origin dev: Fast-forward
+[33mc5f9fda[m HEAD@{132}: checkout: moving from bugfix/homework to dev
+[33mde30103[m HEAD@{133}: commit: bugfix(homework):homework fixes
+[33mc5f9fda[m HEAD@{134}: checkout: moving from dev to bugfix/homework
+[33mc5f9fda[m HEAD@{135}: pull origin dev: Fast-forward
+[33ma050db5[m HEAD@{136}: checkout: moving from feat/homeworks to dev
+[33m8a2dc4d[m[33m ([m[1;31morigin/feat/homeworks[m[33m)[m HEAD@{137}: checkout: moving from dev to feat/homeworks
+[33ma050db5[m HEAD@{138}: checkout: moving from feat/homeworks to dev
+[33m8a2dc4d[m[33m ([m[1;31morigin/feat/homeworks[m[33m)[m HEAD@{139}: commit: feat(teacher):fetch teacher added homeworks
+[33ma050db5[m HEAD@{140}: checkout: moving from dev to feat/homeworks
+[33ma050db5[m HEAD@{141}: commit: buggix(merge):merge conflicts solved
+[33m97b3d39[m HEAD@{142}: commit (merge): feat(teacher):added leave requests
+[33m07ffee8[m HEAD@{143}: commit: feat(teacher):added leave requests
+[33m9368f8b[m HEAD@{144}: pull origin dev: Fast-forward
+[33m3c73f0c[m HEAD@{145}: commit: feat(leave):teacher leave request on progress
+[33m1bebfc1[m HEAD@{146}: commit: feat(student):added student listing
+[33m48aacca[m HEAD@{147}: commit: feat(attendance):bug fixes after test report
+[33m1c493c7[m HEAD@{148}: reset: moving to HEAD
+[33m1c493c7[m HEAD@{149}: commit: feat(attendance):bulk edit attendance
+[33m1a98a57[m HEAD@{150}: commit: feat(attendance):add teacher taken attendance
+[33m564f384[m HEAD@{151}: commit: feat(attendance):attendance bottomsheet started
+[33mca3bc4a[m HEAD@{152}: commit: feat(teacher duty):added teacher duty api connections
+[33me8b854e[m HEAD@{153}: commit: feat(duties):fetch teacher duties
+[33ma888b62[m HEAD@{154}: commit: feat(superadmin):classes edit
+[33ma6c1114[m[33m ([m[1;31morigin/main[m[33m)[m HEAD@{155}: checkout: moving from main to dev
+[33ma6c1114[m[33m ([m[1;31morigin/main[m[33m)[m HEAD@{156}: Branch: renamed refs/heads/master to refs/heads/main
+[33ma6c1114[m[33m ([m[1;31morigin/main[m[33m)[m HEAD@{158}: commit (initial): First Commit
