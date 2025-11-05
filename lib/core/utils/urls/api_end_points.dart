@@ -112,4 +112,8 @@ class ApiEndpoints {
   static const String fetchAllDayTimeTable =
       "/guardian/getAllDayTimeTableByStudentId";
   static const String guardianNotification = "/guardian/updateFcmToken";
+
+  //profile details for staff
+  static const String staffProfileDetails = "/staff/getProfileDetails";
+  static const String updateStaffProfile = "/staff/updateProfileDetails";
 }

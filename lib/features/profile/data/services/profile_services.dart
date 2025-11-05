@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:acadobs/features/profile/data/models/guardian_model.dart';
+import 'package:acadobs/features/teacher/data/models/staff_model.dart';
 import 'package:dio/dio.dart';
 
 import '../../../../core/services/api_services.dart';
@@ -51,14 +52,11 @@ class ProfileServices {
   }
 
   // update profile photo
-  Future<Response> updateProfilePhoto({
-    required File imageFile,
-    required bool forStaff,
-  }) async {
-    log('🟡 Uploading profile photo...');
-    log('📁 File path: ${imageFile.path}');
-    log('📦 File exists: ${await imageFile.exists()}');
-    log('🌐 Endpoint: ${ApiEndpoints.updateProfilePhotoGuardian}');
+  Future<Response> updateProfilePhoto(File imageFile) async {
+    log('Uploading profile photo...');
+    log('File path: ${imageFile.path}');
+    log(' File exists: ${await imageFile.exists()}');
+    log('Endpoint: ${ApiEndpoints.updateProfilePhoto}');
     final formData = {'dp': await MultipartFile.fromFile(imageFile.path)};
 
     try {
@@ -70,18 +68,33 @@ class ProfileServices {
         isFormData: true,
       );
 
-      log('🟢 Upload response status: ${response.statusCode}');
-      log('🧾 Response data: ${response.data}');
+      log(' Upload response status: ${response.statusCode}');
+      log(' Response data: ${response.data}');
       return response;
     } catch (e) {
-      log('🔴 Failed to update profile photo: $e');
+      log(' Failed to update profile photo: $e');
       rethrow;
     }
+  }
 
-    // return await ApiServices.put(
-    //   ApiEndpoints.updateProfilePhoto,
-    //   formData,
-    //   isFormData: true,
-    // );
+  //fetch profile details for staff
+  Future<Response> fetchProfileStaff() async {
+    final response = await ApiServices.get(ApiEndpoints.staffProfileDetails);
+    return response;
+  }
+
+  // update profile details staff
+  Future<Response> updateProfileDetailsStaff({
+    required StaffModelProfile staff,
+  }) async {
+    final response = await ApiServices.put(ApiEndpoints.updateStaffProfile, {
+      "name": staff.user?.name ?? "",
+      "address": staff.address ?? "",
+      "qualification": staff.qualification ?? "",
+      "email": staff.user?.email ?? "",
+      "phone": staff.user?.phone ?? "",
+    });
+
+    return response;
   }
 }
