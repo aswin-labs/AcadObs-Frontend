@@ -78,10 +78,5 @@ class ProfileServices {
       rethrow;
     }
 
-    // return await ApiServices.put(
-    //   ApiEndpoints.updateProfilePhoto,
-    //   formData,
-    //   isFormData: true,
-    // );
   }
 }
