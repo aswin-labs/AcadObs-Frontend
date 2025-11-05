@@ -62,7 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Column(
-                        // mainAxisAlignment: MainAxisAlignment.center,
+                    
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
@@ -77,7 +77,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           SizedBox(height: 10),
                           _settingsTile(
                             onTap: () {
-                              context.pushNamed(RouteConstants.profileDetails);
+                              context.pushNamed(
+                                widget.forStaff
+                                    ? RouteConstants.editProfileStaff
+                                    : RouteConstants.profileDetails,
+                              );
                             },
                             text: 'My Profile',
                             icon: Icons.person,
@@ -270,7 +274,7 @@ Widget _buildProfileHeader(BuildContext context, Map<String, dynamic> data) {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blue, // replace with tPrimaryColor
+                      color: Colors.blue, 
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
