@@ -61,7 +61,9 @@ class ProfileServices {
 
     try {
       final response = await ApiServices.put(
-        ApiEndpoints.updateProfilePhoto,
+        forStaff
+            ? ApiEndpoints.updateProfilePhotoGuardian
+            : ApiEndpoints.updateProfilePhotoGuardian,
         formData,
         isFormData: true,
       );

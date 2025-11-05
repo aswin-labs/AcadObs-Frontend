@@ -91,6 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             onTap: () {
                               context.pushNamed(
                                 RouteConstants.updateProfilePhoto,
+                                extra: widget.forStaff,
                               );
                             },
                             text: 'Edit Profile Photo',

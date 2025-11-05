@@ -1,4 +1,7 @@
+import 'package:acadobs/shared/models/user_model.dart';
+
 class GuardianModel {
+  String? message;
   String? guardianName;
   String? guardianContact;
   String? guardianEmail;
@@ -10,9 +13,10 @@ class GuardianModel {
   String? guardian2Relation;
   String? fatherName;
   String? motherName;
-  String? photoUrl;
+  UserModel? user;
 
   GuardianModel({
+    this.message,
     this.guardianName,
     this.guardianContact,
     this.guardianEmail,
@@ -24,10 +28,11 @@ class GuardianModel {
     this.guardian2Relation,
     this.fatherName,
     this.motherName,
-    this.photoUrl,
+    this.user,
   });
 
   factory GuardianModel.fromJson(Map<String, dynamic> json) => GuardianModel(
+    message: json["message"],
     guardianName: json["guardian_name"],
     guardianContact: json["guardian_contact"],
     guardianEmail: json["guardian_email"],
@@ -39,6 +44,6 @@ class GuardianModel {
     guardian2Relation: json["guardian2_relation"],
     fatherName: json["father_name"],
     motherName: json["mother_name"],
-    photoUrl: json['dp'],
+    user: json["user"] == null ? null : UserModel.fromJson(json["user"]),
   );
 }
