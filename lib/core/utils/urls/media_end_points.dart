@@ -6,4 +6,5 @@ class MediaEndpoints {
   static const String leaveRequests = "/uploads/leave_requests/";
   static const String notices = "/uploads/notices/";
   static const String duties = "/uploads/solved_duties/";
+  static const String dp = "/uploads/dp/";
 }

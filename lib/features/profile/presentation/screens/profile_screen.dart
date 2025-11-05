@@ -1,4 +1,6 @@
 import 'package:acadobs/core/utils/auth_storage_services.dart';
+import 'package:acadobs/core/utils/urls/base_urls.dart';
+import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
@@ -84,7 +86,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _settingsTile(
                             onTap: () {
                               context.pushNamed(
-                                RouteConstants.updateProfilePhoto, 
+                                RouteConstants.updateProfilePhoto,
                               );
                             },
                             text: 'Edit Profile Photo',
@@ -226,7 +228,18 @@ Widget _buildProfileHeader(BuildContext context, Map<String, dynamic> data) {
             CircleAvatar(
               radius: avatarRadius,
               backgroundColor: Colors.blue.withAlpha(25),
-              child: const Icon(Icons.person, size: 40, color: Colors.blue),
+
+              backgroundImage:
+                  (data['dp'] != null && data['dp'].toString().isNotEmpty)
+                      ? NetworkImage(
+                        "${BaseUrls.media}${MediaEndpoints.dp}${data['dp']}",
+                      )
+                      : null,
+
+              child:
+                  (data['dp'] == null || data['dp'].toString().isEmpty)
+                      ? Icon(Icons.person, size: 40, color: Colors.blue)
+                      : null,
             ),
             SizedBox(
               width:

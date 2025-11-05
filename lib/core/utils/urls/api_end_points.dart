@@ -15,7 +15,6 @@ class ApiEndpoints {
   static const String updateGuardianProfile = "/guardian/updateProfileDetails";
   static const String updateProfilePhoto = "/guardian/updateDp";
 
-
   //*****************STAFF*********************
   static const String classesByYear = "/staff/getClassesByYear";
   static const String students = "/staff/students";
@@ -112,5 +111,4 @@ class ApiEndpoints {
   static const String fetchAllDayTimeTable =
       "/guardian/getAllDayTimeTableByStudentId";
   static const String guardianNotification = "/guardian/updateFcmToken";
-  
 }

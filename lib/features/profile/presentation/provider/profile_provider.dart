@@ -44,19 +44,25 @@ class ProfileProvider extends ChangeNotifier {
   // Fetch profile details
   Future<void> fetchProfileDetails() async {
     _isLoading = true;
+    notifyListeners();
     try {
       final response = await ProfileServices().fetchProfileDetails();
-
+      log("📦 Fetched guardian profile response: ${response.data}");
       if (response.statusCode == 200 && response.data['guardian'] != null) {
         guardianProfile = GuardianModel.fromJson(
           Map<String, dynamic>.from(response.data['guardian']),
         );
       } else {
+        log("⚠️ Guardian data missing in response");
         guardianProfile = null;
       }
-    } catch (e) {
+      notifyListeners();
+    } catch (e, st) {
       log('Error fetching guardian profile: $e');
+      log('❌ Error fetching guardian profile: $e');
+      log('Stack trace: $st');
       guardianProfile = null;
+      notifyListeners();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -114,23 +120,30 @@ class ProfileProvider extends ChangeNotifier {
 
   // update profile photo
   Future<void> updateProfilePhoto(File imageFile) async {
-  _isLoading = true;
-  notifyListeners();
-
-  try {
-    final response = await ProfileServices().updateProfilePhoto(imageFile);
-    if (response.statusCode == 200) {
-      log(" Profile photo updated successfully");
-      await fetchProfileDetails();
-    } else {
-      log(" Failed to update profile photo: ${response.statusCode}");
-    }
-  } catch (e) {
-    log("Error updating profile photo: $e");
-  } finally {
-    _isLoading = false;
+    _isLoading = true;
     notifyListeners();
-  }
-}
+    log("🟡 Starting profile photo upload...");
 
+    try {
+      final response = await ProfileServices().updateProfilePhoto(imageFile);
+      log("🟢 Upload response status: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        log(
+          "✅ Profile photo updated successfully, fetching updated profile...",
+        );
+        log(" Profile photo updated successfully");
+        await fetchProfileDetails();
+      } else {
+        log(" Failed to update profile photo: ${response.statusCode}");
+      }
+    } catch (e, st) {
+      log("Error updating profile photo: $e");
+      log("Stack trace: $st");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+      log("🔵 Done updating profile photo");
+    }
+  }
 }
