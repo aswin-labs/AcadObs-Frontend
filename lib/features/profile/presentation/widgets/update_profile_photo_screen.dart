@@ -1,8 +1,10 @@
 import 'dart:io';
 
+import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 class UpdateProfilePhotoScreen extends StatefulWidget {
   const UpdateProfilePhotoScreen({super.key});
@@ -31,149 +33,265 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
   void _showPickOptions() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder:
-          (_) => SafeArea(
-            child: Wrap(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.photo_library),
-                  title: const Text('Choose from Gallery'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _pickImage(ImageSource.gallery);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.camera_alt),
-                  title: const Text('Take a Photo'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _pickImage(ImageSource.camera);
-                  },
-                ),
-              ],
+          (_) => Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Choose Photo',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 20),
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.photo_library,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
+                    title: const Text(
+                      'Choose from Gallery',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickImage(ImageSource.gallery);
+                    },
+                  ),
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.camera_alt,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                    title: const Text(
+                      'Take a Photo',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickImage(ImageSource.camera);
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
     );
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileProvider>().fetchProfileDetails();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final profileProvider = context.watch<ProfileProvider>();
     return Scaffold(
-      appBar: CommonAppBar(title: "Edit Profile Photo", isBackButton: true,),
-      body: Center(
+      appBar: CommonAppBar(title: "Edit Profile Photo", isBackButton: true),
+      body:
+          profileProvider.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _buildProfileContent(context),
+    );
+  }
+
+  Center _buildProfileContent(BuildContext context) {
+    final profileProvider = context.watch<ProfileProvider>();
+    final profile = profileProvider.guardianProfile;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 70,
-              backgroundColor: Colors.grey.shade300,
-              backgroundImage:
-                  _selectedImage != null ? FileImage(_selectedImage!) : null,
-              child:
-                  _selectedImage == null
-                      ? const Icon(Icons.person, size: 70, color: Colors.white)
-                      : null,
+            Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withAlpha(23),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                  ),
+                  child: CircleAvatar(
+                    radius: 80,
+                    backgroundColor: Colors.grey.shade200,
+
+                    backgroundImage:
+                        _selectedImage != null
+                            ? FileImage(_selectedImage!)
+                            : (profile?.photoUrl != null
+                                ? NetworkImage(profile!.photoUrl!)
+                                : null),
+
+                    child:
+                        _selectedImage == null &&
+                                (profile?.photoUrl == null ||
+                                    profile!.photoUrl!.isEmpty)
+                            ? Icon(
+                              Icons.person,
+                              size: 60,
+                              color: Colors.grey.shade400,
+                            )
+                            : null,
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: GestureDetector(
+                    onTap: _showPickOptions,
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withAlpha(45),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.camera_alt,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _showPickOptions,
-              child: Text("Change Photo"),
+            const SizedBox(height: 40),
+            Text(
+              _selectedImage == null ? 'Add a profile photo' : 'Looking good!',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade800,
+              ),
             ),
+            const SizedBox(height: 12),
+            Text(
+              _selectedImage == null
+                  ? 'Choose a photo that represents you'
+                  : 'Tap the camera icon to change',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 40),
+            SizedBox(
+              width: double.infinity,
+              height: 54,
+              child: ElevatedButton(
+                onPressed: _showPickOptions,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.add_photo_alternate, size: 22),
+                    const SizedBox(width: 12),
+                    Text(
+                      _selectedImage == null ? "Choose Photo" : "Change Photo",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (_selectedImage != null) ...[
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: OutlinedButton(
+                  onPressed: () async {
+                    if (_selectedImage == null) return;
+                    final provider = context.read<ProfileProvider>();
+                    await provider.updateProfilePhoto(_selectedImage!);
+                    await provider.fetchProfileDetails();
+                    if (mounted) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Profile photo updated successfully!'),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Theme.of(context).primaryColor,
+                    side: BorderSide(
+                      color: Theme.of(context).primaryColor,
+                      width: 2,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: const Text(
+                    "Save Changes",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
     );
   }
 }
-
-
-// void showEditProfilePhotoBottomheet ({
-//   required BuildContext context
-// })
-// {
-//       final provider = context.watch<ProfileProvider>();
-//     final imageUrl = provider.guardianProfile?.guardianEmail;
-//   showModalBottomSheet(context: context, 
-//   isScrollControlled: true,
-//    shape: const RoundedRectangleBorder(
-//       borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-//     ),
-//   builder: (context){
-//     return Column(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Container(
-//             width: 60,
-//             height: 5,
-//             margin: const EdgeInsets.only(bottom: 20),
-//             decoration: BoxDecoration(
-//               color: Colors.grey[300],
-//               borderRadius: BorderRadius.circular(10),
-//             ),
-//           ),
-//           const Text(
-//             "Edit Profile Photo",
-//             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//           ),
-//           const SizedBox(height: 20),
-
-//           // Profile photo preview
-//           CircleAvatar(
-//             radius: 65,
-//             backgroundColor: Colors.grey[200],
-//             backgroundImage: _selectedImage != null
-//                 ? FileImage(_selectedImage!)
-//                 : (imageUrl != null
-//                     ? NetworkImage(imageUrl) as ImageProvider
-//                     : null),
-//             child: _selectedImage == null && imageUrl == null
-//                 ? const Icon(LucideIcons.user, size: 60, color: Colors.grey)
-//                 : null,
-//           ),
-
-//           const SizedBox(height: 25),
-
-//           // Camera / Gallery buttons
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               ElevatedButton.icon(
-//                 icon: const Icon(LucideIcons.image),
-//                 label: const Text("Gallery"),
-//                 onPressed: () => _pickImage(ImageSource.gallery),
-//               ),
-//               const SizedBox(width: 20),
-//               ElevatedButton.icon(
-//                 icon: const Icon(LucideIcons.camera),
-//                 label: const Text("Camera"),
-//                 onPressed: () => _pickImage(ImageSource.camera),
-//               ),
-//             ],
-//           ),
-
-//           const SizedBox(height: 30),
-
-//           // Upload button
-//           SizedBox(
-//             width: double.infinity,
-//             child: ElevatedButton.icon(
-//               icon: provider.isLoading
-//                   ? const SizedBox(
-//                       width: 18,
-//                       height: 18,
-//                       child: CircularProgressIndicator(strokeWidth: 2),
-//                     )
-//                   : const Icon(LucideIcons.upload),
-//               label: const Text("Upload Photo"),
-//               onPressed: provider.isLoading ? null : _uploadImage,
-//             ),
-//           ),
-//         ],
-//       );
-//   });
-// }
-

@@ -10,6 +10,7 @@ class GuardianModel {
   String? guardian2Relation;
   String? fatherName;
   String? motherName;
+  String? photoUrl;
 
   GuardianModel({
     this.guardianName,
@@ -23,6 +24,7 @@ class GuardianModel {
     this.guardian2Relation,
     this.fatherName,
     this.motherName,
+    this.photoUrl,
   });
 
   factory GuardianModel.fromJson(Map<String, dynamic> json) => GuardianModel(
@@ -37,5 +39,6 @@ class GuardianModel {
     guardian2Relation: json["guardian2_relation"],
     fatherName: json["father_name"],
     motherName: json["mother_name"],
+    photoUrl: json['dp'],
   );
 }

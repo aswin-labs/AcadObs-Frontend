@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
@@ -51,12 +52,31 @@ class ProfileServices {
 
   // update profile photo
   Future<Response> updateProfilePhoto(File imageFile) async {
+    log('🟡 Uploading profile photo...');
+    log('📁 File path: ${imageFile.path}');
+    log('📦 File exists: ${await imageFile.exists()}');
+    log('🌐 Endpoint: ${ApiEndpoints.updateProfilePhoto}');
     final formData = {'dp': await MultipartFile.fromFile(imageFile.path)};
 
-    return await ApiServices.put(
-      ApiEndpoints.updateProfilePhoto,
-      formData,
-      isFormData: true,
-    );
+    try {
+      final response = await ApiServices.put(
+        ApiEndpoints.updateProfilePhoto,
+        formData,
+        isFormData: true,
+      );
+
+      log('🟢 Upload response status: ${response.statusCode}');
+      log('🧾 Response data: ${response.data}');
+      return response;
+    } catch (e) {
+      log('🔴 Failed to update profile photo: $e');
+      rethrow;
+    }
+
+    // return await ApiServices.put(
+    //   ApiEndpoints.updateProfilePhoto,
+    //   formData,
+    //   isFormData: true,
+    // );
   }
 }
