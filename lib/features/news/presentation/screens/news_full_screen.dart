@@ -21,17 +21,17 @@ class NewsDetailsScreen extends StatefulWidget {
 }
 
 class _NewsDetailsScreenState extends State<NewsDetailsScreen> {
+  late NewsProvider newsProvider;
   @override
   void initState() {
     super.initState();
+    newsProvider = context.read<NewsProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        Provider.of<NewsProvider>(context, listen: false).fetchLatestNews(
-          limit: AppConstants.paginationLimit,
-          isRefresh: true,
-          forStaff: widget.forStaff,
-        );
-      }
+      newsProvider.fetchLatestNews(
+        limit: AppConstants.paginationLimit,
+        isRefresh: true,
+        forStaff: widget.forStaff,
+      );
     });
   }
 

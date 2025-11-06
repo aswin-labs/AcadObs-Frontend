@@ -6,6 +6,7 @@ import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/provider/attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_shimmer_widget.dart';
+import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_status_card.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_summarycard.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_taking_widget.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
@@ -175,19 +176,24 @@ class _AttendanceTakingScreenState extends State<AttendanceTakingScreen> {
                                     attendance?.studentRecords?[index];
                                 // final isLeaveApproved =
                                 //     student.studentRecords?.isNotEmpty;
-                                final remarks =
-                                    student?.remarks == null
-                                        ? ""
-                                        : student?.remarks ?? "";
-                                return AttendanceTakingWidget(
-                                  // isLeaveApproved: isLeaveApproved,
-                                  remarks: remarks,
-                                  currentStatus: student?.status ?? "",
-                                  alreadyTaken: true,
-                                  studentId: student?.id ?? 0,
+                                // final remarks =
+                                //     student?.remarks == null
+                                //         ? ""
+                                //         : student?.remarks ?? "";
+                                return AttendanceStatusCard(
                                   rollNo: student?.student?.rollNumber ?? 0,
-                                  studentName: student?.student?.fullName ?? "",
+                                  name: student?.student?.fullName ?? "",
+                                  status: student?.status ?? "",
                                 );
+                                // AttendanceTakingWidget(
+                                //   // isLeaveApproved: isLeaveApproved,
+                                //   remarks: remarks,
+                                //   currentStatus: student?.status ?? "",
+                                //   alreadyTaken: true,
+                                //   studentId: student?.id ?? 0,
+                                //   rollNo: student?.student?.rollNumber ?? 0,
+                                //   studentName: student?.student?.fullName ?? "",
+                                // );
                               },
                             ),
                           ],

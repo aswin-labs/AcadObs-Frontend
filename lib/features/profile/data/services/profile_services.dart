@@ -56,10 +56,6 @@ class ProfileServices {
     required File imageFile,
     required bool forStaff,
   }) async {
-    log('Uploading profile photo...');
-    log('File path: ${imageFile.path}');
-    log(' File exists: ${await imageFile.exists()}');
-    log('Endpoint: ${ApiEndpoints.updateProfilePhotoGuardian}');
     final formData = {'dp': await MultipartFile.fromFile(imageFile.path)};
 
     try {
@@ -70,8 +66,6 @@ class ProfileServices {
         formData,
         isFormData: true,
       );
-
-      log(' Upload response status: ${response.statusCode}');
       log(' Response data: ${response.data}');
       return response;
     } catch (e) {
@@ -97,7 +91,6 @@ class ProfileServices {
       "email": staff.user?.email ?? "",
       "phone": staff.user?.phone ?? "",
     });
-
     return response;
   }
 }

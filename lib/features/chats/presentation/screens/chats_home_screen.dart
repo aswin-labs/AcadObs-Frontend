@@ -25,15 +25,16 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _chatProvider = Provider.of<ChatProvider>(context, listen: false);
-    _getUsersList();
-
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 200 &&
-          !_chatProvider.isLoadingUsers) {
-        _chatProvider.loadUsersList(); // fetch next page
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _chatProvider = context.read<ChatProvider>();
+      _getUsersList();
+      _scrollController.addListener(() {
+        if (_scrollController.position.pixels >=
+                _scrollController.position.maxScrollExtent - 200 &&
+            !_chatProvider.isLoadingUsers) {
+          _chatProvider.loadUsersList();
+        }
+      });
     });
   }
 
@@ -73,7 +74,7 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
           return ListView.builder(
             controller: _scrollController,
             physics: const BouncingScrollPhysics(),
-            itemCount: users.length + 1, // 👈 for loader at bottom
+            itemCount: users.length + 1, 
             itemBuilder: (context, index) {
               if (index == users.length) {
                 return chatProvider.isLoadingUsers
