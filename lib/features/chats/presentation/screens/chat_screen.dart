@@ -18,21 +18,20 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  ChatProvider? _chatProvider;
 
   @override
   void initState() {
     super.initState();
+    _chatProvider = Provider.of<ChatProvider>(context, listen: false);
     _initChat();
   }
 
   Future<void> _initChat() async {
-    final chat = Provider.of<ChatProvider>(context, listen: false);
-
     final token = await AuthStorageService().getToken();
-
     if (token != null) {
-      chat.connect(token);
-      chat.getMessages(widget.chatModel.opponentId);
+      _chatProvider?.connect(token);
+      _chatProvider?.getMessages(widget.chatModel.opponentId);
     } else {
       debugPrint("No token found, cannot connect to chat");
     }
@@ -40,7 +39,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    Provider.of<ChatProvider>(context, listen: false).disconnect();
+    _controller.dispose();
+    _scrollController.dispose();
+    _chatProvider?.disconnect();
     super.dispose();
   }
 

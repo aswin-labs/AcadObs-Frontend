@@ -52,23 +52,20 @@ class ProfileServices {
   }
 
   // update profile photo
-  Future<Response> updateProfilePhoto({required File imageFile, required bool forStaff}) async {
-    log('Uploading profile photo...');
-    log('File path: ${imageFile.path}');
-    log(' File exists: ${await imageFile.exists()}');
-    log('Endpoint: ${ApiEndpoints.updateProfilePhotoGuardian}');
+  Future<Response> updateProfilePhoto({
+    required File imageFile,
+    required bool forStaff,
+  }) async {
     final formData = {'dp': await MultipartFile.fromFile(imageFile.path)};
 
     try {
       final response = await ApiServices.put(
         forStaff
-            ? ApiEndpoints.updateProfilePhotoGuardian
+            ? ApiEndpoints.updateProfilePhotoStaff
             : ApiEndpoints.updateProfilePhotoGuardian,
         formData,
         isFormData: true,
       );
-
-      log(' Upload response status: ${response.statusCode}');
       log(' Response data: ${response.data}');
       return response;
     } catch (e) {
@@ -94,7 +91,6 @@ class ProfileServices {
       "email": staff.user?.email ?? "",
       "phone": staff.user?.phone ?? "",
     });
-
     return response;
   }
 }

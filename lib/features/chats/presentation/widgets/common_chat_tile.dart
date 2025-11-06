@@ -34,7 +34,15 @@ class CommonChatTile extends StatelessWidget {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         subtitle: Row(
-          children: [Text(subject, style: TextStyle(color: Colors.black54))],
+          children: [
+            Expanded(
+              child: Text(
+                subject,
+                style: TextStyle(color: Colors.black54),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
         onTap: onTap,
       ),
