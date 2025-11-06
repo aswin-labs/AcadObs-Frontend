@@ -41,25 +41,27 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
     super.initState();
 
     provider = context.read<ProfileProvider>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      provider.fetchProfileDetails();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       provider.disableEditProfile();
+      await provider.fetchProfileGuardian();
 
       final profile = provider.guardianProfile;
       if (profile != null) {
-        guardianNameController.text = profile.guardianName ?? '';
-        guardianContactController.text = profile.guardianContact ?? '';
-        guardianEmailController.text = profile.guardianEmail ?? '';
-        guardianJobController.text = profile.guardianJob ?? '';
-        guardianRelationController.text = profile.guardianRelation ?? '';
+        setState(() {
+          guardianNameController.text = profile.guardianName ?? '';
+          guardianContactController.text = profile.guardianContact ?? '';
+          guardianEmailController.text = profile.guardianEmail ?? '';
+          guardianJobController.text = profile.guardianJob ?? '';
+          guardianRelationController.text = profile.guardianRelation ?? '';
 
-        guardian2NameController.text = profile.guardian2Name ?? '';
-        guardian2ContactController.text = profile.guardian2Contact ?? '';
-        guardian2JobController.text = profile.guardian2Job ?? '';
-        guardian2RelationController.text = profile.guardian2Relation ?? '';
+          guardian2NameController.text = profile.guardian2Name ?? '';
+          guardian2ContactController.text = profile.guardian2Contact ?? '';
+          guardian2JobController.text = profile.guardian2Job ?? '';
+          guardian2RelationController.text = profile.guardian2Relation ?? '';
 
-        fatherNameController.text = profile.fatherName ?? '';
-        motherNameController.text = profile.motherName ?? '';
+          fatherNameController.text = profile.fatherName ?? '';
+          motherNameController.text = profile.motherName ?? '';
+        });
       }
     });
   }
