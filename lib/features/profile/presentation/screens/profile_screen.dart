@@ -2,6 +2,7 @@ import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
+import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
@@ -20,10 +21,16 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   Map<String, dynamic>? userData;
+  late ProfileProvider profileProvider;
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    profileProvider = context.read<ProfileProvider>();
+    widget.forStaff
+        ? profileProvider.fetchProfileStaff()
+        : profileProvider.fetchProfileGuardian();
   }
 
   Future<void> _loadUserData() async {
@@ -46,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    _buildProfileHeader(context, userData!),
+                    _buildProfileHeader(context, userData!, widget.forStaff),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Container(decoration: BoxDecoration()),
@@ -62,7 +69,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Column(
-                    
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
@@ -178,7 +184,11 @@ Widget _settingsTile({
   );
 }
 
-Widget _buildProfileHeader(BuildContext context, Map<String, dynamic> data) {
+Widget _buildProfileHeader(
+  BuildContext context,
+  Map<String, dynamic> data,
+  bool forStaff,
+) {
   final screenWidth = MediaQuery.of(context).size.width;
   final isTablet = screenWidth > 600;
   final isDesktop = screenWidth > 1000;
@@ -214,93 +224,118 @@ Widget _buildProfileHeader(BuildContext context, Map<String, dynamic> data) {
 
   return LayoutBuilder(
     builder: (context, constraints) {
-      return Container(
-        padding: containerPadding,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(13),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: avatarRadius,
-              backgroundColor: Colors.blue.withAlpha(25),
+      return Consumer<ProfileProvider>(
+        builder: (context, provider, _) {
+          final staff = provider.staffProfile;
+          final guardian = provider.guardianProfile;
 
-              backgroundImage:
-                  (data['dp'] != null && data['dp'].toString().isNotEmpty)
-                      ? NetworkImage(
-                        "${BaseUrls.media}${MediaEndpoints.dp}${data['dp']}",
-                      )
-                      : null,
+          final userName =
+              forStaff
+                  ? (staff?.user?.name ?? 'Unknown Staff')
+                  : (guardian?.user?.name ?? 'Unknown Guardian');
 
-              child:
-                  (data['dp'] == null || data['dp'].toString().isEmpty)
-                      ? Icon(Icons.person, size: 40, color: Colors.blue)
-                      : null,
+          final userEmail =
+              forStaff
+                  ? (staff?.user?.email ?? 'No Email')
+                  : (guardian?.user?.email ?? 'No Email');
+
+          final userDp = forStaff ? staff?.user?.dp : guardian?.user?.dp;
+
+          return Container(
+            padding: containerPadding,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(13),
+                  blurRadius: 10,
+                  offset: const Offset(0, 5),
+                ),
+              ],
             ),
-            SizedBox(
-              width:
-                  isDesktop
-                      ? 30
-                      : isTablet
-                      ? 20
-                      : 15,
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data['name'] ?? 'Unknown User',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: nameFontSize,
-                      color: Colors.black87,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.blue, 
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      (data['role'] as String? ?? 'User').toUpperCase(),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: isTablet ? 13 : 12,
-                        fontWeight: FontWeight.w600,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: avatarRadius,
+                  backgroundColor: Colors.blue.withAlpha(25),
+
+                  backgroundImage:
+                      forStaff
+                          ? (staff?.user?.dp != null
+                              ? NetworkImage(
+                                "${BaseUrls.media}${MediaEndpoints.dp}${staff!.user!.dp!}",
+                              )
+                              : null)
+                          : (guardian?.user?.dp != null
+                              ? NetworkImage(
+                                "${BaseUrls.media}${MediaEndpoints.dp}${guardian!.user!.dp!}",
+                              )
+                              : null),
+
+                  child:
+                      (userDp == null)
+                          ? Icon(Icons.person, size: 40, color: Colors.blue)
+                          : null,
+                ),
+                SizedBox(
+                  width:
+                      isDesktop
+                          ? 30
+                          : isTablet
+                          ? 20
+                          : 15,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        userName,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: nameFontSize,
+                          color: Colors.black87,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          (data['role'] as String? ?? 'User').toUpperCase(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isTablet ? 13 : 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        userEmail,
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.bold,
+                          fontSize: emailFontSize,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  Text(
-                    data['email'] ?? 'No Email',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontWeight: FontWeight.bold,
-                      fontSize: emailFontSize,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       );
     },
   );
