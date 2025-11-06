@@ -116,7 +116,7 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProfileProvider>().fetchProfileDetails();
+      context.read<ProfileProvider>().fetchProfileGuardian();
     });
   }
 
@@ -134,7 +134,10 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
         padding: const EdgeInsets.all(24.0),
         child: Consumer<ProfileProvider>(
           builder: (context, provider, _) {
-            final profilePhoto = provider.guardianProfile?.user?.dp;
+            final profilePhoto =
+                widget.forStaff
+                    ? provider.staffProfile?.user?.dp
+                    : provider.guardianProfile?.user?.dp;
             return provider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : Column(
