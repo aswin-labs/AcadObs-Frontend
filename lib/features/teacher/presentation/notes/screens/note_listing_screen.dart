@@ -40,8 +40,6 @@ class _NoteListingScreenState extends State<NoteListingScreen> {
         builder: (context, noteProvider, _) {
           if (noteProvider.isLoading && noteProvider.note.isEmpty) {
             return commonShimmerList();
-          } else if (noteProvider.error != null) {
-            return Center(child: Text(noteProvider.error!));
           } else if (noteProvider.note.isEmpty) {
             return Center(child: emptyScreen(message: 'No Notes avaliable'));
           } else {
