@@ -1,3 +1,4 @@
+import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
@@ -88,5 +89,7 @@ getProviders() {
     //**************time table ****************//
     ChangeNotifierProvider(create: (_) => TimeTableProvider()),
 
+    //**************network provider ****************//
+    ChangeNotifierProvider(create: (_) => NetworkProvider()),
   ];
 }

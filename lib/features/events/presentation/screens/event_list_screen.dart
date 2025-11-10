@@ -42,8 +42,6 @@ class _EventListScreenState extends State<EventListScreen> {
         builder: (context, eventProvider, _) {
           if (eventProvider.isLoading && eventProvider.events.isEmpty) {
             return commonShimmerList();
-          } else if (eventProvider.error != null) {
-            return Center(child: Text(eventProvider.error!));
           } else if (eventProvider.events.isEmpty) {
             return emptyScreen(message: "No Events Available");
           } else {
@@ -65,7 +63,7 @@ class _EventListScreenState extends State<EventListScreen> {
                           scrollNotification.metrics.maxScrollExtent - 100 &&
                       !eventProvider.isLoading &&
                       eventProvider.hasMore) {
-                    eventProvider.loadMore(forStaff:  widget.forStaff);
+                    eventProvider.loadMore(forStaff: widget.forStaff);
                   }
                   return false;
                 },

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
@@ -282,13 +283,10 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
                             );
                             if (mounted) {
                               if (!context.mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Profile photo updated successfully!',
-                                  ),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
+                              CustomSnackbar.show(
+                                context,
+                                message: 'Profile photo updated successfully!',
+                                type: SnackbarType.success,
                               );
                             }
                           },
