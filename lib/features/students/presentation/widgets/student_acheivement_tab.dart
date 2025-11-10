@@ -106,7 +106,8 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
                     ? Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
                       child: const Center(child: CircularProgressIndicator()),
-                    ) : const SizedBox();
+                    )
+                    : const SizedBox();
               },
             ),
             SizedBox(height: Responsive.height * 4),

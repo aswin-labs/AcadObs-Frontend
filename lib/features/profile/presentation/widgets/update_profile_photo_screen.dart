@@ -4,6 +4,7 @@ import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
+import 'package:acadobs/features/profile/presentation/screens/full_screen_image.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -157,29 +158,51 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
                               ),
                             ],
                           ),
-                          child: CircleAvatar(
-                            radius: 80,
-                            backgroundColor: Colors.grey.shade200,
+                          child: GestureDetector(
+                            onTap: () {
+                              if (profilePhoto != null &&
+                                  profilePhoto.isNotEmpty) {
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: true,
+                                  builder:
+                                      (_) => FullScreenImage(
+                                        imageUrl:
+                                            "${BaseUrls.media}${MediaEndpoints.dp}$profilePhoto",
+                                        heroTag:
+                                            'profile-pic-${widget.forStaff ? "staff" : "guardian"}',
+                                      ),
+                                );
+                              }
+                            },
+                            child: Hero(
+                              tag:
+                                  'profile-pic-${widget.forStaff ? "staff" : "guardian"}',
+                              child: CircleAvatar(
+                                radius: 80,
+                                backgroundColor: Colors.grey.shade200,
 
-                            backgroundImage:
-                                _selectedImage != null
-                                    ? FileImage(_selectedImage!)
-                                    : (profilePhoto != null)
-                                    ? NetworkImage(
-                                      "${BaseUrls.media}${MediaEndpoints.dp}$profilePhoto",
-                                    )
-                                    : null,
+                                backgroundImage:
+                                    _selectedImage != null
+                                        ? FileImage(_selectedImage!)
+                                        : (profilePhoto != null)
+                                        ? NetworkImage(
+                                          "${BaseUrls.media}${MediaEndpoints.dp}$profilePhoto",
+                                        )
+                                        : null,
 
-                            child:
-                                _selectedImage == null &&
-                                        (profilePhoto == null ||
-                                            profilePhoto.isEmpty)
-                                    ? Icon(
-                                      Icons.person,
-                                      size: 60,
-                                      color: Colors.grey.shade400,
-                                    )
-                                    : null,
+                                child:
+                                    _selectedImage == null &&
+                                            (profilePhoto == null ||
+                                                profilePhoto.isEmpty)
+                                        ? Icon(
+                                          Icons.person,
+                                          size: 60,
+                                          color: Colors.grey.shade400,
+                                        )
+                                        : null,
+                              ),
+                            ),
                           ),
                         ),
                         Positioned(

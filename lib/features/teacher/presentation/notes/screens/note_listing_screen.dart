@@ -23,13 +23,17 @@ class _NoteListingScreenState extends State<NoteListingScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        Provider.of<ParentNoteProvider>(
-          context,
-          listen: false,
-        ).fetchAllNotes(limit: AppConstants.paginationLimit, isRefresh: true);
-      }
+      refreshAllData();
     });
+  }
+
+  Future<void> refreshAllData() async {
+    await Future.wait([
+      Provider.of<ParentNoteProvider>(
+        context,
+        listen: false,
+      ).fetchAllNotes(limit: AppConstants.paginationLimit, isRefresh: true),
+    ]);
   }
 
   @override
@@ -47,103 +51,111 @@ class _NoteListingScreenState extends State<NoteListingScreen> {
             final yesterdayNote = noteProvider.yesterdayNote;
             final earlierNote = noteProvider.earlierNote;
 
-            return NotificationListener<ScrollNotification>(
-              onNotification: (scrollNotification) {
-                if (scrollNotification is ScrollEndNotification &&
-                    scrollNotification.metrics.pixels >=
-                        scrollNotification.metrics.maxScrollExtent - 100 &&
-                    !noteProvider.isLoading &&
-                    noteProvider.hasMore) {
-                  noteProvider.loadMore();
-                }
-                return false;
-              },
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: 60),
-                physics: const BouncingScrollPhysics(),
-                children: [
-                  if (todayNote.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
+            return RefreshIndicator(
+              onRefresh: refreshAllData,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollNotification) {
+                  if (scrollNotification is ScrollEndNotification &&
+                      scrollNotification.metrics.pixels >=
+                          scrollNotification.metrics.maxScrollExtent - 100 &&
+                      !noteProvider.isLoading &&
+                      noteProvider.hasMore) {
+                    noteProvider.loadMore();
+                  }
+                  return false;
+                },
+                child: ListView(
+                  padding: const EdgeInsets.only(bottom: 60),
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  children: [
+                    if (todayNote.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Text("Today", style: TextStyle(fontSize: 15)),
                       ),
-                      child: Text("Today", style: TextStyle(fontSize: 15)),
-                    ),
-                    ...todayNote.map(
-                      (note) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: ItemCard(
-                          title: note.noteTitle ?? "",
-                          description: note.noteContent ?? '',
-                          onTap: () {
-                            context.pushNamed(
-                              RouteConstants.noteDetailScreen,
-                              extra: note,
-                            );
-                          },
+                      ...todayNote.map(
+                        (note) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: ItemCard(
+                            title: note.noteTitle ?? "",
+                            description: note.noteContent ?? '',
+                            onTap: () {
+                              context.pushNamed(
+                                RouteConstants.noteDetailScreen,
+                                extra: note,
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                  if (yesterdayNote.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Text("Yesterday", style: TextStyle(fontSize: 16)),
-                    ),
-                    ...yesterdayNote.map(
-                      (note) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: ItemCard(
-                          title: note.noteTitle ?? "",
-                          description: note.noteContent ?? "",
-                          onTap: () {
-                            context.pushNamed(
-                              RouteConstants.noteDetailScreen,
-                              extra: note,
-                            );
-                          },
+                    ],
+                    if (yesterdayNote.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          "Yesterday",
+                          style: TextStyle(fontSize: 16),
                         ),
                       ),
-                    ),
-                  ],
-                  if (earlierNote.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Text("Earlier", style: TextStyle(fontSize: 16)),
-                    ),
-                    ...earlierNote.map(
-                      (note) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: ItemCard(
-                          title: note.noteTitle ?? "",
-                          description: note.noteContent ?? "",
-                          onTap: () {
-                            context.pushNamed(
-                              RouteConstants.noteDetailScreen,
-                              extra: note,
-                            );
-                          },
+                      ...yesterdayNote.map(
+                        (note) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: ItemCard(
+                            title: note.noteTitle ?? "",
+                            description: note.noteContent ?? "",
+                            onTap: () {
+                              context.pushNamed(
+                                RouteConstants.noteDetailScreen,
+                                extra: note,
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                  if (noteProvider.isLoading)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: CircularProgressIndicator(),
+                    ],
+                    if (earlierNote.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Text("Earlier", style: TextStyle(fontSize: 16)),
                       ),
-                    ),
+                      ...earlierNote.map(
+                        (note) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: ItemCard(
+                            title: note.noteTitle ?? "",
+                            description: note.noteContent ?? "",
+                            onTap: () {
+                              context.pushNamed(
+                                RouteConstants.noteDetailScreen,
+                                extra: note,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (noteProvider.isLoading)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
 
-                  SizedBox(height: 60),
-                ],
+                    SizedBox(height: 60),
+                  ],
+                ),
               ),
             );
           }
