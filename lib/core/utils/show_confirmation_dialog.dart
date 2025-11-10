@@ -5,6 +5,7 @@ void showConfirmationDialog({
   required String title,
   required String content,
   required VoidCallback onConfirm,
+  String action = "Delete",
 }) {
   showDialog(
     context: context,
@@ -22,10 +23,7 @@ void showConfirmationDialog({
               Navigator.of(context).pop();
               onConfirm(); // Call the delete function
             },
-            child: const Text(
-              "Delete",
-              style: TextStyle(color: Colors.red),
-            ),
+            child: Text(action, style: TextStyle(color: Colors.red)),
           ),
         ],
       );

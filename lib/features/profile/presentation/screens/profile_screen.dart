@@ -1,8 +1,10 @@
 import 'package:acadobs/core/utils/auth_storage_services.dart';
+import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
+import 'package:acadobs/features/profile/presentation/screens/full_screen_image.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
@@ -118,13 +120,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Padding(
                             padding: const EdgeInsets.all(20),
                             child: GestureDetector(
-                              onTap: () async {
-                                final storage = AuthStorageService();
-                                await storage.clear();
-                                if (!context.mounted) return;
-                                context.read<AuthProvider>().logout(context);
-                                context.go('/login');
-                              },
+                              onTap:
+                                  () => showConfirmationDialog(
+                                    context: context,
+                                    title: 'Logout',
+                                    content: 'Are you sure you want to logout?',
+                                    action: "Logout",
+                                    onConfirm: () async {
+                                      final storage = AuthStorageService();
+                                      await storage.clear();
+                                      if (!context.mounted) return;
+                                      context.read<AuthProvider>().logout(
+                                        context,
+                                      );
+                                      context.go('/login');
+                                    },
+                                  ),
+
                               child: Container(
                                 width: double.infinity,
                                 height: 50,
@@ -257,27 +269,47 @@ Widget _buildProfileHeader(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  radius: avatarRadius,
-                  backgroundColor: Colors.blue.withAlpha(25),
+                GestureDetector(
+                  onTap: () {
+                    if (userDp != null) {
+                      showDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        builder:
+                            (_) => FullScreenImage(
+                              imageUrl:
+                                  "${BaseUrls.media}${MediaEndpoints.dp}$userDp",
+                              heroTag:
+                                  'profile-pic-${forStaff ? "staff" : "guardian"}',
+                            ),
+                      );
+                    }
+                  },
+                  child: Hero(
+                    tag: 'profile-pic-${forStaff ? "staff" : "guardian"}',
+                    child: CircleAvatar(
+                      radius: avatarRadius,
+                      backgroundColor: Colors.blue.withAlpha(25),
 
-                  backgroundImage:
-                      forStaff
-                          ? (staff?.user?.dp != null
-                              ? NetworkImage(
-                                "${BaseUrls.media}${MediaEndpoints.dp}${staff!.user!.dp!}",
-                              )
-                              : null)
-                          : (guardian?.user?.dp != null
-                              ? NetworkImage(
-                                "${BaseUrls.media}${MediaEndpoints.dp}${guardian!.user!.dp!}",
-                              )
-                              : null),
+                      backgroundImage:
+                          forStaff
+                              ? (staff?.user?.dp != null
+                                  ? NetworkImage(
+                                    "${BaseUrls.media}${MediaEndpoints.dp}${staff!.user!.dp!}",
+                                  )
+                                  : null)
+                              : (guardian?.user?.dp != null
+                                  ? NetworkImage(
+                                    "${BaseUrls.media}${MediaEndpoints.dp}${guardian!.user!.dp!}",
+                                  )
+                                  : null),
 
-                  child:
-                      (userDp == null)
-                          ? Icon(Icons.person, size: 40, color: Colors.blue)
-                          : null,
+                      child:
+                          (userDp == null)
+                              ? Icon(Icons.person, size: 40, color: Colors.blue)
+                              : null,
+                    ),
+                  ),
                 ),
                 SizedBox(
                   width:

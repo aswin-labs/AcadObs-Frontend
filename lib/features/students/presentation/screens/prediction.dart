@@ -1,4 +1,5 @@
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_floating_action_button.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -258,10 +259,14 @@ class Prediction extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 100),
             ],
           ),
         ),
+      ),
+      floatingActionButton: CommonFloatingActionButton(
+        onPressed: () {},
+        text: "Predict",
       ),
     );
   }
