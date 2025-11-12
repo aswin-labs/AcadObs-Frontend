@@ -1,5 +1,5 @@
 import 'package:acadobs/core/netwok/network_provider.dart';
-import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
+import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
@@ -11,7 +11,6 @@ import 'package:acadobs/features/parents/presentation/provider/leave_request_stu
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
-import 'package:acadobs/features/students/presentation/provider/student_achievement_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/provider/school_classes_provider.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/provider/school_subjects_provider.dart';
@@ -73,9 +72,6 @@ getProviders() {
 
     //**************CHATS****************//
     ChangeNotifierProvider(create: (_) => ChatProvider()),
-
-    //**************ACHIEVEMENTS****************//
-    ChangeNotifierProvider(create: (_) => StudentAchievementProvider()),
 
     //**************PARENTS****************//
     ChangeNotifierProvider(create: (_) => ParentProvider()),

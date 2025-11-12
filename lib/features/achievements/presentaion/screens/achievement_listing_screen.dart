@@ -1,9 +1,9 @@
-import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
+import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_floating_button2.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
@@ -21,26 +21,24 @@ class AchievementListingScreen extends StatefulWidget {
 }
 
 class _AchievementListingScreenState extends State<AchievementListingScreen> {
-  late final AchievementProvider _achievementProvider;
+  late final AchievementProvider _provider;
   final ScrollController _scrollController = ScrollController();
   @override
   void initState() {
     super.initState();
-    _achievementProvider = context.read<AchievementProvider>();
-    _achievementProvider.fetchAllAchievements();
-    _scrollController.addListener(_scrollListener);
-  }
+    _provider = context.read<AchievementProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _provider.fetchAchievementsAddedByTeacher();
+    });
 
-  void _scrollListener() {
-    final isNearBottom =
-        _scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200;
-
-    if (isNearBottom &&
-        !_achievementProvider.isLoading &&
-        _achievementProvider.hasMore) {
-      _achievementProvider.fetchAllAchievements(loadMore: true);
-    }
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          !_provider.isLoadingTeacher &&
+          _provider.hasMoreTeacher) {
+        _provider.fetchAchievementsAddedByTeacher(loadMore: true);
+      }
+    });
   }
 
   @override
@@ -52,153 +50,63 @@ class _AchievementListingScreenState extends State<AchievementListingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'My Achievements', isBackButton: true),
+      appBar: CommonAppBar(title: 'Student Achievements', isBackButton: true),
       body: RefreshIndicator(
-        child: CustomScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: context.paddingHorizontal.add(
-                  EdgeInsets.only(top: Responsive.height * 2),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Consumer<AchievementProvider>(
-                      builder: (context, provider, _) {
-                        if (provider.isLoading &&
-                            provider.achievements.isEmpty) {
-                          return commonShimmerList();
-                        }
-                        if (provider.achievements.isEmpty) {
-                          return emptyScreen(
-                            message:
-                                'No Achievements Found. Error: ${provider.error ?? "None"}',
-                          );
-                        }
-                        return Column(
-                          children: [
-                            if (provider.todayAchievement.isNotEmpty) ...[
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "Today",
-                                  // style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                              ),
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: provider.todayAchievement.length,
-                                itemBuilder: (context, index) {
-                                  final achievement =
-                                      provider.todayAchievement[index];
-                                  return ItemCard(
-                                    title: achievement.title ?? "Untitled",
-                                    description:
-                                        achievement.description ??
-                                        "No description",
-                                    onTap: () {
-                                      context.pushNamed(
-                                        RouteConstants.achievementDetailsScreen,
-                                        extra: achievement,
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
+        onRefresh: () => _provider.fetchAchievementsAddedByTeacher(),
+        child: Consumer<AchievementProvider>(
+          builder: (context, provider, _) {
+            if (provider.isLoadingTeacher &&
+                provider.teacherAchievements.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: commonShimmerList(),
+              );
+            }
 
-                            if (provider.yesterdayAchievement.isNotEmpty) ...[
-                              const SizedBox(height: 20),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "Yesterday",
-                                  // style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                              ),
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: provider.yesterdayAchievement.length,
-                                itemBuilder: (context, index) {
-                                  final achievement =
-                                      provider.yesterdayAchievement[index];
-                                  return ItemCard(
-                                    title: achievement.title ?? "Untitled",
-                                    description:
-                                        achievement.description ??
-                                        "No description",
-                                    onTap: () {
-                                      context.pushNamed(
-                                        RouteConstants.achievementDetailsScreen,
-                                        extra: achievement,
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
-                            if (provider.earlierAchievement.isNotEmpty) ...[
-                              const SizedBox(height: 20),
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "Earlier",
-                                  // style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                              ),
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: provider.earlierAchievement.length,
-                                itemBuilder: (context, index) {
-                                  final achievement =
-                                      provider.earlierAchievement[index];
-                                  return ItemCard(
-                                    title: achievement.title ?? "Untitled",
-                                    description:
-                                        achievement.description ??
-                                        "No description",
-                                    onTap: () {
-                                      context.pushNamed(
-                                        RouteConstants.achievementDetailsScreen,
-                                        extra: achievement,
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
-                          ],
-                        );
-                      },
-                    ),
-                    Consumer<AchievementProvider>(
-                      builder: (context, provider, _) {
-                        return provider.isLoading && provider.hasMore
-                            ? const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                            : const SizedBox();
-                      },
-                    ),
-                    SizedBox(height: Responsive.height * 4),
-                  ],
-                ),
+            if (provider.teacherAchievements.isEmpty) {
+              return emptyScreen(message: 'No Achievements Found.');
+            }
+
+            return ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
               ),
-            ),
-          ],
+              itemCount:
+                  provider.teacherAchievements.length +
+                  (provider.hasMoreTeacher ? 2 : 1),
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return SizedBox(height: Responsive.height * 3);
+                }
+
+                if (index == provider.teacherAchievements.length + 1) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                final achievement = provider.teacherAchievements[index - 1];
+
+                return ItemCard(
+                  title: achievement.title ?? "Untitled",
+                  description: achievement.description ?? "No description",
+                  onTap: () {
+                    context.pushNamed(
+                      RouteConstants.achievementDetailsScreen,
+                      extra: DetailScreenArgs(
+                        id: achievement.id ?? 0,
+                        forStaff: true,
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          },
         ),
-        onRefresh: () async {
-          await context.read<AchievementProvider>().fetchAllAchievements(
-            forceRefresh: true,
-          );
-        },
       ),
 
       floatingActionButton: CommonFloatingButton2(

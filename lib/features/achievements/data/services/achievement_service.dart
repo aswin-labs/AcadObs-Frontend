@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class AchievementService {
+  // Create achievement
   Future<Response> createAchievement({
     required BuildContext context,
     required String title,
@@ -40,27 +41,37 @@ class AchievementService {
     }
   }
 
-  Future<Response> fetchAchievementByStudentId({
+  // Fetch achievement by student Id
+  Future<Response> fetchAchievementsByStudentId({
     required studentId,
     required bool forStaff,
     required int pageNo,
-    required int limit,
   }) async {
     final response = await ApiServices.get(
       forStaff
-          ? '${ApiEndpoints.achievementByStudentId}/$studentId?pageNo=$pageNo&limit=$limit'
-          : '${ApiEndpoints.achievementByGuardian}/$studentId?pageNo=$pageNo&limit=$limit',
+          ? '${ApiEndpoints.achievementByStudentId}/$studentId?pageNo=$pageNo&limit=${AppConstants.paginationLimit}'
+          : '${ApiEndpoints.achievementByGuardian}/$studentId?pageNo=$pageNo&limit=${AppConstants.paginationLimit}',
     );
     return response;
   }
 
-  //fetching all the achievements
-  Future<Response> fetchALlAchievement({
-    // required int limit,
+  //fetching achievements added by teacher
+  Future<Response> fetchAchievementsAddedByTeacher({
     required int pageNo,
   }) async {
     final response = await ApiServices.get(
       '${ApiEndpoints.getAllAchievement}?page=$pageNo&limit=${AppConstants.paginationLimit}',
+    );
+    return response;
+  }
+
+  // fetch single achievement
+  Future<Response> fetchSingleAchievement({
+    required bool forStaff,
+    required int achievementId,
+  }) async {
+    final response = await ApiServices.get(
+      "${forStaff ? ApiEndpoints.singleAchievementForStaff : ApiEndpoints.singleAchievementForGuardian}/$achievementId",
     );
     return response;
   }
@@ -73,8 +84,7 @@ class AchievementService {
   }) async {
     final response = await ApiServices.put(
       "${ApiEndpoints.achievements}/$achievementId",
-      {"title": title.trim(), "description": description.trim()}, 
-      isFormData: true,
+      {"title": title.trim(), "description": description.trim()},
     );
 
     return response;

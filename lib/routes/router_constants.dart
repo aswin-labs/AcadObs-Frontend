@@ -42,7 +42,7 @@ class RouteConstants {
   static const String newsScreen = "newsScreen";
 
   static const String addAchievements = 'addAchievements';
-  static const String getAchievement = 'getAchievements';
+  static const String achievementList = 'achievementList';
   static const String achievementDetailsScreen = "achievemnetDetailScreen";
 
   static const String noteListingScreen = "noteListingScreen";

@@ -18,8 +18,6 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-
-
     namespace = "com.altezzai.acadobs"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
@@ -45,7 +43,8 @@ android {
         versionName = flutter.versionName
     }
 
-   signingConfigs {
+    signingConfigs {
+
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String
             keyPassword = keystoreProperties["keyPassword"] as String
