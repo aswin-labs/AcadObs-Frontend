@@ -89,6 +89,8 @@ class ApiEndpoints {
 
   static const String staffProfile = "/staff/getProfileDetails";
 
+  static const String singleAchievementForStaff = "/staff/achievements";
+
   //***********************GUARDIAN*************************
   static const String fetchLatestEventsGuardian = "/guardian/getLatestEvents";
   static const String fetchLatestNewsGuardian = "/guardian/getLatestNews";
@@ -112,6 +114,7 @@ class ApiEndpoints {
   static const String fetchAllDayTimeTable =
       "/guardian/getAllDayTimeTableByStudentId";
   static const String guardianNotification = "/guardian/updateFcmToken";
+  static const String singleAchievementForGuardian = "/guardian/getAchievementById";
 
   //profile details for staff
   static const String staffProfileDetails = "/staff/getProfileDetails";

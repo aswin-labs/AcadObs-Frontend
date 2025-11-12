@@ -638,7 +638,7 @@ class FabOptionsDialog extends StatelessWidget {
                     label: 'Achievements',
                     iconColor: Color(0xFFFF6B6B),
                     onTap: () {
-                      context.pushNamed(RouteConstants.getAchievement);
+                      context.pushNamed(RouteConstants.achievementList);
                       Navigator.pop(context);
                     },
                   ),

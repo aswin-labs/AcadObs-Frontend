@@ -1,4 +1,4 @@
-package com.example.acadobs
+package com.altezzai.acadobs
 
 import io.flutter.embedding.android.FlutterActivity
 

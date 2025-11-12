@@ -1,9 +1,12 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/students/presentation/provider/student_achievement_provider.dart';
+import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
+import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class StudentAcheivementTab extends StatefulWidget {
@@ -21,33 +24,31 @@ class StudentAcheivementTab extends StatefulWidget {
 }
 
 class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
-  late final StudentAchievementProvider _studentAchievementProvider;
+  late final AchievementProvider _provider;
   final ScrollController _scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
-    _studentAchievementProvider = context.read<StudentAchievementProvider>();
-    _studentAchievementProvider.fetchAchievementByStudentId(
-      forStaff: widget.forStaff,
-      studentId: widget.studentId,
-    );
-    _scrollController.addListener(_scrollListener);
-  }
-
-  void _scrollListener() {
-    final isNearBottom =
-        _scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200;
-
-    if (isNearBottom &&
-        !_studentAchievementProvider.isLoading &&
-        _studentAchievementProvider.hasMore) {
-      _studentAchievementProvider.fetchAchievementByStudentId(
-        forStaff: widget.forStaff,
+    _provider = context.read<AchievementProvider>();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _provider.fetchAchievementsByStudentId(
         studentId: widget.studentId,
+        forStaff: widget.forStaff,
       );
-    }
+    });
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          !_provider.isLoadingTeacher &&
+          _provider.hasMoreTeacher) {
+        _provider.fetchAchievementsByStudentId(
+          studentId: widget.studentId,
+          forStaff: widget.forStaff,
+          loadMore: true,
+        );
+      }
+    });
   }
 
   @override
@@ -59,59 +60,61 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 55),
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            Consumer<StudentAchievementProvider>(
-              builder: (context, provider, _) {
-                if (provider.isLoading && provider.achievementModel.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 40),
-                    child: commonShimmerList(),
+      body: RefreshIndicator(
+        onRefresh: () => _provider.fetchAchievementsAddedByTeacher(),
+        child: Consumer<AchievementProvider>(
+          builder: (context, provider, _) {
+            if (provider.isLoadingTeacher &&
+                provider.teacherAchievements.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: commonShimmerList(),
+              );
+            }
+
+            if (provider.teacherAchievements.isEmpty) {
+              return emptyScreen(message: 'No Achievements Found.');
+            }
+
+            return ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 55),
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              itemCount:
+                  provider.teacherAchievements.length +
+                  (provider.hasMoreTeacher ? 2 : 1),
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return SizedBox(height: Responsive.height * 3);
+                }
+
+                if (index == provider.teacherAchievements.length + 1) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
                   );
                 }
 
-                if (provider.achievementModel.isEmpty) {
-                  return emptyScreen(
-                    message: 'No Achievement Found',
-                    heightMultiplier: 16,
-                  );
-                }
+                final achievement = provider.teacherAchievements[index - 1];
 
-                return ListView.builder(
-                  itemCount: provider.achievementModel.length,
-                  physics: const BouncingScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    final achievement = provider.achievementModel[index];
-                    return ItemCard(
-                      title: achievement.achievement?.title ?? "",
-                      description: achievement.achievement?.description ?? " ",
-                      onTap: () {
-                        // context.pushNamed(
-                        //   RouteConstants.achievementDetailsScreen,
-                        //   extra: achievement,
-                        // );
-                      },
+                return ItemCard(
+                  title: achievement.title ?? "Untitled",
+                  description: achievement.description ?? "No description",
+                  onTap: () {
+                    context.pushNamed(
+                      RouteConstants.achievementDetailsScreen,
+                      extra: DetailScreenArgs(
+                        id: achievement.id ?? 0,
+                        forStaff: widget.forStaff,
+                      ),
                     );
                   },
                 );
               },
-            ),
-            Consumer<StudentAchievementProvider>(
-              builder: (context, provider, _) {
-                return provider.isLoading && provider.hasMore
-                    ? Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: const Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox();
-              },
-            ),
-            SizedBox(height: Responsive.height * 4),
-          ],
+            );
+          },
         ),
       ),
     );
