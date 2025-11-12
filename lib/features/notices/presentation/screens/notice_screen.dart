@@ -22,13 +22,17 @@ class _NoticeScreenState extends State<NoticeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        Provider.of<NoticeProvider>(context, listen: false).fetchLatestNotices(
-          limit: AppConstants.paginationLimit,
-          isRefresh: true,
-        );
-      }
+      refreshAllData();
     });
+  }
+
+  Future<void> refreshAllData() async {
+    await Future.wait([
+      Provider.of<NoticeProvider>(context, listen: false).fetchLatestNotices(
+        limit: AppConstants.paginationLimit,
+        isRefresh: true,
+      ),
+    ]);
   }
 
   @override
@@ -39,8 +43,6 @@ class _NoticeScreenState extends State<NoticeScreen> {
         builder: (context, noticeProvider, _) {
           if (noticeProvider.isLoading && noticeProvider.notices.isEmpty) {
             return commonShimmerList();
-          } else if (noticeProvider.error != null) {
-            return Center(child: Text(noticeProvider.error!));
           } else if (noticeProvider.notices.isEmpty) {
             return Center(
               child: Column(
@@ -74,128 +76,103 @@ class _NoticeScreenState extends State<NoticeScreen> {
                 }
                 return false;
               },
-              child: ListView(
-                padding: const EdgeInsets.only(bottom: 60),
-                physics: const BouncingScrollPhysics(),
-                children: [
-                  if (todayNotices.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Text("Today", style: TextStyle(fontSize: 15)),
-                    ),
-                    ...todayNotices.map(
-                      (notice) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: NoticeCard(
-                          title: notice.title ?? "",
-                          date: DateFormatter.formatDateString(notice.date),
-                          icon: Icons.notifications_none,
-                          time: TimeFormatter.formatTime(notice.createdAt),
-                          onTap:
-                              () => context.pushNamed(
-                                RouteConstants.noticedetails,
-                                extra: notice,
-                              ),
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (yesterdayNotices.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Text("Yesterday", style: TextStyle(fontSize: 16)),
-                    ),
-                    ...yesterdayNotices.map(
-                      (notice) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: NoticeCard(
-                          title: notice.title ?? "",
-                          date: DateFormatter.formatDateString(notice.date),
-                          icon: Icons.notifications_none,
-                          time: TimeFormatter.formatTime(notice.createdAt),
-                          onTap:
-                              () => context.pushNamed(
-                                RouteConstants.noticedetails,
-                                extra: notice,
-                              ),
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (earlierNotices.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      child: Text("Earlier", style: TextStyle(fontSize: 16)),
-                    ),
-                    ...earlierNotices.map(
-                      (notice) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: NoticeCard(
-                          title: notice.title ?? "",
-                          date: DateFormatter.formatDateString(notice.date),
-                          icon: Icons.notifications_none,
-                          time: TimeFormatter.formatTime(notice.createdAt),
-                          onTap:
-                              () => context.pushNamed(
-                                RouteConstants.noticedetails,
-                                extra: notice,
-                              ),
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (noticeProvider.isLoading)
-                    const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(12.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                ],
-              ),
+              child: RefreshIndicator(
+                onRefresh: refreshAllData,
+                child: ListView(
+                  padding: const EdgeInsets.only(bottom: 60),
 
-              // child: ListView.builder(
-              //   padding: const EdgeInsets.only(bottom: 60),
-              //   physics: const BouncingScrollPhysics(),
-              //   itemCount:
-              //       noticeProvider.notices.length +
-              //       (noticeProvider.hasMore ? 1 : 0),
-              //   itemBuilder: (context, index) {
-              //     if (index == noticeProvider.notices.length) {
-              //       return const Center(
-              //         child: Padding(
-              //           padding: EdgeInsets.all(12.0),
-              //           child: CircularProgressIndicator(),
-              //         ),
-              //       );
-              //     }
-              //     final notice = noticeProvider.notices[index];
-              //     return Padding(
-              //       padding: EdgeInsets.symmetric(horizontal: 16),
-              //       child: NoticeCard(
-              //         title: notice.title ?? "",
-              //         date: DateFormatter.formatDateString(notice.date),
-              //         icon: Icons.notifications_none,
-              //         time: TimeFormatter.formatTime(notice.createdAt),
-              //         //route
-              //         onTap:
-              //             () => context.pushNamed(
-              //               RouteConstants.noticedetails,
-              //               extra: notice,
-              //             ),
-              //       ),
-              //     );
-              //   },
-              // ),
+                  physics: AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  children: [
+                    if (todayNotices.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Text("Today", style: TextStyle(fontSize: 15)),
+                      ),
+                      ...todayNotices.map(
+                        (notice) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: NoticeCard(
+                            title: notice.title ?? "",
+                            date: DateFormatter.formatDateString(notice.date),
+                            icon: Icons.notifications_none,
+                            time: TimeFormatter.formatTime(notice.createdAt),
+                            onTap:
+                                () => context.pushNamed(
+                                  RouteConstants.noticedetails,
+                                  extra: notice,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (yesterdayNotices.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Text(
+                          "Yesterday",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      ...yesterdayNotices.map(
+                        (notice) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: NoticeCard(
+                            title: notice.title ?? "",
+                            date: DateFormatter.formatDateString(notice.date),
+                            icon: Icons.notifications_none,
+                            time: TimeFormatter.formatTime(notice.createdAt),
+                            onTap:
+                                () => context.pushNamed(
+                                  RouteConstants.noticedetails,
+                                  extra: notice,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (earlierNotices.isNotEmpty) ...[
+                      const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        child: Text("Earlier", style: TextStyle(fontSize: 16)),
+                      ),
+                      ...earlierNotices.map(
+                        (notice) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: NoticeCard(
+                            title: notice.title ?? "",
+                            date: DateFormatter.formatDateString(notice.date),
+                            icon: Icons.notifications_none,
+                            time: TimeFormatter.formatTime(notice.createdAt),
+                            onTap:
+                                () => context.pushNamed(
+                                  RouteConstants.noticedetails,
+                                  extra: notice,
+                                ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (noticeProvider.isLoading)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             );
           }
         },

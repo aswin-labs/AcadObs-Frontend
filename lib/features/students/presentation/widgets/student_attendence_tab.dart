@@ -111,47 +111,36 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
                 ],
               ),
 
-              SizedBox(height: 10),
               Consumer<TimeTableProvider>(
                 builder: (context, provider, _) {
                   if (provider.isLoading) {
                     return const Center(child: TimeTableShimmer());
                   }
 
-                  if (provider.error != null) {
-                    return Text(
-                      provider.error!,
-                      style: const TextStyle(color: Colors.red),
-                    );
-                  }
-
                   if (provider.timetable.isEmpty) {
                     return emptyScreen(message: "No Time Table Avaliable");
                   }
 
-                  return SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.4,
-                    child: GridView.builder(
-                      itemCount: provider.timetable.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 10,
-                            childAspectRatio: 0.7,
-                          ),
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
+                  return GridView.builder(
+                    itemCount: provider.timetable.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.8,
+                        ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
 
-                      itemBuilder: (context, index) {
-                        final item = provider.timetable[index];
-                        return TimeTableCard(
-                          periodnumber: item.periodNumber ?? 0,
-                          subject: item.subject?.subjectName ?? "",
-                          description: item.user?.name ?? "",
-                        );
-                      },
-                    ),
+                    itemBuilder: (context, index) {
+                      final item = provider.timetable[index];
+                      return TimeTableCard(
+                        periodnumber: item.periodNumber ?? 0,
+                        subject: item.subject?.subjectName ?? "",
+                        description: item.user?.name ?? "",
+                      );
+                    },
                   );
                 },
               ),

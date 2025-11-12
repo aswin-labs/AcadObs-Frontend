@@ -1,4 +1,4 @@
-import 'package:acadobs/core/extensions/context_extensions.dart';
+// import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/profile_container_shimmer.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
@@ -14,7 +14,7 @@ import 'package:acadobs/features/students/presentation/widgets/student_notice_ta
 import 'package:acadobs/features/students/presentation/widgets/student_profile_tab.dart';
 import 'package:acadobs/routes/router_constants.dart';
 // import 'package:acadobs/shared/widgets/common_button.dart';
-import 'package:acadobs/shared/widgets/profile_container.dart';
+// import 'package:acadobs/shared/widgets/profile_container.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -51,121 +51,376 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: context.paddingHorizontal.add(
-                    EdgeInsets.only(top: Responsive.height * 5),
+              // SliverToBoxAdapter(
+              //   child: Padding(
+              //     padding: context.paddingHorizontal.add(
+              //       EdgeInsets.only(top: Responsive.height * 5),
+              //     ),
+              //     child: Column(
+              //       children: [
+              //         Row(
+              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //           children: [
+              //             GestureDetector(
+              //               onTap: () {
+              //                 Navigator.pop(context);
+              //               },
+              //               child: const CircleAvatar(
+              //                 radius: 16,
+              //                 backgroundColor: Color(0xFFD9D9D9),
+              //                 child: Icon(
+              //                   Icons.arrow_back_ios_new,
+              //                   size: 18,
+              //                   color: Colors.black,
+              //                 ),
+              //               ),
+              //             ),
+              //             Text(
+              //               textAlign: TextAlign.center,
+              //               "Student",
+              //               style: Theme.of(
+              //                 context,
+              //               ).textTheme.bodyLarge!.copyWith(
+              //                 fontWeight: FontWeight.w600,
+              //                 fontSize: 22,
+              //                 overflow: TextOverflow.ellipsis,
+              //               ),
+              //             ),
+              //             widget.forParent
+              //                 ? SizedBox.shrink()
+              //                 : Consumer2<StudentProvider, ChatProvider>(
+              //                   builder: (
+              //                     context,
+              //                     studentProvider,
+              //                     chatProvider,
+              //                     _,
+              //                   ) {
+              //                     final student =
+              //                         studentProvider.individualStudent;
+              //                     return GestureDetector(
+              //                       onTap: () {
+              //                         context
+              //                             .pushNamed(
+              //                               RouteConstants.chatScreen,
+              //                               extra: ChatModel(
+              //                                 opponentId:
+              //                                     student?.user?.id ?? 0,
+              //                                 opponentName:
+              //                                     student?.user?.name ?? "",
+              //                                 studentId: student?.id,
+              //                               ),
+              //                             )
+              //                             .then((_) {
+              //                               if (!mounted) return;
+              //                               chatProvider.loadUsersList();
+              //                             });
+              //                       },
+              //                       child: Icon(Icons.chat),
+              //                     );
+              //                   },
+              //                 ),
+              //           ],
+              //         ),
+              //         SizedBox(height: Responsive.height * 3),
+              //         Consumer<StudentProvider>(
+              //           builder: (context, provider, _) {
+              //             final student = provider.individualStudent;
+              //             if (provider.isLoading) {
+              //               return ProfileContainerShimmer();
+              //             }
+              //             return ProfileContainer(
+              //               imagePath: student?.image ?? "",
+              //               name: student?.fullName ?? "",
+              //               present: "0",
+              //               absent: "0",
+              //               late: "0",
+              //               description: student?.classGrade?.classname,
+              //             );
+              //           },
+              //         ),
+
+              //         SizedBox(height: 20),
+              //         ElevatedButton(
+              //           style: ElevatedButton.styleFrom(
+              //             backgroundColor: Colors.black,
+              //           ),
+              //           onPressed: () {
+              //             context.pushNamed(RouteConstants.prediction);
+              //           },
+              //           child: Row(
+              //             mainAxisAlignment: MainAxisAlignment.center,
+              //             children: [
+              //               Icon(Icons.auto_awesome),
+              //               SizedBox(width: 10),
+              //               Text(
+              //                 "See AI Prediction",
+              //                 style: TextStyle(color: Colors.white),
+              //               ),
+              //             ],
+              //           ),
+              //         ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              SliverAppBar(
+                expandedHeight: 0,
+                floating: true,
+                pinned: true,
+                backgroundColor: Colors.white,
+                elevation: 0,
+                leading: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Center(
+                    child: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back_ios_new,
+                        size: 18,
+                        color: Colors.black87,
+                      ),
+                    ),
                   ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pop(context);
+                ),
+                title: const Text(
+                  "Student Profile",
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                  ),
+                ),
+                centerTitle: true,
+                actions: [
+                  if (!widget.forParent)
+                    Consumer2<StudentProvider, ChatProvider>(
+                      builder: (context, studentProvider, chatProvider, _) {
+                        final student = studentProvider.individualStudent;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: IconButton(
+                            onPressed: () {
+                              context
+                                  .pushNamed(
+                                    RouteConstants.chatScreen,
+                                    extra: ChatModel(
+                                      opponentId: student?.user?.id ?? 0,
+                                      opponentName: student?.user?.name ?? "",
+                                      studentId: student?.id,
+                                    ),
+                                  )
+                                  .then((_) {
+                                    if (!mounted) return;
+                                    chatProvider.loadUsersList();
+                                  });
                             },
-                            child: const CircleAvatar(
-                              radius: 16,
-                              backgroundColor: Color(0xFFD9D9D9),
-                              child: Icon(
-                                Icons.arrow_back_ios_new,
-                                size: 18,
+                            icon: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade200,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.chat_bubble_outline,
+                                size: 20,
+                                // color: Color(0xFF35C2C1),
                                 color: Colors.black,
                               ),
                             ),
                           ),
-                          Text(
-                            textAlign: TextAlign.center,
-                            "Student",
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodyLarge!.copyWith(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 22,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          widget.forParent
-                              ? SizedBox.shrink()
-                              : Consumer2<StudentProvider, ChatProvider>(
-                                builder: (
-                                  context,
-                                  studentProvider,
-                                  chatProvider,
-                                  _,
-                                ) {
-                                  final student =
-                                      studentProvider.individualStudent;
-                                  return GestureDetector(
-                                    onTap: () {
-                                      context
-                                          .pushNamed(
-                                            RouteConstants.chatScreen,
-                                            extra: ChatModel(
-                                              opponentId:
-                                                  student?.user?.id ?? 0,
-                                              opponentName:
-                                                  student?.user?.name ?? "",
-                                              studentId: student?.id,
-                                            ),
-                                          )
-                                          .then((_) {
-                                            if (!mounted) return;
-                                            chatProvider.loadUsersList();
-                                          });
-                                    },
-                                    child: Icon(Icons.chat),
-                                  );
-                                },
-                              ),
-                        ],
-                      ),
-                      SizedBox(height: Responsive.height * 3),
+                        );
+                      },
+                    ),
+                ],
+              ),
+
+              SliverToBoxAdapter(
+                child: Container(
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      // Profile Section
                       Consumer<StudentProvider>(
                         builder: (context, provider, _) {
                           final student = provider.individualStudent;
+
                           if (provider.isLoading) {
-                            return ProfileContainerShimmer();
+                            return const Padding(
+                              padding: EdgeInsets.all(20),
+                              child: ProfileContainerShimmer(),
+                            );
                           }
-                          return ProfileContainer(
-                            imagePath: student?.image ?? "",
-                            name: student?.fullName ?? "",
-                            present: "0",
-                            absent: "0",
-                            late: "0",
-                            description: student?.classGrade?.classname,
+
+                          return Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(9),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                // Profile Image & Name
+                                Stack(
+                                  children: [
+                                    Container(
+                                      width: 100,
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF35C2C1),
+                                            Color(0xFF00AEF0),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(
+                                              0xFF35C2C1,
+                                            ).withAlpha(68),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
+                                      ),
+                                      child:
+                                          student?.image?.isNotEmpty == true
+                                              ? ClipOval(
+                                                child: Image.network(
+                                                  student!.image!,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (
+                                                    context,
+                                                    error,
+                                                    stackTrace,
+                                                  ) {
+                                                    return Center(
+                                                      child: Text(
+                                                        student
+                                                                    .fullName
+                                                                    .isNotEmpty ==
+                                                                true
+                                                            ? student
+                                                                .fullName[0]
+                                                                .toUpperCase()
+                                                            : "S",
+                                                        style: const TextStyle(
+                                                          fontSize: 40,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              )
+                                              : Center(
+                                                child: Text(
+                                                  student
+                                                              ?.fullName
+                                                              .isNotEmpty ==
+                                                          true
+                                                      ? student!.fullName[0]
+                                                          .toUpperCase()
+                                                      : "S",
+                                                  style: const TextStyle(
+                                                    fontSize: 40,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
+                                    ),
+                                  ],
+                                ),
+
+                                // Student Name
+                                Text(
+                                  student?.fullName ?? "Student Name",
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                // Class Badge
+                                if (student?.classGrade?.classname != null)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: const LinearGradient(
+                                        colors: [
+                                          Color(0xFF35C2C1),
+                                          Color(0xFF00AEF0),
+                                        ],
+                                      ),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      student!.classGrade!.classname,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           );
                         },
                       ),
 
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                        ),
-                        onPressed: () {
-                          context.pushNamed(RouteConstants.prediction);
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.auto_awesome),
-                            SizedBox(width: 10),
-                            Text(
-                              "See AI Prediction",
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.black,
+                          ),
+                          onPressed: () {
+                            context.pushNamed(RouteConstants.prediction);
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.auto_awesome),
+                              SizedBox(width: 10),
+                              Text(
+                                "See AI Prediction",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              SliverPadding(
-                padding: EdgeInsets.only(bottom: Responsive.height * 0.1),
-              ),
+
               SliverOverlapAbsorber(
                 handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
                   context,
@@ -296,17 +551,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     return StudentProfileTab(student: student);
                   },
                 ),
-
-                // //leave requst
-                // Consumer<StudentProvider>(
-                //   builder: (context, provider, _) {
-                //     final student = provider.individualStudent;
-                //     if (student == null) {
-                //       return SizedBox.shrink();
-                //     }
-                //     return LeaveLetterScreen();
-                //   },
-                // ),
               ],
             ),
           ),

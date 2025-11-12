@@ -5,7 +5,8 @@ import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/common_floating_action_button.dart';
+// import 'package:acadobs/shared/widgets/common_floating_action_button.dart';
+import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -161,12 +162,13 @@ class _NoteListingScreenState extends State<NoteListingScreen> {
           }
         },
       ),
-
-      floatingActionButton: CommonFloatingActionButton(
-        onPressed: () {
-          context.pushNamed(RouteConstants.addTeacherNoteSection);
-        },
-        text: "Add New Parent Note",
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.all(16),
+        child: CommonFloatingButton(
+          onPressed: () {
+            context.pushNamed(RouteConstants.addTeacherNoteSection);
+          },
+        ),
       ),
     );
   }

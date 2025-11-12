@@ -32,9 +32,6 @@ class _AchievementEditScreenState extends State<AchievementEditScreen> {
     descriptionController = TextEditingController(
       text: widget.achievement.description,
     );
-    // dateController.text = DateFormat(
-    //   'yyyy-MM-dd',
-    // ).format(widget.homework.dueDate ?? DateTime.now());
   }
 
   @override
@@ -73,6 +70,59 @@ class _AchievementEditScreenState extends State<AchievementEditScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(9),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.amber.withAlpha(23),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.emoji_events,
+                            color: Colors.amber,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Edit Achievement",
+                                style: context.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                "Update the achievement details below",
+                                style: context.textTheme.bodyMedium?.copyWith(
+                                  color: Colors.grey[600],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
                   Text(
                     "Edit Details:",
                     style: context.textTheme.titleMedium?.copyWith(
@@ -94,22 +144,7 @@ class _AchievementEditScreenState extends State<AchievementEditScreen> {
                     controller: descriptionController,
                     validator: FormValidator.validateNotEmpty,
                   ),
-                  // spacer,
-                  // CustomDatePicker(
-                  //   label: "Due Date*",
-                  //   dateController: dateController,
-                  //   onDateSelected: (selectedDate) {
-                  //     dateController.text = DateFormat(
-                  //       'dd/MM/yyyy',
-                  //     ).format(selectedDate);
-                  //   },
-                  //   firstDate: DateTime.now(),
-                  //   lastDate: DateTime(2100),
-                  //   initialDate: DateTime.now(),
-                  //   validator: (value) {
-                  //     return FormValidator.validateNotEmpty(value);
-                  //   },
-                  // ),
+
                   spacer,
                   SizedBox(
                     height: Responsive.height * 6,
