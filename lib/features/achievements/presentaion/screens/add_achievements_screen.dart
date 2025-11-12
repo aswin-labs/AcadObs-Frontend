@@ -6,7 +6,7 @@ import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/achievements/data/models/avhievement_section.dart';
-import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
+import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/achievements/presentaion/widgets/single_student_picker.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
@@ -468,7 +468,7 @@ class _AddAchievementsScreenState extends State<AddAchievementsScreen> {
                             );
                           },
                           widget:
-                              provider.isLoadingTwo
+                              provider.isLoadingSecondary
                                   ? ButtonLoading()
                                   : Text("Submit"),
                         );

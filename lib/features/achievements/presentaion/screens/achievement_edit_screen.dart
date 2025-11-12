@@ -2,14 +2,11 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/achievements/presentaion/provider/acheivement_provider.dart';
-// import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
 import 'package:acadobs/features/achievements/models/achievement_model.dart';
+import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-// import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class AchievementEditScreen extends StatefulWidget {
@@ -48,10 +45,8 @@ class _AchievementEditScreenState extends State<AchievementEditScreen> {
   void buttonAction(BuildContext context) {
     context.read<AchievementProvider>().editAchievement(
       context: context,
-
       title: titleController.text,
       description: descriptionController.text,
-
       achievementId: widget.achievement.id ?? 0,
     );
   }
@@ -94,22 +89,6 @@ class _AchievementEditScreenState extends State<AchievementEditScreen> {
                     controller: descriptionController,
                     validator: FormValidator.validateNotEmpty,
                   ),
-                  // spacer,
-                  // CustomDatePicker(
-                  //   label: "Due Date*",
-                  //   dateController: dateController,
-                  //   onDateSelected: (selectedDate) {
-                  //     dateController.text = DateFormat(
-                  //       'dd/MM/yyyy',
-                  //     ).format(selectedDate);
-                  //   },
-                  //   firstDate: DateTime.now(),
-                  //   lastDate: DateTime(2100),
-                  //   initialDate: DateTime.now(),
-                  //   validator: (value) {
-                  //     return FormValidator.validateNotEmpty(value);
-                  //   },
-                  // ),
                   spacer,
                   SizedBox(
                     height: Responsive.height * 6,
@@ -124,7 +103,7 @@ class _AchievementEditScreenState extends State<AchievementEditScreen> {
                             buttonAction(context);
                           },
                           child:
-                              context.watch<AchievementProvider>().isLoadingTwo
+                              context.watch<AchievementProvider>().isLoadingSecondary
                                   ? ButtonLoading()
                                   : Text("Save"),
                         );
