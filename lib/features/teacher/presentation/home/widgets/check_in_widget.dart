@@ -15,7 +15,7 @@ class CheckInWidget extends StatelessWidget {
   }) async {
     return showDialog(
       context: context,
-      barrierDismissible: false, // Must tap button
+      barrierDismissible: true, 
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -29,7 +29,10 @@ class CheckInWidget extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(), // Cancel
-              child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.black, fontSize: 17),
+              ),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(

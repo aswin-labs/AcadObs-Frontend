@@ -2,6 +2,7 @@
 import 'dart:developer';
 
 import 'package:acadobs/core/utils/auth_storage_services.dart';
+import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/authentication/data/models/parent_school_model.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/data/services/auth_services.dart';
@@ -15,6 +16,7 @@ class AuthProvider with ChangeNotifier {
   bool _isLoading = false;
   List<SchoolModel> _schools = [];
   int _totalSchoolsUnderParent = 0;
+  String? _loginError;
 
   SchoolModel? _selectedSchool; // store selected school
 
@@ -22,6 +24,27 @@ class AuthProvider with ChangeNotifier {
   List<SchoolModel> get schools => _schools;
   int get totalSchoolsUnderParent => _totalSchoolsUnderParent;
   SchoolModel? get selectedSchool => _selectedSchool;
+  String? get loginError => _loginError;
+
+  // call this at the start of login
+  void _setLoading(bool v) {
+    _isLoading = v;
+    notifyListeners();
+  }
+
+  // call this when login succeeds
+  void _clearError() {
+    _loginError = null;
+    notifyListeners();
+  }
+
+  // call this when login fails
+  void _setError(String msg) {
+    _loginError = msg;
+    notifyListeners();
+  }
+
+  void clearLoginError() => _clearError();
 
   // Login
 
@@ -30,7 +53,9 @@ class AuthProvider with ChangeNotifier {
     required String email,
     required String password,
   }) async {
-    _isLoading = true;
+    // _isLoading = true;
+    _setLoading(true);
+    _clearError();
     notifyListeners();
 
     try {
@@ -46,10 +71,18 @@ class AuthProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final userRole = await _storageService.getUserRole();
         if (!context.mounted) return;
+
+        CustomSnackbar.show(
+          context,
+          message: "Login Successfull",
+          type: SnackbarType.success,
+        );
+
         if (userRole == 'guardian') {
           await AuthServices().sendFcmToken();
           if (!context.mounted) return;
-          context.pushNamed(RouteConstants.schoolSelectionScreen);
+          // context.pushNamed(RouteConstants.schoolSelectionScreen);
+          context.goNamed(RouteConstants.schoolSelectionScreen);
         } else if (userRole == 'teacher') {
           await fetchSchoolDetailsForTeacher();
           if (!context.mounted) return;
@@ -68,8 +101,17 @@ class AuthProvider with ChangeNotifier {
             extra: UserType.superAdmin,
           );
         }
+        return;
       }
+
+      final serverMsg =
+          response.data['message']?.toString() ??
+          response.data['error']?.toString() ??
+          "Invalid credentials";
+      _setError(serverMsg);
     } catch (e) {
+      // debugPrint("Login error: $e");
+      _setError("Something went wrong. Please try again.");
       debugPrint("Login error: $e");
     } finally {
       _isLoading = false;
@@ -82,6 +124,11 @@ class AuthProvider with ChangeNotifier {
   Future<void> logout(BuildContext context) async {
     await _storageService.clear();
     if (!context.mounted) return;
+    CustomSnackbar.show(
+      context,
+      message: "Logout successfull",
+      type: SnackbarType.success,
+    );
     context.goNamed(RouteConstants.loginScreen);
     notifyListeners();
   }

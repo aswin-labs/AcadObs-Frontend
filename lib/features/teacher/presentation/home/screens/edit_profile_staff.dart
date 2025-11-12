@@ -67,23 +67,31 @@ class _EditProfileStaffState extends State<EditProfileStaff> {
         title: "My Profile",
         isBackButton: true,
         actions: [
-          GestureDetector(
-            onTap: () {
-              context.read<ProfileProvider>().enableEditProfile();
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Row(
-                children: [
-                  Icon(Icons.edit, size: 18),
-                  SizedBox(width: 5),
-                  Text(
-                    "Edit",
-                    style: TextStyle(color: Colors.black, fontSize: 18),
+          Consumer<ProfileProvider>(
+            builder: (context, provider, _) {
+              if (provider.editProfileEnabled) {
+                return SizedBox.shrink();
+              }
+
+              return GestureDetector(
+                onTap: () {
+                  context.read<ProfileProvider>().enableEditProfile();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 18),
+                      SizedBox(width: 5),
+                      Text(
+                        "Edit",
+                        style: TextStyle(color: Colors.black, fontSize: 18),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -142,7 +150,7 @@ class _EditProfileStaffState extends State<EditProfileStaff> {
                                 controller: emailController,
                                 label: "Email",
                                 hintText: 'Enter email address',
-                                enabled: enabled,
+                                enabled: false,
                               ),
                               const SizedBox(height: 16),
 

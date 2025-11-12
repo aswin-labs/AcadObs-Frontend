@@ -144,6 +144,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           // --- Login Button ---
                           Consumer<AuthProvider>(
                             builder: (context, provider, _) {
+                              if (provider.loginError != null) {
+                                WidgetsBinding.instance.addPostFrameCallback((
+                                  _,
+                                ) {
+                                  CustomSnackbar.show(
+                                    context,
+                                    message: "Invalid Credentials",
+                                    type: SnackbarType.failure,
+                                  );
+                                });
+                              }
+
                               return CommonButton(
                                 onPressed: () {
                                   if (passwordController.text.isEmpty ||
