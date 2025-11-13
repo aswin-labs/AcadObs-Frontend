@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:acadobs/features/parents/data/models/notice_model.dart';
+import 'package:acadobs/features/notices/data/models/notice_model.dart';
 import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/students/data/services/student_services.dart';
 import 'package:flutter/material.dart';
@@ -193,8 +193,8 @@ class StudentProvider extends ChangeNotifier {
 
   bool get hasMore => _currentPage < _totalPages;
 
-  final List<Notices> _notices = [];
-  List<Notices> get notices => _notices;
+  final List<NoticeModel> _notices = [];
+  List<NoticeModel> get notices => _notices;
 
   Future<void> fetchNoticeByStudentId({
     bool loadMore = false,
@@ -222,8 +222,10 @@ class StudentProvider extends ChangeNotifier {
 
         final List noticeJson = data['notices'];
 
-        final List<Notices> fetchedNotices =
-            noticeJson.map((jsonItem) => Notices.fromJson(jsonItem)).toList();
+        final List<NoticeModel> fetchedNotices =
+            noticeJson
+                .map((jsonItem) => NoticeModel.fromJson(jsonItem))
+                .toList();
         _notices.addAll(fetchedNotices);
       } else {
         throw Exception('Failed to fetch Notices: ${response.statusCode}');

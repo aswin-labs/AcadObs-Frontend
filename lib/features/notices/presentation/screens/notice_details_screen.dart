@@ -1,13 +1,13 @@
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
-import 'package:acadobs/features/parents/data/models/notice_model.dart';
+import 'package:acadobs/features/notices/data/models/notice_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/download_file_card.dart';
 import 'package:flutter/material.dart';
 
 class NoticeDetailsScreen extends StatelessWidget {
-  final Notices notices;
+  final NoticeModel notices;
   const NoticeDetailsScreen({super.key, required this.notices});
 
   @override

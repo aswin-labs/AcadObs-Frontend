@@ -1,10 +1,8 @@
 import 'dart:convert';
 
-Events eventsFromJson(String str) => Events.fromJson(json.decode(str));
+EventModel eventsFromJson(String str) => EventModel.fromJson(json.decode(str));
 
-String eventsToJson(Events data) => json.encode(data.toJson());
-
-class Events {
+class EventModel {
   DateTime? createdAt;
   DateTime? updatedAt;
   bool? trash;
@@ -15,7 +13,7 @@ class Events {
   DateTime? date;
   String? file;
 
-  Events({
+  EventModel({
     this.createdAt,
     this.updatedAt,
     this.trash,
@@ -27,7 +25,7 @@ class Events {
     this.file,
   });
 
-  factory Events.fromJson(Map<String, dynamic> json) => Events(
+  factory EventModel.fromJson(Map<String, dynamic> json) => EventModel(
     createdAt:
         json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
     updatedAt:
@@ -40,17 +38,4 @@ class Events {
     date: json["date"] == null ? null : DateTime.parse(json["date"]),
     file: json["file"],
   );
-
-  Map<String, dynamic> toJson() => {
-    "createdAt": createdAt?.toIso8601String(),
-    "updatedAt": updatedAt?.toIso8601String(),
-    "trash": trash,
-    "id": id,
-    "school_id": schoolId,
-    "title": title,
-    "description": description,
-    "date":
-        "${date!.year.toString().padLeft(4, '0')}-${date!.month.toString().padLeft(2, '0')}-${date!.day.toString().padLeft(2, '0')}",
-    "file": file,
-  };
 }

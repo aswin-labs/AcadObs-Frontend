@@ -49,7 +49,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
   Future<void> refreshAllData() async {
     await Future.wait([
       parentProvider.fetchStudentsUnderParentBySchoolId(),
-      context.read<EventProvider>().fetchHomeLatestEvents(
+      context.read<EventProvider>().fetchLatestEvents(
         limit: 3,
         forStaff: false,
       ),
@@ -348,7 +348,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                                   return commonShimmerList();
                                 }
 
-                                final events = provider.latestEvent;
+                                final events = provider.eventsLatest;
                                 if (events.isEmpty) {
                                   return emptyScreen(
                                     message: "No Events Available",

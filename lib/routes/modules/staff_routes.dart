@@ -7,7 +7,7 @@ import 'package:acadobs/features/achievements/presentaion/screens/school_achieve
 import 'package:acadobs/features/chats/presentation/screens/add_teacher_note_screen.dart';
 import 'package:acadobs/features/events/data/models/event_model.dart';
 import 'package:acadobs/features/events/presentation/screens/event_detail_screen.dart';
-import 'package:acadobs/features/events/presentation/screens/event_list_screen.dart';
+import 'package:acadobs/features/events/presentation/screens/event_listing_screen.dart';
 import 'package:acadobs/features/homework/data/models/homework_model.dart';
 import 'package:acadobs/features/homework/presentation/screens/edit_home_work_screen.dart';
 import 'package:acadobs/features/homework/presentation/screens/homework_details_screen.dart';
@@ -21,9 +21,9 @@ import 'package:acadobs/features/marks/presentation/screens/marks_detail_screen.
 import 'package:acadobs/features/news/data/models/news_model.dart';
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_screen_details.dart';
+import 'package:acadobs/features/notices/data/models/notice_model.dart';
 import 'package:acadobs/features/notices/presentation/screens/notice_details_screen.dart';
-import 'package:acadobs/features/notices/presentation/screens/notice_screen.dart';
-import 'package:acadobs/features/parents/data/models/notice_model.dart';
+import 'package:acadobs/features/notices/presentation/screens/notice_listing_screen.dart';
 import 'package:acadobs/features/parents/data/models/payment_model.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_detail_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_detail_screen.dart';
@@ -157,7 +157,7 @@ List<GoRoute> staffRoutes = [
     path: '/noticedetails',
     name: RouteConstants.noticedetails,
     builder: (context, state) {
-      final Notices noticedetail = state.extra as Notices;
+      final NoticeModel noticedetail = state.extra as NoticeModel;
       return NoticeDetailsScreen(notices: noticedetail);
     },
   ),
@@ -168,7 +168,7 @@ List<GoRoute> staffRoutes = [
     name: RouteConstants.noticeListscreen,
     builder: (context, state) {
       // final Notices noticedetail = state.extra as Notices;
-      return NoticeScreen();
+      return NoticeListingScreen();
     },
   ),
 
@@ -177,7 +177,7 @@ List<GoRoute> staffRoutes = [
     path: '/eventdetails',
     name: RouteConstants.eventlistdetails,
     builder: (context, state) {
-      final Events eventdetail = state.extra as Events;
+      final EventModel eventdetail = state.extra as EventModel;
       return EventDetailScreen(events: eventdetail);
     },
   ),
@@ -187,7 +187,7 @@ List<GoRoute> staffRoutes = [
     name: RouteConstants.eventListscreen,
     builder: (context, state) {
       final forStaff = state.extra as bool;
-      return EventListScreen(forStaff: forStaff);
+      return EventListingScreen(forStaff: forStaff);
     },
   ),
 
@@ -351,9 +351,7 @@ List<GoRoute> staffRoutes = [
     name: RouteConstants.schoolAchievements,
     builder: (context, state) {
       final forStaff = state.extra as bool;
-      return SchoolAchievementListing(
-        forStaff: forStaff,
-      );
+      return SchoolAchievementListing(forStaff: forStaff);
     },
   ),
 ];
