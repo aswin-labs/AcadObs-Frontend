@@ -1,11 +1,10 @@
-import 'dart:ui';
-
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
 import 'package:acadobs/core/utils/common_shimmer_tile.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
+import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
@@ -14,21 +13,28 @@ import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
-import 'package:acadobs/features/students/presentation/widgets/time_table_card.dart';
+
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
+import 'package:acadobs/features/teacher/presentation/home/widgets/build_substitution_section.dart';
+import 'package:acadobs/features/teacher/presentation/home/widgets/build_time_table_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/check_in_widget.dart';
+import 'package:acadobs/features/teacher/presentation/home/widgets/fab_option_dialog.dart';
+
+import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_card.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
+import 'package:acadobs/shared/widgets/item_card.dart';
 
 import 'package:acadobs/shared/widgets/profile_icon.dart';
-import 'package:acadobs/shared/widgets/time_table_shimmer.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+
 import 'package:provider/provider.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
@@ -45,6 +51,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   late TimeTableProvider timeTableProvider;
   late StudentLeaveRequestProvider studentLeaveRequestProvider;
   late TeacherAttendanceProvider teacherAttendanceProvider;
+  late AchievementProvider achievementProvider;
 
   @override
   void initState() {
@@ -55,6 +62,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     timeTableProvider = context.read<TimeTableProvider>();
     studentLeaveRequestProvider = context.read<StudentLeaveRequestProvider>();
     teacherAttendanceProvider = context.read<TeacherAttendanceProvider>();
+    achievementProvider = context.read<AchievementProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       refreshAllData();
     });
@@ -68,6 +76,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       timeTableProvider.fetchTimeTable(forStaff: true),
       studentLeaveRequestProvider.getLeaveRequestNotification(),
       teacherAttendanceProvider.getTodayAttendanceStatus(),
+      achievementProvider.fetchSchoolAchievements(forStaff: true),
     ]);
   }
 
@@ -91,7 +100,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                   elevation: 0,
                   automaticallyImplyLeading: false,
                   backgroundColor: Colors.white,
-                
+
                   flexibleSpace: FlexibleSpaceBar(
                     background: Container(
                       decoration: BoxDecoration(
@@ -182,9 +191,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         const SizedBox(height: 24),
 
                         // Today's Schedule Section
-                        _buildTimeTableSection(context),
+                        buildTimeTableSection(context),
                         const SizedBox(height: 12),
-                        _buildSubstitutionSection(context),
+                        buildSubstitutionSection(context),
 
                         _buildSectionHeader("Updates", null),
                         //notice listing in the teacher home screen
@@ -373,6 +382,70 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                             );
                           },
                         ),
+
+                        const SizedBox(height: 20),
+
+                        Row(
+                          children: [
+                            Text(
+                              "Awards and Accomplishments",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Spacer(),
+                            TextButton(
+                              onPressed: () {
+                                context.pushNamed(
+                                  RouteConstants.schoolAchievements,
+                                  extra: true,
+                                );
+                              },
+                              child: Text(
+                                "View",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+
+                        Consumer<AchievementProvider>(
+                          builder: (context, provider, _) {
+                            final achievements = provider.schoolAchievements;
+
+                            if (provider.isLoading) {
+                              return Center(child: CommonShimmerTile());
+                            } else if (achievements.isEmpty) {
+                              return emptyScreen(
+                                message: "No Achievements Avaliable",
+                                heightMultiplier: 5,
+                              );
+                            }
+                            return ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              padding: EdgeInsets.zero,
+                              itemCount: achievements.length,
+                              itemBuilder: (context, index) {
+                                final achievement = achievements[index];
+                                return ItemCard(
+                                  title: achievement.title ?? "",
+                                  description: achievement.description ?? "",
+                                  onTap: () {
+                                    context.pushNamed(
+                                      RouteConstants.achievementDetailsScreen,
+                                      extra: DetailScreenArgs(
+                                        id: achievement.id ?? 0,
+                                        forStaff: true,
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -407,7 +480,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         Row(
           children: [
             Expanded(
-              child: _QuickActionCard(
+              child: QuickActionCard(
                 icon: Icons.assignment_outlined,
                 label: 'Homework',
                 gradient: const LinearGradient(
@@ -417,7 +490,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
               ),
             ),
             Expanded(
-              child: _QuickActionCard(
+              child: QuickActionCard(
                 icon: Icons.check_circle_outline,
                 label: 'Attendance',
                 gradient: const LinearGradient(
@@ -431,7 +504,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         SizedBox(height: 10),
         Consumer<StudentLeaveRequestProvider>(
           builder: (context, provider, _) {
-            return _QuickActionCard(
+            return QuickActionCard(
               icon: Icons.description_outlined,
               label: 'Student Leave Requests',
               gradient: const LinearGradient(
@@ -473,365 +546,4 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       ],
     );
   }
-}
-
-// Quick Action Card Widget
-class _QuickActionCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Gradient gradient;
-  final VoidCallback onTap;
-  final int? notificationCount;
-  final bool isFullWidth;
-
-  const _QuickActionCard({
-    required this.icon,
-    required this.label,
-    required this.gradient,
-    required this.onTap,
-    this.notificationCount,
-    this.isFullWidth = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: onTap,
-            child: Container(
-              height: 85,
-              width: isFullWidth ? double.infinity : null,
-              margin: const EdgeInsets.all(2),
-
-              decoration: BoxDecoration(
-                gradient: gradient,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: gradient.colors.first.withAlpha(68),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              // padding: EdgeInsets.all(10),
-              child: Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        height: 30,
-                        width: 30,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(34),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(icon, color: Colors.white, size: 22),
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        label,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        if (notificationCount != null && notificationCount! > 0)
-          Positioned(
-            top: -3,
-            right: 4,
-            child: Container(
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-              child: Text(
-                '${notificationCount!}',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-// FAB Dialog
-class FabOptionsDialog extends StatelessWidget {
-  const FabOptionsDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        GestureDetector(
-          onTap: () => Navigator.of(context).pop(),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-            child: Container(color: Colors.black.withAlpha(68)),
-          ),
-        ),
-        Positioned(
-          bottom: 100,
-          right: 24,
-          left: 24,
-          child: Material(
-            color: Colors.transparent,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withAlpha(34),
-                    blurRadius: 20,
-                    offset: Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _OptionTile(
-                    icon: Icons.note_alt_outlined,
-                    label: 'Leave Requests',
-                    iconColor: Color(0xFF26A69A),
-                    onTap: () {
-                      context.pushNamed(RouteConstants.staffLeaveRequestHome);
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Divider(height: 1, color: Colors.grey.shade200),
-                  _OptionTile(
-                    icon: Icons.menu_book_outlined,
-                    label: 'Students',
-                    iconColor: Color(0xFF1E88E5),
-                    onTap: () {
-                      context.pushNamed(RouteConstants.studentListing);
-                      Navigator.pop(context);
-                    },
-                  ),
-                  Divider(height: 1, color: Colors.grey.shade200),
-                  _OptionTile(
-                    icon: LucideIcons.badgeCheck,
-                    label: 'Achievements',
-                    iconColor: Color(0xFFFF6B6B),
-                    onTap: () {
-                      context.pushNamed(RouteConstants.achievementList);
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _OptionTile extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color iconColor;
-  final VoidCallback onTap;
-
-  const _OptionTile({
-    required this.icon,
-    required this.label,
-    required this.iconColor,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: iconColor.withAlpha(23),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(icon, color: iconColor, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: Colors.black87,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-Widget _buildSubstitutionSection(BuildContext context) {
-  return Consumer<TimeTableProvider>(
-    builder: (context, provider, _) {
-      if (provider.isLoading) {
-        return const TimeTableShimmer();
-      }
-
-      if (provider.substitution.isEmpty) {
-        return const SizedBox.shrink();
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.swap_horiz, color: Color(0xFFFF9800), size: 20),
-              const SizedBox(width: 8),
-              Text(
-                "Substitution Classes",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(12),
-                  blurRadius: 10,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            padding: const EdgeInsets.all(16),
-            child: GridView.builder(
-              itemCount: provider.substitution.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 0.7,
-              ),
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                final item = provider.substitution[index];
-                return TimeTableCard(
-                  forStaff: true,
-                  periodnumber: item.timeTable?.periodNumber ?? 0,
-                  subject: item.subject?.subjectName ?? "",
-                  description: item.timeTable?.classGrade?.classname ?? "",
-                );
-              },
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-Widget _buildTimeTableSection(BuildContext context) {
-  return Consumer<TimeTableProvider>(
-    builder: (context, provider, _) {
-      if (provider.isLoading) {
-        return const TimeTableShimmer();
-      }
-
-      if (provider.timetableForStaff.isEmpty) {
-        return const SizedBox.shrink();
-      }
-
-      final screenWidth = MediaQuery.of(context).size.width;
-
-      double maxCrossAxisExtent;
-      if (screenWidth >= 1200) {
-        maxCrossAxisExtent = 250;
-      } else if (screenWidth >= 800) {
-        maxCrossAxisExtent = 200; // tablet
-      } else {
-        maxCrossAxisExtent = 150; // phone
-      }
-
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: const [
-              Icon(Icons.schedule, color: Color(0xFF2196F3), size: 20),
-              SizedBox(width: 8),
-              Text(
-                "Today's Schedule",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
-
-          GridView.builder(
-            itemCount: provider.timetableForStaff.length,
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: maxCrossAxisExtent,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.8,
-            ),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) {
-              final item = provider.timetableForStaff[index];
-              return TimeTableCard(
-                forStaff: true,
-                periodnumber: item.periodNumber ?? 0,
-                subject: item.subject?.subjectName ?? "N/A",
-                description: item.classGrade?.classname ?? "N/A",
-              );
-            },
-          ),
-        ],
-      );
-    },
-  );
 }
