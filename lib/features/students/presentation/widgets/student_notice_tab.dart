@@ -2,7 +2,8 @@
 
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
-import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
+import 'package:acadobs/core/utils/helpers/date_formatter.dart';
+
 import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';

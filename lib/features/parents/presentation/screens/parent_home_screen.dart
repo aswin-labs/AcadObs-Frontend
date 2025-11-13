@@ -53,7 +53,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
         limit: 3,
         forStaff: false,
       ),
-      context.read<NewsProvider>().fetchHomeLatestNews(
+      context.read<NewsProvider>().fetchLatestNews(
         limit: 3,
         forStaff: false,
       ),
@@ -413,7 +413,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                                   return commonShimmerList();
                                 }
 
-                                final news = provider.latestNews;
+                                final news = provider.newsLatest;
                                 if (news.isEmpty) {
                                   return emptyScreen(
                                     message: "No News Available",

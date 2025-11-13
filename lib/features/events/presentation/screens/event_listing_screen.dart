@@ -48,7 +48,7 @@ class _EventListingScreenState extends State<EventListingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'Events', isBackButton: true),
+      appBar: CommonAppBar(title: 'Events', isBackButton: widget.forStaff),
       body: RefreshIndicator(
         onRefresh: () => _provider.fetchEvents(forStaff: widget.forStaff),
         child: Consumer<EventProvider>(

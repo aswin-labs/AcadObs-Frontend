@@ -4,7 +4,7 @@ import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 
 class NewsService {
-  Future<Response> fetchLatestNews({
+  Future<Response> fetchNews({
     required bool forStaff,
     required int pageNo,
     required int limit,

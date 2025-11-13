@@ -54,7 +54,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       return [
         ParentHomeScreen(),
         EventListingScreen(forStaff: false),
-        NewsDetailsScreen(forStaff: false),
+        NewsListingScreen(forStaff: false),
         ChatsHomeScreen(forParent: true),
         TeachersListingScreen(),
       ];
