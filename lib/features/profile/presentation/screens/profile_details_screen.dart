@@ -2,6 +2,7 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/features/profile/data/models/guardian_model.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
+import 'package:acadobs/features/profile/presentation/widgets/editing_enable_mode.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
@@ -91,23 +92,31 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
         title: "My Profile",
         isBackButton: true,
         actions: [
-          GestureDetector(
-            onTap: () {
-              context.read<ProfileProvider>().enableEditProfile();
-            },
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Row(
-                children: [
-                  Icon(Icons.edit, size: 18),
-                  SizedBox(width: 5),
-                  Text(
-                    "Edit",
-                    style: TextStyle(color: Colors.black, fontSize: 18),
+          Consumer<ProfileProvider>(
+            builder: (context, provider, _) {
+              if (provider.editProfileEnabled) {
+                return SizedBox.shrink();
+              }
+
+              return GestureDetector(
+                onTap: () {
+                  context.read<ProfileProvider>().enableEditProfile();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: Row(
+                    children: [
+                      Icon(Icons.edit, size: 18),
+                      SizedBox(width: 5),
+                      Text(
+                        "Edit",
+                        style: TextStyle(color: Colors.black, fontSize: 18),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -130,28 +139,7 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                             children: [
                               const SizedBox(height: 20),
                               if (provider.editProfileEnabled)
-                                Container(
-                                  width: double.infinity,
-                                  margin: const EdgeInsets.only(bottom: 12),
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.yellow[100],
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: Colors.amber),
-                                  ),
-                                  child: Row(
-                                    children: const [
-                                      Icon(Icons.edit, color: Colors.amber),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        'Editing Mode Enabled',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                EditingEnableMode(),
 
                               _buildSectionTitle("Primary Guardian"),
 

@@ -106,6 +106,10 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
                 final achievement = provider.schoolAchievementsAll[index - 1];
 
                 return ItemCard(
+                  icon: Icons.workspace_premium,
+                  backgroundColor: Colors.blue.shade50,
+                  iconColor: Colors.blue.shade500,
+
                   title: achievement.title ?? "Untitled",
                   description: achievement.description ?? "No description",
                   onTap: () {
