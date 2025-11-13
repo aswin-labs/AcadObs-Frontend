@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class EventDetailScreen extends StatelessWidget {
-  final Events events;
+  final EventModel events;
   const EventDetailScreen({super.key, required this.events});
 
   @override

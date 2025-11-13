@@ -3,7 +3,7 @@ import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/admin/presentation/home/admin_home_screen.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/chats/presentation/screens/chats_home_screen.dart';
-import 'package:acadobs/features/events/presentation/screens/event_list_screen.dart';
+import 'package:acadobs/features/events/presentation/screens/event_listing_screen.dart';
 import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/parent_home_screen.dart';
@@ -53,7 +53,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     } else if (userType == UserType.parent) {
       return [
         ParentHomeScreen(),
-        EventListScreen(forStaff: false),
+        EventListingScreen(forStaff: false),
         NewsDetailsScreen(forStaff: false),
         ChatsHomeScreen(forParent: true),
         TeachersListingScreen(),

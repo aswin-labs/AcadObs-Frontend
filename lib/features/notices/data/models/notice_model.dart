@@ -1,13 +1,13 @@
 import 'dart:convert';
 
-Notices noticesFromJson(String str) => Notices.fromJson(json.decode(str));
+NoticeModel noticesFromJson(String str) =>
+    NoticeModel.fromJson(json.decode(str));
 
-class Notices {
+class NoticeModel {
   int id;
   int? schoolId;
   String? title;
   String? content;
-  // dynamic file;
   String? file;
   String? type;
   String date;
@@ -16,7 +16,7 @@ class Notices {
   DateTime? updatedAt;
   List<dynamic>? noticeClasses;
 
-  Notices({
+  NoticeModel({
     required this.id,
     this.schoolId,
     this.title,
@@ -30,12 +30,12 @@ class Notices {
     this.noticeClasses,
   });
 
-  factory Notices.fromJson(Map<String, dynamic> json) => Notices(
+  factory NoticeModel.fromJson(Map<String, dynamic> json) => NoticeModel(
     id: json["id"],
     schoolId: json["school_id"],
     title: json["title"],
     content: json["content"],
-    file: json["file"] as String?, //changes
+    file: json["file"] as String?,
     type: json["type"],
     date: json["date"],
     trash: json["trash"],

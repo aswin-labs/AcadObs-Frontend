@@ -5,36 +5,30 @@ import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
-
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
-import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
-import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
-
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/build_substitution_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/build_time_table_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/check_in_widget.dart';
+import 'package:acadobs/features/teacher/presentation/home/widgets/event_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/fab_option_dialog.dart';
-
+import 'package:acadobs/features/teacher/presentation/home/widgets/notice_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_card.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
-
 import 'package:acadobs/shared/widgets/profile_icon.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-
 import 'package:provider/provider.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
@@ -70,8 +64,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
   Future<void> refreshAllData() async {
     await Future.wait([
-      eventProvider.fetchHomeLatestEvents(limit: 3, forStaff: true),
-      noticeProvider.fetchHomeLatestNotices(limit: 3),
+      eventProvider.fetchLatestEvents(forStaff: true),
+      noticeProvider.fetchLatestNotices(),
       newsProvider.fetchHomeLatestNews(limit: 3, forStaff: true),
       timeTableProvider.fetchTimeTable(forStaff: true),
       studentLeaveRequestProvider.getLeaveRequestNotification(),
@@ -196,128 +190,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         buildSubstitutionSection(context),
 
                         _buildSectionHeader("Updates", null),
-                        //notice listing in the teacher home screen
-                        Row(
-                          children: [
-                            Text(
-                              "Notices",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Spacer(),
-                            TextButton(
-                              onPressed: () {
-                                context.pushNamed(
-                                  RouteConstants.noticeListscreen,
-                                );
-                              },
-                              child: Text(
-                                "View",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          ],
-                        ),
-                        Consumer<NoticeProvider>(
-                          builder: (context, provider, _) {
-                            final notices = provider.latestNotices;
-                            if (provider.isLoading && notices.isEmpty) {
-                              return const Center(child: CommonShimmerTile());
-                            }
-                            if (notices.isEmpty) {
-                              return emptyScreen(
-                                message: "No Notices Avaliable",
-                                heightMultiplier: 5,
-                              );
-                            }
-                            return Column(
-                              children:
-                                  notices.map((notice) {
-                                    final date =
-                                        "${notice.createdAt.day.toString().padLeft(2, '0')}-${notice.createdAt.month.toString().padLeft(2, '0')}-${notice.createdAt.year}";
-                                    return NoticeCard(
-                                      title: capitalizeEachWord(
-                                        notice.title ?? "N/A",
-                                      ),
-                                      date: date,
-                                      icon: Icons.notifications,
-                                      time: TimeFormatter.formatTime(
-                                        notice.createdAt,
-                                      ),
-                                      onTap: () {
-                                        context.pushNamed(
-                                          RouteConstants.noticedetails,
-                                          extra: notice,
-                                        );
-                                      },
-                                    );
-                                  }).toList(),
-                            );
-                          },
-                        ),
-                        SizedBox(height: 20),
-                        Row(
-                          children: [
-                            Text(
-                              "Events",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Spacer(),
-                            TextButton(
-                              onPressed: () {
-                                context.pushNamed(
-                                  RouteConstants.eventListscreen,
-                                  extra: true,
-                                );
-                              },
-                              child: Text(
-                                "View",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        //listing latest events
-                        Consumer<EventProvider>(
-                          builder: (context, provider, _) {
-                            final events = provider.latestEvent;
-                            if (provider.isLoading) {
-                              return Center(child: CommonShimmerTile());
-                            } else if (events.isEmpty) {
-                              return emptyScreen(
-                                message: "No Events Avaliable",
-                                heightMultiplier: 5,
-                              );
-                            }
-
-                            return Column(
-                              children:
-                                  events.map((events) {
-                                    return EventCard(
-                                      event: events,
-
-                                      onViewTap: () {
-                                        context.pushNamed(
-                                          RouteConstants.eventlistdetails,
-                                          extra: events,
-                                        );
-                                      },
-                                      time: TimeFormatter.formatTime(
-                                        events.createdAt ?? DateTime.now(),
-                                      ),
-                                    );
-                                  }).toList(),
-                            );
-                          },
-                        ),
-
-                        const SizedBox(height: 20),
+                        // Latest Notices
+                        NoticeSection(),
+                        // Latest Events
+                        EventSection(),
 
                         Row(
                           children: [
