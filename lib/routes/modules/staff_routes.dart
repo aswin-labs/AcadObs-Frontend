@@ -207,7 +207,7 @@ List<GoRoute> staffRoutes = [
     name: RouteConstants.newsDetailsScreen,
     builder: (context, state) {
       final forStaff = state.extra as bool;
-      return NewsDetailsScreen(forStaff: forStaff);
+      return NewsListingScreen(forStaff: forStaff);
     },
   ),
 

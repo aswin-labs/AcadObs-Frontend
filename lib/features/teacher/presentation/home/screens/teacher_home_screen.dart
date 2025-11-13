@@ -1,29 +1,28 @@
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
-import 'package:acadobs/core/utils/common_shimmer_tile.dart';
-import 'package:acadobs/core/utils/empty_screen.dart';
-import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
-import 'package:acadobs/core/utils/helpers/time_formatter.dart';
+
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
-import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
+
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
+import 'package:acadobs/features/teacher/presentation/home/widgets/award_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/build_substitution_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/build_time_table_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/check_in_widget.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/event_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/fab_option_dialog.dart';
+import 'package:acadobs/features/teacher/presentation/home/widgets/news_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/notice_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_card.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
-import 'package:acadobs/shared/models/detail_screen_args.dart';
+
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
-import 'package:acadobs/shared/widgets/item_card.dart';
+
 import 'package:acadobs/shared/widgets/profile_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -66,7 +65,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     await Future.wait([
       eventProvider.fetchLatestEvents(forStaff: true),
       noticeProvider.fetchLatestNotices(),
-      newsProvider.fetchHomeLatestNews(limit: 3, forStaff: true),
+      newsProvider.fetchLatestNews(limit: 3, forStaff: true),
       timeTableProvider.fetchTimeTable(forStaff: true),
       studentLeaveRequestProvider.getLeaveRequestNotification(),
       teacherAttendanceProvider.getTodayAttendanceStatus(),
@@ -194,134 +193,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         NoticeSection(),
                         // Latest Events
                         EventSection(),
-
-                        Row(
-                          children: [
-                            Text(
-                              "News",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Spacer(),
-                            TextButton(
-                              onPressed: () {
-                                context.pushNamed(
-                                  RouteConstants.newsDetailsScreen,
-                                  extra: true,
-                                );
-                              },
-                              child: Text(
-                                "View",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        //listing news
-                        Consumer<NewsProvider>(
-                          builder: (context, provider, _) {
-                            final news = provider.latestNews;
-                            if (provider.isLoading) {
-                              return Center(child: CommonShimmerTile());
-                            } else if (news.isEmpty) {
-                              return emptyScreen(
-                                message: "No News Avaliable",
-                                heightMultiplier: 5,
-                              );
-                            }
-
-                            return Column(
-                              children:
-                                  news.map((news) {
-                                    final formattedDate = DateFormat(
-                                      'dd-MM-yy',
-                                    ).format(news.date);
-                                    return NewsCard(
-                                      news: news,
-                                      button: () {
-                                        context.pushNamed(
-                                          RouteConstants.newsScreen,
-                                          extra: news,
-                                        );
-                                      },
-                                      date: formattedDate,
-                                      time: TimeFormatter.formatTime(
-                                        news.createdAt,
-                                      ),
-                                      title: capitalizeEachWord(news.title),
-                                      content: news.content,
-                                    );
-                                  }).toList(),
-                            );
-                          },
-                        ),
-
+                        //Latest News
+                        NewsSection(),
                         const SizedBox(height: 20),
-
-                        Row(
-                          children: [
-                            Text(
-                              "Awards and Accomplishments",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Spacer(),
-                            TextButton(
-                              onPressed: () {
-                                context.pushNamed(
-                                  RouteConstants.schoolAchievements,
-                                  extra: true,
-                                );
-                              },
-                              child: Text(
-                                "View",
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        Consumer<AchievementProvider>(
-                          builder: (context, provider, _) {
-                            final achievements = provider.schoolAchievements;
-
-                            if (provider.isLoading) {
-                              return Center(child: CommonShimmerTile());
-                            } else if (achievements.isEmpty) {
-                              return emptyScreen(
-                                message: "No Achievements Avaliable",
-                                heightMultiplier: 5,
-                              );
-                            }
-                            return ListView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              padding: EdgeInsets.zero,
-                              itemCount: achievements.length,
-                              itemBuilder: (context, index) {
-                                final achievement = achievements[index];
-                                return ItemCard(
-                                  title: achievement.title ?? "",
-                                  description: achievement.description ?? "",
-                                  onTap: () {
-                                    context.pushNamed(
-                                      RouteConstants.achievementDetailsScreen,
-                                      extra: DetailScreenArgs(
-                                        id: achievement.id ?? 0,
-                                        forStaff: true,
-                                      ),
-                                    );
-                                  },
-                                );
-                              },
-                            );
-                          },
-                        ),
+                        //awards and Accomplishments
+                        AwardSection(),
                       ],
                     ),
                   ),
