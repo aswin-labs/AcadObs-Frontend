@@ -40,7 +40,7 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 200 &&
-          !_provider.isLoadingTeacher &&
+          !_provider.isLoadingStudent &&
           _provider.hasMoreTeacher) {
         _provider.fetchAchievementsByStudentId(
           studentId: widget.studentId,
@@ -61,18 +61,18 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: () => _provider.fetchAchievementsAddedByTeacher(),
+        onRefresh: () => _provider.fetchAchievementsByStudentId(studentId: widget.studentId, forStaff: widget.forStaff),
         child: Consumer<AchievementProvider>(
           builder: (context, provider, _) {
-            if (provider.isLoadingTeacher &&
-                provider.teacherAchievements.isEmpty) {
+            if (provider.isLoadingStudent &&
+                provider.studentAchievements.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: commonShimmerList(),
               );
             }
 
-            if (provider.teacherAchievements.isEmpty) {
+            if (provider.studentAchievements.isEmpty) {
               return emptyScreen(message: 'No Achievements Found.');
             }
 
@@ -83,30 +83,31 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
                 parent: BouncingScrollPhysics(),
               ),
               itemCount:
-                  provider.teacherAchievements.length +
+                  provider.studentAchievements.length +
                   (provider.hasMoreTeacher ? 2 : 1),
               itemBuilder: (context, index) {
                 if (index == 0) {
                   return SizedBox(height: Responsive.height * 3);
                 }
 
-                if (index == provider.teacherAchievements.length + 1) {
+                if (index == provider.studentAchievements.length + 1) {
                   return const Padding(
                     padding: EdgeInsets.all(16),
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
 
-                final achievement = provider.teacherAchievements[index - 1];
+                final achievement = provider.studentAchievements[index - 1];
 
                 return ItemCard(
-                  title: achievement.title ?? "Untitled",
-                  description: achievement.description ?? "No description",
+                  title: achievement.achievement?.title ?? "Untitled",
+                  description:
+                      achievement.achievement?.description ?? "No description",
                   onTap: () {
                     context.pushNamed(
                       RouteConstants.achievementDetailsScreen,
                       extra: DetailScreenArgs(
-                        id: achievement.id ?? 0,
+                        id: achievement.achievement?.id ?? 0,
                         forStaff: widget.forStaff,
                       ),
                     );

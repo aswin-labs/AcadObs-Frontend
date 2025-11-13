@@ -4,6 +4,7 @@ import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/achievements/data/services/achievement_service.dart';
 import 'package:acadobs/features/achievements/models/achievement_model.dart';
+import 'package:acadobs/features/achievements/models/student_achievement_model.dart';
 import 'package:flutter/material.dart';
 
 class AchievementProvider extends ChangeNotifier {
@@ -84,8 +85,8 @@ class AchievementProvider extends ChangeNotifier {
   // ===========================================================================
   // STUDENT ACHIEVEMENTS
   // ===========================================================================
-  final List<AchievementModel> _studentAchievements = [];
-  List<AchievementModel> get studentAchievements =>
+  final List<StudentAchievementModel> _studentAchievements = [];
+  List<StudentAchievementModel> get studentAchievements =>
       List.unmodifiable(_studentAchievements);
 
   int _studentPage = 1;
@@ -123,7 +124,7 @@ class AchievementProvider extends ChangeNotifier {
 
         final fetched =
             (data['achievement'] as List)
-                .map((e) => AchievementModel.fromJson(e))
+                .map((e) => StudentAchievementModel.fromJson(e))
                 .toList();
 
         _studentAchievements.addAll(fetched);
