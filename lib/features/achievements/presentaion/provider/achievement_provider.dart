@@ -61,9 +61,10 @@ class AchievementProvider extends ChangeNotifier {
         _teacherTotalPages = data['totalPages'] ?? 1;
         _teacherPage = data['currentPage'] ?? 1;
 
-        final fetched = (data['achievements'] as List)
-            .map((e) => AchievementModel.fromJson(e))
-            .toList();
+        final fetched =
+            (data['achievements'] as List)
+                .map((e) => AchievementModel.fromJson(e))
+                .toList();
 
         _teacherAchievements.addAll(fetched);
 
@@ -109,17 +110,21 @@ class AchievementProvider extends ChangeNotifier {
         _studentAchievements.clear();
       }
 
-      final response = await AchievementService()
-          .fetchAchievementsByStudentId(studentId: studentId, pageNo: _studentPage, forStaff: forStaff);
+      final response = await AchievementService().fetchAchievementsByStudentId(
+        studentId: studentId,
+        pageNo: _studentPage,
+        forStaff: forStaff,
+      );
 
       if (response.statusCode == 200) {
         final data = response.data;
         _studentTotalPages = data['totalPages'] ?? 1;
         _studentPage = data['currentPage'] ?? 1;
 
-        final fetched = (data['achievement'] as List)
-            .map((e) => AchievementModel.fromJson(e))
-            .toList();
+        final fetched =
+            (data['achievement'] as List)
+                .map((e) => AchievementModel.fromJson(e))
+                .toList();
 
         _studentAchievements.addAll(fetched);
 
@@ -143,52 +148,86 @@ class AchievementProvider extends ChangeNotifier {
   List<AchievementModel> get schoolAchievements =>
       List.unmodifiable(_schoolAchievements);
 
-  int _schoolPage = 1;
-  int _schoolTotalPages = 1;
+  final List<AchievementModel> _schoolAchievementsAll = [];
+  List<AchievementModel> get schoolAchievementsAll =>
+      List.unmodifiable(_schoolAchievementsAll);
+
+  // Separate pagination states for preview and full list
+  int _schoolPagePreview = 1;
+  int _schoolTotalPagesPreview = 1;
+
+  int _schoolPageAll = 1;
+  int _schoolTotalPagesAll = 1;
+
   bool _isLoadingSchool = false;
   bool get isLoadingSchool => _isLoadingSchool;
-  bool get hasMoreSchool => _schoolPage < _schoolTotalPages;
+  bool get hasMoreSchool => _schoolPageAll < _schoolTotalPagesAll;
 
-  // Future<void> fetchSchoolAchievements({
-  //   bool loadMore = false,
-  //   bool forceRefresh = false,
-  // }) async {
-  //   if (_isLoadingSchool) return;
-  //   _isLoadingSchool = true;
-  //   notifyListeners();
+  Future<void> fetchSchoolAchievements({
+    required bool forStaff,
+    bool loadMore = false,
+    bool forceRefresh = false,
+    int limit = 3,
+  }) async {
+    if (_isLoadingSchool) return;
+    _isLoadingSchool = true;
+    notifyListeners();
 
-  //   try {
-  //     if (!loadMore || forceRefresh) {
-  //       _schoolPage = 1;
-  //       _schoolAchievements.clear();
-  //     }
+    try {
+      // Decide which list and pagination to use based on limit
+      final isPreview = limit == 3;
 
-  //     final response =
-  //         await AchievementService().fetchSchoolAchievements(pageNo: _schoolPage);
+      if (!loadMore || forceRefresh) {
+        if (isPreview) {
+          _schoolPagePreview = 1;
+          _schoolAchievements.clear();
+        } else {
+          _schoolPageAll = 1;
+          _schoolAchievementsAll.clear();
+        }
+      }
 
-  //     if (response.statusCode == 200) {
-  //       final data = response.data;
-  //       _schoolTotalPages = data['totalPages'] ?? 1;
-  //       _schoolPage = data['currentPage'] ?? 1;
+      final pageNo = isPreview ? _schoolPagePreview : _schoolPageAll;
 
-  //       final fetched = (data['achievements'] as List)
-  //           .map((e) => AchievementModel.fromJson(e))
-  //           .toList();
+      final response = await AchievementService().fetchSchoolAchievements(
+        pageNo: pageNo,
+        limit: limit,
+        forStaff: forStaff,
+      );
 
-  //       _schoolAchievements.addAll(fetched);
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final fetched =
+            (data['achievements'] as List)
+                .map((e) => AchievementModel.fromJson(e))
+                .toList();
 
-  //       if (_schoolPage < _schoolTotalPages) {
-  //         _schoolPage++;
-  //       }
-  //     }
-  //   } catch (e) {
-  //     _error = e.toString();
-  //     log("Error fetching school achievements: $_error");
-  //   } finally {
-  //     _isLoadingSchool = false;
-  //     notifyListeners();
-  //   }
-  // }
+        if (isPreview) {
+          _schoolTotalPagesPreview = data['totalPages'] ?? 1;
+          _schoolPagePreview = data['currentPage'] ?? 1;
+          _schoolAchievements.addAll(fetched);
+
+          if (_schoolPagePreview < _schoolTotalPagesPreview) {
+            _schoolPagePreview++;
+          }
+        } else {
+          _schoolTotalPagesAll = data['totalPages'] ?? 1;
+          _schoolPageAll = data['currentPage'] ?? 1;
+          _schoolAchievementsAll.addAll(fetched);
+
+          if (_schoolPageAll < _schoolTotalPagesAll) {
+            _schoolPageAll++;
+          }
+        }
+      }
+    } catch (e) {
+      _error = e.toString();
+      log("Error fetching school achievements: $_error");
+    } finally {
+      _isLoadingSchool = false;
+      notifyListeners();
+    }
+  }
 
   // ===========================================================================
   // SINGLE ACHIEVEMENT
@@ -300,7 +339,10 @@ class AchievementProvider extends ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
-        await fetchSingleAchievement(achievementId: achievementId, forStaff: true);
+        await fetchSingleAchievement(
+          achievementId: achievementId,
+          forStaff: true,
+        );
         await fetchAchievementsAddedByTeacher(forceRefresh: true);
         if (context.mounted) {
           Navigator.pop(context);
@@ -327,8 +369,9 @@ class AchievementProvider extends ChangeNotifier {
 
   Future<bool> deleteAchievement(int id) async {
     try {
-      final response =
-          await AchievementService().deleteAchievement(achievementId: id);
+      final response = await AchievementService().deleteAchievement(
+        achievementId: id,
+      );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
         _teacherAchievements.removeWhere((a) => a.id == id);

@@ -3,6 +3,7 @@ import 'package:acadobs/features/achievements/presentaion/screens/achievement_de
 import 'package:acadobs/features/achievements/presentaion/screens/achievement_edit_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/achievement_listing_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/add_achievements_screen.dart';
+import 'package:acadobs/features/achievements/presentaion/screens/school_achievement_listing.dart';
 import 'package:acadobs/features/chats/presentation/screens/add_teacher_note_screen.dart';
 import 'package:acadobs/features/events/data/models/event_model.dart';
 import 'package:acadobs/features/events/presentation/screens/event_detail_screen.dart';
@@ -341,6 +342,18 @@ List<GoRoute> staffRoutes = [
     name: RouteConstants.editProfileStaff,
     builder: (context, state) {
       return EditProfileStaff();
+    },
+  ),
+
+  //school achievement for staff
+  GoRoute(
+    path: '/schoolAchievements',
+    name: RouteConstants.schoolAchievements,
+    builder: (context, state) {
+      final forStaff = state.extra as bool;
+      return SchoolAchievementListing(
+        forStaff: forStaff,
+      );
     },
   ),
 ];

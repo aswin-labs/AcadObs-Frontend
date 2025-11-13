@@ -82,6 +82,9 @@ class ApiEndpoints {
   static const String deleteAchievement = "/staff/achievements";
   static const String achievements = "/staff/achievements";
 
+  static const String getAchievementsBySchoolStaff =
+      "/staff/getAchievementsBySchool";
+
   // teacher attendance
   static const String teacherTodayAttendance = "/staff/todayAttendanceStatus";
   static const String teacherCheckIn = "/staff/markSelfAttendance";
@@ -114,7 +117,10 @@ class ApiEndpoints {
   static const String fetchAllDayTimeTable =
       "/guardian/getAllDayTimeTableByStudentId";
   static const String guardianNotification = "/guardian/updateFcmToken";
-  static const String singleAchievementForGuardian = "/guardian/getAchievementById";
+  static const String singleAchievementForGuardian =
+      "/guardian/getAchievementById";
+  static const String getAchievementsBySchoolGuardian =
+      "/guardian/getAchievementsBySchool";
 
   //profile details for staff
   static const String staffProfileDetails = "/staff/getProfileDetails";

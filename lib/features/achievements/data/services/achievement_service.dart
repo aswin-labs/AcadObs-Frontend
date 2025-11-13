@@ -97,4 +97,18 @@ class AchievementService {
     );
     return response;
   }
+
+  //fetch achievements for public
+  Future<Response> fetchSchoolAchievements({
+    required int pageNo,
+    required int limit,
+    required bool forStaff,
+  }) async {
+    final response = await ApiServices.get(
+      forStaff
+          ? '${ApiEndpoints.getAchievementsBySchoolStaff}?page=$pageNo&limit=$limit'
+          : '${ApiEndpoints.getAchievementsBySchoolGuardian}?page=$pageNo&limit=$limit',
+    );
+    return response;
+  }
 }

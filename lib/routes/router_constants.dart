@@ -52,6 +52,7 @@ class RouteConstants {
   static const String timeTableDayTab = "timetabledaytab";
   static const String studentLeaveLetter = "studentLeaveLetter";
   static const String editProfileStaff = "editProfileStaff";
+  static const String schoolAchievements = "schoolAchievements";
 
   //PARENT
   static const String noticedetails = 'noticedetails';
