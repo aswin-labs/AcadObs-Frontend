@@ -51,118 +51,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return [
-              // SliverToBoxAdapter(
-              //   child: Padding(
-              //     padding: context.paddingHorizontal.add(
-              //       EdgeInsets.only(top: Responsive.height * 5),
-              //     ),
-              //     child: Column(
-              //       children: [
-              //         Row(
-              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //           children: [
-              //             GestureDetector(
-              //               onTap: () {
-              //                 Navigator.pop(context);
-              //               },
-              //               child: const CircleAvatar(
-              //                 radius: 16,
-              //                 backgroundColor: Color(0xFFD9D9D9),
-              //                 child: Icon(
-              //                   Icons.arrow_back_ios_new,
-              //                   size: 18,
-              //                   color: Colors.black,
-              //                 ),
-              //               ),
-              //             ),
-              //             Text(
-              //               textAlign: TextAlign.center,
-              //               "Student",
-              //               style: Theme.of(
-              //                 context,
-              //               ).textTheme.bodyLarge!.copyWith(
-              //                 fontWeight: FontWeight.w600,
-              //                 fontSize: 22,
-              //                 overflow: TextOverflow.ellipsis,
-              //               ),
-              //             ),
-              //             widget.forParent
-              //                 ? SizedBox.shrink()
-              //                 : Consumer2<StudentProvider, ChatProvider>(
-              //                   builder: (
-              //                     context,
-              //                     studentProvider,
-              //                     chatProvider,
-              //                     _,
-              //                   ) {
-              //                     final student =
-              //                         studentProvider.individualStudent;
-              //                     return GestureDetector(
-              //                       onTap: () {
-              //                         context
-              //                             .pushNamed(
-              //                               RouteConstants.chatScreen,
-              //                               extra: ChatModel(
-              //                                 opponentId:
-              //                                     student?.user?.id ?? 0,
-              //                                 opponentName:
-              //                                     student?.user?.name ?? "",
-              //                                 studentId: student?.id,
-              //                               ),
-              //                             )
-              //                             .then((_) {
-              //                               if (!mounted) return;
-              //                               chatProvider.loadUsersList();
-              //                             });
-              //                       },
-              //                       child: Icon(Icons.chat),
-              //                     );
-              //                   },
-              //                 ),
-              //           ],
-              //         ),
-              //         SizedBox(height: Responsive.height * 3),
-              //         Consumer<StudentProvider>(
-              //           builder: (context, provider, _) {
-              //             final student = provider.individualStudent;
-              //             if (provider.isLoading) {
-              //               return ProfileContainerShimmer();
-              //             }
-              //             return ProfileContainer(
-              //               imagePath: student?.image ?? "",
-              //               name: student?.fullName ?? "",
-              //               present: "0",
-              //               absent: "0",
-              //               late: "0",
-              //               description: student?.classGrade?.classname,
-              //             );
-              //           },
-              //         ),
-
-              //         SizedBox(height: 20),
-              //         ElevatedButton(
-              //           style: ElevatedButton.styleFrom(
-              //             backgroundColor: Colors.black,
-              //           ),
-              //           onPressed: () {
-              //             context.pushNamed(RouteConstants.prediction);
-              //           },
-              //           child: Row(
-              //             mainAxisAlignment: MainAxisAlignment.center,
-              //             children: [
-              //               Icon(Icons.auto_awesome),
-              //               SizedBox(width: 10),
-              //               Text(
-              //                 "See AI Prediction",
-              //                 style: TextStyle(color: Colors.white),
-              //               ),
-              //             ],
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
               SliverAppBar(
                 expandedHeight: 0,
                 floating: true,
@@ -191,8 +79,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   "Student Profile",
                   style: TextStyle(
                     color: Colors.black87,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    // fontSize: 18,
                   ),
                 ),
                 centerTitle: true,

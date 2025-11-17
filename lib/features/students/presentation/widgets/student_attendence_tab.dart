@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 class StudentAttendenceTab extends StatefulWidget {
   final int studentId;
   final String date;
+
   const StudentAttendenceTab({
     super.key,
     required this.studentId,
@@ -92,6 +93,7 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
               ),
 
               SizedBox(height: 20),
+
               Row(
                 children: [
                   Text(
@@ -123,6 +125,7 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
 
                   return GridView.builder(
                     itemCount: provider.timetable.length,
+                    padding: EdgeInsets.zero,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,

@@ -56,12 +56,12 @@ class StudentProfileTab extends StatelessWidget {
                   "Email",
                   student.user?.email,
                 ),
-                _buildInfoRow(
-                  Icons.home_outlined,
-                  "Address",
-                  student.address,
-                  isAddress: true,
-                ),
+                // _buildInfoRow(
+                //   Icons.home_outlined,
+                //   "Address",
+                //   student.address,
+                //   isAddress: true,
+                // ),
               ],
             ),
 

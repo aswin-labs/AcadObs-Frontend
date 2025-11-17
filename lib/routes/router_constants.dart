@@ -50,6 +50,7 @@ class RouteConstants {
 
   static const String paymentDetailScreen = "paymentDetailScreen";
   static const String timeTableDayTab = "timetabledaytab";
+  static const String timeTableDayTabStaff = "timetabledaytabStaff";
   static const String studentLeaveLetter = "studentLeaveLetter";
   static const String editProfileStaff = "editProfileStaff";
   static const String schoolAchievements = "schoolAchievements";
