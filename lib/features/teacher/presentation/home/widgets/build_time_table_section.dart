@@ -43,8 +43,9 @@ Widget buildTimeTableSection(BuildContext context) {
               ),
             ],
           ),
-
+          SizedBox(height: 20),
           GridView.builder(
+            padding: EdgeInsets.zero,
             itemCount: provider.timetableForStaff.length,
             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent: maxCrossAxisExtent,

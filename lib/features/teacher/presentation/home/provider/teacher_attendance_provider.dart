@@ -15,8 +15,11 @@ class TeacherAttendanceProvider extends ChangeNotifier {
   String _todayAttendanceStatus = '';
   String get todayAttendanceStatus => _todayAttendanceStatus;
 
+  bool _isFetchedOnce = false;
+
   // get today attendance status
   Future<void> getTodayAttendanceStatus() async {
+    if (_isFetchedOnce) return;
     _isLoading = true;
     _todayAttendanceStatus = '';
     notifyListeners();
@@ -25,6 +28,7 @@ class TeacherAttendanceProvider extends ChangeNotifier {
           await TeacherAttendanceServices().getTodayAttendanceStatus();
       if (response.statusCode == 200) {
         _todayAttendanceStatus = response.data['status'];
+        _isFetchedOnce = true;
       }
     } catch (e) {
       log(e.toString());
@@ -40,6 +44,7 @@ class TeacherAttendanceProvider extends ChangeNotifier {
     required String latitude,
     required String longitude,
   }) async {
+    _isFetchedOnce = false;
     _isLoadingForChangeStatus = true;
     PopupLoader.show(context, message: "Updating status...");
     notifyListeners();
@@ -93,6 +98,7 @@ class TeacherAttendanceProvider extends ChangeNotifier {
     required String latitude,
     required String longitude,
   }) async {
+    _isFetchedOnce = false;
     _isLoadingForChangeStatus = true;
     PopupLoader.show(context, message: "Updating status...");
     notifyListeners();

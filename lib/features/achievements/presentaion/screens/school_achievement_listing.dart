@@ -1,16 +1,12 @@
-import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
-import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:provider/provider.dart';
 
 class SchoolAchievementListing extends StatefulWidget {
@@ -41,7 +37,7 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
         _provider.fetchSchoolAchievements(
           loadMore: true,
           forStaff: widget.forStaff,
-          limit: AppConstants.paginationLimit,
+          limit: 12,
         );
       }
     });
@@ -55,10 +51,7 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
 
   Future<void> refreshAllData() async {
     await Future.wait([
-      _provider.fetchSchoolAchievements(
-        forStaff: widget.forStaff,
-        limit: AppConstants.paginationLimit,
-      ),
+      _provider.fetchSchoolAchievements(forStaff: widget.forStaff, limit: 12),
     ]);
   }
 
@@ -90,20 +83,20 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
               ),
               itemCount:
                   provider.schoolAchievementsAll.length +
-                  (provider.hasMoreSchool ? 2 : 1),
+                  (provider.hasMoreSchool ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == 0) {
-                  return SizedBox(height: Responsive.height * 3);
-                }
+                // if (index == 0) {
+                //   return SizedBox(height: Responsive.height * 3);
+                // }
 
-                if (index == provider.schoolAchievementsAll.length + 1) {
+                if (index == provider.schoolAchievementsAll.length) {
                   return const Padding(
                     padding: EdgeInsets.all(16),
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
 
-                final achievement = provider.schoolAchievementsAll[index - 1];
+                final achievement = provider.schoolAchievementsAll[index];
 
                 return ItemCard(
                   icon: Icons.workspace_premium,

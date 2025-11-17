@@ -459,7 +459,7 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                                   () => context.pushNamed(
                                     RouteConstants.studentDetails,
                                     extra: StudentDetailParameters(
-                                      forParent: false,
+                                      forStaff: true,
                                       studentId: student.id,
                                     ),
                                   ),

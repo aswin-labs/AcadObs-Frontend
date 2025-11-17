@@ -1,6 +1,5 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
-import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
@@ -75,20 +74,16 @@ class _AchievementListingScreenState extends State<AchievementListingScreen> {
               ),
               itemCount:
                   provider.teacherAchievements.length +
-                  (provider.hasMoreTeacher ? 2 : 1),
+                  (provider.hasMoreTeacher ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == 0) {
-                  return SizedBox(height: Responsive.height * 3);
-                }
-
-                if (index == provider.teacherAchievements.length + 1) {
+                if (index == provider.teacherAchievements.length) {
                   return const Padding(
                     padding: EdgeInsets.all(16),
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
 
-                final achievement = provider.teacherAchievements[index - 1];
+                final achievement = provider.teacherAchievements[index];
 
                 return ItemCard(
                   title: achievement.title ?? "Untitled",
@@ -108,7 +103,6 @@ class _AchievementListingScreenState extends State<AchievementListingScreen> {
           },
         ),
       ),
-
       floatingActionButton: CommonFloatingButton2(
         onPressed: () {
           context.pushNamed(RouteConstants.addAchievements);

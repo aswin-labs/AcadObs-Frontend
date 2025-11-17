@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class StudentExamDetailScreen extends StatefulWidget {
-  final bool forParent;
+  final bool forStaff;
   final int studentId;
   const StudentExamDetailScreen({
     super.key,
-    required this.forParent,
+    required this.forStaff,
     required this.studentId,
   });
 
@@ -30,7 +30,7 @@ class _StudentExamDetailScreenState extends State<StudentExamDetailScreen> {
     _marksProvider = context.read<MarksProvider>();
     _marksProvider.fetchStudentMarks(
       studentId: widget.studentId,
-      forParent: widget.forParent,
+      forStaff: widget.forStaff,
     );
     _scrollController.addListener(_scrollListener);
   }
@@ -44,7 +44,7 @@ class _StudentExamDetailScreenState extends State<StudentExamDetailScreen> {
       _marksProvider.fetchStudentMarks(
         loadMore: true,
         studentId: widget.studentId,
-        forParent: widget.forParent,
+        forStaff: widget.forStaff,
       );
     }
   }

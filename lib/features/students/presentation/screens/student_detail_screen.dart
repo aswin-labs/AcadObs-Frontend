@@ -1,33 +1,25 @@
-// import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/profile_container_shimmer.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
-import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
-import 'package:acadobs/features/students/presentation/widgets/leave_letter_screen.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_acheivement_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_attendence_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_exam_detail_screen.dart';
-import 'package:acadobs/features/students/presentation/widgets/student_homework_page.dart';
-import 'package:acadobs/features/students/presentation/widgets/student_notice_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_profile_tab.dart';
 import 'package:acadobs/routes/router_constants.dart';
-// import 'package:acadobs/shared/widgets/common_button.dart';
-// import 'package:acadobs/shared/widgets/profile_container.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-// import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 class StudentDetailScreen extends StatefulWidget {
   final int studentId;
-  final bool forParent;
+  final bool forStaff;
   const StudentDetailScreen({
     super.key,
     required this.studentId,
-    required this.forParent,
+    required this.forStaff,
   });
 
   @override
@@ -51,118 +43,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return [
-              // SliverToBoxAdapter(
-              //   child: Padding(
-              //     padding: context.paddingHorizontal.add(
-              //       EdgeInsets.only(top: Responsive.height * 5),
-              //     ),
-              //     child: Column(
-              //       children: [
-              //         Row(
-              //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //           children: [
-              //             GestureDetector(
-              //               onTap: () {
-              //                 Navigator.pop(context);
-              //               },
-              //               child: const CircleAvatar(
-              //                 radius: 16,
-              //                 backgroundColor: Color(0xFFD9D9D9),
-              //                 child: Icon(
-              //                   Icons.arrow_back_ios_new,
-              //                   size: 18,
-              //                   color: Colors.black,
-              //                 ),
-              //               ),
-              //             ),
-              //             Text(
-              //               textAlign: TextAlign.center,
-              //               "Student",
-              //               style: Theme.of(
-              //                 context,
-              //               ).textTheme.bodyLarge!.copyWith(
-              //                 fontWeight: FontWeight.w600,
-              //                 fontSize: 22,
-              //                 overflow: TextOverflow.ellipsis,
-              //               ),
-              //             ),
-              //             widget.forParent
-              //                 ? SizedBox.shrink()
-              //                 : Consumer2<StudentProvider, ChatProvider>(
-              //                   builder: (
-              //                     context,
-              //                     studentProvider,
-              //                     chatProvider,
-              //                     _,
-              //                   ) {
-              //                     final student =
-              //                         studentProvider.individualStudent;
-              //                     return GestureDetector(
-              //                       onTap: () {
-              //                         context
-              //                             .pushNamed(
-              //                               RouteConstants.chatScreen,
-              //                               extra: ChatModel(
-              //                                 opponentId:
-              //                                     student?.user?.id ?? 0,
-              //                                 opponentName:
-              //                                     student?.user?.name ?? "",
-              //                                 studentId: student?.id,
-              //                               ),
-              //                             )
-              //                             .then((_) {
-              //                               if (!mounted) return;
-              //                               chatProvider.loadUsersList();
-              //                             });
-              //                       },
-              //                       child: Icon(Icons.chat),
-              //                     );
-              //                   },
-              //                 ),
-              //           ],
-              //         ),
-              //         SizedBox(height: Responsive.height * 3),
-              //         Consumer<StudentProvider>(
-              //           builder: (context, provider, _) {
-              //             final student = provider.individualStudent;
-              //             if (provider.isLoading) {
-              //               return ProfileContainerShimmer();
-              //             }
-              //             return ProfileContainer(
-              //               imagePath: student?.image ?? "",
-              //               name: student?.fullName ?? "",
-              //               present: "0",
-              //               absent: "0",
-              //               late: "0",
-              //               description: student?.classGrade?.classname,
-              //             );
-              //           },
-              //         ),
-
-              //         SizedBox(height: 20),
-              //         ElevatedButton(
-              //           style: ElevatedButton.styleFrom(
-              //             backgroundColor: Colors.black,
-              //           ),
-              //           onPressed: () {
-              //             context.pushNamed(RouteConstants.prediction);
-              //           },
-              //           child: Row(
-              //             mainAxisAlignment: MainAxisAlignment.center,
-              //             children: [
-              //               Icon(Icons.auto_awesome),
-              //               SizedBox(width: 10),
-              //               Text(
-              //                 "See AI Prediction",
-              //                 style: TextStyle(color: Colors.white),
-              //               ),
-              //             ],
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // ),
               SliverAppBar(
                 expandedHeight: 0,
                 floating: true,
@@ -197,7 +77,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 ),
                 centerTitle: true,
                 actions: [
-                  if (!widget.forParent)
+                  if (widget.forStaff)
                     Consumer2<StudentProvider, ChatProvider>(
                       builder: (context, studentProvider, chatProvider, _) {
                         final student = studentProvider.individualStudent;
@@ -466,80 +346,76 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 StudentAttendenceTab(
                   studentId: widget.studentId,
                   date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
+                  forStaff: widget.forStaff,
                 ),
 
                 //acheivment
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
-                    if (student == null) {
-                      return SizedBox.shrink();
-                    }
-                    return StudentAcheivementTab(studentId: widget.studentId);
-                  },
+                StudentAcheivementTab(
+                  studentId: widget.studentId,
+                  forStaff: widget.forStaff,
                 ),
 
                 //exam
                 StudentExamDetailScreen(
                   studentId: widget.studentId,
-                  forParent: widget.forParent,
+                  forStaff: widget.forStaff,
                 ),
 
                 //homework
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
+                // Consumer<StudentProvider>(
+                //   builder: (context, provider, _) {
+                //     final student = provider.individualStudent;
 
-                    return StudentHomeworkPage(
-                      forParent: widget.forParent,
-                      studentId: widget.studentId,
-                      guardianIdForChat: student?.user?.id ?? 0,
-                      guardianNameForChat: student?.user?.name ?? "",
-                    );
-                  },
-                ),
+                //     return StudentHomeworkPage(
+                //       forParent: widget.forParent,
+                //       studentId: widget.studentId,
+                //       guardianIdForChat: student?.user?.id ?? 0,
+                //       guardianNameForChat: student?.user?.name ?? "",
+                //     );
+                //   },
+                // ),
 
-                //leave requst
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
-                    if (student == null) {
-                      return SizedBox.shrink();
-                    }
-                    return LeaveLetterScreen(
-                      studentId: widget.studentId,
-                      forParent: widget.forParent,
-                    );
-                  },
-                ),
+                // //leave requst
+                // Consumer<StudentProvider>(
+                //   builder: (context, provider, _) {
+                //     final student = provider.individualStudent;
+                //     if (student == null) {
+                //       return SizedBox.shrink();
+                //     }
+                //     return LeaveLetterScreen(
+                //       studentId: widget.studentId,
+                //       forParent: widget.forParent,
+                //     );
+                //   },
+                // ),
 
-                //payment
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
-                    if (student == null) {
-                      return SizedBox.shrink();
-                    }
-                    return PaymentScreen(
-                      studentId: widget.studentId,
-                      forParent: widget.forParent,
-                    );
-                  },
-                ),
+                // //payment
+                // Consumer<StudentProvider>(
+                //   builder: (context, provider, _) {
+                //     final student = provider.individualStudent;
+                //     if (student == null) {
+                //       return SizedBox.shrink();
+                //     }
+                //     return PaymentScreen(
+                //       studentId: widget.studentId,
+                //       forParent: widget.forParent,
+                //     );
+                //   },
+                // ),
 
-                //notices
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
-                    if (student == null) {
-                      return SizedBox.shrink();
-                    }
-                    return StudentNoticeTab(
-                      studentId: widget.studentId,
-                      forParent: widget.forParent,
-                    );
-                  },
-                ),
+                // //notices
+                // Consumer<StudentProvider>(
+                //   builder: (context, provider, _) {
+                //     final student = provider.individualStudent;
+                //     if (student == null) {
+                //       return SizedBox.shrink();
+                //     }
+                //     return StudentNoticeTab(
+                //       studentId: widget.studentId,
+                //       forParent: widget.forParent,
+                //     );
+                //   },
+                // ),
 
                 // Profile
                 Consumer<StudentProvider>(

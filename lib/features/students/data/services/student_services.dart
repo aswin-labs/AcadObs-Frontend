@@ -24,9 +24,12 @@ class StudentServices {
   Future<Response> fetchAttendanceByDate({
     required int studentId,
     required String date,
+    required bool forStaff,
   }) async {
     final response = await ApiServices.get(
-      '${ApiEndpoints.attendanceByDate}/$studentId?date=$date',
+      forStaff
+          ? '${ApiEndpoints.attendanceByDateForStaff}/$studentId?date=$date'
+          : '${ApiEndpoints.attendanceByDateForGuardian}/$studentId?date=$date',
     );
     return response;
   }

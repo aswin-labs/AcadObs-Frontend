@@ -1,10 +1,8 @@
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
-
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
-
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
@@ -20,9 +18,7 @@ import 'package:acadobs/features/teacher/presentation/home/widgets/notice_sectio
 import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_card.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
-
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
-
 import 'package:acadobs/shared/widgets/profile_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -193,10 +189,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         NoticeSection(),
                         // Latest Events
                         EventSection(),
-                        //Latest News
+                        // Latest News
                         NewsSection(),
                         const SizedBox(height: 20),
-                        //awards and Accomplishments
+                        // Awards and Accomplishments
                         AwardSection(),
                       ],
                     ),

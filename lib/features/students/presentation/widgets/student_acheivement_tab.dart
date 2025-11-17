@@ -1,6 +1,5 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
-import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
@@ -41,7 +40,7 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 200 &&
           !_provider.isLoadingStudent &&
-          _provider.hasMoreTeacher) {
+          _provider.hasMoreStudent) {
         _provider.fetchAchievementsByStudentId(
           studentId: widget.studentId,
           forStaff: widget.forStaff,
@@ -84,20 +83,20 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
               ),
               itemCount:
                   provider.studentAchievements.length +
-                  (provider.hasMoreTeacher ? 2 : 1),
+                  (provider.hasMoreTeacher ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index == 0) {
-                  return SizedBox(height: Responsive.height * 3);
-                }
+                // if (index == 0) {
+                //   return SizedBox(height: Responsive.height * 3);
+                // }
 
-                if (index == provider.studentAchievements.length + 1) {
+                if (index == provider.studentAchievements.length ) {
                   return const Padding(
                     padding: EdgeInsets.all(16),
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
 
-                final achievement = provider.studentAchievements[index - 1];
+                final achievement = provider.studentAchievements[index];
 
                 return ItemCard(
                   title: achievement.achievement?.title ?? "Untitled",

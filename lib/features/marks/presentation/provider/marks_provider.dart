@@ -25,6 +25,7 @@ class MarksProvider extends ChangeNotifier {
   bool get hasMore => _currentPage < _totalPages;
 
   bool _isFetchedOnce = false;
+  bool _isFetchedOnceForStudent = false;
 
   final List<StudentMarkModel> _studentMarks = [];
   List<StudentMarkModel> get studentMarks => _studentMarks;
@@ -215,25 +216,28 @@ class MarksProvider extends ChangeNotifier {
   // fetch student Marks
   Future<void> fetchStudentMarks({
     required int studentId,
-    required bool forParent,
+    required bool forStaff,
     bool loadMore = false,
     bool forceRefresh = false,
   }) async {
     if (_isLoading) return;
-
     _isLoading = true;
 
     try {
       if (loadMore) {
+        if (_currentPageForStudent >= _totalPagesForStudent) {
+          _isLoading = false;
+          return;
+        }
         _currentPageForStudent++;
       } else {
         _currentPageForStudent = 1;
         _studentMarks.clear();
-        // _isFetchedOnceForStudent = false;
+        _isFetchedOnceForStudent = false;
       }
       final response = await MarksServices().fetchStudentMarks(
         studentId: studentId,
-        forParent: forParent,
+        forStaff: forStaff,
         pageNo: _currentPageForStudent,
       );
       if (response.statusCode == 200) {
@@ -251,7 +255,7 @@ class MarksProvider extends ChangeNotifier {
 
         _studentMarks.addAll(fetchHomeworks);
         log(_studentMarks.toString());
-        // _isFetchedOnceForStudent = true;
+        _isFetchedOnceForStudent = true;
       } else {
         throw Exception('Failed to fetch marks: ${response.statusCode}');
       }

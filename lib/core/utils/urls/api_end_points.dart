@@ -43,7 +43,8 @@ class ApiEndpoints {
   static const String attendanceByClassIdAndDate =
       "/staff/getAttendanceByclassIdAndDate";
   static const String editBulkAttendance = "/staff/bulkUpdateAttendanceById";
-  static const String attendanceByDate = "/staff/getStudentAttendanceByDate/";
+  static const String attendanceByDateForStaff =
+      "/staff/getStudentAttendanceByDate/";
 
   // leave request
   static const String staffLeaveRequest = "/staff/leaveRequest";
@@ -93,6 +94,8 @@ class ApiEndpoints {
   static const String staffProfile = "/staff/getProfileDetails";
 
   static const String singleAchievementForStaff = "/staff/achievements";
+  //  subjects
+  // static const String subjects = "/staff/"
 
   //***********************GUARDIAN*************************
   static const String fetchLatestEventsGuardian = "/guardian/getLatestEvents";
@@ -121,6 +124,8 @@ class ApiEndpoints {
       "/guardian/getAchievementById";
   static const String getAchievementsBySchoolGuardian =
       "/guardian/getAchievementsBySchool";
+  static const String attendanceByDateForGuardian =
+      "/guardian/getStudentAttendanceByDate/";
 
   //profile details for staff
   static const String staffProfileDetails = "/staff/getProfileDetails";

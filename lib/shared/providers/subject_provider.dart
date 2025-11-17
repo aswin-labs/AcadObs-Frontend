@@ -17,6 +17,8 @@ class SubjectProvider extends ChangeNotifier {
   bool isLoadingMore = false;
   bool _hasFetchedOnce = false;
 
+  
+
   // Fetch all subjects
   Future<void> fetchSubjects({bool loadMore = false}) async {
     if (!loadMore && _hasFetchedOnce) {
