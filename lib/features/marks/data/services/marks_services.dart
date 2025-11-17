@@ -75,12 +75,12 @@ class MarksServices {
   Future<Response> fetchStudentMarks({
     required int pageNo,
     required int studentId,
-    required bool forParent,
+    required bool forStaff,
   }) async {
     final response = await ApiServices.get(
-      forParent
-          ? "${ApiEndpoints.studentMarksForParent}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}"
-          : "${ApiEndpoints.studentMarks}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}",
+      forStaff
+          ? "${ApiEndpoints.studentMarks}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}"
+          : "${ApiEndpoints.studentMarksForParent}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return response;
   }

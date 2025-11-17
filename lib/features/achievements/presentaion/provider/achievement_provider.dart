@@ -36,31 +36,40 @@ class AchievementProvider extends ChangeNotifier {
 
   int _teacherPage = 1;
   int _teacherTotalPages = 1;
+
   bool _isLoadingTeacher = false;
   bool get isLoadingTeacher => _isLoadingTeacher;
-  bool get hasMoreTeacher => _teacherPage < _teacherTotalPages;
+
+  bool hasMoreTeacher = true;
 
   Future<void> fetchAchievementsAddedByTeacher({
     bool loadMore = false,
     bool forceRefresh = false,
   }) async {
     if (_isLoadingTeacher) return;
+
+    // If not loading more, reset everything
+    if (!loadMore || forceRefresh) {
+      _teacherPage = 1;
+      hasMoreTeacher = true;
+      _teacherAchievements.clear();
+    }
+
+    // If no more pages, do NOT call API again
+    if (!hasMoreTeacher) return;
+
     _isLoadingTeacher = true;
     notifyListeners();
 
     try {
-      if (!loadMore || forceRefresh) {
-        _teacherPage = 1;
-        _teacherAchievements.clear();
-      }
-
       final response = await AchievementService()
           .fetchAchievementsAddedByTeacher(pageNo: _teacherPage);
 
       if (response.statusCode == 200) {
         final data = response.data;
+
         _teacherTotalPages = data['totalPages'] ?? 1;
-        _teacherPage = data['currentPage'] ?? 1;
+        final currentPage = data['currentPage'] ?? _teacherPage;
 
         final fetched =
             (data['achievements'] as List)
@@ -69,8 +78,11 @@ class AchievementProvider extends ChangeNotifier {
 
         _teacherAchievements.addAll(fetched);
 
-        if (_teacherPage < _teacherTotalPages) {
-          _teacherPage++;
+        // Pagination logic
+        hasMoreTeacher = currentPage < _teacherTotalPages;
+
+        if (hasMoreTeacher) {
+          _teacherPage = currentPage + 1;
         }
       }
     } catch (e) {
@@ -93,7 +105,7 @@ class AchievementProvider extends ChangeNotifier {
   int _studentTotalPages = 1;
   bool _isLoadingStudent = false;
   bool get isLoadingStudent => _isLoadingStudent;
-  bool get hasMoreStudent => _studentPage < _studentTotalPages;
+  bool hasMoreStudent = true;
 
   Future<void> fetchAchievementsByStudentId({
     required int studentId,
@@ -108,8 +120,11 @@ class AchievementProvider extends ChangeNotifier {
     try {
       if (!loadMore || forceRefresh) {
         _studentPage = 1;
+        hasMoreStudent = true;
         _studentAchievements.clear();
       }
+
+      
 
       final response = await AchievementService().fetchAchievementsByStudentId(
         studentId: studentId,

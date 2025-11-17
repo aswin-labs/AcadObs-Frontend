@@ -129,6 +129,7 @@ class StudentProvider extends ChangeNotifier {
   Future<void> fetchAttendanceByDate({
     required int studentId,
     required String date,
+    required bool forStaff,
   }) async {
     try {
       _isLoading = true;
@@ -140,6 +141,7 @@ class StudentProvider extends ChangeNotifier {
       final response = await StudentServices().fetchAttendanceByDate(
         studentId: studentId,
         date: date,
+        forStaff: forStaff,
       );
 
       if (response.statusCode == 200) {

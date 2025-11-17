@@ -101,7 +101,7 @@ List<GoRoute> staffRoutes = [
 
       return StudentDetailScreen(
         studentId: studentDetailParams.studentId,
-        forParent: studentDetailParams.forParent,
+        forStaff: studentDetailParams.forStaff,
       );
     },
   ),
@@ -369,6 +369,6 @@ List<GoRoute> staffRoutes = [
 
 class StudentDetailParameters {
   final int studentId;
-  final bool forParent;
-  StudentDetailParameters({required this.forParent, required this.studentId});
+  final bool forStaff;
+  StudentDetailParameters({required this.forStaff, required this.studentId});
 }

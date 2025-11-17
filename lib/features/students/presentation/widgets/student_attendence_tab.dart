@@ -16,11 +16,12 @@ import 'package:provider/provider.dart';
 class StudentAttendenceTab extends StatefulWidget {
   final int studentId;
   final String date;
-
+  final bool forStaff;
   const StudentAttendenceTab({
     super.key,
     required this.studentId,
     required this.date,
+    required this.forStaff
   });
 
   @override
@@ -46,6 +47,7 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
     studentProvider.resetAttendance();
     studentProvider.fetchAttendanceByDate(
       studentId: widget.studentId,
+      forStaff: widget.forStaff,
       date: DateFormat("yyyy-MM-dd").format(_initialDate),
     );
 
@@ -83,6 +85,7 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
                       provider.fetchAttendanceByDate(
                         studentId: widget.studentId,
                         date: newDate,
+                        forStaff: widget.forStaff
                       );
                       setState(() {
                         _initialDate = DateFormat("yyyy-MM-dd").parse(newDate);

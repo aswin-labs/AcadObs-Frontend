@@ -3,7 +3,6 @@ import 'package:acadobs/core/netwok/screens/offline_banner.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/common_shimmer_tile.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
-
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
@@ -18,7 +17,6 @@ import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -233,7 +231,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                                               () => context.pushNamed(
                                                 RouteConstants.studentDetails,
                                                 extra: StudentDetailParameters(
-                                                  forParent: true,
+                                                  forStaff: false,
                                                   studentId: student.id,
                                                 ),
                                               ),
