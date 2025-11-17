@@ -1,32 +1,29 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
+import 'package:acadobs/core/utils/empty_screen.dart';
 
 import 'package:acadobs/features/students/presentation/widgets/time_table_list_card.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class SundayTab extends StatefulWidget {
-  final int studentId;
+class StaffDayTab extends StatefulWidget {
   final int dayOfWeek;
   final String dayName;
-  const SundayTab({
+  const StaffDayTab({
     super.key,
     required this.dayName,
     required this.dayOfWeek,
-    required this.studentId,
   });
 
   @override
-  State<SundayTab> createState() => _SundayTabState();
+  State<StaffDayTab> createState() => _StaffDayTabState();
 }
 
-class _SundayTabState extends State<SundayTab> {
+class _StaffDayTabState extends State<StaffDayTab> {
   @override
   void initState() {
     super.initState();
-    context.read<TimeTableProvider>().fetchAllDayTimeTableNew(
-      studentId: widget.studentId,
-    );
+    context.read<TimeTableProvider>().fetchAllDayTimeTableStaff();
   }
 
   @override
@@ -58,8 +55,8 @@ class _SundayTabState extends State<SundayTab> {
                   final dayPeriods = provider.getDayPeriods(widget.dayOfWeek);
 
                   if (dayPeriods.isEmpty) {
-                    return Center(
-                      child: Text("No classes for ${widget.dayName}"),
+                    return emptyScreen(
+                      message: "No classes for ${widget.dayName}",
                     );
                   }
 
@@ -67,12 +64,15 @@ class _SundayTabState extends State<SundayTab> {
                     itemCount: dayPeriods.length,
                     itemBuilder: (context, index) {
                       final p = dayPeriods[index];
-                      return TimeTableListCard(
-                        subject: p.subject?.subjectName ?? "Unknown",
-                        teacher: p.user?.name ?? "Unknown",
-                        classname: p.periodClass?.classname ?? "-",
-                        periodNumber: p.periodNumber ?? 0,
-                        onTap: () {},
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 15, right: 15),
+                        child: TimeTableListCard(
+                          subject: p.subject?.subjectName ?? "Unknown",
+                          // teacher: p.user?.name ?? "Unknown",
+                          classname: p.periodClass?.classname ?? "-",
+                          periodNumber: p.periodNumber ?? 0,
+                          onTap: () {},
+                        ),
                       );
                     },
                   );

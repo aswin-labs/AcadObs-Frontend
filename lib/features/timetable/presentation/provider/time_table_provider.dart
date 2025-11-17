@@ -176,4 +176,48 @@ class TimeTableProvider extends ChangeNotifier {
   List<Period> getDayPeriods(int dayOfWeek) {
     return _timeTableByDays[dayOfWeek] ?? [];
   }
+
+  // Fetch all day timetable for the teacher/staff
+  Future<void> fetchAllDayTimeTableStaff({bool forStaff = true}) async {
+    _isLoading = true;
+    _error = null;
+    try {
+      final response = await _timeTableServices.getAllDayTimeTableByStudentId(
+        forStaff: forStaff,
+      );
+
+      log("API Response (All Day): ${response.data}");
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        if (data != null && data['timetable'] != null) {
+          final List timetableJson = data['timetable'];
+
+          // Clear the correct map
+          _timeTableByDays.clear();
+
+          for (var item in timetableJson) {
+            final int day = item['day_of_week'] ?? 0;
+            final period = Period.fromJson(item);
+
+            // Use the same map everywhere
+            _timeTableByDays.putIfAbsent(day, () => []).add(period);
+          }
+
+          log("Grouped timetable: $_timeTableByDays");
+        } else {
+          _error = "No timetable data found";
+        }
+      } else {
+        _error = "Failed to fetch timetable (Status: ${response.statusCode})";
+      }
+    } catch (e) {
+      log("Error fetching all-day timetable: $e");
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

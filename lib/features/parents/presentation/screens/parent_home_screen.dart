@@ -53,10 +53,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
         limit: 3,
         forStaff: false,
       ),
-      context.read<NewsProvider>().fetchLatestNews(
-        limit: 3,
-        forStaff: false,
-      ),
+      context.read<NewsProvider>().fetchLatestNews(limit: 3, forStaff: false),
 
       context.read<AchievementProvider>().fetchSchoolAchievements(
         forStaff: false,
@@ -482,7 +479,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                                   onPressed: () {
                                     context.pushNamed(
                                       RouteConstants.schoolAchievements,
-                                      extra: true,
+                                      extra: false,
                                     );
                                   },
                                   child: Text('View'),

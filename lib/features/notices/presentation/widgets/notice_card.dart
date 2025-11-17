@@ -26,6 +26,16 @@ class NoticeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final isSmall = width < 360;
+    final isLarge = width > 700;
+    final avatarRadius =
+        isSmall
+            ? 18
+            : isLarge
+            ? 30
+            : 24;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: InkWell(
@@ -64,27 +74,34 @@ class NoticeCard extends StatelessWidget {
                   CircleAvatar(
                     radius: 24,
                     backgroundColor: backgroundColor,
-                    child: Icon(icon, color: const Color(0xFF1E88E5), size: 28),
+                    child: Icon(
+                      icon,
+                      color: const Color(0xFF1E88E5),
+                      size: avatarRadius + (isSmall ? 2 : 4),
+                    ),
                   ),
-                  SizedBox(width: 12),
+                  SizedBox(width: isSmall ? 8 : 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        capitalizeEachWord(title),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: context.textTheme.bodyMedium!.copyWith(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: Colors.black87,
+                      SizedBox(
+                        width: width * 0.45,
+                        child: Text(
+                          capitalizeEachWord(title),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: context.textTheme.bodyMedium!.copyWith(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
-                      SizedBox(height: 6),
+                      SizedBox(height: isSmall ? 4 : 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isSmall ? 8 : 12,
+                          vertical: isSmall ? 3 : 4,
                         ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFE6F3FF),
