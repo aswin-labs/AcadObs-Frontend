@@ -44,6 +44,7 @@ import 'package:acadobs/features/teacher/presentation/leave_request/screens/stud
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/teacher_leave_request_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_listing_screen.dart';
+import 'package:acadobs/features/timetable/presentation/time_table_day_tab_staff.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:go_router/go_router.dart';
@@ -324,6 +325,16 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       final studentId = state.extra as int;
       return TimeTableDayTab(studentId: studentId);
+    },
+  ),
+
+  GoRoute(
+    path: '/timetabledaytabStaff',
+    name: RouteConstants.timeTableDayTabStaff,
+    builder: (context, state) {
+      final forStaff = state.extra as bool;
+      return TimeTableDayTabStaff(forStaff: forStaff);
+     
     },
   ),
 

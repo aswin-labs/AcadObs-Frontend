@@ -73,7 +73,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                      colors: [Color(0xFF35C2C1), Color(0xFF00AEF0)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
@@ -267,7 +267,9 @@ class ChangePasswordTextField extends StatelessWidget {
         hintStyle: TextStyle(color: Colors.grey.shade400),
         prefixIcon: Icon(
           isPassword ? Icons.lock_outline : Icons.person_outline,
-          color: const Color(0xFF6366F1),
+          color:
+          // Color(0xFF35C2C1),
+          Color(0xFF00AEF0),
         ),
         suffixIcon:
             isPassword

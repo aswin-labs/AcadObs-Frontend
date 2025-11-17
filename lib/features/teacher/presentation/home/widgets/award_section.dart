@@ -1,9 +1,11 @@
 import 'package:acadobs/core/utils/common_shimmer_tile.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
+import 'package:acadobs/core/utils/helpers/date_formatter.dart';
+import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
+import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
-import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -57,9 +59,16 @@ class AwardSection extends StatelessWidget {
               itemCount: achievements.length,
               itemBuilder: (context, index) {
                 final achievement = achievements[index];
-                return ItemCard(
+                return NoticeCard(
+                  icon: Icons.workspace_premium,
                   title: achievement.title ?? "",
-                  description: achievement.description ?? "",
+                  date: DateFormatter.formatDateTime(
+                    achievement.date ?? DateTime.now(),
+                  ),
+                  time: TimeFormatter.formatTime(
+                    achievement.createdAt ?? DateTime.now(),
+                  ),
+
                   onTap: () {
                     context.pushNamed(
                       RouteConstants.achievementDetailsScreen,

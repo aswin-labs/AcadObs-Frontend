@@ -477,7 +477,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                                   onPressed: () {
                                     context.pushNamed(
                                       RouteConstants.schoolAchievements,
-                                      extra: true,
+                                      extra: false,
                                     );
                                   },
                                   child: Text('View'),

@@ -1,6 +1,10 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
+import 'package:acadobs/core/utils/helpers/date_formatter.dart';
+import 'package:acadobs/core/utils/helpers/time_formatter.dart';
+import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
+import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
@@ -98,13 +102,18 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
 
                 final achievement = provider.schoolAchievementsAll[index];
 
-                return ItemCard(
+                return NoticeCard(
                   icon: Icons.workspace_premium,
                   backgroundColor: Colors.blue.shade50,
-                  iconColor: Colors.blue.shade500,
 
+                  date: DateFormatter.formatDateTime(
+                    achievement.date ?? DateTime.now(),
+                  ),
+                  time: TimeFormatter.formatTime(
+                    achievement.createdAt ?? DateTime.now(),
+                  ),
                   title: achievement.title ?? "Untitled",
-                  description: achievement.description ?? "No description",
+
                   onTap: () {
                     context.pushNamed(
                       RouteConstants.achievementDetailsScreen,

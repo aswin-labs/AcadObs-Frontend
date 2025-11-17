@@ -1,7 +1,9 @@
 import 'package:acadobs/features/students/presentation/widgets/time_table_card.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/time_table_shimmer.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 Widget buildTimeTableSection(BuildContext context) {
@@ -30,7 +32,7 @@ Widget buildTimeTableSection(BuildContext context) {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
+            children: [
               Icon(Icons.schedule, color: Color(0xFF2196F3), size: 20),
               SizedBox(width: 8),
               Text(
@@ -40,6 +42,16 @@ Widget buildTimeTableSection(BuildContext context) {
                   fontWeight: FontWeight.bold,
                   color: Colors.black87,
                 ),
+              ),
+              Spacer(),
+              TextButton(
+                onPressed: () {
+                  context.pushNamed(
+                    RouteConstants.timeTableDayTabStaff,
+                    extra: true,
+                  );
+                },
+                child: Text('View'),
               ),
             ],
           ),

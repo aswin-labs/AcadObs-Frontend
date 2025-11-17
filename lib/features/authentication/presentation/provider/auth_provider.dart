@@ -86,17 +86,17 @@ class AuthProvider with ChangeNotifier {
         } else if (userRole == 'teacher') {
           await fetchSchoolDetailsForTeacher();
           if (!context.mounted) return;
-          context.pushNamed(
+          context.goNamed(
             RouteConstants.bottomNavScreen,
             extra: UserType.teacher,
           );
         } else if (userRole == 'admin') {
-          context.pushNamed(
+          context.goNamed(
             RouteConstants.bottomNavScreen,
             extra: UserType.schoolAdmin,
           );
         } else {
-          context.pushNamed(
+          context.goNamed(
             RouteConstants.bottomNavScreen,
             extra: UserType.superAdmin,
           );
@@ -157,9 +157,16 @@ class AuthProvider with ChangeNotifier {
 
   /// Select a school and store globally
   void selectSchool(SchoolModel school) {
-    _selectedSchool = school;
+    if (_selectedSchool?.schoolId == school.schoolId) {
+      _selectedSchool = null;
+    } else {
+      _selectedSchool = school;
+    }
     log("Selected schoolId: ${_selectedSchool?.schoolId}");
     notifyListeners();
+    // _selectedSchool = school;
+    // log("Selected schoolId: ${_selectedSchool?.schoolId}");
+    // notifyListeners();
   }
 
   /// Save schoolId in secure storage

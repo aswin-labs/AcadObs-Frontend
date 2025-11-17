@@ -96,6 +96,7 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
               ),
 
               SizedBox(height: 20),
+
               Row(
                 children: [
                   Text(
@@ -127,6 +128,7 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
 
                   return GridView.builder(
                     itemCount: provider.timetable.length,
+                    padding: EdgeInsets.zero,
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 3,

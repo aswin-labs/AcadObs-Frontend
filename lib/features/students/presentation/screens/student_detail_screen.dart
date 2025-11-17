@@ -71,8 +71,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   "Student Profile",
                   style: TextStyle(
                     color: Colors.black87,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    // fontSize: 18,
                   ),
                 ),
                 centerTitle: true,
