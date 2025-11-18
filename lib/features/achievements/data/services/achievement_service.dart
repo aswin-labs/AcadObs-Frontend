@@ -58,6 +58,7 @@ class AchievementService {
   //fetching achievements added by teacher
   Future<Response> fetchAchievementsAddedByTeacher({
     required int pageNo,
+     int? limit,
   }) async {
     final response = await ApiServices.get(
       '${ApiEndpoints.getAllAchievement}?page=$pageNo&limit=${AppConstants.paginationLimit}',

@@ -1,16 +1,19 @@
+import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
+
 import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/item_card.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:provider/provider.dart';
 
 class SchoolAchievementListing extends StatefulWidget {
@@ -32,16 +35,14 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       refreshAllData();
     });
-
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 200 &&
-          !_provider.isLoadingSchool &&
-          _provider.hasMoreSchool) {
-        _provider.fetchSchoolAchievements(
-          loadMore: true,
+          !_provider.isLoading &&
+          _provider.hasMore) {
+        _provider.fetchAchievementSchool(
           forStaff: widget.forStaff,
-          limit: 12,
+          loadMore: true,
         );
       }
     });
@@ -55,20 +56,23 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
 
   Future<void> refreshAllData() async {
     await Future.wait([
-      _provider.fetchSchoolAchievements(forStaff: widget.forStaff, limit: 12),
+      _provider.fetchAchievementSchool(
+        forStaff: widget.forStaff,
+        limit: AppConstants.paginationLimit,
+        forceRefresh: true,
+      ),
     ]);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'School Achievements', isBackButton: true),
+      appBar: CommonAppBar(title: "School Achievements", isBackButton: true),
       body: RefreshIndicator(
         onRefresh: refreshAllData,
         child: Consumer<AchievementProvider>(
           builder: (context, provider, _) {
-            if (provider.isLoadingSchool &&
-                provider.schoolAchievementsAll.isEmpty) {
+            if (provider.isLoading && provider.schoolAchievementsAll.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: commonShimmerList(),
@@ -87,21 +91,24 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
               ),
               itemCount:
                   provider.schoolAchievementsAll.length +
-                  (provider.hasMoreSchool ? 1 : 0),
+                  (provider.hasMore ? 1 : 0) +
+                  1,
               itemBuilder: (context, index) {
-                // if (index == 0) {
-                //   return SizedBox(height: Responsive.height * 3);
-                // }
+                if (index == 0) {
+                  return SizedBox(height: Responsive.height * 3);
+                }
 
-                if (index == provider.schoolAchievementsAll.length) {
+                if (index == provider.schoolAchievementsAll.length + 1) {
                   return const Padding(
                     padding: EdgeInsets.all(16),
                     child: Center(child: CircularProgressIndicator()),
                   );
                 }
 
-                final achievement = provider.schoolAchievementsAll[index];
-
+                final achievementIndex =
+                    index - 1; // because index 0 is padding
+                final achievement =
+                    provider.schoolAchievementsAll[achievementIndex];
                 return NoticeCard(
                   icon: Icons.workspace_premium,
                   backgroundColor: Colors.blue.shade50,
