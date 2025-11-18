@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/achievements/data/services/achievement_service.dart';
@@ -27,6 +28,11 @@ class AchievementProvider extends ChangeNotifier {
   bool _isLoadingSecondary = false;
   bool get isLoadingSecondary => _isLoadingSecondary;
 
+  int _currentPage = 1;
+  int _totalPages = 1;
+
+  bool get hasMore => _currentPage < _totalPages;
+
   // ===========================================================================
   // TEACHER ACHIEVEMENTS
   // ===========================================================================
@@ -41,10 +47,12 @@ class AchievementProvider extends ChangeNotifier {
   bool get isLoadingTeacher => _isLoadingTeacher;
 
   bool hasMoreTeacher = true;
+  // bool _isFetchedOnce = false;
 
   Future<void> fetchAchievementsAddedByTeacher({
     bool loadMore = false,
     bool forceRefresh = false,
+    int? limit,
   }) async {
     if (_isLoadingTeacher) return;
 
@@ -63,7 +71,10 @@ class AchievementProvider extends ChangeNotifier {
 
     try {
       final response = await AchievementService()
-          .fetchAchievementsAddedByTeacher(pageNo: _teacherPage);
+          .fetchAchievementsAddedByTeacher(
+            pageNo: _teacherPage,
+            limit: limit ?? AppConstants.paginationLimit,
+          );
 
       if (response.statusCode == 200) {
         final data = response.data;
@@ -123,8 +134,6 @@ class AchievementProvider extends ChangeNotifier {
         hasMoreStudent = true;
         _studentAchievements.clear();
       }
-
-      
 
       final response = await AchievementService().fetchAchievementsByStudentId(
         studentId: studentId,
@@ -402,6 +411,59 @@ class AchievementProvider extends ChangeNotifier {
     } catch (e) {
       log("Error deleting achievement: $e");
       return false;
+    }
+  }
+
+  //for the school achievements
+  Future<void> fetchAchievementSchool({
+    required bool forStaff,
+    bool loadMore = false,
+    bool forceRefresh = false,
+    int limit = AppConstants.paginationLimit,
+  }) async {
+    if (_isLoading) return;
+
+    if (!loadMore || forceRefresh) {
+      _currentPage = 1;
+      _schoolAchievementsAll.clear();
+    }
+    if (!forceRefresh && !loadMore && _currentPage > _totalPages) return;
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await AchievementService().fetchSchoolAchievements(
+        forStaff: forStaff,
+        pageNo: _currentPage,
+        limit: limit,
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        // Only update totalPages from server — never preset it!
+        _totalPages = data['totalPages'] ?? 1;
+
+        final List fetched = data['achievements'] ?? [];
+        final achievements =
+            fetched
+                .map<AchievementModel>((e) => AchievementModel.fromJson(e))
+                .toList();
+
+        _schoolAchievementsAll.addAll(achievements);
+
+        // Only increment page if we got data and there might be more
+        if (achievements.isNotEmpty) {
+          _currentPage++;
+        }
+      }
+    } catch (e) {
+      _error = e.toString();
+      log("Error fetching school achievements: $_error");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
