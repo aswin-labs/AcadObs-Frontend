@@ -2,10 +2,13 @@ import 'package:acadobs/core/utils/profile_container_shimmer.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
+import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
+import 'package:acadobs/features/students/presentation/widgets/leave_letter_screen.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_acheivement_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_attendence_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_exam_detail_screen.dart';
+import 'package:acadobs/features/students/presentation/widgets/student_homework_page.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_profile_tab.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +19,7 @@ import 'package:provider/provider.dart';
 class StudentDetailScreen extends StatefulWidget {
   final int studentId;
   final bool forStaff;
+
   const StudentDetailScreen({
     super.key,
     required this.studentId,
@@ -67,12 +71,11 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     ),
                   ),
                 ),
-                title: const Text(
+                title: Text(
                   "Student Profile",
-                  style: TextStyle(
-                    color: Colors.black87,
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
-                    // fontSize: 18,
                   ),
                 ),
                 centerTitle: true,
@@ -328,7 +331,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           Tab(text: "Homework"),
                           Tab(text: 'Leave request'),
                           Tab(text: "Payment"),
-                          Tab(text: "Notices"),
+                          // Tab(text: "Notices"),
                           Tab(text: "Profile"),
                         ],
                       ),
@@ -361,49 +364,49 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   forStaff: widget.forStaff,
                 ),
 
-                //homework
-                // Consumer<StudentProvider>(
-                //   builder: (context, provider, _) {
-                //     final student = provider.individualStudent;
+                // homework
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
 
-                //     return StudentHomeworkPage(
-                //       forParent: widget.forParent,
-                //       studentId: widget.studentId,
-                //       guardianIdForChat: student?.user?.id ?? 0,
-                //       guardianNameForChat: student?.user?.name ?? "",
-                //     );
-                //   },
-                // ),
+                    return StudentHomeworkPage(
+                      forStaff: widget.forStaff,
+                      studentId: widget.studentId,
+                      guardianIdForChat: student?.user?.id ?? 0,
+                      guardianNameForChat: student?.user?.name ?? "",
+                    );
+                  },
+                ),
 
-                // //leave requst
-                // Consumer<StudentProvider>(
-                //   builder: (context, provider, _) {
-                //     final student = provider.individualStudent;
-                //     if (student == null) {
-                //       return SizedBox.shrink();
-                //     }
-                //     return LeaveLetterScreen(
-                //       studentId: widget.studentId,
-                //       forParent: widget.forParent,
-                //     );
-                //   },
-                // ),
+                //leave requst
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return LeaveLetterScreen(
+                      studentId: widget.studentId,
+                      forParent: false,
+                    );
+                  },
+                ),
 
-                // //payment
-                // Consumer<StudentProvider>(
-                //   builder: (context, provider, _) {
-                //     final student = provider.individualStudent;
-                //     if (student == null) {
-                //       return SizedBox.shrink();
-                //     }
-                //     return PaymentScreen(
-                //       studentId: widget.studentId,
-                //       forParent: widget.forParent,
-                //     );
-                //   },
-                // ),
+                //payment
+                Consumer<StudentProvider>(
+                  builder: (context, provider, _) {
+                    final student = provider.individualStudent;
+                    if (student == null) {
+                      return SizedBox.shrink();
+                    }
+                    return PaymentScreen(
+                      studentId: widget.studentId,
+                      forParent: widget.forStaff,
+                    );
+                  },
+                ),
 
-                // //notices
+                //notices
                 // Consumer<StudentProvider>(
                 //   builder: (context, provider, _) {
                 //     final student = provider.individualStudent;
@@ -412,7 +415,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 //     }
                 //     return StudentNoticeTab(
                 //       studentId: widget.studentId,
-                //       forParent: widget.forParent,
+                //       forStaff: widget.forStaff,
                 //     );
                 //   },
                 // ),

@@ -13,13 +13,13 @@ import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
 class StudentHomeworkPage extends StatefulWidget {
-  final bool forParent;
+  final bool forStaff;
   final int studentId;
   final int guardianIdForChat;
   final String guardianNameForChat;
   const StudentHomeworkPage({
     super.key,
-    required this.forParent,
+    required this.forStaff,
     required this.studentId,
     required this.guardianIdForChat,
     required this.guardianNameForChat,
@@ -38,7 +38,7 @@ class _StudentHomeworkPageState extends State<StudentHomeworkPage> {
     super.initState();
     _homeworkProvider = context.read<HomeworkProvider>();
     _homeworkProvider.fetchHomeworksByStudentId(
-      forParent: widget.forParent,
+      forStaff: widget.forStaff,
       studentId: widget.studentId,
     );
     _scrollController.addListener(_scrollListener);
@@ -53,7 +53,7 @@ class _StudentHomeworkPageState extends State<StudentHomeworkPage> {
         !_homeworkProvider.isLoading &&
         _homeworkProvider.hasMoreForStudent) {
       _homeworkProvider.fetchHomeworksByStudentId(
-        forParent: widget.forParent,
+        forStaff: widget.forStaff,
         studentId: widget.studentId,
         loadMore: true,
       );
@@ -109,7 +109,7 @@ class _StudentHomeworkPageState extends State<StudentHomeworkPage> {
                       dueDate: homework.homework?.dueDate,
                       studentHomeworkId: homework.id,
                       studentPoints: homework.points,
-                      forParent: widget.forParent,
+                      forStaff: widget.forStaff,
                       guardianIdForChat: widget.guardianIdForChat,
                       guardianNameForChat: widget.guardianNameForChat,
                       user: homework.homework?.user,

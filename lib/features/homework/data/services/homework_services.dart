@@ -125,13 +125,13 @@ class HomeworkServices {
   // fetch homeworkby studentId
   Future<Response> fetchHomeworkByStudentId({
     required int studentId,
-    required bool forParent,
+    required bool forStaff,
     required int pageNo,
   }) async {
     final response = await ApiServices.get(
-      forParent
-          ? "${ApiEndpoints.fetchHomeworksByStudentIdForGuardian}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}"
-          : "${ApiEndpoints.fetchHomeworksByStudentIdForStaff}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}",
+      forStaff
+          ? "${ApiEndpoints.fetchHomeworksByStudentIdForStaff}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}"
+          : "${ApiEndpoints.fetchHomeworksByStudentIdForGuardian}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return response;
   }

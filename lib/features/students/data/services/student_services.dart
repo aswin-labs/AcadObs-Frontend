@@ -38,6 +38,7 @@ class StudentServices {
   Future<Response> fetchNoticeByStudentId({
     required int pageNo,
     required int studentId,
+
   }) async {
     final response = await ApiServices.get(
       "${ApiEndpoints.studentNotices}/$studentId?pageNo=$pageNo&limit=${AppConstants.paginationLimit}",

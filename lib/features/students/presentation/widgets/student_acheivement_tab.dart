@@ -41,13 +41,19 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
               _scrollController.position.maxScrollExtent - 200 &&
           !_provider.isLoadingStudent &&
           _provider.hasMoreStudent) {
-        _provider.fetchAchievementsByStudentId(
-          studentId: widget.studentId,
-          forStaff: widget.forStaff,
-          loadMore: true,
-        );
+        refreshData();
       }
     });
+  }
+
+  Future<void> refreshData() async {
+    await Future.wait([
+      _provider.fetchAchievementsByStudentId(
+        studentId: widget.studentId,
+        forStaff: widget.forStaff,
+        loadMore: true,
+      ),
+    ]);
   }
 
   @override
@@ -59,63 +65,74 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () => _provider.fetchAchievementsByStudentId(studentId: widget.studentId, forStaff: widget.forStaff),
-        child: Consumer<AchievementProvider>(
-          builder: (context, provider, _) {
-            if (provider.isLoadingStudent &&
-                provider.studentAchievements.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: commonShimmerList(),
-              );
-            }
-
-            if (provider.studentAchievements.isEmpty) {
-              return emptyScreen(message: 'No Achievements Found.');
-            }
-
-            return ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 55),
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-              itemCount:
-                  provider.studentAchievements.length +
-                  (provider.hasMoreTeacher ? 1 : 0),
-              itemBuilder: (context, index) {
-                // if (index == 0) {
-                //   return SizedBox(height: Responsive.height * 3);
-                // }
-
-                if (index == provider.studentAchievements.length ) {
-                  return const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  );
-                }
-
-                final achievement = provider.studentAchievements[index];
-
-                return ItemCard(
-                  title: achievement.achievement?.title ?? "Untitled",
-                  description:
-                      achievement.achievement?.description ?? "No description",
-                  onTap: () {
-                    context.pushNamed(
-                      RouteConstants.achievementDetailsScreen,
-                      extra: DetailScreenArgs(
-                        id: achievement.achievement?.id ?? 0,
-                        forStaff: widget.forStaff,
-                      ),
-                    );
-                  },
-                );
-              },
+      body: Consumer<AchievementProvider>(
+        builder: (context, provider, _) {
+          if (provider.isLoadingStudent &&
+              provider.studentAchievements.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: commonShimmerList(),
             );
-          },
-        ),
+          }
+
+          if (provider.studentAchievements.isEmpty) {
+            return emptyScreen(message: 'No Achievements Found.');
+          }
+
+          return RefreshIndicator(
+            onRefresh: refreshData,
+            child: Column(
+              children: [
+                SizedBox(height: 30),
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 55,
+                    ),
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    itemCount:
+                        provider.studentAchievements.length +
+                        (provider.hasMoreTeacher ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      // if (index == 0) {
+                      //   return SizedBox(height: Responsive.height * 3);
+                      // }
+
+                      if (index == provider.studentAchievements.length) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      final achievement = provider.studentAchievements[index];
+
+                      return ItemCard(
+                        title: achievement.achievement?.title ?? "Untitled",
+                        description:
+                            achievement.achievement?.description ??
+                            "No description",
+                        onTap: () {
+                          context.pushNamed(
+                            RouteConstants.achievementDetailsScreen,
+                            extra: DetailScreenArgs(
+                              id: achievement.achievement?.id ?? 0,
+                              forStaff: widget.forStaff,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

@@ -48,11 +48,11 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                       RouteConstants.chatScreen,
                       extra: ChatModel(
                         opponentId:
-                            widget.homework.forParent == true
+                            widget.homework.forStaff == false
                                 ? widget.homework.user?.id ?? 0
                                 : widget.homework.guardianIdForChat ?? 0,
                         opponentName:
-                            widget.homework.forParent == true
+                            widget.homework.forStaff == false
                                 ? widget.homework.user?.name ?? ""
                                 : widget.homework.guardianNameForChat ?? "",
                         title: widget.homework.title ?? "",
@@ -522,4 +522,3 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
     );
   }
 }
-
