@@ -38,4 +38,10 @@ class AuthServices {
     });
     return response;
   }
+
+  // get user permissions
+  Future<Response> getStaffPermissions() async {
+    final response = await ApiServices.get(ApiEndpoints.staffPermissions);
+    return response;
+  }
 }

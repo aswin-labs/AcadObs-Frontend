@@ -1,6 +1,6 @@
 import 'dart:developer';
 
-import 'package:acadobs/features/superadmin/data/services/super_admin_services.dart';
+import 'package:acadobs/features/subjects/data/services/subject_services.dart';
 import 'package:acadobs/shared/models/subject_model.dart';
 import 'package:flutter/material.dart';
 
@@ -12,51 +12,28 @@ class SubjectProvider extends ChangeNotifier {
   SubjectModel? get selectedSubject => _selectedSubject;
 
   List<SubjectModel> schoolSubjects = [];
+  List<SubjectModel> _subjectsAll = [];
+  List<SubjectModel> get subjectsAll => _subjectsAll;
   int currentPage = 1;
   int lastPage = 1;
   bool isLoadingMore = false;
-  bool _hasFetchedOnce = false;
-
-  
 
   // Fetch all subjects
-  Future<void> fetchSubjects({bool loadMore = false}) async {
-    if (!loadMore && _hasFetchedOnce) {
-      return;
-    }
-    if (loadMore) {
-      if (currentPage >= lastPage || isLoadingMore) return;
-      isLoadingMore = true;
-      currentPage += 1;
-      notifyListeners();
-    } else {
-      _isLoading = true;
-      currentPage = 1;
-      schoolSubjects.clear();
-      notifyListeners();
-    }
+  Future<void> fetchAllSubjects({bool loadMore = false}) async {
+    _isLoading = true;
+    _subjectsAll.clear();
 
     try {
-      final response = await SuperAdminServices().getAllSubjects(
-        pageNo: currentPage,
-      );
+      final response = await SubjectServices().fetchAllSubjects();
       final data = response.data;
-
-      final List<dynamic> schoolSubjectsList = data['subjects'];
-      final List<SubjectModel> fetchedSubjects =
-          schoolSubjectsList
+      _subjectsAll =
+          (data['subjects'] as List<dynamic>)
               .map((json) => SubjectModel.fromJson(json))
               .toList();
-
-      schoolSubjects.addAll(fetchedSubjects);
-
-      lastPage = data['totalPages'];
-      _hasFetchedOnce = true;
     } catch (e) {
       log('Error fetching subjects: $e');
     } finally {
       _isLoading = false;
-      isLoadingMore = false;
       notifyListeners();
     }
   }
@@ -75,7 +52,7 @@ class SubjectProvider extends ChangeNotifier {
   // set subject selected
   void setSubjectSelected(int subjectId) async {
     try {
-      await fetchSubjects();
+      await fetchAllSubjects();
       final subject = schoolSubjects.firstWhere((s) => s.id == subjectId);
       _selectedSubject = subject;
       notifyListeners();

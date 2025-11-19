@@ -42,7 +42,7 @@ class AwardSection extends StatelessWidget {
 
         Consumer<AchievementProvider>(
           builder: (context, provider, _) {
-            final achievements = provider.schoolAchievements;
+            final achievements = provider.schoolAchievementsAll;
 
             if (provider.isLoading) {
               return Center(child: CommonShimmerTile());

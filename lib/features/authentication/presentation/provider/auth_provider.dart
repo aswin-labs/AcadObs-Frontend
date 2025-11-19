@@ -7,6 +7,7 @@ import 'package:acadobs/features/authentication/data/models/parent_school_model.
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/data/services/auth_services.dart';
 import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/models/user_permission_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -196,6 +197,40 @@ class AuthProvider with ChangeNotifier {
       }
     } catch (e) {
       log(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // retrieve and save staff permissions
+  UserPermissionModel? staffPermission;
+  Future<void> getStaffPermissions() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      // First try to load from local storage
+      final storedPermission = await AuthStorageService().getUserPermissions();
+
+      if (storedPermission != null) {
+        staffPermission = storedPermission;
+        notifyListeners();
+      }
+
+      // Always fetch fresh permissions from API
+      final response = await AuthServices().getStaffPermissions();
+
+      if (response.statusCode == 200) {
+        staffPermission = UserPermissionModel.fromJson(response.data);
+
+        // Save locally
+        await AuthStorageService().saveUserPermissions(
+          permissions: staffPermission!,
+        );
+      }
+    } catch (e) {
+      log("Permission Fetch Error: $e");
     } finally {
       _isLoading = false;
       notifyListeners();

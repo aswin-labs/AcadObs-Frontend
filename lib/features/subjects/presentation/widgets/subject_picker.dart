@@ -1,5 +1,5 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
-import 'package:acadobs/shared/providers/subject_provider.dart';
+import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -47,7 +47,7 @@ class SubjectPicker extends StatelessWidget {
 
 Future<void> showSubjectSelectionDialog(BuildContext context) async {
   final subjectProvider = Provider.of<SubjectProvider>(context, listen: false);
-  await subjectProvider.fetchSubjects();
+  await subjectProvider.fetchAllSubjects();
   if (!context.mounted) return;
   showDialog(
     context: context,
@@ -59,7 +59,7 @@ Future<void> showSubjectSelectionDialog(BuildContext context) async {
             if (subjectProvider.isLoading) {
               return Center(child: CircularProgressIndicator());
             }
-            if (subjectProvider.schoolSubjects.isEmpty) {
+            if (subjectProvider.subjectsAll.isEmpty) {
               return Text("No subjects found.");
             }
 
@@ -67,9 +67,9 @@ Future<void> showSubjectSelectionDialog(BuildContext context) async {
               width: double.maxFinite,
               height: 300,
               child: ListView.builder(
-                itemCount: subjectProvider.schoolSubjects.length,
+                itemCount: subjectProvider.subjectsAll.length,
                 itemBuilder: (context, index) {
-                  final subject = subjectProvider.schoolSubjects[index];
+                  final subject = subjectProvider.subjectsAll[index];
                   final isSelected =
                       subjectProvider.selectedSubject?.id == subject.id;
 

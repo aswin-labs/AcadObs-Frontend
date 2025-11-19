@@ -10,14 +10,14 @@ import 'package:acadobs/features/homework/presentation/provider/homework_provide
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
-import 'package:acadobs/shared/providers/subject_provider.dart';
+import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
 import 'package:acadobs/shared/widgets/custom_filepicker.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:acadobs/shared/widgets/students_picker.dart';
-import 'package:acadobs/shared/widgets/subject_picker.dart';
+import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons/lucide_icons.dart';
