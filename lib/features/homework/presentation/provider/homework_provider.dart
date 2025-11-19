@@ -302,7 +302,7 @@ class HomeworkProvider extends ChangeNotifier {
   // Get homeworks by studentId
   Future<void> fetchHomeworksByStudentId({
     required int studentId,
-    required bool forParent,
+    required bool forStaff,
     bool loadMore = false,
     bool forceRefresh = false,
   }) async {
@@ -316,7 +316,7 @@ class HomeworkProvider extends ChangeNotifier {
       }
       final response = await HomeworkServices().fetchHomeworkByStudentId(
         studentId: studentId,
-        forParent: forParent,
+        forStaff: forStaff,
         pageNo: _currentPageForStudent,
       );
       if (response.statusCode == 200) {

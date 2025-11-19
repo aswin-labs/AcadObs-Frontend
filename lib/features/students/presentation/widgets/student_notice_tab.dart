@@ -13,11 +13,11 @@ import 'package:provider/provider.dart';
 
 class StudentNoticeTab extends StatefulWidget {
   final int studentId;
-  final bool forParent;
+  final bool forStaff;
   const StudentNoticeTab({
     super.key,
     required this.studentId,
-    required this.forParent,
+    required this.forStaff,
   });
 
   @override
@@ -32,7 +32,7 @@ class _StudentNoticeTabState extends State<StudentNoticeTab> {
   void initState() {
     super.initState();
     _studentProvider = context.read<StudentProvider>();
-    _studentProvider.fetchNoticeByStudentId(studentId: widget.studentId);
+    _studentProvider.fetchNoticeByStudentId(studentId: widget.studentId,);
     _scrollController.addListener(_scrollListener);
   }
 

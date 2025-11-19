@@ -10,7 +10,7 @@ HomeworkModel homeworkModelFromJson(String str) =>
 
 class HomeworkModel {
   bool? forStudent;
-  bool? forParent;
+  bool? forStaff;
   int? studentHomeworkId;
   int? guardianIdForChat;
   String? guardianNameForChat;
@@ -36,7 +36,7 @@ class HomeworkModel {
 
   HomeworkModel({
     this.forStudent = false,
-    this.forParent = false,
+    this.forStaff = false,
     this.studentHomeworkId = 0,
     this.guardianIdForChat = 0,
     this.guardianNameForChat = "",

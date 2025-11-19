@@ -21,7 +21,7 @@ class StudentAttendenceTab extends StatefulWidget {
     super.key,
     required this.studentId,
     required this.date,
-    required this.forStaff
+    required this.forStaff,
   });
 
   @override
@@ -66,6 +66,7 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
           child: Column(
             children: [
               const SizedBox(height: 60),
+
               Consumer<StudentProvider>(
                 builder: (context, provider, _) {
                   if (provider.isLoading) {
@@ -85,7 +86,7 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
                       provider.fetchAttendanceByDate(
                         studentId: widget.studentId,
                         date: newDate,
-                        forStaff: widget.forStaff
+                        forStaff: widget.forStaff,
                       );
                       setState(() {
                         _initialDate = DateFormat("yyyy-MM-dd").parse(newDate);
@@ -96,60 +97,64 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
               ),
 
               SizedBox(height: 20),
+              if (!widget.forStaff) ...[
+                Row(
+                  children: [
+                    Text(
+                      "Today TimeTable",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Spacer(),
+                    TextButton(
+                      onPressed: () {
+                        context.pushNamed(
+                          RouteConstants.timeTableDayTab,
+                          extra: widget.studentId,
+                        );
+                      },
+                      child: Text("View"),
+                    ),
+                  ],
+                ),
 
-              Row(
-                children: [
-                  Text(
-                    "Today TimeTable",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  Spacer(),
-                  TextButton(
-                    onPressed: () {
-                      context.pushNamed(
-                        RouteConstants.timeTableDayTab,
-                        extra: widget.studentId,
-                      );
-                    },
-                    child: Text("View"),
-                  ),
-                ],
-              ),
+                Consumer<TimeTableProvider>(
+                  builder: (context, provider, _) {
+                    if (provider.isLoading) {
+                      return const Center(child: TimeTableShimmer());
+                    }
 
-              Consumer<TimeTableProvider>(
-                builder: (context, provider, _) {
-                  if (provider.isLoading) {
-                    return const Center(child: TimeTableShimmer());
-                  }
+                    if (provider.timetable.isEmpty) {
+                      return emptyScreen(message: "No Time Table Avaliable");
+                    }
 
-                  if (provider.timetable.isEmpty) {
-                    return emptyScreen(message: "No Time Table Avaliable");
-                  }
+                    return GridView.builder(
+                      itemCount: provider.timetable.length,
+                      padding: EdgeInsets.zero,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 12,
+                            childAspectRatio: 0.8,
+                          ),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
 
-                  return GridView.builder(
-                    itemCount: provider.timetable.length,
-                    padding: EdgeInsets.zero,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          childAspectRatio: 0.8,
-                        ),
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-
-                    itemBuilder: (context, index) {
-                      final item = provider.timetable[index];
-                      return TimeTableCard(
-                        periodnumber: item.periodNumber ?? 0,
-                        subject: item.subject?.subjectName ?? "",
-                        description: item.user?.name ?? "",
-                      );
-                    },
-                  );
-                },
-              ),
+                      itemBuilder: (context, index) {
+                        final item = provider.timetable[index];
+                        return TimeTableCard(
+                          periodnumber: item.periodNumber ?? 0,
+                          subject: item.subject?.subjectName ?? "",
+                          description: item.user?.name ?? "",
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
 
               SizedBox(height: 20),
             ],
