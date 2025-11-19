@@ -25,7 +25,7 @@ import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.da
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
-import 'package:acadobs/shared/providers/subject_provider.dart';
+import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
 import 'package:provider/provider.dart';
 
 getProviders() {

@@ -1,10 +1,10 @@
 // lib/services/auth_storage_service.dart
 import 'dart:convert';
 
+import 'package:acadobs/shared/models/user_permission_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthStorageService {
-
   AuthStorageService._internal();
   static final AuthStorageService _instance = AuthStorageService._internal();
   factory AuthStorageService() => _instance;
@@ -15,6 +15,7 @@ class AuthStorageService {
   static const _kSchoolName = 'school_name';
   static const _kSchoolDetailsForTeacher = 'school_details_for_teacher';
   static const _kFcmToken = 'fcm_token';
+  static const _kUserPermissions = 'user_permissions';
 
   final FlutterSecureStorage _storage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
@@ -59,6 +60,16 @@ class AuthStorageService {
     await _storage.write(key: _kFcmToken, value: fcmToken);
   }
 
+  // Save user permissions
+  Future<void> saveUserPermissions({
+    required UserPermissionModel permissions,
+  }) async {
+    await _storage.write(
+      key: _kUserPermissions,
+      value: jsonEncode(permissions.toJson()),
+    );
+  }
+
   // **********Retrieve*****************
 
   // Get stored school id
@@ -97,7 +108,7 @@ class AuthStorageService {
     return data['role'] as String?;
   }
 
-    /// Get user photo only
+  /// Get user photo only
   Future<String?> getUserPhoto() async {
     final data = await getUserData();
     if (data == null) return null;
@@ -114,6 +125,17 @@ class AuthStorageService {
   // Get fcm token
   Future<String?> getFcmToken() async {
     return await _storage.read(key: _kFcmToken);
+  }
+
+  // Get permissions
+  Future<UserPermissionModel?> getUserPermissions() async {
+    final jsonString = await _storage.read(key: _kUserPermissions);
+
+    if (jsonString == null) return null;
+
+    final Map<String, dynamic> jsonMap = jsonDecode(jsonString);
+
+    return UserPermissionModel.fromJson(jsonMap);
   }
 
   /// Clear everything (on logout)

@@ -1,19 +1,15 @@
-import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
-
 import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:provider/provider.dart';
 
 class SchoolAchievementListing extends StatefulWidget {
@@ -38,9 +34,9 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 200 &&
-          !_provider.isLoading &&
-          _provider.hasMore) {
-        _provider.fetchAchievementSchool(
+          !_provider.isLoadingSchoolAll &&
+          _provider.hasMoreForSchool) {
+        _provider.fetchSchoolAchievements(
           forStaff: widget.forStaff,
           loadMore: true,
         );
@@ -56,9 +52,8 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
 
   Future<void> refreshAllData() async {
     await Future.wait([
-      _provider.fetchAchievementSchool(
+      _provider.fetchSchoolAchievements(
         forStaff: widget.forStaff,
-        limit: AppConstants.paginationLimit,
         forceRefresh: true,
       ),
     ]);
@@ -72,7 +67,8 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
         onRefresh: refreshAllData,
         child: Consumer<AchievementProvider>(
           builder: (context, provider, _) {
-            if (provider.isLoading && provider.schoolAchievementsAll.isEmpty) {
+            if (provider.isLoadingSchoolAll &&
+                provider.schoolAchievementsAll.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: commonShimmerList(),
@@ -91,8 +87,7 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
               ),
               itemCount:
                   provider.schoolAchievementsAll.length +
-                  (provider.hasMore ? 1 : 0) +
-                  1,
+                  (provider.hasMore ? 2 : 1),
               itemBuilder: (context, index) {
                 if (index == 0) {
                   return SizedBox(height: Responsive.height * 3);

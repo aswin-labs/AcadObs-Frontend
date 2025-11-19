@@ -94,8 +94,10 @@ class ApiEndpoints {
   static const String staffProfile = "/staff/getProfileDetails";
 
   static const String singleAchievementForStaff = "/staff/achievements";
+  static const String staffPermissions = "staff/getMyPermissions";
   //  subjects
-  // static const String subjects = "/staff/"
+  static const String staffSubjects = "/staff/getStaffSubjects";
+  static const String subjectsAll = "/staff/getSubjects";
 
   //***********************GUARDIAN*************************
   static const String fetchLatestEventsGuardian = "/guardian/getLatestEvents";

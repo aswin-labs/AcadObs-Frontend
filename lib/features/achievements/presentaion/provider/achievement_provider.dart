@@ -169,90 +169,144 @@ class AchievementProvider extends ChangeNotifier {
   // ===========================================================================
   // SCHOOL ACHIEVEMENTS
   // ===========================================================================
-  final List<AchievementModel> _schoolAchievements = [];
-  List<AchievementModel> get schoolAchievements =>
-      List.unmodifiable(_schoolAchievements);
+  final List<AchievementModel> _schoolAchievementsLatest = [];
+  List<AchievementModel> get schoolAchievementsLatest =>
+      List.unmodifiable(_schoolAchievementsLatest);
 
   final List<AchievementModel> _schoolAchievementsAll = [];
   List<AchievementModel> get schoolAchievementsAll =>
       List.unmodifiable(_schoolAchievementsAll);
 
-  // Separate pagination states for preview and full list
-  int _schoolPagePreview = 1;
-  int _schoolTotalPagesPreview = 1;
+  int _schoolCurrentPage = 1;
+  int _schoolTotalPages = 1;
+  bool get hasMoreForSchool => _schoolCurrentPage < _schoolTotalPages;
+  bool _isLoadingSchoolAll = false;
+  bool get isLoadingSchoolAll => _isLoadingSchoolAll;
 
-  int _schoolPageAll = 1;
-  int _schoolTotalPagesAll = 1;
-
-  bool _isLoadingSchool = false;
-  bool get isLoadingSchool => _isLoadingSchool;
-  bool get hasMoreSchool => _schoolPageAll < _schoolTotalPagesAll;
+  bool _isFetchedOnceForSchool = false;
 
   Future<void> fetchSchoolAchievements({
     required bool forStaff,
     bool loadMore = false,
     bool forceRefresh = false,
-    int limit = 3,
   }) async {
-    if (_isLoadingSchool) return;
-    _isLoadingSchool = true;
-    notifyListeners();
+    if (_isLoadingSchoolAll) return;
+    if (!loadMore && !forceRefresh && _isFetchedOnceForSchool) return;
 
+    _isLoadingSchoolAll = true;
     try {
-      // Decide which list and pagination to use based on limit
-      final isPreview = limit == 3;
-
-      if (!loadMore || forceRefresh) {
-        if (isPreview) {
-          _schoolPagePreview = 1;
-          _schoolAchievements.clear();
-        } else {
-          _schoolPageAll = 1;
-          _schoolAchievementsAll.clear();
+      if (loadMore) {
+        if (_schoolCurrentPage >= _schoolTotalPages) {
+          _isLoading = false;
+          return;
         }
+        _currentPage++;
+      } else {
+        _currentPage = 1;
+        _schoolAchievementsAll.clear();
+        _isFetchedOnceForSchool = false;
       }
-
-      final pageNo = isPreview ? _schoolPagePreview : _schoolPageAll;
-
       final response = await AchievementService().fetchSchoolAchievements(
-        pageNo: pageNo,
-        limit: limit,
+        pageNo: _schoolCurrentPage,
+        limit: 10,
         forStaff: forStaff,
       );
-
       if (response.statusCode == 200) {
         final data = response.data;
+        _schoolTotalPages = data['totalPages'];
+        _schoolCurrentPage = data['currentPage'];
+
         final fetched =
             (data['achievements'] as List)
                 .map((e) => AchievementModel.fromJson(e))
                 .toList();
 
-        if (isPreview) {
-          _schoolTotalPagesPreview = data['totalPages'] ?? 1;
-          _schoolPagePreview = data['currentPage'] ?? 1;
-          _schoolAchievements.addAll(fetched);
-
-          if (_schoolPagePreview < _schoolTotalPagesPreview) {
-            _schoolPagePreview++;
-          }
-        } else {
-          _schoolTotalPagesAll = data['totalPages'] ?? 1;
-          _schoolPageAll = data['currentPage'] ?? 1;
-          _schoolAchievementsAll.addAll(fetched);
-
-          if (_schoolPageAll < _schoolTotalPagesAll) {
-            _schoolPageAll++;
-          }
-        }
+        _schoolAchievementsAll.addAll(fetched);
       }
     } catch (e) {
-      _error = e.toString();
-      log("Error fetching school achievements: $_error");
+      log(e.toString());
     } finally {
-      _isLoadingSchool = false;
+      _isLoadingSchoolAll = false;
       notifyListeners();
     }
   }
+
+  // Separate pagination states for preview and full list
+  // int _schoolPagePreview = 1;
+  // int _schoolTotalPagesPreview = 1;
+
+  // int _schoolPageAll = 1;
+  // int _schoolTotalPagesAll = 1;
+
+  // bool _isLoadingSchool = false;
+  // bool get isLoadingSchool => _isLoadingSchool;
+  // bool get hasMoreSchool => _schoolPageAll < _schoolTotalPagesAll;
+
+  // Future<void> fetchSchoolAchievements({
+  //   required bool forStaff,
+  //   bool loadMore = false,
+  //   bool forceRefresh = false,
+  //   int limit = 3,
+  // }) async {
+  //   if (_isLoadingSchool) return;
+  //   _isLoadingSchool = true;
+  //   notifyListeners();
+
+  //   try {
+  //     // Decide which list and pagination to use based on limit
+  //     final isPreview = limit == 3;
+
+  //     if (!loadMore || forceRefresh) {
+  //       if (isPreview) {
+  //         _schoolPagePreview = 1;
+  //         _schoolAchievements.clear();
+  //       } else {
+  //         _schoolPageAll = 1;
+  //         _schoolAchievementsAll.clear();
+  //       }
+  //     }
+
+  //     final pageNo = isPreview ? _schoolPagePreview : _schoolPageAll;
+
+  //     final response = await AchievementService().fetchSchoolAchievements(
+  //       pageNo: pageNo,
+  //       limit: limit,
+  //       forStaff: forStaff,
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       final data = response.data;
+  //       final fetched =
+  //           (data['achievements'] as List)
+  //               .map((e) => AchievementModel.fromJson(e))
+  //               .toList();
+
+  //       if (isPreview) {
+  //         _schoolTotalPagesPreview = data['totalPages'] ?? 1;
+  //         _schoolPagePreview = data['currentPage'] ?? 1;
+  //         _schoolAchievements.addAll(fetched);
+
+  //         if (_schoolPagePreview < _schoolTotalPagesPreview) {
+  //           _schoolPagePreview++;
+  //         }
+  //       } else {
+  //         _schoolTotalPagesAll = data['totalPages'] ?? 1;
+  //         _schoolPageAll = data['currentPage'] ?? 1;
+  //         _schoolAchievementsAll.addAll(fetched);
+
+  //         if (_schoolPageAll < _schoolTotalPagesAll) {
+  //           _schoolPageAll++;
+  //         }
+  //       }
+  //     }
+  //   } catch (e) {
+  //     _error = e.toString();
+  //     log("Error fetching school achievements: $_error");
+  //   } finally {
+  //     _isLoadingSchool = false;
+  //     notifyListeners();
+  //   }
+  // }
 
   // ===========================================================================
   // SINGLE ACHIEVEMENT
@@ -401,7 +455,7 @@ class AchievementProvider extends ChangeNotifier {
       if (response.statusCode == 200 || response.statusCode == 204) {
         _teacherAchievements.removeWhere((a) => a.id == id);
         _studentAchievements.removeWhere((a) => a.id == id);
-        _schoolAchievements.removeWhere((a) => a.id == id);
+        // _schoolAchievements.removeWhere((a) => a.id == id);
         notifyListeners();
         return true;
       } else {
@@ -473,7 +527,7 @@ class AchievementProvider extends ChangeNotifier {
   void clearAll() {
     _teacherAchievements.clear();
     _studentAchievements.clear();
-    _schoolAchievements.clear();
+    // _schoolAchievements.clear();
     singleAchievement = null;
     notifyListeners();
   }
