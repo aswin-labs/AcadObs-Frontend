@@ -31,8 +31,6 @@ class HomeworkProvider extends ChangeNotifier {
 
   bool get hasMore => _currentPage < _totalPages;
 
-  bool _isFetchedOnce = false;
-
   int _currentPageForStudent = 1;
   int _totalPagesForStudent = 1;
 
@@ -59,7 +57,7 @@ class HomeworkProvider extends ChangeNotifier {
     if (_isLoading) return;
 
     // If not loading more, check if already fetched once.
-    if (!loadMore && !forceRefresh && _isFetchedOnce) return;
+    if (!loadMore && !forceRefresh) return;
 
     _isLoading = true;
 
@@ -73,7 +71,6 @@ class HomeworkProvider extends ChangeNotifier {
       } else {
         _currentPage = 1;
         _homeworks.clear();
-        _isFetchedOnce = false;
       }
       final response = await HomeworkServices().fetchHomeworksByTeacher(
         pageNo: _currentPage,
@@ -91,7 +88,6 @@ class HomeworkProvider extends ChangeNotifier {
                 .map((json) => GroupedHomework.fromJson(json))
                 .toList();
         _homeworks.addAll(fetchedHomeworks);
-        _isFetchedOnce = true;
       } else {
         throw Exception('Failed to fetch homeworks: ${response.statusCode}');
       }

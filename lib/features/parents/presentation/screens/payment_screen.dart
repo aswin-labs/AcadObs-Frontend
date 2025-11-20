@@ -2,7 +2,6 @@
 
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
-import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 // import 'package:acadobs/features/teacher/presentation/leave_request/widgets/create_leave_request_bottomsheet.dart';
@@ -11,7 +10,6 @@ import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:provider/provider.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -129,9 +127,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ],
         ),
         onRefresh: () async {
-          await context
-              .read<StudentLeaveRequestProvider>()
-              .fetchAllStudentLeaveRequests(studentId: widget.studentId);
+          await context.read<PaymentProvider>().fetchPayments(
+            studentId: widget.studentId,
+          );
         },
       ),
 

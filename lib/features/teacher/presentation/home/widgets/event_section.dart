@@ -38,7 +38,7 @@ class EventSection extends StatelessWidget {
         Consumer<EventProvider>(
           builder: (context, provider, _) {
             final events = provider.eventsLatest;
-            if (provider.isLoading) {
+            if (provider.isLatestLoading) {
               return Center(child: CommonShimmerTile());
             } else if (events.isEmpty) {
               return emptyScreen(

@@ -169,10 +169,8 @@ class AchievementProvider extends ChangeNotifier {
   // ===========================================================================
   // SCHOOL ACHIEVEMENTS
   // ===========================================================================
-  final List<AchievementModel> _schoolAchievementsLatest = [];
-  List<AchievementModel> get schoolAchievementsLatest =>
-      List.unmodifiable(_schoolAchievementsLatest);
 
+  // all school achievements
   final List<AchievementModel> _schoolAchievementsAll = [];
   List<AchievementModel> get schoolAchievementsAll =>
       List.unmodifiable(_schoolAchievementsAll);
@@ -183,28 +181,25 @@ class AchievementProvider extends ChangeNotifier {
   bool _isLoadingSchoolAll = false;
   bool get isLoadingSchoolAll => _isLoadingSchoolAll;
 
-  bool _isFetchedOnceForSchool = false;
-
   Future<void> fetchSchoolAchievements({
     required bool forStaff,
     bool loadMore = false,
     bool forceRefresh = false,
   }) async {
     if (_isLoadingSchoolAll) return;
-    if (!loadMore && !forceRefresh && _isFetchedOnceForSchool) return;
+    if (!loadMore && !forceRefresh) return;
 
     _isLoadingSchoolAll = true;
     try {
       if (loadMore) {
         if (_schoolCurrentPage >= _schoolTotalPages) {
-          _isLoading = false;
+          _isLoadingSchoolAll = false;
           return;
         }
-        _currentPage++;
+        _schoolCurrentPage++;
       } else {
-        _currentPage = 1;
+        _schoolCurrentPage = 1;
         _schoolAchievementsAll.clear();
-        _isFetchedOnceForSchool = false;
       }
       final response = await AchievementService().fetchSchoolAchievements(
         pageNo: _schoolCurrentPage,
@@ -231,82 +226,46 @@ class AchievementProvider extends ChangeNotifier {
     }
   }
 
-  // Separate pagination states for preview and full list
-  // int _schoolPagePreview = 1;
-  // int _schoolTotalPagesPreview = 1;
+  // latest school achievements
+  final List<AchievementModel> _schoolAchievementsLatest = [];
+  List<AchievementModel> get schoolAchievementsLatest =>
+      List.unmodifiable(_schoolAchievementsLatest);
+  bool _isLatestLoading = false;
+  bool get isLatestLoading => _isLatestLoading;
+  Future<void> fetchLatestSchoolAchievements({
+    required bool forStaff,
+    int limit = 3,
+  }) async {
+    if (_isLatestLoading) return;
+    _isLatestLoading = true;
+    notifyListeners();
 
-  // int _schoolPageAll = 1;
-  // int _schoolTotalPagesAll = 1;
+    try {
+      _schoolAchievementsLatest.clear();
 
-  // bool _isLoadingSchool = false;
-  // bool get isLoadingSchool => _isLoadingSchool;
-  // bool get hasMoreSchool => _schoolPageAll < _schoolTotalPagesAll;
+      final response = await AchievementService().fetchSchoolAchievements(
+        forStaff: forStaff,
+        pageNo: 1,
+        limit: limit,
+      );
 
-  // Future<void> fetchSchoolAchievements({
-  //   required bool forStaff,
-  //   bool loadMore = false,
-  //   bool forceRefresh = false,
-  //   int limit = 3,
-  // }) async {
-  //   if (_isLoadingSchool) return;
-  //   _isLoadingSchool = true;
-  //   notifyListeners();
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final fetched =
+            (data['achievements'] as List)
+                .map((e) => AchievementModel.fromJson(e))
+                .toList();
 
-  //   try {
-  //     // Decide which list and pagination to use based on limit
-  //     final isPreview = limit == 3;
-
-  //     if (!loadMore || forceRefresh) {
-  //       if (isPreview) {
-  //         _schoolPagePreview = 1;
-  //         _schoolAchievements.clear();
-  //       } else {
-  //         _schoolPageAll = 1;
-  //         _schoolAchievementsAll.clear();
-  //       }
-  //     }
-
-  //     final pageNo = isPreview ? _schoolPagePreview : _schoolPageAll;
-
-  //     final response = await AchievementService().fetchSchoolAchievements(
-  //       pageNo: pageNo,
-  //       limit: limit,
-  //       forStaff: forStaff,
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       final data = response.data;
-  //       final fetched =
-  //           (data['achievements'] as List)
-  //               .map((e) => AchievementModel.fromJson(e))
-  //               .toList();
-
-  //       if (isPreview) {
-  //         _schoolTotalPagesPreview = data['totalPages'] ?? 1;
-  //         _schoolPagePreview = data['currentPage'] ?? 1;
-  //         _schoolAchievements.addAll(fetched);
-
-  //         if (_schoolPagePreview < _schoolTotalPagesPreview) {
-  //           _schoolPagePreview++;
-  //         }
-  //       } else {
-  //         _schoolTotalPagesAll = data['totalPages'] ?? 1;
-  //         _schoolPageAll = data['currentPage'] ?? 1;
-  //         _schoolAchievementsAll.addAll(fetched);
-
-  //         if (_schoolPageAll < _schoolTotalPagesAll) {
-  //           _schoolPageAll++;
-  //         }
-  //       }
-  //     }
-  //   } catch (e) {
-  //     _error = e.toString();
-  //     log("Error fetching school achievements: $_error");
-  //   } finally {
-  //     _isLoadingSchool = false;
-  //     notifyListeners();
-  //   }
-  // }
+        _schoolAchievementsLatest.addAll(fetched);
+      }
+    } catch (e) {
+      _error = e.toString();
+      log("Error fetching latest achievements: $_error");
+    } finally {
+      _isLatestLoading = false;
+      notifyListeners();
+    }
+  }
 
   // ===========================================================================
   // SINGLE ACHIEVEMENT

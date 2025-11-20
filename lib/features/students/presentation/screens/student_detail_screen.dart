@@ -9,6 +9,7 @@ import 'package:acadobs/features/students/presentation/widgets/student_acheiveme
 import 'package:acadobs/features/students/presentation/widgets/student_attendence_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_exam_detail_screen.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_homework_page.dart';
+import 'package:acadobs/features/students/presentation/widgets/student_notice_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_profile_tab.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +46,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 7,
+      length: 8,
       child: Scaffold(
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -334,7 +335,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           Tab(text: "Homework"),
                           Tab(text: 'Leave request'),
                           Tab(text: "Payment"),
-                          // Tab(text: "Notices"),
+                          Tab(text: "Notices"),
                           Tab(text: "Profile"),
                         ],
                       ),
@@ -382,46 +383,22 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 ),
 
                 //leave requst
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
-                    if (student == null) {
-                      return SizedBox.shrink();
-                    }
-                    return LeaveLetterScreen(
-                      studentId: widget.studentId,
-                      forParent: false,
-                    );
-                  },
+                LeaveLetterScreen(
+                  studentId: widget.studentId,
+                  forStaff: widget.forStaff,
                 ),
 
                 //payment
-                Consumer<StudentProvider>(
-                  builder: (context, provider, _) {
-                    final student = provider.individualStudent;
-                    if (student == null) {
-                      return SizedBox.shrink();
-                    }
-                    return PaymentScreen(
-                      studentId: widget.studentId,
-                      forParent: widget.forStaff,
-                    );
-                  },
+                PaymentScreen(
+                  studentId: widget.studentId,
+                  forParent: widget.forStaff,
                 ),
 
-                //notices
-                // Consumer<StudentProvider>(
-                //   builder: (context, provider, _) {
-                //     final student = provider.individualStudent;
-                //     if (student == null) {
-                //       return SizedBox.shrink();
-                //     }
-                //     return StudentNoticeTab(
-                //       studentId: widget.studentId,
-                //       forStaff: widget.forStaff,
-                //     );
-                //   },
-                // ),
+                // notices
+                StudentNoticeTab(
+                  studentId: widget.studentId,
+                  forStaff: widget.forStaff,
+                ),
 
                 // Profile
                 Consumer<StudentProvider>(

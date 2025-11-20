@@ -42,7 +42,7 @@ class NewsSection extends StatelessWidget {
         Consumer<NewsProvider>(
           builder: (context, provider, _) {
             final news = provider.newsLatest;
-            if (provider.isLoading) {
+            if (provider.isLatestLoading) {
               return Center(child: CommonShimmerTile());
             } else if (news.isEmpty) {
               return emptyScreen(

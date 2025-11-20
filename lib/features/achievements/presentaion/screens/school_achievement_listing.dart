@@ -87,7 +87,7 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
               ),
               itemCount:
                   provider.schoolAchievementsAll.length +
-                  (provider.hasMore ? 2 : 1),
+                  (provider.hasMoreForSchool ? 2 : 1),
               itemBuilder: (context, index) {
                 if (index == 0) {
                   return SizedBox(height: Responsive.height * 3);
@@ -100,10 +100,9 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
                   );
                 }
 
-                final achievementIndex =
-                    index - 1; // because index 0 is padding
                 final achievement =
-                    provider.schoolAchievementsAll[achievementIndex];
+                    provider.schoolAchievementsAll[index -
+                        1]; // because index 0 is padding
                 return NoticeCard(
                   icon: Icons.workspace_premium,
                   backgroundColor: Colors.blue.shade50,
