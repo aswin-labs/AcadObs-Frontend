@@ -13,9 +13,14 @@ class StudentServices {
   }
 
   // Get individual student details
-  Future<Response> fetchStudentDetails({required int studentId}) async {
+  Future<Response> fetchStudentDetails({
+    required int studentId,
+    required bool forStaff,
+  }) async {
     final response = await ApiServices.get(
-      '${ApiEndpoints.students}/$studentId',
+      forStaff
+          ? '${ApiEndpoints.students}/$studentId'
+          : '${ApiEndpoints.guardian}/$studentId',
     );
     return response;
   }
@@ -38,7 +43,6 @@ class StudentServices {
   Future<Response> fetchNoticeByStudentId({
     required int pageNo,
     required int studentId,
-
   }) async {
     final response = await ApiServices.get(
       "${ApiEndpoints.studentNotices}/$studentId?pageNo=$pageNo&limit=${AppConstants.paginationLimit}",

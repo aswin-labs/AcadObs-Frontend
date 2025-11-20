@@ -4,7 +4,6 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/leave_status_style.dart';
-import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/widgets/create_leave_request_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -86,80 +85,66 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
               physics: const BouncingScrollPhysics(),
               slivers: [
                 // Filter Dropdown
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 75,
+                SliverAppBar(
+                  toolbarHeight: 100,
+                  pinned: true,
+                  floating: true,
+                  automaticallyImplyLeading: false,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  elevation: 0,
+                  surfaceTintColor: Colors.transparent,
+                  flexibleSpace: Padding(
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: MediaQuery.of(context).padding.top + 36,
+                      bottom: 4,
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          width: Responsive.width * 30,
-                          child: DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              labelText: "Filter by Status",
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Colors.blue,
-                                  width: 2,
-                                ),
-                              ),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 220),
+                        child: DropdownButtonFormField<String>(
+                          isDense: true,
+                          decoration: InputDecoration(
+                            labelText: "Filter by Status",
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 14,
                             ),
-                            value: provider.filterStatus,
-                            items: const [
-                              DropdownMenuItem(
-                                value: "all",
-                                child: Text(
-                                  "All",
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ),
-                              DropdownMenuItem(
-                                value: "approved",
-                                child: Text(
-                                  "Approved",
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ),
-                              DropdownMenuItem(
-                                value: "pending",
-                                child: Text(
-                                  "Pending",
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ),
-                              DropdownMenuItem(
-                                value: "rejected",
-                                child: Text(
-                                  "Rejected",
-                                  style: TextStyle(fontSize: 12),
-                                ),
-                              ),
-                            ],
-                            onChanged: (value) {
-                              if (value != null) {
-                                provider.setFilter(value);
-                              }
-                            },
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
+                          value: provider.filterStatus,
+                          items: const [
+                            DropdownMenuItem(value: "all", child: Text("All")),
+                            DropdownMenuItem(
+                              value: "approved",
+                              child: Text("Approved"),
+                            ),
+                            DropdownMenuItem(
+                              value: "pending",
+                              child: Text("Pending"),
+                            ),
+                            DropdownMenuItem(
+                              value: "rejected",
+                              child: Text("Rejected"),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              provider.setFilter(value);
+                              // Automatically refresh list when filter changes
+                              provider.fetchAllStudentLeaveRequests(
+                                studentId: widget.studentId,
+                                forParent: widget.forParent,
+                                forceRefresh: true,
+                              );
+                            }
+                          },
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

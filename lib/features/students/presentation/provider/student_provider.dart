@@ -101,11 +101,16 @@ class StudentProvider extends ChangeNotifier {
   }
 
   // Get Individual student details
-  Future<void> fetchStudentDetails({required int studentId}) async {
+  Future<void> fetchStudentDetails({
+    required int studentId,
+    required bool forStaff,
+  }) async {
     _isLoading = true;
+
     try {
       final response = await StudentServices().fetchStudentDetails(
         studentId: studentId,
+        forStaff: forStaff,
       );
       if (response.statusCode == 200) {
         final data = response.data;

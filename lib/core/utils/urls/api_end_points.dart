@@ -19,6 +19,7 @@ class ApiEndpoints {
   //*****************STAFF*********************
   static const String classesByYear = "/staff/getClassesByYear";
   static const String students = "/staff/students";
+  static const String guardian = "/guardian/students";
   static const String studentsByClassId = "/staff/getStudentsByClassId";
   static const String createAcheivement = "/staff/achievements";
   static const String achievementByStudentId = "/staff/achievementByStudentId";
