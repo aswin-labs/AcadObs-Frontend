@@ -15,11 +15,11 @@ import 'package:provider/provider.dart';
 
 class LeaveLetterScreen extends StatefulWidget {
   final int studentId;
-  final bool forParent;
+  final bool forStaff;
   const LeaveLetterScreen({
     super.key,
     required this.studentId,
-    required this.forParent,
+    required this.forStaff,
   });
 
   @override
@@ -39,7 +39,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
     });
     _studentLeaveProvider.fetchAllStudentLeaveRequests(
       studentId: widget.studentId,
-      forParent: widget.forParent,
+      forStaff: widget.forStaff,
     );
     _scrollController.addListener(_scrollListener);
   }
@@ -55,6 +55,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
       _studentLeaveProvider.fetchAllStudentLeaveRequests(
         loadMore: true,
         studentId: widget.studentId,
+        forStaff: widget.forStaff
       );
     }
   }
@@ -74,7 +75,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
               .read<StudentLeaveRequestProvider>()
               .fetchAllStudentLeaveRequests(
                 studentId: widget.studentId,
-                forParent: widget.forParent,
+                forStaff: widget.forStaff,
                 forceRefresh: true,
               );
         },
@@ -116,7 +117,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          value: provider.filterStatus,
+                          initialValue: provider.filterStatus,
                           items: const [
                             DropdownMenuItem(value: "all", child: Text("All")),
                             DropdownMenuItem(
@@ -138,7 +139,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
                               // Automatically refresh list when filter changes
                               provider.fetchAllStudentLeaveRequests(
                                 studentId: widget.studentId,
-                                forParent: widget.forParent,
+                                forStaff: widget.forStaff,
                                 forceRefresh: true,
                               );
                             }
@@ -214,7 +215,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
       ),
 
       floatingActionButton:
-          widget.forParent
+          widget.forStaff
               ? CommonFloatingButton(
                 onPressed:
                     () => showCreateLeaveRequesBottomSheet(

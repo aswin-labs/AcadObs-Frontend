@@ -65,7 +65,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       timeTableProvider.fetchTimeTable(forStaff: true),
       studentLeaveRequestProvider.getLeaveRequestNotification(),
       teacherAttendanceProvider.getTodayAttendanceStatus(),
-      achievementProvider.fetchSchoolAchievements(forStaff: true),
+      achievementProvider.fetchLatestSchoolAchievements(forStaff: true),
     ]);
   }
 

@@ -42,9 +42,9 @@ class AwardSection extends StatelessWidget {
 
         Consumer<AchievementProvider>(
           builder: (context, provider, _) {
-            final achievements = provider.schoolAchievementsAll;
+            final achievements = provider.schoolAchievementsLatest;
 
-            if (provider.isLoading) {
+            if (provider.isLatestLoading) {
               return Center(child: CommonShimmerTile());
             } else if (achievements.isEmpty) {
               return emptyScreen(

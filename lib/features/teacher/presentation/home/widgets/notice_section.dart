@@ -37,7 +37,7 @@ class NoticeSection extends StatelessWidget {
         Consumer<NoticeProvider>(
           builder: (context, provider, _) {
             final notices = provider.noticesLatest;
-            if (provider.isLoading && notices.isEmpty) {
+            if (provider.isLatestLoading && notices.isEmpty) {
               return const Center(child: CommonShimmerTile());
             }
             if (notices.isEmpty) {

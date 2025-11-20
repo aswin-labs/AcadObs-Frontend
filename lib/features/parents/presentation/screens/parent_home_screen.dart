@@ -1,17 +1,21 @@
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
+import 'package:acadobs/core/utils/common_shimmer_tile.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
+import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
+import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -481,48 +485,48 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                               ],
                             ),
 
-                            // Consumer<AchievementProvider>(
-                            //   builder: (context, provider, _) {
-                            //     final achievements =
-                            //         provider.schoolAchievements;
-                            //     if (provider.isLoading) {
-                            //       return Center(child: CommonShimmerTile());
-                            //     } else if (achievements.isEmpty) {
-                            //       return emptyScreen(
-                            //         message: "No Awards Available",
-                            //       );
-                            //     }
+                            Consumer<AchievementProvider>(
+                              builder: (context, provider, _) {
+                                final achievements =
+                                    provider.schoolAchievementsLatest;
+                                if (provider.isLoading) {
+                                  return Center(child: CommonShimmerTile());
+                                } else if (achievements.isEmpty) {
+                                  return emptyScreen(
+                                    message: "No Awards Available",
+                                  );
+                                }
 
-                            //     return ListView.builder(
-                            //       padding: EdgeInsets.zero,
-                            //       shrinkWrap: true,
-                            //       itemCount: achievements.length,
-                            //       itemBuilder: (context, index) {
-                            //         final achievement = achievements[index];
-                            //         return NoticeCard(
-                            //           title: achievement.title ?? "",
-                            //           date: DateFormatter.formatDateTime(
-                            //             achievement.date ?? DateTime.now(),
-                            //           ),
-                            //           icon: Icons.workspace_premium,
-                            //           time: TimeFormatter.formatTime(
-                            //             achievement.createdAt ?? DateTime.now(),
-                            //           ),
-                            //           onTap: () {
-                            //             context.pushNamed(
-                            //               RouteConstants
-                            //                   .achievementDetailsScreen,
-                            //               extra: DetailScreenArgs(
-                            //                 id: achievement.id ?? 0,
-                            //                 forStaff: false,
-                            //               ),
-                            //             );
-                            //           },
-                            //         );
-                            //       },
-                            //     );
-                            //   },
-                            // ),
+                                return ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  shrinkWrap: true,
+                                  itemCount: achievements.length,
+                                  itemBuilder: (context, index) {
+                                    final achievement = achievements[index];
+                                    return NoticeCard(
+                                      title: achievement.title ?? "",
+                                      date: DateFormatter.formatDateTime(
+                                        achievement.date ?? DateTime.now(),
+                                      ),
+                                      icon: Icons.workspace_premium,
+                                      time: TimeFormatter.formatTime(
+                                        achievement.createdAt ?? DateTime.now(),
+                                      ),
+                                      onTap: () {
+                                        context.pushNamed(
+                                          RouteConstants
+                                              .achievementDetailsScreen,
+                                          extra: DetailScreenArgs(
+                                            id: achievement.id ?? 0,
+                                            forStaff: false,
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            ),
                           ],
                         ),
                       ),

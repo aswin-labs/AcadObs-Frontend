@@ -116,7 +116,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
     bool loadMore = false,
     bool forceRefresh = false,
     required int studentId,
-    bool forParent = true,
+    required bool forStaff,
   }) async {
     _isLoading = true;
 
@@ -132,7 +132,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
           .fetchAllStudentLeaveRequests(
             pageNo: _currentPage,
             studentId: studentId,
-            forParent: forParent,
+            forStaff: forStaff,
           );
 
       log("API Response: ${response.data}, Status: ${response.statusCode}");
@@ -194,6 +194,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
         await fetchAllStudentLeaveRequests(
           forceRefresh: true,
           studentId: studentId,
+          forStaff: false
         );
         if (!context.mounted) return;
         PopupLoader.hide(context);
