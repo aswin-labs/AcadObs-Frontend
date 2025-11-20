@@ -35,14 +35,17 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   void initState() {
     studentProvider = context.read<StudentProvider>();
-    studentProvider.fetchStudentDetails(studentId: widget.studentId);
+    studentProvider.fetchStudentDetails(
+      studentId: widget.studentId,
+      forStaff: widget.forStaff,
+    );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 8,
+      length: 7,
       child: Scaffold(
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
