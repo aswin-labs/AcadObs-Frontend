@@ -322,21 +322,87 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       child: TabBar(
                         tabAlignment: TabAlignment.start,
                         isScrollable: true,
-                        labelColor: Colors.black,
-                        unselectedLabelColor: Colors.grey,
+                        labelColor: Colors.white,
+                        unselectedLabelColor: Colors.grey.shade600,
+                        indicatorSize: TabBarIndicatorSize.label,
+                        dividerColor: Colors.transparent,
                         indicatorColor: Colors.black,
                         labelPadding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
+                          horizontal: 8.0,
                         ),
-                        tabs: const [
-                          Tab(text: "Dashboard"),
-                          Tab(text: "Acheivement"),
-                          Tab(text: "Exam"),
-                          Tab(text: "Homework"),
-                          Tab(text: 'Leave request'),
-                          Tab(text: "Payment"),
-                          Tab(text: "Notices"),
-                          Tab(text: "Profile"),
+                        indicator: BoxDecoration(
+                          color: Colors.black87,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(34),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        labelStyle: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                        unselectedLabelStyle: const TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 14,
+                        ),
+                        tabs: [
+                          Tab(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text("Dashboard"),
+                            ),
+                          ),
+                          Tab(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text("Acheivement"),
+                            ),
+                          ),
+                          Tab(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text("Exam"),
+                            ),
+                          ),
+                          Tab(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text("Homework"),
+                            ),
+                          ),
+                          Tab(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text("Leave Request"),
+                            ),
+                          ),
+                          if (!widget.forStaff) ...[
+                            Tab(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                child: Text("Payment"),
+                              ),
+                            ),
+                          ],
+                          if (!widget.forStaff) ...[
+                            Tab(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 16.0),
+                                child: Text("Notices"),
+                              ),
+                            ),
+                          ],
+
+                          Tab(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Text("Profile"),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -389,16 +455,19 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 ),
 
                 //payment
-                PaymentScreen(
-                  studentId: widget.studentId,
-                  forParent: widget.forStaff,
-                ),
+                if (!widget.forStaff) ...[
+                  PaymentScreen(
+                    studentId: widget.studentId,
+                    forParent: widget.forStaff,
+                  ),
+                ],
 
                 // notices
-                StudentNoticeTab(
-                  studentId: widget.studentId,
-                  forStaff: widget.forStaff,
-                ),
+                if (!widget.forStaff)
+                  StudentNoticeTab(
+                    studentId: widget.studentId,
+                    forStaff: widget.forStaff,
+                  ),
 
                 // Profile
                 Consumer<StudentProvider>(

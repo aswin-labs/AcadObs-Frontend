@@ -5,9 +5,9 @@ import 'package:acadobs/features/events/presentation/provider/event_provider.dar
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
-import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/award_section.dart';
+import 'package:acadobs/features/teacher/presentation/home/widgets/build_quick_actions.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/build_substitution_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/build_time_table_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/check_in_widget.dart';
@@ -15,7 +15,6 @@ import 'package:acadobs/features/teacher/presentation/home/widgets/event_section
 import 'package:acadobs/features/teacher/presentation/home/widgets/fab_option_dialog.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/news_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/notice_section.dart';
-import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_card.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
@@ -176,7 +175,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         // Quick Actions Section
                         _buildSectionHeader("Quick Actions", null),
                         const SizedBox(height: 12),
-                        _buildQuickActions(context),
+                        buildQuickActions(context),
                         const SizedBox(height: 24),
 
                         // Today's Schedule Section
@@ -220,52 +219,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     if (hour < 12) return 'Good Morning';
     if (hour < 17) return 'Good Afternoon';
     return 'Good Evening';
-  }
-
-  Widget _buildQuickActions(BuildContext context) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: QuickActionCard(
-                icon: Icons.assignment_outlined,
-                label: 'Homework',
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
-                ),
-                onTap: () => context.pushNamed(RouteConstants.homeworks),
-              ),
-            ),
-            Expanded(
-              child: QuickActionCard(
-                icon: Icons.check_circle_outline,
-                label: 'Attendance',
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF2196F3), Color(0xFF1976D2)],
-                ),
-                onTap: () => showAttendanceBottomSheet(context),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 10),
-        Consumer<StudentLeaveRequestProvider>(
-          builder: (context, provider, _) {
-            return QuickActionCard(
-              icon: Icons.description_outlined,
-              label: 'Student Leave Requests',
-              gradient: const LinearGradient(
-                colors: [Color(0xFF00BCD4), Color(0xFF0097A7)],
-              ),
-              notificationCount: provider.leaveNotificationCount,
-              onTap: () => context.pushNamed(RouteConstants.studentLeaveLetter),
-              isFullWidth: true,
-            );
-          },
-        ),
-      ],
-    );
   }
 
   Widget _buildSectionHeader(String title, VoidCallback? onViewAll) {

@@ -2,7 +2,7 @@
 
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
-import 'package:acadobs/core/utils/helpers/date_formatter.dart';
+import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 
 import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
@@ -32,7 +32,7 @@ class _StudentNoticeTabState extends State<StudentNoticeTab> {
   void initState() {
     super.initState();
     _studentProvider = context.read<StudentProvider>();
-    _studentProvider.fetchNoticeByStudentId(studentId: widget.studentId,);
+    _studentProvider.fetchNoticeByStudentId(studentId: widget.studentId);
     _scrollController.addListener(_scrollListener);
   }
 
@@ -101,9 +101,7 @@ class _StudentNoticeTabState extends State<StudentNoticeTab> {
                               icon: Icons.notifications_none,
                               title: notice.title ?? "",
                               date: notice.date,
-                              time: DateFormatter.formatDateTime(
-                                notice.createdAt,
-                              ),
+                              time: TimeFormatter.formatTime(notice.createdAt),
                               onTap: () {
                                 context.pushNamed(
                                   RouteConstants.noticedetails,
