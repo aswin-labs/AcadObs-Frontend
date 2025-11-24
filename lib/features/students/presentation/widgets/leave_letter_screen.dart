@@ -55,7 +55,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
       _studentLeaveProvider.fetchAllStudentLeaveRequests(
         loadMore: true,
         studentId: widget.studentId,
-        forStaff: widget.forStaff
+        forStaff: widget.forStaff,
       );
     }
   }
@@ -117,7 +117,7 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          initialValue: provider.filterStatus,
+                          value: provider.filterStatus,
                           items: const [
                             DropdownMenuItem(value: "all", child: Text("All")),
                             DropdownMenuItem(

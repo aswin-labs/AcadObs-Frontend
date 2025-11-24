@@ -118,12 +118,16 @@ class _ShareBottomSheetState extends State<ShareBottomSheet> {
                               return GridView.builder(
                                 controller: scrollController,
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
+                                  horizontal: 20,
                                 ),
                                 gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 4,
-                                      mainAxisSpacing: 4,
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount:
+                                          MediaQuery.of(context).size.width >
+                                                  600
+                                              ? 6
+                                              : 3,
+                                      mainAxisSpacing: 0.01,
                                       crossAxisSpacing: 12,
                                       childAspectRatio: 0.72,
                                     ),
