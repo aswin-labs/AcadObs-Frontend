@@ -55,7 +55,7 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _chatProvider.disconnect();
+    // _chatProvider.disconnect();
     _searchController.dispose();
     super.dispose();
   }
