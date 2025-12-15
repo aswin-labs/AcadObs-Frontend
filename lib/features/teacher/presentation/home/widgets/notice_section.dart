@@ -1,4 +1,4 @@
-import 'package:acadobs/core/utils/common_shimmer_tile.dart';
+import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
@@ -38,7 +38,7 @@ class NoticeSection extends StatelessWidget {
           builder: (context, provider, _) {
             final notices = provider.noticesLatest;
             if (provider.isLatestLoading && notices.isEmpty) {
-              return const Center(child: CommonShimmerTile());
+              return commonShimmerList(itemCount: 3);
             }
             if (notices.isEmpty) {
               return emptyScreen(

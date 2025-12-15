@@ -229,6 +229,7 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
                           },
                         ),
               ),
+              SizedBox(height: 100),
             ],
           );
         },

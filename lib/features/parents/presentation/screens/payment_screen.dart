@@ -84,7 +84,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           );
                         }
                         if (provider.payments.isEmpty) {
-                          return emptyScreen(
+                          return 
+                          emptyScreen(
                             message: "No payments  Found",
                             heightMultiplier: 16,
                           );

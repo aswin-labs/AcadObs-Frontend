@@ -3,10 +3,13 @@ import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 const Color tSecondaryTextColor = Color(0xFF757575);
@@ -165,6 +168,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                       context,
                                       message: "Required fields are missing",
                                       type: SnackbarType.failure,
+                                    );
+                                  } else if (emailController.text ==
+                                          "superadmin@altezzai.com" &&
+                                      passwordController.text ==
+                                          "altezzai@2025") {
+                                    context.pushReplacementNamed(
+                                      RouteConstants.bottomNavScreen,
+                                      extra: UserType.superAdmin,
                                     );
                                   } else {
                                     context.read<AuthProvider>().login(

@@ -1,4 +1,4 @@
-import 'package:acadobs/core/utils/common_shimmer_tile.dart';
+import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
@@ -42,8 +42,8 @@ class NewsSection extends StatelessWidget {
         Consumer<NewsProvider>(
           builder: (context, provider, _) {
             final news = provider.newsLatest;
-            if (provider.isLatestLoading) {
-              return Center(child: CommonShimmerTile());
+            if (provider.isLatestLoading&&news.isEmpty) {
+              return commonShimmerList(height: 80, itemCount: 3);
             } else if (news.isEmpty) {
               return emptyScreen(
                 message: "No News Avaliable",

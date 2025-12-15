@@ -12,9 +12,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class LatestNewsSection extends StatelessWidget {
-  const LatestNewsSection({
-    super.key,
-  });
+  const LatestNewsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +22,7 @@ class LatestNewsSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                CupertinoIcons.news,
-                color: Color(0xFF00AEF0),
-                size: 24,
-              ),
+              Icon(CupertinoIcons.news, color: Color(0xFF00AEF0), size: 24),
               SizedBox(width: 8),
               Text(
                 'Latest News',
@@ -43,30 +37,27 @@ class LatestNewsSection extends StatelessWidget {
           SizedBox(height: 16),
           Consumer<NewsProvider>(
             builder: (context, provider, _) {
-              if (provider.isLoading) {
-                return commonShimmerList();
-              }
-    
               final news = provider.newsLatest;
-              if (news.isEmpty) {
-                return emptyScreen(
-                  message: "No News Available",
-                );
+              if (provider.isLatestLoading && news.isEmpty) {
+                return commonShimmerList(height: 80, itemCount: 3);
               }
-    
+
+              if (news.isEmpty) {
+                return emptyScreen(message: "No News Available", heightMultiplier: 5,);
+              }
+
               return ListView.separated(
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: news.length,
-                separatorBuilder:
-                    (context, index) => SizedBox(height: 2),
+                separatorBuilder: (context, index) => SizedBox(height: 2),
                 itemBuilder: (context, index) {
                   final newsItem = news[index];
                   final formattedDate = DateFormat(
                     'dd-MM-yy',
                   ).format(newsItem.date);
-    
+
                   return NewsCard(
                     news: newsItem,
                     button: () {
@@ -76,9 +67,7 @@ class LatestNewsSection extends StatelessWidget {
                       );
                     },
                     date: formattedDate,
-                    time: TimeFormatter.formatTime(
-                      newsItem.createdAt,
-                    ),
+                    time: TimeFormatter.formatTime(newsItem.createdAt),
                     title: capitalizeEachWord(newsItem.title),
                     content: newsItem.content,
                   );

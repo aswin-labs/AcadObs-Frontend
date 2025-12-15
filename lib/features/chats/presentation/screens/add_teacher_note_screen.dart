@@ -1,5 +1,6 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
@@ -178,7 +179,7 @@ class AddTeacherNoteScreen extends StatelessWidget {
                           );
                         }
                       },
-                      widget: Text("Send Note"),
+                      widget: provider.isLoadingTwo?ButtonLoading(): Text("Send Note"),
                     );
                   },
                 ),

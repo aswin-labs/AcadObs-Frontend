@@ -172,7 +172,7 @@ class _AddAchievementsScreenState extends State<AddAchievementsScreen> {
                           'dd/MM/yyyy',
                         ).format(selectedDate);
                       },
-                      firstDate: DateTime.now(),
+                      firstDate: DateTime(2025),
                       lastDate: DateTime(2100),
                       initialDate: DateTime.now(),
                       validator: (value) {

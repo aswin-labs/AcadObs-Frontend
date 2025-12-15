@@ -91,8 +91,8 @@ class NewsCard extends StatelessWidget {
                             ),
                         errorWidget:
                             (context, url, error) => Icon(
-                              Icons.error_outline,
-                              color: Colors.red..withAlpha(38),
+                              Icons.image_outlined,
+                              color: Colors.grey..withAlpha(38),
                               size: 36,
                             ),
                         fit: BoxFit.cover,
