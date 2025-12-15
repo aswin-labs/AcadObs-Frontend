@@ -1,4 +1,4 @@
-import 'package:acadobs/core/utils/common_shimmer_tile.dart';
+import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
@@ -38,8 +38,8 @@ class EventSection extends StatelessWidget {
         Consumer<EventProvider>(
           builder: (context, provider, _) {
             final events = provider.eventsLatest;
-            if (provider.isLatestLoading) {
-              return Center(child: CommonShimmerTile());
+            if (provider.isLatestLoading && events.isEmpty) {
+              return commonShimmerList(height: 100, itemCount: 3);
             } else if (events.isEmpty) {
               return emptyScreen(
                 message: "No Events Avaliable",

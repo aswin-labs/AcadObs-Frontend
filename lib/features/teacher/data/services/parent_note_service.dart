@@ -24,7 +24,6 @@ class ParentNoteService {
     final formData = {
       "note_title": title,
       "note_content": content,
-      // "studentIds": studentIds,
       "studentIds": studentIds.map((e) => e["student_id"]).toList(),
       if (fileUploadPath != null)
         "file": await MultipartFile.fromFile(

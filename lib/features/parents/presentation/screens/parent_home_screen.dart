@@ -1,24 +1,18 @@
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
-
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
-
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
-
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/features/parents/presentation/widgets/latest_award_section.dart';
 import 'package:acadobs/features/parents/presentation/widgets/latest_events_section.dart';
 import 'package:acadobs/features/parents/presentation/widgets/latest_news_section.dart';
 import 'package:acadobs/features/parents/presentation/widgets/my_children_section.dart';
-
 import 'package:acadobs/routes/router_constants.dart';
-
 import 'package:acadobs/shared/widgets/profile_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:provider/provider.dart';
 
 class ParentHomeScreen extends StatefulWidget {
@@ -50,6 +44,9 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
         forStaff: false,
       ),
       context.read<NewsProvider>().fetchLatestNews(limit: 3, forStaff: false),
+      context.read<AchievementProvider>().fetchLatestSchoolAchievements(
+        forStaff: false,
+      ),
     ]);
   }
 

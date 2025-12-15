@@ -1,4 +1,4 @@
-import 'package:acadobs/core/utils/common_shimmer_tile.dart';
+import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
@@ -45,8 +45,8 @@ class AwardSection extends StatelessWidget {
             final achievements = provider.schoolAchievementsLatest;
 
             if (provider.isLatestLoading) {
-              return Center(child: CommonShimmerTile());
-            } else if (achievements.isEmpty) {
+              return commonShimmerList(itemCount: 3);
+            } else if (achievements.isEmpty && achievements.isEmpty) {
               return emptyScreen(
                 message: "No Achievements Avaliable",
                 heightMultiplier: 5,

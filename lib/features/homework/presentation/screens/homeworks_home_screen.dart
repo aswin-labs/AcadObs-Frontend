@@ -103,11 +103,13 @@ class _HomeworksHomeScreenState extends State<HomeworksHomeScreen> {
                     ...grouped.homeworks!.map(
                       (hw) => ItemCard(
                         title: hw.title ?? "",
-                        description:
-                            "Due: ${DateFormatter.formatDateTime(hw.dueDate ?? DateTime.now())}",
+                        description: hw.classGrade?.classname ?? "",
                         iconColor: const Color(0xFFB14F6F),
+                        status:
+                            "Due: ${DateFormatter.formatDateTime(hw.dueDate ?? DateTime.now())}",
                         backgroundColor: const Color(0xFFFFCEDE),
                         icon: LucideIcons.clipboardList,
+
                         onTap:
                             () => context.pushNamed(
                               RouteConstants.homeworkDetails,

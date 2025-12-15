@@ -216,15 +216,15 @@ class _LeaveLetterScreenState extends State<LeaveLetterScreen> {
 
       floatingActionButton:
           widget.forStaff
-              ? CommonFloatingButton(
+              ? const SizedBox.shrink()
+              : CommonFloatingButton(
                 onPressed:
                     () => showCreateLeaveRequesBottomSheet(
                       context,
                       fromTeacherScreen: false,
                       studentId: widget.studentId,
                     ),
-              )
-              : const SizedBox.shrink(),
+              ),
     );
   }
 }

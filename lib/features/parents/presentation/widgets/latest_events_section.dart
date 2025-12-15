@@ -10,9 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class LatestEventsSection extends StatelessWidget {
-  const LatestEventsSection({
-    super.key,
-  });
+  const LatestEventsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +20,7 @@ class LatestEventsSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
-                CupertinoIcons.calendar,
-                color: Color(0xFF00AEF0),
-                size: 24,
-              ),
+              Icon(CupertinoIcons.calendar, color: Color(0xFF00AEF0), size: 24),
               SizedBox(width: 8),
               Text(
                 "Latest Events",
@@ -41,24 +35,21 @@ class LatestEventsSection extends StatelessWidget {
           SizedBox(height: 16),
           Consumer<EventProvider>(
             builder: (context, provider, _) {
-              if (provider.isLoading) {
-                return commonShimmerList();
-              }
-    
               final events = provider.eventsLatest;
-              if (events.isEmpty) {
-                return emptyScreen(
-                  message: "No Events Available",
-                );
+              if (provider.isLatestLoading && events.isEmpty) {
+                return commonShimmerList(height: 100, itemCount: 3);
               }
-    
+
+              if (events.isEmpty) {
+                return emptyScreen(message: "No Events Available", heightMultiplier: 5,);
+              }
+
               return ListView.separated(
                 padding: EdgeInsets.zero,
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: events.length,
-                separatorBuilder:
-                    (context, index) => SizedBox(height: 2),
+                separatorBuilder: (context, index) => SizedBox(height: 2),
                 itemBuilder: (context, index) {
                   final event = events[index];
                   return EventCard(

@@ -17,6 +17,9 @@ class ParentNoteProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isLoadingTwo = false;
+  bool get isLoadingTwo => _isLoadingTwo;
+
   String? _error;
   bool _hasMore = true;
   String? get error => _error;
@@ -69,15 +72,14 @@ class ParentNoteProvider extends ChangeNotifier {
     required BuildContext context,
     required String title,
     required String content,
-    // required List<Map<String, dynamic>> studentIds,
   }) async {
-    _isLoading = true;
+    _isLoadingTwo = true;
     notifyListeners();
     try {
       final selectedIds = context.read<StudentProvider>().selectedStudentIds;
       if (selectedIds.isEmpty) {
         CustomErrorDialog.show(context, "Please select at least one student");
-        _isLoading = false;
+        _isLoadingTwo = false;
         notifyListeners();
         return;
       }
@@ -91,6 +93,7 @@ class ParentNoteProvider extends ChangeNotifier {
         studentIds: studentIdList,
       );
       if (response.statusCode == 201) {
+        await fetchAllNotes();
         if (!context.mounted) return;
         Navigator.pop(context);
         CustomSnackbar.show(
@@ -102,13 +105,13 @@ class ParentNoteProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         if (!context.mounted) return;
         CustomErrorDialog.show(context, response.data["message"]);
-        _isLoading = false;
+        _isLoadingTwo = false;
         notifyListeners();
       }
     } catch (e) {
       log('Error is : $e');
     } finally {
-      _isLoading = false;
+      _isLoadingTwo = false;
       notifyListeners();
     }
   }

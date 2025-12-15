@@ -1,4 +1,4 @@
-import 'package:acadobs/core/utils/common_shimmer_tile.dart';
+import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
@@ -47,10 +47,13 @@ class LatestAwardSection extends StatelessWidget {
           Consumer<AchievementProvider>(
             builder: (context, provider, _) {
               final achievements = provider.schoolAchievementsLatest;
-              if (provider.isLoading) {
-                return Center(child: CommonShimmerTile());
+              if (provider.isLatestLoading) {
+                return commonShimmerList(itemCount: 3);
               } else if (achievements.isEmpty) {
-                return emptyScreen(message: "No Awards Available");
+                return emptyScreen(
+                  message: "No Awards Available",
+                  heightMultiplier: 5,
+                );
               }
 
               return ListView.builder(

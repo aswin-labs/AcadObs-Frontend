@@ -6,7 +6,7 @@ import 'package:acadobs/features/events/data/services/event_services.dart';
 import 'package:flutter/material.dart';
 
 class EventProvider extends ChangeNotifier {
-    // ===========================================================================
+  // ===========================================================================
   // COMMON STATE
   // ===========================================================================
   String? _error;
@@ -90,7 +90,8 @@ class EventProvider extends ChangeNotifier {
 
   Future<void> fetchLatestEvents({
     required bool forStaff,
-    int limit = 3}) async {
+    int limit = 3,
+  }) async {
     if (_isLatestLoading) return;
     _isLatestLoading = true;
     notifyListeners();

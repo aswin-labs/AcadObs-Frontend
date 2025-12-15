@@ -3,10 +3,10 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/marks/data/models/marks_upload_model.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/marks/presentation/widgets/grade_card.dart';
+import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:flutter/material.dart';
@@ -83,86 +83,83 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
         title: capitalizeEachWord(widget.marks.className),
         isBackButton: true,
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Padding(
-                  padding: context.paddingHorizontal.add(
-                    EdgeInsets.only(top: Responsive.height * 2),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Date: ${widget.marks.date}",
-                            style: TextStyle(
-                              color: Color(0xFF6F6F6F),
-                              fontSize: 16,
-                            ),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: context.paddingHorizontal.add(
+                  EdgeInsets.only(top: Responsive.height * 2),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Date: ${widget.marks.date}",
+                          style: TextStyle(
+                            color: Color(0xFF6F6F6F),
+                            fontSize: 16,
                           ),
-                          SizedBox(width: 90),
-                          Text(
-                            'Total Mark: ${widget.marks.totalMarks}',
-                            style: TextStyle(color: Color(0xFF6F6F6F)),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 20),
-                      Consumer<StudentProvider>(
-                        builder: (context, provider, _) {
-                          if (provider.isLoading && provider.students.isEmpty) {
-                            return commonShimmerList();
-                          }
-                          if (provider.students.isEmpty) {
-                            return emptyScreen(message: 'No Students Found.');
-                          }
-                          return ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: provider.students.length,
-                            itemBuilder: (context, index) {
-                              final student = provider.students[index];
-                              final marksController =
-                                  _marksControllers[index] ??
-                                  TextEditingController();
-                              _marksControllers[index] = marksController;
-                              final status = _statusMap[index] ?? "present";
-                              return GradeCard(
-                                totalMarks: widget.marks.totalMarks,
-                                studentId: student.id,
-                                marksController: marksController,
-                                name: student.fullName,
-                                rollNumber: student.rollNumber ?? 0,
-                                status: status,
-                                onStatusChanged: (newStatus) {
-                                  setState(() {
-                                    _statusMap[index] = newStatus;
-                                  });
-                                },
-                              );
-                            },
-                          );
-                        },
-                      ),
-                      SizedBox(height: 30),
-                      CommonButton(
-                        onPressed: () {
-                          submitMarks(context);
-                        },
-                        widget: Text('Submit'),
-                      ),
-                    ],
-                  ),
+                        ),
+                        Text(
+                          'Total Mark: ${widget.marks.totalMarks}',
+                          style: TextStyle(color: Color(0xFF6F6F6F)),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Consumer<StudentProvider>(
+                      builder: (context, provider, _) {
+                        if (provider.isLoading && provider.students.isEmpty) {
+                          return commonShimmerList();
+                        }
+                        if (provider.students.isEmpty) {
+                          return emptyScreen(message: 'No Students Found.');
+                        }
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: provider.students.length,
+                          itemBuilder: (context, index) {
+                            final student = provider.students[index];
+                            final marksController =
+                                _marksControllers[index] ??
+                                TextEditingController();
+                            _marksControllers[index] = marksController;
+                            final status = _statusMap[index] ?? "present";
+                            return GradeCard(
+                              totalMarks: widget.marks.totalMarks,
+                              studentId: student.id,
+                              marksController: marksController,
+                              name: student.fullName,
+                              rollNumber: student.rollNumber ?? 0,
+                              status: status,
+                              onStatusChanged: (newStatus) {
+                                setState(() {
+                                  _statusMap[index] = newStatus;
+                                });
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    SizedBox(height: 30),
+                    CommonButton(
+                      onPressed: () {
+                        submitMarks(context);
+                      },
+                      widget: Text('Submit'),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       // floatingActionButton: CommonFloatingActionButton(
       //   onPressed: () {

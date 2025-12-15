@@ -80,8 +80,8 @@ class EventCard extends StatelessWidget {
                         ),
                     errorWidget:
                         (context, url, error) => Icon(
-                          Icons.error_outline,
-                          color: Colors.red.withAlpha(153),
+                          Icons.image_outlined,
+                          color: Colors.grey.withAlpha(153),
                           size: 40,
                         ),
                     fit: BoxFit.cover,
