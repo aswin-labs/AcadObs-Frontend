@@ -47,13 +47,11 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
   }
 
   Future<void> refreshData() async {
-    await Future.wait([
-      _provider.fetchAchievementsByStudentId(
-        studentId: widget.studentId,
-        forStaff: widget.forStaff,
-        loadMore: true,
-      ),
-    ]);
+    await _provider.fetchAchievementsByStudentId(
+      studentId: widget.studentId,
+      forStaff: widget.forStaff,
+      forceRefresh: true,
+    );
   }
 
   @override
@@ -96,12 +94,9 @@ class _StudentAcheivementTabState extends State<StudentAcheivementTab> {
                     ),
                     itemCount:
                         provider.studentAchievements.length +
-                        (provider.hasMoreTeacher ? 1 : 0),
-                    itemBuilder: (context, index) {
-                      // if (index == 0) {
-                      //   return SizedBox(height: Responsive.height * 3);
-                      // }
+                        (provider.hasMoreStudent ? 1 : 0),
 
+                    itemBuilder: (context, index) {
                       if (index == provider.studentAchievements.length) {
                         return const Padding(
                           padding: EdgeInsets.all(16),
