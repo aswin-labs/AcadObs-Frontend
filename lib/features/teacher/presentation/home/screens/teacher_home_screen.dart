@@ -5,6 +5,7 @@ import 'package:acadobs/features/events/presentation/provider/event_provider.dar
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
+import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/award_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/build_quick_actions.dart';
@@ -24,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
   const TeacherHomeScreen({super.key});
@@ -40,6 +42,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   late StudentLeaveRequestProvider studentLeaveRequestProvider;
   late TeacherAttendanceProvider teacherAttendanceProvider;
   late AchievementProvider achievementProvider;
+  late ProfileProvider profileProvider;
 
   @override
   void initState() {
@@ -51,6 +54,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     studentLeaveRequestProvider = context.read<StudentLeaveRequestProvider>();
     teacherAttendanceProvider = context.read<TeacherAttendanceProvider>();
     achievementProvider = context.read<AchievementProvider>();
+    profileProvider = context.read<ProfileProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       refreshAllData();
     });
@@ -65,6 +69,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       studentLeaveRequestProvider.getLeaveRequestNotification(),
       teacherAttendanceProvider.getTodayAttendanceStatus(),
       achievementProvider.fetchLatestSchoolAchievements(forStaff: true),
+      profileProvider.fetchProfileStaff(),
     ]);
   }
 
@@ -118,19 +123,46 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                       ),
                                     ),
                                     const SizedBox(height: 4),
-                                    GestureDetector(
-                                      onTap: () {
-                                        refreshAllData();
+                                    Consumer<ProfileProvider>(
+                                      builder: (context, provider, _) {
+                                        return GestureDetector(
+                                          onTap: refreshAllData,
+                                          child:
+                                              provider.isLoading
+                                                  ? Shimmer.fromColors(
+                                                    baseColor: Colors.white
+                                                        .withAlpha(120),
+                                                    highlightColor: Colors.white
+                                                        .withAlpha(220),
+                                                    child: Container(
+                                                      height: 32,
+                                                      width: 160,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              6,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  )
+                                                  : Text(
+                                                    provider
+                                                            .staffProfile
+                                                            ?.user
+                                                            ?.name ??
+                                                        "",
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 28,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                        );
                                       },
-                                      child: Text(
-                                        "Teacher",
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
                                     ),
+
                                     const SizedBox(height: 4),
                                     Text(
                                       DateFormat(

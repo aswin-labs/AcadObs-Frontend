@@ -80,10 +80,18 @@ class AuthProvider with ChangeNotifier {
         );
 
         if (userRole == 'guardian') {
+          await fetchSchoolsByParent();
           await AuthServices().sendFcmToken();
-          if (!context.mounted) return;
-          // context.pushNamed(RouteConstants.schoolSelectionScreen);
-          context.goNamed(RouteConstants.schoolSelectionScreen);
+          if (_totalSchoolsUnderParent == 1) {
+            if (!context.mounted) return;
+            context.pushReplacementNamed(
+              RouteConstants.bottomNavScreen,
+              extra: UserType.parent,
+            );
+          } else {
+            if (!context.mounted) return;
+            context.goNamed(RouteConstants.schoolSelectionScreen);
+          }
         } else if (userRole == 'teacher') {
           await fetchSchoolDetailsForTeacher();
           if (!context.mounted) return;
@@ -143,10 +151,15 @@ class AuthProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         _totalSchoolsUnderParent = data['totalcontent'];
+
         _schools =
             (data['schools'] as List<dynamic>)
                 .map((json) => SchoolModel.fromJson(json))
                 .toList();
+        if (_totalSchoolsUnderParent == 1) {
+          _selectedSchool = _schools[0];
+          saveSchoolIdAndContinue();
+        }
       }
     } catch (e) {
       log(e.toString());

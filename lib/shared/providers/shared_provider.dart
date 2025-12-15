@@ -1,7 +1,10 @@
 import 'dart:developer';
+
 import 'package:acadobs/features/students/data/models/student_model.dart';
+import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/services/shared_services.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SharedProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -49,6 +52,8 @@ class SharedProvider extends ChangeNotifier {
         standard: standard,
       );
       if (response.statusCode == 200) {
+        if (!context.mounted) return;
+        context.read<DropdownProvider>().clearSelectedItem('className');
         _classNames =
             (response.data as List<dynamic>)
                 .map(
