@@ -124,7 +124,8 @@ class AchievementProvider extends ChangeNotifier {
     bool loadMore = false,
     bool forceRefresh = false,
   }) async {
-    if (_isLoadingStudent) return;
+    if (_isLoadingStudent || (loadMore && !hasMoreStudent)) return;
+
     _isLoadingStudent = true;
     notifyListeners();
 
@@ -143,18 +144,23 @@ class AchievementProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         final data = response.data;
-        _studentTotalPages = data['totalPages'] ?? 1;
-        _studentPage = data['currentPage'] ?? 1;
+
+        final int totalPages = data['totalPages'] ?? 1;
+        final int currentPage = data['currentPage'] ?? 1;
 
         final fetched =
             (data['achievement'] as List)
                 .map((e) => StudentAchievementModel.fromJson(e))
                 .toList();
 
+        if (fetched.isEmpty || currentPage >= totalPages) {
+          hasMoreStudent = false;
+        }
+
         _studentAchievements.addAll(fetched);
 
-        if (_studentPage < _studentTotalPages) {
-          _studentPage++;
+        if (hasMoreStudent) {
+          _studentPage = currentPage + 1;
         }
       }
     } catch (e) {
