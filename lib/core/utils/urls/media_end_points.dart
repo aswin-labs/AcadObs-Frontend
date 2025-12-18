@@ -8,4 +8,5 @@ class MediaEndpoints {
   static const String homeworks = "/uploads/homeworks/";
   static const String duties = "/uploads/solved_duties/";
   static const String dp = "/uploads/dp/";
+  static const String studentDp = "/uploads/students_images/";
 }

@@ -1,3 +1,5 @@
+import 'package:acadobs/core/utils/urls/base_urls.dart';
+import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -108,10 +110,21 @@ class MyChildrenSection extends StatelessWidget {
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Icon(
-                                  CupertinoIcons.person_fill,
-                                  color: Colors.white,
-                                  size: 24,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadiusGeometry.circular(
+                                    12,
+                                  ),
+                                  child: Image.network(
+                                    "${BaseUrls.media}${MediaEndpoints.studentDp}${student.image}",
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        CupertinoIcons.person_fill,
+                                        color: Colors.white,
+                                        size: 24,
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
                               SizedBox(width: 16),

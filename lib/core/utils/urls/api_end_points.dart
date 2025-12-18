@@ -130,6 +130,8 @@ class ApiEndpoints {
   static const String attendanceByDateForGuardian =
       "/guardian/getStudentAttendanceByDate/";
 
+  static const String updateStudentProfile = "/guardian/updateStudentProfile";
+
   //profile details for staff
   static const String staffProfileDetails = "/staff/getProfileDetails";
   static const String updateStaffProfile = "/staff/updateProfileDetails";

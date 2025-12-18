@@ -6,11 +6,11 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 class AuthServices {
   // Login
   Future<Response> login({
-    required String email,
+    required String identifier,
     required String password,
   }) async {
     final response = await ApiServices.post(ApiEndpoints.login, {
-      "email": email,
+      "identifier": identifier,
       "password": password,
     });
     return response;
