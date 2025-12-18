@@ -51,7 +51,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> login({
     required BuildContext context,
-    required String email,
+    required String identifier,
     required String password,
   }) async {
     // _isLoading = true;
@@ -61,7 +61,7 @@ class AuthProvider with ChangeNotifier {
 
     try {
       final response = await AuthServices().login(
-        email: email,
+        identifier: identifier,
         password: password,
       );
       await _storageService.saveUserCredentials(

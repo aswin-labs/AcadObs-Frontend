@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:acadobs/features/notices/data/models/notice_model.dart';
 import 'package:acadobs/features/students/data/models/student_model.dart';
@@ -242,6 +243,72 @@ class StudentProvider extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  //update student address
+  Future<void> updateStudentAddress({
+    required int studentId,
+    String? address,
+  }) async {
+    _isLoading = true;
+    try {
+      final response = await StudentServices().updateStudentProfile(
+        studentId: studentId,
+        address: address,
+      );
+      log("API Response: ${response.data}, Status: ${response.statusCode}");
+      if (response.statusCode == 200) {
+        await fetchStudentDetails(studentId: studentId, forStaff: false);
+        log('successfully updated');
+        final data = response.data;
+        _individualStudent = StudentModel.fromJson(data);
+      } else {
+        throw Exception(
+          'Failed to update student address: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  //update student profile picture
+  Future<void> updateProfilePhoto({
+    required File image,
+    required bool forStaff,
+    required int studentId,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    log(" Starting profile photo upload...");
+
+    try {
+      final response = await StudentServices().updateProfilePhoto(
+        forStaff: forStaff,
+        image: image,
+        studentId: studentId,
+      );
+      log("🟢 Upload response status: ${response.statusCode}");
+
+      if (response.statusCode == 200) {
+        await fetchStudentDetails(studentId: studentId, forStaff: forStaff);
+        log("Profile photo updated successfully, fetching updated profile...");
+        log(" Profile photo updated successfully");
+        // forStaff ? await fetchProfileStaff() : await fetchProfileGuardian();
+      } else {
+        log(" Failed to update profile photo: ${response.statusCode}");
+      }
+    } catch (e, st) {
+      log("Error updating profile photo: $e");
+      log("Stack trace: $st");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+      log(" Done updating profile photo");
     }
   }
 }

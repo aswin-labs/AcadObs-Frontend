@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:acadobs/core/utils/profile_container_shimmer.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/core/utils/urls/base_urls.dart';
+import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
@@ -14,6 +18,7 @@ import 'package:acadobs/features/students/presentation/widgets/student_profile_t
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -41,6 +46,114 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       forStaff: widget.forStaff,
     );
     super.initState();
+  }
+
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await _picker.pickImage(
+      source: source,
+      imageQuality: 80,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+      });
+
+      if (mounted && _selectedImage != null) {
+        await studentProvider.updateProfilePhoto(
+          image: _selectedImage!,
+          forStaff: widget.forStaff,
+          studentId: widget.studentId,
+        );
+        if (mounted) {
+          await studentProvider.fetchStudentDetails(
+            studentId: widget.studentId,
+            forStaff: widget.forStaff,
+          );
+        }
+      }
+    }
+  }
+
+  void _showPickOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder:
+          (_) => Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+            ),
+            child: SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Choose Photo',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 20),
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.photo_library,
+                        color: Colors.blue.shade700,
+                      ),
+                    ),
+                    title: const Text(
+                      'Choose from Gallery',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickImage(ImageSource.gallery);
+                    },
+                  ),
+                  ListTile(
+                    leading: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.camera_alt,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                    title: const Text(
+                      'Take a Photo',
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _pickImage(ImageSource.camera);
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+    );
   }
 
   @override
@@ -189,7 +302,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                                           student?.image?.isNotEmpty == true
                                               ? ClipOval(
                                                 child: Image.network(
-                                                  student!.image!,
+                                                  "${BaseUrls.media}${MediaEndpoints.studentDp}${student!.image}",
                                                   fit: BoxFit.cover,
                                                   errorBuilder: (
                                                     context,
@@ -234,6 +347,44 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                                                 ),
                                               ),
                                     ),
+
+                                    if (!widget.forStaff) ...[
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: GestureDetector(
+                                          onTap: _showPickOptions,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).primaryColor,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 3,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withAlpha(
+                                                    45,
+                                                  ),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.camera_alt,
+                                              color: Colors.white,
+                                              size: 10,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
 
@@ -476,7 +627,10 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     if (student == null) {
                       return SizedBox.shrink();
                     }
-                    return StudentProfileTab(student: student);
+                    return StudentProfileTab(
+                      student: student,
+                      forStaff: widget.forStaff,
+                    );
                   },
                 ),
               ],

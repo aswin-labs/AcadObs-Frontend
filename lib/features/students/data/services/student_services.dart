@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
@@ -48,5 +51,39 @@ class StudentServices {
       "${ApiEndpoints.studentNotices}/$studentId?pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return response;
+  }
+
+  //update student profile
+  Future<Response> updateStudentProfile({
+    required int studentId,
+    String? address,
+  }) async {
+    final response = await ApiServices.put(
+      "${ApiEndpoints.updateStudentProfile}/$studentId",
+      {"address": address},
+    );
+    return response;
+  }
+
+  //update student profile picture
+  Future<Response> updateProfilePhoto({
+    required File image,
+    required bool forStaff,
+    required int studentId,
+  }) async {
+    final formData = {'image': await MultipartFile.fromFile(image.path)};
+
+    try {
+      final response = await ApiServices.put(
+        "${ApiEndpoints.updateStudentProfile}/$studentId",
+        formData,
+        isFormData: true,
+      );
+      log(' Response data: ${response.data}');
+      return response;
+    } catch (e) {
+      log(' Failed to update profile photo: $e');
+      rethrow;
+    }
   }
 }

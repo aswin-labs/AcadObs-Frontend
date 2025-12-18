@@ -113,7 +113,7 @@ class AchievementProvider extends ChangeNotifier {
       List.unmodifiable(_studentAchievements);
 
   int _studentPage = 1;
-  int _studentTotalPages = 1;
+  // int _studentTotalPages = 1;
   bool _isLoadingStudent = false;
   bool get isLoadingStudent => _isLoadingStudent;
   bool hasMoreStudent = true;
