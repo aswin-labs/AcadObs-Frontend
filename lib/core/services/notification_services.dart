@@ -11,92 +11,98 @@ class NotificationServices {
       FlutterLocalNotificationsPlugin();
   final AuthStorageService _storageService = AuthStorageService();
 
-  // Initialize notification service
   Future<void> initNotification() async {
-    // 🔹 Request notification permissions (iOS + Android 13+)
-    NotificationSettings settings = await _firebaseMessaging.requestPermission(
+    try {
+      await _requestPermission();
+      await _initLocalNotifications();
+      _initFirebaseListeners();
+      _initTokenHandling();
+    } catch (e, s) {
+      log('❌ Notification init failed safely: $e');
+      log('$s');
+    }
+  }
+
+  // ---------------- PERMISSION ----------------
+  Future<void> _requestPermission() async {
+    final settings = await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
+    log('🔔 Permission status: ${settings.authorizationStatus}');
+  }
 
-    log('🔔 Permission granted: ${settings.authorizationStatus}');
-
-    // 🔹 Initialize local notifications
-    const AndroidInitializationSettings androidInitSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const InitializationSettings initSettings = InitializationSettings(
-      android: androidInitSettings,
+  // ---------------- LOCAL NOTIFICATION ----------------
+  Future<void> _initLocalNotifications() async {
+    const androidInitSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
     );
+
+    const initSettings = InitializationSettings(android: androidInitSettings);
 
     await _flutterLocalNotificationsPlugin.initialize(
       initSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        if (response.payload != null) {
-          final data = jsonDecode(response.payload!);
-          final type = data['type'];
-          final studentId = data['student_id'];
-          log('🟢 Notification clicked: type=$type, studentId=$studentId');
+      onDidReceiveNotificationResponse: (response) {
+        if (response.payload == null) return;
 
-          // _handleNotificationNavigation(type, studentId);
-        }
+        final data = jsonDecode(response.payload!);
+        log('🟢 Notification clicked: $data');
       },
     );
+  }
 
-    // 🔹 Foreground messages
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      log('📩 Message received in foreground: ${message.notification?.title}');
+  // ---------------- FIREBASE LISTENERS ----------------
+  void _initFirebaseListeners() {
+    FirebaseMessaging.onMessage.listen((message) {
+      log('📩 Foreground message: ${message.notification?.title}');
       _showNotification(message);
     });
 
-    // 🔹 Background / terminated message click
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      log('🟢 App opened by tapping notification: ${message.data}');
-      // _handleNotificationNavigation(message.data);
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      log('🟢 Opened from notification: ${message.data}');
     });
-
-    // 🔹 Print FCM token (copy for testing)
-    String? token = await _firebaseMessaging.getToken();
-    log('🔥 FCM Token: $token');
-
-    // Send Fcm Token to backend
-    await _storageService.saveFcmToken(fcmToken: token ?? "");
   }
 
-  // Show local notification when app is foreground
-  Future<void> _showNotification(RemoteMessage message) async {
-    const AndroidNotificationDetails androidDetails =
-        AndroidNotificationDetails(
-          'high_importance_channel',
-          'High Importance Notifications',
-          importance: Importance.max,
-          priority: Priority.high,
-        );
+  // ---------------- TOKEN HANDLING ----------------
+  void _initTokenHandling() async {
+    try {
+      await Future.delayed(const Duration(seconds: 2));
 
-    const NotificationDetails notificationDetails = NotificationDetails(
-      android: androidDetails,
+      final token = await _firebaseMessaging.getToken();
+
+      if (token != null && token.isNotEmpty) {
+        log('🔥 FCM Token: $token');
+        await _storageService.saveFcmToken(fcmToken: token);
+      }
+    } catch (e) {
+      log('⚠️ FCM token fetch failed (will retry later): $e');
+    }
+
+    // Token refresh listener (VERY IMPORTANT)
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+      log('🔄 FCM Token refreshed: $newToken');
+      await _storageService.saveFcmToken(fcmToken: newToken);
+    });
+  }
+
+  // ---------------- SHOW NOTIFICATION ----------------
+  Future<void> _showNotification(RemoteMessage message) async {
+    const androidDetails = AndroidNotificationDetails(
+      'high_importance_channel',
+      'High Importance Notifications',
+      importance: Importance.max,
+      priority: Priority.high,
     );
-    final payload = jsonEncode(message.data);
+
+    const notificationDetails = NotificationDetails(android: androidDetails);
 
     await _flutterLocalNotificationsPlugin.show(
       0,
       message.notification?.title ?? 'No Title',
-      message.notification?.body ?? 'No body',
+      message.notification?.body ?? 'No Body',
       notificationDetails,
-      payload: payload,
+      payload: jsonEncode(message.data),
     );
   }
-
-  // void _handleNotificationNavigation(String type, int studentId) {
-  //   // final type = data['type'];
-  //   log('Navigating for type: $type');
-
-  //   if (type == 'attendance_alert') {
-  //     appRouter.pushNamed(
-  //       RouteConstants.studentDetails,
-  //       extra: StudentDetailParameters(forParent: true, studentId: studentId),
-  //     );
-  //   }
-  // }
 }

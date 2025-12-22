@@ -52,7 +52,7 @@ class _DutyHomeScreenState extends State<DutyHomeScreen> {
     return Scaffold(
       appBar: CommonAppBar(title: "Duties", isBackButton: false),
       body: RefreshIndicator(
-        onRefresh: () => _dutyProvider.fetchStaffDuties(),
+        onRefresh: () => _dutyProvider.fetchStaffDuties(forceRefresh: true),
         child: Consumer<DutyProvider>(
           builder: (context, provider, _) {
             if (_dutyProvider.isLoading && _dutyProvider.staffDuties.isEmpty) {
