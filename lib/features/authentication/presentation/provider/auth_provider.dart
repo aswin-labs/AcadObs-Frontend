@@ -27,6 +27,15 @@ class AuthProvider with ChangeNotifier {
   SchoolModel? get selectedSchool => _selectedSchool;
   String? get loginError => _loginError;
 
+  String? _schoolName;
+  String? get schoolName => _schoolName;
+
+  String? _logo;
+  String? get logo => _logo;
+
+  String? _schoolImage;
+  String? get schoolImage => _schoolImage;
+
   // call this at the start of login
   void _setLoading(bool v) {
     _isLoading = v;
@@ -204,9 +213,14 @@ class AuthProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         log("School Details Fetched Successfully");
         final data = response.data;
+        log(data.toString());
         await _storageService.saveSchoolDetailsForTeacher(
           schoolData: data['school'],
         );
+        _schoolName = data['school']['name'];
+        _logo = data['school']['logo'];
+        _schoolImage = data['school']['image'];
+        notifyListeners();
       }
     } catch (e) {
       log(e.toString());
