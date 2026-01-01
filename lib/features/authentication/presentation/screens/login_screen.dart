@@ -130,15 +130,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           // Email
                           CustomTextfield(
-                            hintText: "Email ID",
+                            hintText: "Username",
                             iconData: const Icon(
                               Icons.person_outline,
                               color: tSecondaryTextColor,
                             ),
                             controller: emailController,
-                            keyBoardtype: TextInputType.emailAddress,
-                            validator:
-                                (value) => FormValidator.validateEmail(value),
                           ),
 
                           const SizedBox(height: 16),

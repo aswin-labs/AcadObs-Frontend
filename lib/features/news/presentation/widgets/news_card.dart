@@ -82,7 +82,7 @@ class NewsCard extends StatelessWidget {
                         imageUrl:
                             BaseUrls.media +
                             MediaEndpoints.newsImages +
-                            (news.file ?? ""),
+                            (news.images[0].imageUrl ?? ""),
                         placeholder:
                             (context, url) => Center(
                               child: CircularProgressIndicator(
