@@ -1,6 +1,5 @@
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
-import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/news/data/models/news_model.dart';
@@ -8,274 +7,253 @@ import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-class NewsScreenDetails extends StatelessWidget {
-  final News newModel;
-  const NewsScreenDetails({super.key, required this.newModel});
+class NewsScreenDetails extends StatefulWidget {
+  final News news;
+  const NewsScreenDetails({super.key, required this.news});
+
+  @override
+  State<NewsScreenDetails> createState() => _NewsScreenDetailsState();
+}
+
+class _NewsScreenDetailsState extends State<NewsScreenDetails> {
+  int _currentIndex = 0;
+  final PageController _pageController = PageController();
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: newModel.title, isBackButton: true),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Enhanced Image Container with Gradient Overlay
-            Stack(
+      appBar: CommonAppBar(title: widget.news.title, isBackButton: true),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: _dateBadge()),
+
+          /// 🔹 IMAGE SLIDER
+          SliverToBoxAdapter(child: _imageSlider()),
+
+          /// 🔹 CONTENT
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverToBoxAdapter(child: _buildContent()),
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
+        ],
+      ),
+    );
+  }
+
+  // ================= IMAGE SLIDER =================
+
+  Widget _imageSlider() {
+    final images = widget.news.images;
+
+    // 🔹 No images → show placeholder banner
+    if (images.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Container(
+          height: 200,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: const LinearGradient(
+              colors: [Color(0xFFCB74D3), Color(0xFF9B59B6)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: const Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: double.infinity,
-                  height: 280,
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFCB74D3).withAlpha(102),
-                        blurRadius: 20,
-                        spreadRadius: 0,
-                        offset: const Offset(0, 10),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        CachedNetworkImage(
-                          imageUrl:
-                              BaseUrls.media +
-                              MediaEndpoints.newsImages +
-                              newModel.file.toString(),
-                          placeholder:
-                              (context, url) => Container(
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color(0xFFCB74D3),
-                                      Color(0xFFB565C0),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                ),
-                                child: const Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                          errorWidget:
-                              (context, url, error) => Container(
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color(0xFFCB74D3),
-                                      Color(0xFFB565C0),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(24),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withAlpha(77),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.newspaper_outlined,
-                                      size: 70,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          fit: BoxFit.cover,
-                        ),
-                        // Subtle gradient overlay
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withAlpha(25),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                Icon(
+                  Icons.image_not_supported_outlined,
+                  size: 60,
+                  color: Colors.white,
                 ),
-                // Date Badge Overlay
-                Positioned(
-                  top: 32,
-                  right: 32,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withAlpha(25),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.calendar_today,
-                          size: 16,
-                          color: Color(0xFFA264B4),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          DateFormatter.formatDateTime(newModel.date),
-                          style: const TextStyle(
-                            color: Color(0xFFA264B4),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
+                SizedBox(height: 12),
+                Text(
+                  'No images available',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
             ),
+          ),
+        ),
+      );
+    }
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
+    // 🔹 Images available → show slider
+    return SizedBox(
+      height: 280,
+      child: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: images.length,
+            onPageChanged: (index) {
+              setState(() => _currentIndex = index);
+            },
+            itemBuilder: (context, index) {
+              final imageUrl =
+                  BaseUrls.media +
+                  MediaEndpoints.newsImages +
+                  (images[index].imageUrl ?? '');
 
-                  // Title with better styling
-                  Text(
-                    capitalizeEachWord(newModel.title.toString()),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 26,
-                      color: Color(0xFF1A1A1A),
-                      height: 1.3,
-                      letterSpacing: -0.5,
-                    ),
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    fit: BoxFit.cover,
+                    placeholder:
+                        (_, __) =>
+                            const Center(child: CircularProgressIndicator()),
+                    errorWidget:
+                        (_, __, ___) =>
+                            const Icon(Icons.broken_image, size: 50),
                   ),
+                ),
+              );
+            },
+          ),
 
-                  const SizedBox(height: 16),
-
-                  // Decorative Divider
-                  Container(
-                    height: 3,
-                    width: 60,
+          // 🔹 Dots only if >1 image
+          if (images.length > 1)
+            Positioned(
+              bottom: 20,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  images.length,
+                  (index) => AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    height: 8,
+                    width: _currentIndex == index ? 24 : 8,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFA264B4), Colors.transparent],
-                      ),
-                      borderRadius: BorderRadius.circular(2),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-
-                  const SizedBox(height: 20),
-
-                  // Content with enhanced styling
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.grey.shade200, width: 1),
-                    ),
-                    child: Text(
-                      capitalizeEachWord(newModel.content),
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey.shade700,
-                        height: 1.6,
-                        letterSpacing: 0.2,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Time Info Card
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFCB74D3).withAlpha(38),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: const Color(0xFFA264B4).withAlpha(77),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFCB74D3).withAlpha(77),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.access_time,
-                            size: 18,
-                            color: Color(0xFFA264B4),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Published',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade600,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                TimeFormatter.formatTime(newModel.createdAt),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFFA264B4),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-                ],
+                ),
               ),
             ),
-          ],
+        ],
+      ),
+    );
+  }
+
+  // ================= CONTENT =================
+
+  Widget _buildContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
+
+        Text(
+          capitalizeEachWord(widget.news.title),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 26,
+            color: Color(0xFF1A1A1A),
+            height: 1.3,
+            letterSpacing: -0.5,
+          ),
         ),
+
+        const SizedBox(height: 16),
+
+        Container(
+          height: 3,
+          width: 60,
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFFA264B4), Colors.transparent],
+            ),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade200, width: 1),
+          ),
+          child: Text(
+            capitalizeEachWord(widget.news.content),
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey.shade700,
+              height: 1.6,
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ================= SMALL WIDGETS =================
+
+  Widget _dateBadge() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(25),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.calendar_today,
+                  size: 16,
+                  color: Color(0xFFA264B4),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  DateFormatter.formatDateTime(widget.news.date),
+                  style: const TextStyle(
+                    color: Color(0xFFA264B4),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

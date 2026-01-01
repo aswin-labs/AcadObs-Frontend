@@ -217,7 +217,7 @@ List<GoRoute> staffRoutes = [
     name: RouteConstants.newsScreen,
     builder: (context, state) {
       final News news = state.extra as News;
-      return NewsScreenDetails(newModel: news);
+      return NewsScreenDetails(news: news);
     },
   ),
   //marks details screen
