@@ -100,6 +100,45 @@ class ProfileProvider extends ChangeNotifier {
       );
       if (response.statusCode == 200) {
         log('Profile updated successfully');
+        await fetchProfileGuardian();
+        disableEditProfile();
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: 'Profile updated successfully',
+          type: SnackbarType.success,
+        );
+      } else {
+        log('Failed to update profile: ${response.statusCode}');
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: 'Failed to update profile',
+          type: SnackbarType.failure,
+        );
+      }
+    } catch (e) {
+      log('Error: $e');
+    } finally {
+      _isLoadingTwo = false;
+      notifyListeners();
+    }
+  }
+
+  //update crenditals and name
+  Future<void> changeCredentialAndName({
+    required BuildContext context,
+    required GuardianModel guardian,
+  }) async {
+    _isLoadingTwo = true;
+    notifyListeners();
+    try {
+      final response = await ProfileServices().changeCredentialAndName(
+        guardian: guardian,
+      );
+      if (response.statusCode == 200) {
+        log('Profile updated successfully');
+        await fetchProfileGuardian();
         disableEditProfile();
         if (!context.mounted) return;
         CustomSnackbar.show(

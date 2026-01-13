@@ -65,6 +65,7 @@ class RouteConstants {
   static const String schoolSelectionScreen = "schoolSelectionScreen";
   static const String shareBottomSheet = "sharebottomsheet";
   static const String profileDetails = 'profileDetails';
+  static const String changelogin = 'changelogin';
 
   // STUDENTS
   static const String studentListing = 'studentListing';

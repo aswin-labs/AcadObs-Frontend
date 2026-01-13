@@ -3,10 +3,12 @@ import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/features/profile/data/models/guardian_model.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/features/profile/presentation/widgets/editing_enable_mode.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
@@ -36,6 +38,17 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
 
   final TextEditingController fatherNameController = TextEditingController();
   final TextEditingController motherNameController = TextEditingController();
+
+  final TextEditingController houseNameController = TextEditingController();
+  final TextEditingController streetController = TextEditingController();
+  final TextEditingController cityController = TextEditingController();
+  final TextEditingController districtController = TextEditingController();
+  final TextEditingController stateController = TextEditingController();
+  final TextEditingController pincodeController = TextEditingController();
+  final TextEditingController countryController = TextEditingController();
+  final TextEditingController postController = TextEditingController();
+  final TextEditingController landmarkController = TextEditingController();
+
   late ProfileProvider provider;
   @override
   void initState() {
@@ -62,6 +75,16 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
 
           fatherNameController.text = profile.fatherName ?? '';
           motherNameController.text = profile.motherName ?? '';
+
+          houseNameController.text = profile.houseName ?? '';
+          streetController.text = profile.street ?? '';
+          cityController.text = profile.city ?? '';
+          landmarkController.text = profile.landmark ?? '';
+          districtController.text = profile.district ?? '';
+          stateController.text = profile.state ?? '';
+          countryController.text = profile.country ?? '';
+          postController.text = profile.post ?? '';
+          pincodeController.text = profile.pincode ?? '';
         });
       }
     });
@@ -80,6 +103,16 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
     guardian2RelationController.dispose();
     fatherNameController.dispose();
     motherNameController.dispose();
+
+    houseNameController.dispose();
+    streetController.dispose();
+    cityController.dispose();
+    landmarkController.dispose();
+    districtController.dispose();
+    stateController.dispose();
+    countryController.dispose();
+    postController.dispose();
+    pincodeController.dispose();
     super.dispose();
   }
 
@@ -143,32 +176,164 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
 
                               _buildSectionTitle("Primary Guardian"),
 
-                              CustomTextfield(
-                                iconData: const Icon(LucideIcons.user),
-                                controller: guardianNameController,
-                                label: "Guardian Name",
-                                hintText: 'Enter guardian name',
-                                enabled: enabled,
-                              ),
-                              const SizedBox(height: 16),
+                              if (!enabled) ...[
+                                Container(
+                                  // margin: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    color: Colors.grey.shade50,
+                                    border: Border.all(
+                                      color: Colors.grey.shade300,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Title and Edit button
+                                      Padding(
+                                        padding: const EdgeInsets.all(16),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Login Information',
+                                                    style: TextStyle(
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          Colors.grey.shade900,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    'Guardian account details',
+                                                    style: TextStyle(
+                                                      fontSize: 13,
+                                                      color:
+                                                          Colors.grey.shade600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                context.pushNamed(
+                                                  RouteConstants.changelogin,
+                                                );
+                                              },
+                                              icon: Icon(
+                                                LucideIcons.edit2,
+                                                color: Colors.blue.shade700,
+                                              ),
+                                              style: IconButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.blue.shade50,
+                                                padding: const EdgeInsets.all(
+                                                  12,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
 
-                              CustomTextfield(
-                                iconData: const Icon(LucideIcons.phone),
-                                controller: guardianContactController,
-                                label: "Contact Number",
-                                hintText: 'Enter contact number',
-                                enabled: enabled,
-                              ),
-                              const SizedBox(height: 16),
+                                      Divider(
+                                        height: 1,
+                                        color: Colors.grey.shade300,
+                                      ),
 
-                              CustomTextfield(
-                                iconData: const Icon(LucideIcons.mail),
-                                controller: guardianEmailController,
-                                label: "Email",
-                                hintText: 'Enter email address',
-                                enabled: enabled,
-                              ),
-                              const SizedBox(height: 16),
+                                      // Fields
+                                      Padding(
+                                        padding: const EdgeInsets.all(20),
+                                        child: Column(
+                                          children: [
+                                            _buildSimpleField(
+                                              label: 'Guardian Name',
+                                              value:
+                                                  guardianNameController.text,
+                                              icon: LucideIcons.user,
+                                            ),
+                                            const SizedBox(height: 20),
+                                            _buildSimpleField(
+                                              label: 'Contact Number',
+                                              value:
+                                                  guardianContactController
+                                                      .text,
+                                              icon: LucideIcons.phone,
+                                            ),
+                                            const SizedBox(height: 20),
+                                            _buildSimpleField(
+                                              label: 'Email Address',
+                                              value:
+                                                  guardianEmailController.text,
+                                              icon: LucideIcons.mail,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+
+                              // if (!enabled) ...[
+                              //   Container(
+                              //     padding: EdgeInsets.all(12),
+                              //     decoration: BoxDecoration(
+                              //       borderRadius: BorderRadius.circular(8),
+
+                              //       // color: Colors.blue[200],
+                              //       border: Border.all(color: Colors.black),
+                              //     ),
+                              //     child: Column(
+                              //       children: [
+                              //         CustomTextfield(
+                              //           iconData: const Icon(LucideIcons.user),
+                              //           controller: guardianNameController,
+                              //           label: "Guardian Name",
+                              //           hintText: 'Enter guardian name',
+                              //           enabled: false, // 🔒 FIXED
+                              //         ),
+                              //         const SizedBox(height: 16),
+
+                              //         CustomTextfield(
+                              //           iconData: const Icon(LucideIcons.phone),
+                              //           controller: guardianContactController,
+                              //           label: "Contact Number",
+                              //           hintText: 'Enter contact number',
+                              //           enabled: false, // 🔒 FIXED
+                              //         ),
+                              //         const SizedBox(height: 16),
+
+                              //         CustomTextfield(
+                              //           iconData: const Icon(LucideIcons.mail),
+                              //           controller: guardianEmailController,
+                              //           label: "Email",
+                              //           hintText: 'Enter email address',
+                              //           enabled: false, // 🔒 FIXED
+                              //         ),
+
+                              //         TextButton(
+                              //           onPressed: () {
+                              //             context.pushNamed(
+                              //               RouteConstants.changelogin,
+                              //             );
+                              //           },
+                              //           child: Text("Edit"),
+                              //         ),
+                              //       ],
+                              //     ),
+                              //   ),
+                              // ],
+                              SizedBox(height: 20),
 
                               CustomTextfield(
                                 iconData: const Icon(LucideIcons.briefcase),
@@ -184,6 +349,80 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                                 controller: guardianRelationController,
                                 label: "Relation",
                                 hintText: 'Enter relation to student',
+                                enabled: enabled,
+                              ),
+
+                              const SizedBox(height: 16),
+                              CustomTextfield(
+                                iconData: const Icon(Icons.home),
+                                controller: houseNameController,
+                                label: "House Name",
+                                hintText: 'Enter house name',
+                                enabled: enabled,
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextfield(
+                                iconData: const Icon(Icons.signpost),
+                                controller: streetController,
+                                label: "Street",
+                                hintText: 'Enter street name',
+                                enabled: enabled,
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextfield(
+                                iconData: const Icon(Icons.location_city),
+                                controller: cityController,
+                                label: "City",
+                                hintText: 'Enter city name',
+                                enabled: enabled,
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextfield(
+                                iconData: const Icon(LucideIcons.landmark),
+                                controller: landmarkController,
+                                label: "Landmark",
+                                hintText: 'Enter landmark name',
+                                enabled: enabled,
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextfield(
+                                iconData: const Icon(LucideIcons.map),
+                                controller: districtController,
+                                label: "District",
+                                hintText: 'Enter district name',
+                                enabled: enabled,
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextfield(
+                                iconData: const Icon(LucideIcons.mapPin),
+                                controller: stateController,
+                                label: "State",
+                                hintText: 'Enter state name',
+                                enabled: enabled,
+                              ),
+
+                              const SizedBox(height: 16),
+                              CustomTextfield(
+                                iconData: const Icon(LucideIcons.globe),
+                                controller: countryController,
+                                label: "Country",
+                                hintText: 'Enter country name',
+                                enabled: enabled,
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextfield(
+                                iconData: const Icon(LucideIcons.mail),
+                                controller: postController,
+                                label: "Post",
+                                hintText: 'Enter post',
+                                enabled: enabled,
+                              ),
+                              const SizedBox(height: 16),
+                              CustomTextfield(
+                                iconData: const Icon(LucideIcons.hash),
+                                controller: pincodeController,
+                                label: "Pincode",
+                                hintText: 'Enter pincode',
                                 enabled: enabled,
                               ),
 
@@ -280,6 +519,16 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
                                             fatherNameController.text.trim(),
                                         motherName:
                                             motherNameController.text.trim(),
+                                        houseName:
+                                            houseNameController.text.trim(),
+                                        street: streetController.text.trim(),
+                                        city: cityController.text.trim(),
+                                        district:
+                                            districtController.text.trim(),
+                                        state: stateController.text.trim(),
+                                        country: countryController.text.trim(),
+                                        post: postController.text.trim(),
+                                        pincode: pincodeController.text.trim(),
                                       );
                                       context
                                           .read<ProfileProvider>()
@@ -315,4 +564,43 @@ class _ProfileDetailsScreenState extends State<ProfileDetailsScreen> {
       ),
     );
   }
+}
+
+// Helper method
+Widget _buildSimpleField({
+  required String label,
+  required String value,
+  required IconData icon,
+}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Icon(icon, size: 20, color: Colors.grey.shade600),
+      const SizedBox(width: 12),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              value.isEmpty ? '—' : value,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey.shade900,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
 }
