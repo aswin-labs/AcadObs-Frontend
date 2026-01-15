@@ -4,6 +4,7 @@ import 'package:acadobs/features/authentication/presentation/screens/splash_scre
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/screens/chat_screen.dart';
 import 'package:acadobs/features/profile/presentation/screens/change_password_screen.dart';
+import 'package:acadobs/features/profile/presentation/screens/edit_credential.dart';
 import 'package:acadobs/features/profile/presentation/screens/profile_details_screen.dart';
 import 'package:acadobs/features/profile/presentation/screens/profile_screen.dart';
 import 'package:acadobs/features/profile/presentation/widgets/update_profile_photo_screen.dart';
@@ -91,6 +92,16 @@ final List<GoRoute> commonRoutes = [
     builder: (context, state) {
       final bool forStaff = state.extra as bool;
       return ChangePasswordScreen(forStaff: forStaff);
+    },
+  ),
+
+  //edit login credentials
+  GoRoute(
+    path: '/changelogin',
+    name: RouteConstants.changelogin,
+    builder: (context, state) {
+      // final bool forStaff = state.extra as bool;
+      return EditCredential();
     },
   ),
 ];

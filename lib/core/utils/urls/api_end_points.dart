@@ -132,6 +132,9 @@ class ApiEndpoints {
 
   static const String updateStudentProfile = "/guardian/updateStudentProfile";
 
+  static const String updateCredentialAndName =
+      "/guardian/changeIdentifiersAndName";
+
   //profile details for staff
   static const String staffProfileDetails = "/staff/getProfileDetails";
   static const String updateStaffProfile = "/staff/updateProfileDetails";

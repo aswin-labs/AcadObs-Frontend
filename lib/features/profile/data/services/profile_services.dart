@@ -46,7 +46,30 @@ class ProfileServices {
       "guardian2_relation": guardian.guardian2Relation,
       "father_name": guardian.fatherName,
       "mother_name": guardian.motherName,
+      "house_name": guardian.houseName,
+      "street": guardian.street,
+      "city": guardian.city,
+      "landmark": guardian.landmark,
+      "district": guardian.district,
+      "state": guardian.state,
+      "country": guardian.country,
+      "post": guardian.post,
+      "pincode": guardian.pincode,
     });
+
+    return response;
+  }
+
+  //update credentials
+  Future<Response> changeCredentialAndName({
+    required GuardianModel guardian,
+  }) async {
+    final response =
+        await ApiServices.put(ApiEndpoints.updateCredentialAndName, {
+          "guardian_name": guardian.guardianName,
+          "guardian_contact": guardian.guardianContact,
+          "guardian_email": guardian.guardianEmail,
+        });
 
     return response;
   }
