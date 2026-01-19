@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
@@ -43,7 +45,10 @@ class LatestNewsSection extends StatelessWidget {
               }
 
               if (news.isEmpty) {
-                return emptyScreen(message: "No News Available", heightMultiplier: 5,);
+                return emptyScreen(
+                  message: "No News Available",
+                  heightMultiplier: 5,
+                );
               }
 
               return ListView.separated(
@@ -53,6 +58,7 @@ class LatestNewsSection extends StatelessWidget {
                 itemCount: news.length,
                 separatorBuilder: (context, index) => SizedBox(height: 2),
                 itemBuilder: (context, index) {
+                  log("Length of news: ${news.length}");
                   final newsItem = news[index];
                   final formattedDate = DateFormat(
                     'dd-MM-yy',

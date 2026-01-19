@@ -28,6 +28,13 @@ class NewsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imageUrl =
+        news.images.isNotEmpty && news.images.first.imageUrl != null
+            ? BaseUrls.media +
+                MediaEndpoints.newsImages +
+                news.images.first.imageUrl!
+            : null;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: GestureDetector(
@@ -79,10 +86,7 @@ class NewsCard extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: CachedNetworkImage(
-                        imageUrl:
-                            BaseUrls.media +
-                            MediaEndpoints.newsImages +
-                            (news.images[0].imageUrl ?? ""),
+                        imageUrl: imageUrl ?? '',
                         placeholder:
                             (context, url) => Center(
                               child: CircularProgressIndicator(
@@ -92,7 +96,7 @@ class NewsCard extends StatelessWidget {
                         errorWidget:
                             (context, url, error) => Icon(
                               Icons.image_outlined,
-                              color: Colors.grey..withAlpha(38),
+                              color: Colors.grey.withAlpha(38),
                               size: 36,
                             ),
                         fit: BoxFit.cover,
