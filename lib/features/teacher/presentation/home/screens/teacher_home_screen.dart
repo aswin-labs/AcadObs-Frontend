@@ -194,8 +194,19 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                   "${BaseUrls.media}${MediaEndpoints.logo}${provider.logo}",
                                                 ),
                                                 SizedBox(width: 8),
-                                                // Text("Ansar"),
-                                                Text(provider.schoolName ?? ""),
+                                                Expanded(
+                                                  child: Text(
+                                                    provider.schoolName ?? "",
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      // color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
                                               ],
                                             );
                                           },
