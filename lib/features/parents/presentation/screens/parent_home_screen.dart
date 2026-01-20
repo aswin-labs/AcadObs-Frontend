@@ -151,7 +151,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                       LatestNewsSection(),
 
                       SizedBox(height: 15),
-                      //latest Award section
+                      // latest Award section
                       LatestAwardSection(),
                     ],
                   ),

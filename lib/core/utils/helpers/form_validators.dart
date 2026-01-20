@@ -1,6 +1,8 @@
 class FormValidator {
-  static String? validateNotEmpty(String? value,
-      {String fieldName = "This field"}) {
+  static String? validateNotEmpty(
+    String? value, {
+    String fieldName = "This field",
+  }) {
     if (value == null || value.trim().isEmpty) {
       return "$fieldName cannot be empty";
     }
@@ -17,7 +19,7 @@ class FormValidator {
     return null;
   }
 
-  static String? validatePassword(String? value, {int minLength = 8}) {
+  static String? validatePassword(String? value, {int minLength = 6}) {
     if (value == null || value.trim().isEmpty) {
       return "Password cannot be empty";
     } else if (value.length < minLength) {
@@ -38,8 +40,10 @@ class FormValidator {
   }
 
   // New Date Validation
-  static String? validateFutureDate(DateTime date,
-      {String fieldName = "Date"}) {
+  static String? validateFutureDate(
+    DateTime date, {
+    String fieldName = "Date",
+  }) {
     if (date.isBefore(DateTime.now())) {
       return "$fieldName must be in the future";
     }
@@ -47,8 +51,10 @@ class FormValidator {
   }
 
   // File Validation
-  static String? validateFileSelected(String? filePath,
-      {String fieldName = "File"}) {
+  static String? validateFileSelected(
+    String? filePath, {
+    String fieldName = "File",
+  }) {
     if (filePath == null || filePath.isEmpty) {
       return "$fieldName cannot be empty";
     }
