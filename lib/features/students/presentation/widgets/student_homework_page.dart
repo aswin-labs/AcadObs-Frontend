@@ -81,7 +81,7 @@ class _StudentHomeworkPageState extends State<StudentHomeworkPage> {
           if (provider.studentHomeworks.isEmpty) {
             return emptyScreen(
               message: 'No Homeworks Found.',
-              heightMultiplier: 16,
+              heightMultiplier: 22,
             );
           }
 

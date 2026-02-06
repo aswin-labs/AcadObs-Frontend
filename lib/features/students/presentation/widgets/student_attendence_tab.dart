@@ -127,7 +127,10 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
                     }
 
                     if (provider.timetable.isEmpty) {
-                      return emptyScreen(message: "No Time Table Avaliable");
+                      return emptyScreen(
+                        message: "No Time Table Avaliable",
+                        heightMultiplier: 10,
+                      );
                     }
 
                     return GridView.builder(
