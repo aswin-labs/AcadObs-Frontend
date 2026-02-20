@@ -66,6 +66,7 @@ class RouteConstants {
   static const String shareBottomSheet = "sharebottomsheet";
   static const String profileDetails = 'profileDetails';
   static const String changelogin = 'changelogin';
+  static const String routeProgress = 'routeProgress';
 
   // STUDENTS
   static const String studentListing = 'studentListing';
