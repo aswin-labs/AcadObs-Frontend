@@ -21,6 +21,7 @@ import 'package:acadobs/features/teacher/presentation/home/provider/teacher_atte
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
 import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
+import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
@@ -87,5 +88,8 @@ getProviders() {
 
     //**************network provider ****************//
     ChangeNotifierProvider(create: (_) => NetworkProvider()),
+
+    //**************student route ****************//
+    ChangeNotifierProvider(create: (_) => StudentRouteProvider()),
   ];
 }
