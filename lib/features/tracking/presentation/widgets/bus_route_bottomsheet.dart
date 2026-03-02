@@ -1,11 +1,16 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:acadobs/core/utils/common_shimmer_tile.dart';
+import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/features/tracking/presentation/widgets/bus_route_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 void showBusRoutesBottomsheet({required BuildContext context}) {
+  context.read<StudentRouteProvider>().getStudentRoutes();
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -50,20 +55,45 @@ void showBusRoutesBottomsheet({required BuildContext context}) {
                 ],
               ),
               SizedBox(height: Responsive.height * 3),
-              BusRouteCard(
-                studentName: "studentName",
-                routeName: "routeName",
-                isPickup: true,
-                isLive: true,
-                onTap: () => context.pushNamed(RouteConstants.routeProgress),
+              Consumer<StudentRouteProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      child: Center(child: CommonShimmerTile(height: 100)),
+                    );
+                  }
+                  final routes = provider.studentRoutes;
+                  if (routes.isEmpty) {
+                    return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 32),
+                      child: Center(
+                        child: emptyScreen(message: "No routes found"),
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: routes.length,
+                    itemBuilder: (context, index) {
+                      final route = routes[index];
+                      return BusRouteCard(
+                        studentName: route.fullName ?? "",
+                        routeName: route.routeName ?? "",
+                        type: route.type ?? "",
+                        isLive: true,
+                        onTap:
+                            () => context.pushNamed(
+                              RouteConstants.routeProgress,
+                              extra: route.id,
+                            ),
+                      );
+                    },
+                  );
+                },
               ),
               SizedBox(height: Responsive.height * 1),
-              BusRouteCard(
-                studentName: "studentName",
-                routeName: "routeName",
-                isPickup: false,
-                onTap: () {},
-              ),
             ],
           ),
         ),

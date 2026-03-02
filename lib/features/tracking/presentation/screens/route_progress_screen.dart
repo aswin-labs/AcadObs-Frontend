@@ -1,13 +1,31 @@
+import 'package:acadobs/core/utils/empty_screen.dart';
+import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class RouteProgressScreen extends StatelessWidget {
-  const RouteProgressScreen({super.key});
+class RouteProgressScreen extends StatefulWidget {
+  final int routeId;
+  const RouteProgressScreen({super.key, required this.routeId});
+
+  @override
+  State<RouteProgressScreen> createState() => _RouteProgressScreenState();
+}
+
+class _RouteProgressScreenState extends State<RouteProgressScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<StudentRouteProvider>().getArrivedStopsForGuardian(
+        routeId: widget.routeId,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: const Color(0xFFF4F6F9),
       appBar: CommonAppBar(title: "Route In Progress", isBackButton: true),
       body: Column(
         children: [
@@ -27,7 +45,7 @@ class RouteProgressScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       "Alex Johnson",
                       style: TextStyle(
                         fontSize: 18,
@@ -46,7 +64,7 @@ class RouteProgressScreen extends StatelessWidget {
                             color: Colors.blue.withAlpha(30),
                             borderRadius: BorderRadius.circular(6),
                           ),
-                          child: const Text(
+                          child: Text(
                             "ROUTE 42",
                             style: TextStyle(
                               fontSize: 12,
@@ -73,78 +91,123 @@ class RouteProgressScreen extends StatelessWidget {
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ListView(
-                children: [
-                  const SizedBox(height: 20),
-                  const Text(
-                    "LIVE STATUS",
-                    style: TextStyle(
-                      letterSpacing: 1.2,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
+              child: Consumer<StudentRouteProvider>(
+                builder: (context, provider, _) {
+                  if (provider.isLoading) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  final stops = provider.guardianStops;
+                  if (stops.isEmpty) {
+                    return Center(
+                      child: emptyScreen(message: "No stops found"),
+                    );
+                  }
+                  int currentIndex = stops.indexWhere(
+                    (stop) => stop.arrived == false,
+                  );
 
-                  /// Passed Stops
-                  _buildPassedStop("Maple Avenue", "Passed at 07:45 AM"),
-                  _buildPassedStop("Sunset Boulevard", "Passed at 07:58 AM"),
+                  // If all stops completed
+                  if (currentIndex == -1) {
+                    currentIndex = stops.length; // all passed
+                  }
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: stops.length,
+                    itemBuilder: (context, index) {
+                      final stop = stops[index];
+                      if (index < currentIndex) {
+                        // PASSED
+                        return _buildPassedStop(
+                          stop.stopName ?? "",
+                          "Passed at ${stop.arrived ?? ''}",
+                        );
+                      } else if (index == currentIndex) {
+                        // CURRENT
+                        return _buildCurrentStop(stop.stopName ?? "");
+                      } else {
+                        // UPCOMING
+                        return _buildUpcomingStop(
+                          stop.stopName ?? "",
+                          "Upcoming",
+                        );
+                      }
+                    },
+                    // children: [
+                    //   SizedBox(height: 20),
+                    //   Text(
+                    //     "LIVE STATUS",
+                    //     style: TextStyle(
+                    //       letterSpacing: 1.2,
+                    //       fontSize: 12,
+                    //       fontWeight: FontWeight.bold,
+                    //       color: Colors.grey,
+                    //     ),
+                    //   ),
+                    //   const SizedBox(height: 20),
 
-                  /// Current Stop
-                  _buildCurrentStop("Oak Street Station"),
+                    //   /// Passed Stops
+                    //   _buildPassedStop("Maple Avenue", "Passed at 07:45 AM"),
+                    //   _buildPassedStop(
+                    //     "Sunset Boulevard",
+                    //     "Passed at 07:58 AM",
+                    //   ),
 
-                  /// Upcoming Stop
-                  _buildUpcomingStop("Pine Hill", "Est. 08:15 AM"),
+                    //   /// Current Stop
+                    //   _buildCurrentStop("Oak Street Station"),
 
-                  const SizedBox(height: 20),
+                    //   /// Upcoming Stop
+                    //   _buildUpcomingStop("Pine Hill", "Est. 08:15 AM"),
 
-                  /// Destination Card
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withAlpha(20),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.blue.withAlpha(60)),
-                    ),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 18,
-                          backgroundColor: Colors.blue.withAlpha(40),
-                          child: const Icon(
-                            Icons.school,
-                            color: Colors.blue,
-                            size: 18,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            Text(
-                              "Greenwood Academy",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue,
-                              ),
-                            ),
-                            SizedBox(height: 2),
-                            Text(
-                              "Alex's Destination",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.black54,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                    //   const SizedBox(height: 20),
 
-                  const SizedBox(height: 40),
-                ],
+                    //   /// Destination Card
+                    //   Container(
+                    //     padding: const EdgeInsets.all(14),
+                    //     decoration: BoxDecoration(
+                    //       color: Colors.blue.withAlpha(20),
+                    //       borderRadius: BorderRadius.circular(12),
+                    //       border: Border.all(color: Colors.blue.withAlpha(60)),
+                    //     ),
+                    //     child: Row(
+                    //       children: [
+                    //         CircleAvatar(
+                    //           radius: 18,
+                    //           backgroundColor: Colors.blue.withAlpha(40),
+                    //           child: const Icon(
+                    //             Icons.school,
+                    //             color: Colors.blue,
+                    //             size: 18,
+                    //           ),
+                    //         ),
+                    //         const SizedBox(width: 12),
+                    //         Column(
+                    //           crossAxisAlignment: CrossAxisAlignment.start,
+                    //           children: const [
+                    //             Text(
+                    //               "Greenwood Academy",
+                    //               style: TextStyle(
+                    //                 fontWeight: FontWeight.bold,
+                    //                 color: Colors.blue,
+                    //               ),
+                    //             ),
+                    //             SizedBox(height: 2),
+                    //             Text(
+                    //               "Alex's Destination",
+                    //               style: TextStyle(
+                    //                 fontSize: 12,
+                    //                 color: Colors.black54,
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+
+                    //   const SizedBox(height: 40),
+                    // ],
+                  );
+                },
               ),
             ),
           ),
@@ -153,7 +216,7 @@ class RouteProgressScreen extends StatelessWidget {
     );
   }
 
-  /// Passed Stop Widget
+  //   /// Passed Stop Widget
   Widget _buildPassedStop(String title, String subtitle) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,7 +280,7 @@ class RouteProgressScreen extends StatelessWidget {
           padding: const EdgeInsets.only(top: 4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               Text(
                 "Oak Street Station",
                 style: TextStyle(fontWeight: FontWeight.bold),

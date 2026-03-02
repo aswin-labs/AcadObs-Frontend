@@ -47,7 +47,8 @@ List<GoRoute> parentRoutes = [
     path: '/routeProgress',
     name: RouteConstants.routeProgress,
     builder: (context, state) {
-      return RouteProgressScreen();
+      final int routeId = state.extra as int;
+      return RouteProgressScreen(routeId: routeId);
     },
   ),
 ];

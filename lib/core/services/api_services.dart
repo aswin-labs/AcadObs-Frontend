@@ -131,4 +131,20 @@ class ApiServices {
       throw Exception('File download failed: $e');
     }
   }
+
+  /// Get stops by route ID
+  static Future<List<dynamic>> getStops(int routeId) async {
+    try {
+      final response = await get("/stop?route_id=$routeId");
+
+      if (response.statusCode == 200) {
+        return response.data["data"];
+        // 👆 change this depending on your backend response structure
+      } else {
+        throw Exception("Failed to load stops");
+      }
+    } catch (e) {
+      throw Exception("Error fetching stops: $e");
+    }
+  }
 }

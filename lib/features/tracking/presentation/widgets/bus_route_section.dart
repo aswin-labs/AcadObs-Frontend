@@ -1,9 +1,24 @@
+import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/features/tracking/presentation/widgets/bus_route_bottomsheet.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class BusRouteSection extends StatelessWidget {
+class BusRouteSection extends StatefulWidget {
   const BusRouteSection({super.key});
+
+  @override
+  State<BusRouteSection> createState() => _BusRouteSectionState();
+}
+
+class _BusRouteSectionState extends State<BusRouteSection> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<StudentRouteProvider>().getRouteCount();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +95,9 @@ class BusRouteSection extends StatelessWidget {
             child: Material(
               color: Colors.transparent,
               child: InkWell(
-                onTap: () => showBusRoutesBottomsheet(context: context),
+                onTap: () {
+                  showBusRoutesBottomsheet(context: context);
+                },
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
                   padding: EdgeInsets.all(16),
@@ -122,12 +139,16 @@ class BusRouteSection extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: 4),
-                            Text(
-                              "---",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
+                            Consumer<StudentRouteProvider>(
+                              builder: (context, provider, _) {
+                                return Text(
+                                  "${provider.routeCount} Routes",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                );
+                              },
                             ),
                           ],
                         ),

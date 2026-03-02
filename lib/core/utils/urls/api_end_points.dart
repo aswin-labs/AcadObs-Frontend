@@ -138,4 +138,9 @@ class ApiEndpoints {
   //profile details for staff
   static const String staffProfileDetails = "/staff/getProfileDetails";
   static const String updateStaffProfile = "/staff/updateProfileDetails";
+
+  //get student route for guardian
+  static const String getStudentRoute = "/guardian/getRoutesForGuardian";
+  static const String getRouteCount = "/guardian/getGuardianRouteCount";
+  static const String routeInactive = "/guardian/routeInactive";
 }
