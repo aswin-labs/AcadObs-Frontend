@@ -74,7 +74,7 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
                         }
 
                         if (provider.staffs.isEmpty) {
-                          return emptyScreen(message: 'No Duties Found.');
+                          return emptyScreen(message: 'No Teachers Found.');
                         }
 
                         return ListView.builder(
