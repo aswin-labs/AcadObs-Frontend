@@ -1,6 +1,9 @@
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
+import 'package:acadobs/core/utils/urls/base_urls.dart';
+import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
+import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
@@ -55,7 +58,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final schoolName = context.watch<ParentProvider>().schoolName;
+    // final schoolName = context.watch<ParentProvider>().schoolName;
     final networkProvider = context.watch<NetworkProvider>();
 
     return Scaffold(
@@ -94,16 +97,42 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if (schoolName != null)
-                                Text(
-                                  schoolName,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 16,
-                                    color: Colors.white.withAlpha(203),
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
+                              Consumer<AuthProvider>(
+                                builder: (context, provider, _) {
+                                  return Row(
+                                    children: [
+                                      // Icon(Icons.school, size: 35),
+                                      Image.network(
+                                        errorBuilder: (
+                                          context,
+                                          error,
+                                          stackTrace,
+                                        ) {
+                                          return const Icon(
+                                            Icons.school,
+                                            size: 35,
+                                          );
+                                        },
+                                        width: 30,
+                                        height: 30,
+                                        "${BaseUrls.media}${MediaEndpoints.logo}${provider.logo}",
+                                      ),
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          provider.schoolName ?? "",
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            // color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
                               SizedBox(height: 8),
                               GestureDetector(
                                 onTap: () {
@@ -147,7 +176,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                       // My Children Section
                       MyChildrenSection(),
                       // Bus route section
-                      BusRouteSection(),
+                      // BusRouteSection(),
                       // Latest Events Section
                       LatestEventsSection(),
 
