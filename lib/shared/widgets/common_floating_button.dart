@@ -3,7 +3,12 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 class CommonFloatingButton extends StatelessWidget {
   final VoidCallback onPressed;
-  const CommonFloatingButton({super.key, required this.onPressed});
+  final IconData? icon;
+  const CommonFloatingButton({
+    super.key,
+    required this.onPressed,
+    this.icon = LucideIcons.plus,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +17,7 @@ class CommonFloatingButton extends StatelessWidget {
       shape: CircleBorder(),
 
       onPressed: onPressed,
-      child: Icon(LucideIcons.plus, color: Colors.grey),
+      child: Icon(icon, color: Colors.grey),
     );
   }
 }

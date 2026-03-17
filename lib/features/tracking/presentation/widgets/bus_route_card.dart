@@ -4,7 +4,7 @@ import 'package:acadobs/core/utils/responsive.dart';
 import 'package:flutter/material.dart';
 
 class BusRouteCard extends StatefulWidget {
-  final String studentName;
+  final String? studentName;
   final String routeName;
   final String type;
   final VoidCallback onTap;
@@ -12,7 +12,7 @@ class BusRouteCard extends StatefulWidget {
 
   const BusRouteCard({
     super.key,
-    required this.studentName,
+    this.studentName,
     required this.routeName,
     required this.type,
     required this.onTap,
@@ -49,7 +49,7 @@ class _BusRouteCardState extends State<BusRouteCard>
     super.dispose();
   }
 
-  bool get _isPickup => widget.type == "pickup";
+  bool get _isPickup => widget.type == "PICKUP";
 
   Color get _typeColor =>
       _isPickup ? const Color(0xFF22C55E) : const Color(0xFF3B82F6);
@@ -158,15 +158,16 @@ class _BusRouteCardState extends State<BusRouteCard>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                widget.studentName,
-                                style: context.textTheme.titleSmall!.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -0.3,
+                              if (widget.studentName != null)
+                                Text(
+                                  widget.studentName ?? "",
+                                  style: context.textTheme.titleSmall!.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: -0.3,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
                               SizedBox(height: Responsive.height * 0.5),
                               Row(
                                 children: [

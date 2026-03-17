@@ -1,6 +1,7 @@
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,198 +18,208 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<StudentRouteProvider>().getArrivedStopsForGuardian(
-        routeId: widget.routeId,
-      );
+      refreshData();
     });
+  }
+
+  Future<void> refreshData() async {
+    await Future.wait([
+      context.read<StudentRouteProvider>().getStopsForParent(
+        routeId: widget.routeId,
+      ),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Route In Progress", isBackButton: true),
+      backgroundColor: const Color(0xFFF0F4F8),
+      appBar: CommonAppBar(
+        title: "Route In Progress",
+        isBackButton: true,
+        backgroundColor: const Color(0xFF1A3FA8),
+        titleColor: Colors.white,
+      ),
       body: Column(
         children: [
-          /// Profile Section
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(16),
+          _buildTopCard(),
+          Expanded(
+            child: Consumer<StudentRouteProvider>(
+              builder: (context, provider, _) {
+                if (provider.isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF1A3FA8)),
+                  );
+                }
+                if (provider.guardianStops.isEmpty) {
+                  return Center(
+                    child: emptyScreen(message: "No Stops Available"),
+                  );
+                }
+                final stops = provider.guardianStops;
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  itemCount: stops.length,
+                  itemBuilder: (context, index) {
+                    final stop = stops[index];
+                    return _buildStopTile(
+                      name: stop.stopName!,
+                      status: stop.arrived!,
+                      index: index,
+                      priority: stop.priority!,
+                      isLast: index == stops.length - 1,
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: CommonFloatingButton(
+        onPressed: () {
+          refreshData();
+        },
+        icon: Icons.refresh,
+      ),
+    );
+  }
 
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Color(0xFF0D3B3F),
-                  child: Icon(Icons.person, color: Colors.white, size: 28),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Alex Johnson",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+  // ── Top Card ─────────────────────────────────────────────────────
+  Widget _buildTopCard() {
+    return Consumer<StudentRouteProvider>(
+      builder: (context, provider, _) {
+        final total = provider.guardianStops.length;
+        final arrived =
+            provider.guardianStops.where((s) => s.arrived == true).length;
+
+        return Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1A3FA8), Color(0xFF2D6BE4)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(28),
+              bottomRight: Radius.circular(28),
+            ),
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ── Driver Row ──
+              Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(30),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withAlpha(60),
+                        width: 2,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Row(
+                    child: const Icon(
+                      Icons.person_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
+                        Text(
+                          "Alex Johnson",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.withAlpha(30),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          child: Text(
-                            "ROUTE 42",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          "Morning Bus",
-                          style: TextStyle(fontSize: 13, color: Colors.grey),
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          /// Timeline Section
-          Expanded(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Consumer<StudentRouteProvider>(
-                builder: (context, provider, _) {
-                  if (provider.isLoading) {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                  final stops = provider.guardianStops;
-                  if (stops.isEmpty) {
-                    return Center(
-                      child: emptyScreen(message: "No stops found"),
-                    );
-                  }
-                  int currentIndex = stops.indexWhere(
-                    (stop) => stop.arrived == false,
-                  );
-
-                  // If all stops completed
-                  if (currentIndex == -1) {
-                    currentIndex = stops.length; // all passed
-                  }
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: stops.length,
-                    itemBuilder: (context, index) {
-                      final stop = stops[index];
-                      if (index < currentIndex) {
-                        // PASSED
-                        return _buildPassedStop(
-                          stop.stopName ?? "",
-                          "Passed at ${stop.arrived ?? ''}",
-                        );
-                      } else if (index == currentIndex) {
-                        // CURRENT
-                        return _buildCurrentStop(stop.stopName ?? "");
-                      } else {
-                        // UPCOMING
-                        return _buildUpcomingStop(
-                          stop.stopName ?? "",
-                          "Upcoming",
-                        );
-                      }
-                    },
-                    // children: [
-                    //   SizedBox(height: 20),
-                    //   Text(
-                    //     "LIVE STATUS",
-                    //     style: TextStyle(
-                    //       letterSpacing: 1.2,
-                    //       fontSize: 12,
-                    //       fontWeight: FontWeight.bold,
-                    //       color: Colors.grey,
-                    //     ),
-                    //   ),
-                    //   const SizedBox(height: 20),
-
-                    //   /// Passed Stops
-                    //   _buildPassedStop("Maple Avenue", "Passed at 07:45 AM"),
-                    //   _buildPassedStop(
-                    //     "Sunset Boulevard",
-                    //     "Passed at 07:58 AM",
-                    //   ),
-
-                    //   /// Current Stop
-                    //   _buildCurrentStop("Oak Street Station"),
-
-                    //   /// Upcoming Stop
-                    //   _buildUpcomingStop("Pine Hill", "Est. 08:15 AM"),
-
-                    //   const SizedBox(height: 20),
-
-                    //   /// Destination Card
-                    //   Container(
-                    //     padding: const EdgeInsets.all(14),
-                    //     decoration: BoxDecoration(
-                    //       color: Colors.blue.withAlpha(20),
-                    //       borderRadius: BorderRadius.circular(12),
-                    //       border: Border.all(color: Colors.blue.withAlpha(60)),
-                    //     ),
-                    //     child: Row(
-                    //       children: [
-                    //         CircleAvatar(
-                    //           radius: 18,
-                    //           backgroundColor: Colors.blue.withAlpha(40),
-                    //           child: const Icon(
-                    //             Icons.school,
-                    //             color: Colors.blue,
-                    //             size: 18,
-                    //           ),
-                    //         ),
-                    //         const SizedBox(width: 12),
-                    //         Column(
-                    //           crossAxisAlignment: CrossAxisAlignment.start,
-                    //           children: const [
-                    //             Text(
-                    //               "Greenwood Academy",
-                    //               style: TextStyle(
-                    //                 fontWeight: FontWeight.bold,
-                    //                 color: Colors.blue,
-                    //               ),
-                    //             ),
-                    //             SizedBox(height: 2),
-                    //             Text(
-                    //               "Alex's Destination",
-                    //               style: TextStyle(
-                    //                 fontSize: 12,
-                    //                 color: Colors.black54,
-                    //               ),
-                    //             ),
-                    //           ],
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   ),
-
-                    //   const SizedBox(height: 40),
-                    // ],
-                  );
-                },
+                  ),
+                  // Live badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withAlpha(25),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white.withAlpha(60)),
+                    ),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.circle, color: Color(0xFF4ADE80), size: 7),
+                        SizedBox(width: 5),
+                        Text(
+                          "LIVE",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.8,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 20),
+
+              // ── Stats Row ──
+              Row(
+                children: [
+                  _buildStatChip(
+                    icon: Icons.place_rounded,
+                    label: "$arrived/$total Stops",
+                  ),
+                  const SizedBox(width: 10),
+                  _buildStatChip(
+                    icon: Icons.directions_bus_rounded,
+                    label: "On Route",
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatChip({required IconData icon, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withAlpha(20),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withAlpha(40)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white70, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -216,117 +227,190 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
     );
   }
 
-  //   /// Passed Stop Widget
-  Widget _buildPassedStop(String title, String subtitle) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: Colors.green,
-              child: const Icon(Icons.check, color: Colors.white, size: 18),
-            ),
-            Container(width: 2, height: 50, color: Colors.green.withAlpha(80)),
-          ],
-        ),
-        const SizedBox(width: 12),
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  decoration: TextDecoration.lineThrough,
-                  color: Colors.grey,
+  // ── Stop Tile ─────────────────────────────────────────────────────
+  Widget _buildStopTile({
+    required String name,
+    required int priority,
+    required bool status,
+    required int index,
+    required bool isLast,
+  }) {
+    final isDone = status;
+    final isCurrent =
+        !status &&
+        index ==
+            context.read<StudentRouteProvider>().guardianStops.indexWhere(
+              (s) => s.arrived == false,
+            );
+
+    final dotColor =
+        isDone
+            ? const Color(0xFF22C55E)
+            : isCurrent
+            ? const Color(0xFF1A3FA8)
+            : const Color(0xFFCBD5E1);
+
+    final lineColor =
+        isDone ? const Color(0xFF22C55E) : const Color(0xFFE2E8F0);
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ── Timeline ──
+          SizedBox(
+            width: 32,
+            child: Column(
+              children: [
+                Container(
+                  width: 2,
+                  height: 16,
+                  color: index == 0 ? Colors.transparent : lineColor,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: const TextStyle(color: Colors.green, fontSize: 12),
-              ),
-            ],
+                Container(
+                  width: 14,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: dotColor,
+                    shape: BoxShape.circle,
+                    border:
+                        (!isDone && !isCurrent)
+                            ? Border.all(
+                              color: const Color(0xFFCBD5E1),
+                              width: 1.5,
+                            )
+                            : null,
+                    boxShadow:
+                        isCurrent
+                            ? [
+                              BoxShadow(
+                                color: const Color(0xFF1A3FA8).withAlpha(80),
+                                blurRadius: 6,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                            : [],
+                  ),
+                  child:
+                      isDone
+                          ? const Icon(
+                            Icons.check,
+                            color: Colors.white,
+                            size: 9,
+                          )
+                          : null,
+                ),
+                if (!isLast)
+                  Expanded(child: Container(width: 2, color: lineColor)),
+              ],
+            ),
           ),
-        ),
-      ],
-    );
-  }
+          const SizedBox(width: 12),
 
-  /// Current Stop Widget
-  Widget _buildCurrentStop(String title) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.blue,
-              child: const Icon(
-                Icons.directions_bus,
-                color: Colors.white,
-                size: 20,
+          // ── Card ──
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                color:
+                    isCurrent
+                        ? const Color(0xFF1A3FA8)
+                        : isDone
+                        ? const Color(0xFFF0FDF4)
+                        : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color:
+                      isCurrent
+                          ? Colors.transparent
+                          : isDone
+                          ? const Color(0xFFBBF7D0)
+                          : const Color(0xFFE9EEF4),
+                ),
+                boxShadow:
+                    isCurrent
+                        ? [
+                          BoxShadow(
+                            color: const Color(0xFF1A3FA8).withAlpha(50),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ]
+                        : [],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      name,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color:
+                            isCurrent
+                                ? Colors.white
+                                : isDone
+                                ? const Color(0xFF166534)
+                                : const Color(0xFFADB5C2),
+                      ),
+                    ),
+                  ),
+                  if (isCurrent)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(30),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        "HERE",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color:
+                          isCurrent
+                              ? Colors.white.withAlpha(25)
+                              : isDone
+                              ? const Color(0xFF22C55E).withAlpha(30)
+                              : const Color(0xFFF1F5F9),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        "$priority",
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color:
+                              isCurrent
+                                  ? Colors.white
+                                  : isDone
+                                  ? const Color(0xFF16A34A)
+                                  : const Color(0xFFADB5C2),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Container(width: 2, height: 50, color: Colors.grey.withAlpha(60)),
-          ],
-        ),
-        const SizedBox(width: 12),
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Oak Street Station",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 4),
-              Text(
-                "LIVE - Current Stop",
-                style: TextStyle(color: Colors.blue, fontSize: 12),
-              ),
-            ],
           ),
-        ),
-      ],
-    );
-  }
-
-  /// Upcoming Stop Widget
-  Widget _buildUpcomingStop(String title, String subtitle) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            CircleAvatar(
-              radius: 14,
-              backgroundColor: Colors.grey.withAlpha(60),
-            ),
-            Container(width: 2, height: 50, color: Colors.grey.withAlpha(40)),
-          ],
-        ),
-        const SizedBox(width: 12),
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

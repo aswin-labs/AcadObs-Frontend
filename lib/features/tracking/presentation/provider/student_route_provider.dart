@@ -26,16 +26,22 @@ class StudentRouteProvider extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
+
       final response = await StudentRouteService().getStudentRoutes();
+
+      log("API Response: ${response.data}");
+
       if (response.statusCode == 200) {
-        final data = response.data;
         _studentRoutes =
-            (data['data'] as List<dynamic>)
-                .map((res) => StudentRouteModel.fromJson(res))
+            (response.data['data'] as List)
+                .map((e) => StudentRouteModel.fromJson(e))
                 .toList();
+        _routeCount = _studentRoutes.length;
+      } else {
+        log("Failed to fetch routes: ${response.statusCode}");
       }
     } catch (e) {
-      log(e.toString());
+      log("Error fetching routes: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -50,6 +56,7 @@ class StudentRouteProvider extends ChangeNotifier {
       final response = await StudentRouteService().getRouteCount();
       if (response.statusCode == 200) {
         final data = response.data;
+        log("data: $data ");
         _routeCount = data['total_routes'] ?? 0;
       }
     } catch (e) {
@@ -60,12 +67,12 @@ class StudentRouteProvider extends ChangeNotifier {
     }
   }
 
-  //get arrived stops for guardian
-  Future<void> getArrivedStopsForGuardian({required int routeId}) async {
+  //get stops for parent
+  Future<void> getStopsForParent({required int routeId}) async {
     try {
       _isLoading = true;
       notifyListeners();
-      final response = await StudentRouteService().getArrivedStopsForGuardian(
+      final response = await StudentRouteService().getStopsForParent(
         routeId: routeId,
       );
       if (response.statusCode == 200) {
