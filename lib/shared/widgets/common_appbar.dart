@@ -5,12 +5,16 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final List<Widget>? actions;
   final bool isBackButton;
+  final Color? backgroundColor;
+  final Color? titleColor;
 
   const CommonAppBar({
     super.key,
     required this.title,
     this.actions,
     this.isBackButton = false,
+    this.backgroundColor = AppColors.background,
+    this.titleColor = Colors.black,
   });
 
   @override
@@ -45,10 +49,11 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
           fontSize: 22,
           fontWeight: FontWeight.bold,
+          color: titleColor,
         ),
       ),
       centerTitle: true,
-      backgroundColor: AppColors.background,
+      backgroundColor: backgroundColor,
       elevation: 0,
       iconTheme: const IconThemeData(color: Colors.black),
       actions: actions, // Optional actions

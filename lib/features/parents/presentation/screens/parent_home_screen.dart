@@ -4,6 +4,7 @@ import 'package:acadobs/features/achievements/presentaion/provider/achievement_p
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
+import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/features/tracking/presentation/widgets/bus_route_section.dart';
 import 'package:acadobs/features/parents/presentation/widgets/latest_award_section.dart';
 import 'package:acadobs/features/parents/presentation/widgets/latest_events_section.dart';
@@ -48,6 +49,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
       context.read<AchievementProvider>().fetchLatestSchoolAchievements(
         forStaff: false,
       ),
+      context.read<StudentRouteProvider>().getStudentRoutes(),
     ]);
   }
 

@@ -143,4 +143,5 @@ class ApiEndpoints {
   static const String getStudentRoute = "/guardian/getRoutesForGuardian";
   static const String getRouteCount = "/guardian/getGuardianRouteCount";
   static const String routeInactive = "/guardian/routeInactive";
+  static const String getStopsForParent = "/guardian/getStopsForParent";
 }

@@ -14,9 +14,9 @@ class StudentRouteService {
   }
 
   //guardians sees arrived stops in routes
-  Future<Response> getArrivedStopsForGuardian({required int routeId}) async {
+  Future<Response> getStopsForParent({required int routeId}) async {
     final response = await ApiServices.get(
-      '${ApiEndpoints.routeInactive}/$routeId',
+      '${ApiEndpoints.getStopsForParent}/$routeId',
     );
     return response;
   }
