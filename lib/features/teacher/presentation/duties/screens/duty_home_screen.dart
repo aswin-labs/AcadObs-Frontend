@@ -27,7 +27,7 @@ class _DutyHomeScreenState extends State<DutyHomeScreen> {
   void initState() {
     super.initState();
     _dutyProvider = context.read<DutyProvider>();
-    _dutyProvider.fetchStaffDuties();
+    refreshData();
     _scrollController.addListener(_scrollListener);
   }
 
@@ -47,87 +47,102 @@ class _DutyHomeScreenState extends State<DutyHomeScreen> {
     super.dispose();
   }
 
+  Future<void> refreshData() async {
+    await Future.wait([_dutyProvider.fetchStaffDuties(forceRefresh: true)]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: "Duties", isBackButton: false),
       body: RefreshIndicator(
-        onRefresh: () => _dutyProvider.fetchStaffDuties(forceRefresh: true),
-        child: Consumer<DutyProvider>(
-          builder: (context, provider, _) {
-            if (_dutyProvider.isLoading && _dutyProvider.staffDuties.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: commonShimmerList(),
-              );
-            }
+        onRefresh: refreshData,
+        child: Column(
+          children: [
+            SizedBox(
+              height: Responsive.height * 80,
+              child: Consumer<DutyProvider>(
+                builder: (context, provider, _) {
+                  if (_dutyProvider.isLoading &&
+                      _dutyProvider.staffDuties.isEmpty) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: commonShimmerList(),
+                    );
+                  }
 
-            if (_dutyProvider.staffDuties.isEmpty) {
-              return emptyScreen(message: 'No Duties Found.');
-            }
+                  if (_dutyProvider.staffDuties.isEmpty) {
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      child: emptyScreen(message: 'No Duties Found.'),
+                    );
+                  }
 
-            return ListView.builder(
-              controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              physics: const AlwaysScrollableScrollPhysics(),
-              itemCount:
-                  _dutyProvider.staffDuties.length +
-                  (_dutyProvider.hasMore ? 2 : 1),
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return SizedBox(height: Responsive.height * 3);
-                }
+                  return ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount:
+                        _dutyProvider.staffDuties.length +
+                        (_dutyProvider.hasMore ? 2 : 1),
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return SizedBox(height: Responsive.height * 3);
+                      }
 
-                if (index == _dutyProvider.staffDuties.length + 1) {
-                  return const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
+                      if (index == _dutyProvider.staffDuties.length + 1) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      final grouped = _dutyProvider.staffDuties[index - 1];
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            DateFormatter.formatDateTime(
+                              grouped.date ?? DateTime.now(),
+                            ),
+                            style: context.textTheme.titleSmall!.copyWith(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),
+                          ),
+                          SizedBox(height: Responsive.height * 1),
+                          ...grouped.requests!.map((d) {
+                            final dutyStatusStyle = getDutyStatusStyle(
+                              d.status ?? "",
+                            );
+                            return ItemCard(
+                              title: d.duty?.title ?? "",
+                              description: d.duty?.description ?? "",
+                              backgroundColor: dutyStatusStyle.backgroundColor,
+                              status:
+                                  d.status == "in_progress"
+                                      ? "In progress"
+                                      : d.status ?? "",
+                              icon: dutyStatusStyle.icon,
+                              iconColor: dutyStatusStyle.iconColor,
+                              onTap: () {
+                                context.pushNamed(
+                                  RouteConstants.dutyDetail,
+                                  extra: d,
+                                );
+                              },
+                            );
+                          }),
+                          SizedBox(height: Responsive.height * 2),
+                        ],
+                      );
+                    },
                   );
-                }
-
-                final grouped = _dutyProvider.staffDuties[index - 1];
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      DateFormatter.formatDateTime(
-                        grouped.date ?? DateTime.now(),
-                      ),
-                      style: context.textTheme.titleSmall!.copyWith(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12,
-                      ),
-                    ),
-                    SizedBox(height: Responsive.height * 1),
-                    ...grouped.requests!.map((d) {
-                      final dutyStatusStyle = getDutyStatusStyle(
-                        d.status ?? "",
-                      );
-                      return ItemCard(
-                        title: d.duty?.title ?? "",
-                        description: d.duty?.description ?? "",
-                        backgroundColor: dutyStatusStyle.backgroundColor,
-                        status:
-                            d.status == "in_progress"
-                                ? "In progress"
-                                : d.status ?? "",
-                        icon: dutyStatusStyle.icon,
-                        iconColor: dutyStatusStyle.iconColor,
-                        onTap: () {
-                          context.pushNamed(
-                            RouteConstants.dutyDetail,
-                            extra: d,
-                          );
-                        },
-                      );
-                    }),
-                    SizedBox(height: Responsive.height * 2),
-                  ],
-                );
-              },
-            );
-          },
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

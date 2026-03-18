@@ -14,6 +14,10 @@ class RouteProgressScreen extends StatefulWidget {
 }
 
 class _RouteProgressScreenState extends State<RouteProgressScreen> {
+  static const _gradientStart = Color(0xFF35C2C1);
+  static const _gradientEnd = Color(0xFF00AEF0);
+  static const _accentDone = Color(0xFF22C55E);
+
   @override
   void initState() {
     super.initState();
@@ -33,11 +37,11 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4F8),
+      backgroundColor: const Color(0xFFF0F6FB),
       appBar: CommonAppBar(
         title: "Route In Progress",
         isBackButton: true,
-        backgroundColor: const Color(0xFF1A3FA8),
+        backgroundColor: _gradientStart,
         titleColor: Colors.white,
       ),
       body: Column(
@@ -48,7 +52,7 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
               builder: (context, provider, _) {
                 if (provider.isLoading) {
                   return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF1A3FA8)),
+                    child: CircularProgressIndicator(color: _gradientEnd),
                   );
                 }
                 if (provider.guardianStops.isEmpty) {
@@ -80,9 +84,7 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
         ],
       ),
       floatingActionButton: CommonFloatingButton(
-        onPressed: () {
-          refreshData();
-        },
+        onPressed: refreshData,
         icon: Icons.refresh,
       ),
     );
@@ -100,7 +102,7 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
           width: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF1A3FA8), Color(0xFF2D6BE4)],
+              colors: [_gradientStart, _gradientEnd],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -243,15 +245,17 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
               (s) => s.arrived == false,
             );
 
+    // Timeline dot color
     final dotColor =
         isDone
-            ? const Color(0xFF22C55E)
+            ? _accentDone
             : isCurrent
-            ? const Color(0xFF1A3FA8)
+            ? _gradientEnd
             : const Color(0xFFCBD5E1);
 
+    // Timeline line color
     final lineColor =
-        isDone ? const Color(0xFF22C55E) : const Color(0xFFE2E8F0);
+        isDone ? _accentDone.withAlpha(120) : const Color(0xFFE2E8F0);
 
     return IntrinsicHeight(
       child: Row(
@@ -284,8 +288,8 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
                         isCurrent
                             ? [
                               BoxShadow(
-                                color: const Color(0xFF1A3FA8).withAlpha(80),
-                                blurRadius: 6,
+                                color: _gradientEnd.withAlpha(100),
+                                blurRadius: 8,
                                 spreadRadius: 1,
                               ),
                             ]
@@ -313,9 +317,17 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
               decoration: BoxDecoration(
+                gradient:
+                    isCurrent
+                        ? const LinearGradient(
+                          colors: [_gradientStart, _gradientEnd],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                        : null,
                 color:
                     isCurrent
-                        ? const Color(0xFF1A3FA8)
+                        ? null
                         : isDone
                         ? const Color(0xFFF0FDF4)
                         : Colors.white,
@@ -332,9 +344,9 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
                     isCurrent
                         ? [
                           BoxShadow(
-                            color: const Color(0xFF1A3FA8).withAlpha(50),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
+                            color: _gradientEnd.withAlpha(60),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
                         ]
                         : [],
@@ -385,7 +397,7 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
                           isCurrent
                               ? Colors.white.withAlpha(25)
                               : isDone
-                              ? const Color(0xFF22C55E).withAlpha(30)
+                              ? _accentDone.withAlpha(30)
                               : const Color(0xFFF1F5F9),
                       shape: BoxShape.circle,
                     ),
@@ -399,7 +411,7 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
                               isCurrent
                                   ? Colors.white
                                   : isDone
-                                  ? const Color(0xFF16A34A)
+                                  ? _accentDone
                                   : const Color(0xFFADB5C2),
                         ),
                       ),

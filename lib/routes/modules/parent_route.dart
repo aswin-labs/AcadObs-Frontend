@@ -5,6 +5,7 @@ import 'package:acadobs/features/students/presentation/screens/prediction.dart';
 import 'package:acadobs/features/students/presentation/screens/student_leave_request_details_screen.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
 import 'package:acadobs/routes/router_constants.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 List<GoRoute> parentRoutes = [
@@ -41,14 +42,18 @@ List<GoRoute> parentRoutes = [
       return Prediction();
     },
   ),
-
-  //route progress
   GoRoute(
     path: '/routeProgress',
     name: RouteConstants.routeProgress,
-    builder: (context, state) {
+    pageBuilder: (context, state) {
       final int routeId = state.extra as int;
-      return RouteProgressScreen(routeId: routeId);
+      return CustomTransitionPage(
+        key: state.pageKey,
+        child: RouteProgressScreen(routeId: routeId),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      );
     },
   ),
 ];
