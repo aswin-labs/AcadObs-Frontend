@@ -189,8 +189,8 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                       size: 35,
                                                     );
                                                   },
-                                                  width: 35,
-                                                  height: 35,
+                                                  width: 30,
+                                                  height: 30,
                                                   "${BaseUrls.media}${MediaEndpoints.logo}${provider.logo}",
                                                 ),
                                                 SizedBox(width: 8),
@@ -245,7 +245,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                             "",
                                                         style: const TextStyle(
                                                           color: Colors.white,
-                                                          fontSize: 35,
+                                                          fontSize: 24,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                         ),
