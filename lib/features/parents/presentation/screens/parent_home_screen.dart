@@ -176,7 +176,23 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                       // My Children Section
                       MyChildrenSection(),
                       // Bus route section
-                      // BusRouteSection(),
+                      Consumer<StudentRouteProvider>(
+                        builder: (context, provider, _) {
+                          final studentRoutes = provider.studentRoutes;
+
+                          bool hasRoutes =
+                              studentRoutes.isNotEmpty &&
+                              (studentRoutes[0].routes?.isNotEmpty ?? false);
+
+                          if (provider.isLoading) {
+                            return BusRouteSection();
+                          }
+
+                          if (!hasRoutes) {
+                            return SizedBox();
+                          }
+                          return BusRouteSection();
+                        },
                       // Latest Events Section
                       LatestEventsSection(),
 
