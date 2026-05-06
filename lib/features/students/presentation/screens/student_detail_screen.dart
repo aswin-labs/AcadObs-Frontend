@@ -216,7 +216,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                                   )
                                   .then((_) {
                                     if (!mounted) return;
-                                    chatProvider.loadUsersList();
+                                    chatProvider.loadUsers();
                                   });
                             },
                             icon: Container(

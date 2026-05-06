@@ -1,6 +1,5 @@
 /// Base URLs for API and Media
 class BaseUrls {
-
   // ---------- FOR PRODUCTION ---------------------
   // static const String api = 'https://api.acadobs.com/api/s1';
   // static const String media = 'https://api.acadobs.com';

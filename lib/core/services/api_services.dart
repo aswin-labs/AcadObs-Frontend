@@ -1,37 +1,34 @@
+import 'dart:developer';
+
 import 'package:acadobs/core/interceptor/custom_interceptor.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:dio/dio.dart';
 
 class ApiServices {
-  static final Dio _dio = Dio(
-      BaseOptions(
-        baseUrl: BaseUrls.api,
-        connectTimeout: const Duration(seconds: 30),
-        receiveTimeout: const Duration(seconds: 30),
-        followRedirects: true,
-        validateStatus: (_) => true,
-        headers: {'Content-Type': 'application/json'},
-      ),
-    )
-    ..interceptors.addAll([
-      CustomInterceptor(),
-      LogInterceptor(
-        request: true,
-        requestHeader: true,
-        requestBody: true,
-        responseHeader: true,
-        responseBody: true,
-        error: true,
-      ),
-    ]);
+  static final Dio dio = Dio(
+    BaseOptions(
+      baseUrl: BaseUrls.api,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+      followRedirects: true,
+      validateStatus: (status) {
+        return status != null && status < 300;
+      },
+      headers: {'Content-Type': 'application/json'},
+    ),
+  );
+
+  static void initialize() {
+    log('INTERCEPTOR INITIALIZED', name: 'API_SERVICE');
+
+    dio.interceptors.clear();
+
+    dio.interceptors.add(CustomInterceptor(dio));
+  }
 
   /// Generic GET request
   static Future<Response> get(String endpoint, {dynamic data}) async {
-    try {
-      return await _dio.get(endpoint, data: data);
-    } on DioException catch (e) {
-      throw Exception('GET request failed: $e');
-    }
+    return await dio.get(endpoint, queryParameters: data);
   }
 
   /// Generic POST request
@@ -41,25 +38,13 @@ class ApiServices {
     bool isFormData = false,
     ProgressCallback? onSendProgress,
   }) async {
-    try {
-      final requestData = _formatData(data, isFormData);
-      // final requestData =
-      //     isFormData && data is Map<String, dynamic>
-      //         ? FormData.fromMap(data)
-      //         : data;
-      return await _dio.post(
-        endpoint,
-        data: requestData,
-        onSendProgress: onSendProgress,
-      );
-      // return await _dio.post(
-      //   endpoint,
-      //   data: requestData,
-      //   onSendProgress: onSendProgress,
-      // );
-    } on DioException catch (e) {
-      throw Exception('POST request failed: $e');
-    }
+    final requestData = _formatData(data, isFormData);
+
+    return await dio.post(
+      endpoint,
+      data: requestData,
+      onSendProgress: onSendProgress,
+    );
   }
 
   /// Generic PUT request
@@ -68,83 +53,66 @@ class ApiServices {
     dynamic data, {
     bool isFormData = false,
   }) async {
-    try {
-      final requestData = _formatData(data, isFormData);
-      return await _dio.put(endpoint, data: requestData);
-    } on DioException catch (e) {
-      throw Exception('PUT request failed: $e');
-    }
+    final requestData = _formatData(data, isFormData);
+
+    return await dio.put(endpoint, data: requestData);
   }
 
   /// Generic DELETE request
   static Future<Response> delete(String endpoint) async {
-    try {
-      return await _dio.delete(endpoint);
-    } on DioException catch (e) {
-      throw Exception('DELETE request failed: $e');
-    }
+    return await dio.delete(endpoint);
   }
 
-  /// Generic patch request
-  static Future<Response> patch(String endpoint) async {
-    try {
-      return await _dio.patch(endpoint);
-    } on DioException catch (e) {
-      throw Exception('PATCH request failed: $e');
-    }
+  /// Generic PATCH request
+  static Future<Response> patch(
+    String endpoint, {
+    dynamic data,
+    bool isFormData = false,
+  }) async {
+    final requestData = _formatData(data, isFormData);
+
+    return await dio.patch(endpoint, data: requestData);
   }
 
-  /// Logout (POST without body)
+  /// Logout request
   static Future<Response> logout(String endpoint) async {
-    try {
-      return await _dio.post(endpoint);
-    } on DioException catch (e) {
-      throw Exception('Logout failed: $e');
-    }
+    return await dio.post(endpoint);
   }
 
-  /// Helper to convert to FormData if needed
+  /// Convert Map to FormData if needed
   static dynamic _formatData(dynamic data, bool isFormData) {
     if (isFormData && data is Map<String, dynamic>) {
       return FormData.fromMap(data);
     }
+
     return data;
   }
 
-  /// Download file with auth headers
+  /// File download
   static Future<void> downloadFile(
     String url,
     String savePath, {
     ProgressCallback? onReceiveProgress,
   }) async {
-    try {
-      await _dio.download(
-        url,
-        savePath,
-        onReceiveProgress: onReceiveProgress,
-        options: Options(
-          headers: _dio.options.headers,
-          responseType: ResponseType.bytes,
-        ),
-      );
-    } on DioException catch (e) {
-      throw Exception('File download failed: $e');
-    }
+    await dio.download(
+      url,
+      savePath,
+      onReceiveProgress: onReceiveProgress,
+      options: Options(
+        headers: dio.options.headers,
+        responseType: ResponseType.bytes,
+      ),
+    );
   }
 
-  /// Get stops by route ID
+  /// Example helper API
   static Future<List<dynamic>> getStops(int routeId) async {
-    try {
-      final response = await get("/stop?route_id=$routeId");
+    final response = await get("/stop", data: {"route_id": routeId});
 
-      if (response.statusCode == 200) {
-        return response.data["data"];
-        // 👆 change this depending on your backend response structure
-      } else {
-        throw Exception("Failed to load stops");
-      }
-    } catch (e) {
-      throw Exception("Error fetching stops: $e");
+    if (response.statusCode == 200) {
+      return response.data["data"];
     }
+
+    throw Exception("Failed to load stops");
   }
 }

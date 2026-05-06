@@ -11,6 +11,192 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+
+// class ChatsHomeScreen extends StatefulWidget {
+//   final bool forParent;
+//   const ChatsHomeScreen({super.key, this.forParent = false});
+
+//   @override
+//   State<ChatsHomeScreen> createState() => _ChatsHomeScreenState();
+// }
+
+// class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
+//   String searchQuery = "";
+
+//   late ChatProvider _chatProvider;
+//   final ScrollController _scrollController = ScrollController();
+//   final TextEditingController _searchController = TextEditingController();
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     WidgetsBinding.instance.addPostFrameCallback((_) {
+//       _chatProvider = context.read<ChatProvider>();
+//       _getUsersList();
+//       _scrollController.addListener(() {
+//         if (_scrollController.position.pixels >=
+//                 _scrollController.position.maxScrollExtent - 200 &&
+//             !_chatProvider.isLoadingUsers) {
+//           _chatProvider.loadUsersList();
+//         }
+//       });
+//     });
+//   }
+
+//   Future<void> _getUsersList() async {
+//     final token = await AuthStorageService().getToken();
+//     if (token != null) {
+//       _chatProvider.connect(token);
+//       _chatProvider.loadUsersList(reset: true);
+//     } else {
+//       debugPrint("No token found, cannot connect to chat");
+//     }
+//   }
+
+//   @override
+//   void dispose() {
+//     _scrollController.dispose();
+//     // _chatProvider.disconnect();
+//     _searchController.dispose();
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: CommonAppBar(title: "Chats"),
+//       body: Consumer<ChatProvider>(
+//         builder: (context, chatProvider, _) {
+//           final users = chatProvider.usersList;
+
+//           final filtered =
+//               users.where((u) {
+//                 final name = (u["opponent"]["name"] ?? "").toLowerCase();
+//                 return name.contains(searchQuery.toLowerCase());
+//               }).toList();
+
+//           if (chatProvider.isLoadingUsers && users.isEmpty) {
+//             return const Center(child: ChatShimmer());
+//           }
+
+//           if (users.isEmpty) {
+//             return const Center(child: Text("No conversations yet"));
+//           }
+
+//           return Column(
+//             children: [
+//               //  Search bar
+//               Padding(
+//                 padding: const EdgeInsets.all(12),
+//                 child: TextField(
+//                   controller: _searchController,
+//                   onChanged: (value) {
+//                     setState(() => searchQuery = value);
+//                   },
+//                   decoration: InputDecoration(
+//                     hintText: "Search for Chats",
+//                     prefixIcon: Icon(Icons.search),
+//                     suffixIcon:
+//                         searchQuery.isNotEmpty
+//                             ? IconButton(
+//                               onPressed: () {
+//                                 _searchController.clear();
+//                                 setState(() {
+//                                   searchQuery = "";
+//                                 });
+//                               },
+//                               icon: CircleAvatar(
+//                                 radius: 10,
+//                                 backgroundColor: Colors.grey.shade300,
+//                                 child: Icon(
+//                                   Icons.close,
+//                                   size: 14,
+//                                   color: Colors.black,
+//                                 ),
+//                               ),
+//                             )
+//                             : null,
+//                     border: OutlineInputBorder(
+//                       borderRadius: BorderRadius.circular(12),
+//                     ),
+//                   ),
+//                 ),
+//               ),
+//               Expanded(
+//                 child:
+//                     filtered.isEmpty
+//                         ? const Center(child: Text("No chats found"))
+//                         : ListView.separated(
+//                           controller: _scrollController,
+//                           physics: const BouncingScrollPhysics(),
+//                           itemCount: filtered.length,
+//                           separatorBuilder:
+//                               (context, index) => Padding(
+//                                 padding: const EdgeInsets.symmetric(
+//                                   horizontal: 16,
+//                                 ),
+//                                 child: Divider(
+//                                   height: 1,
+//                                   thickness: 1,
+//                                   color: Colors.grey.shade300,
+//                                 ),
+//                               ),
+//                           itemBuilder: (context, index) {
+//                             final convo = filtered[index];
+//                             final opponent = convo["opponent"];
+
+//                             return CommonChatTile(
+//                               name: opponent["name"] ?? "Unknown",
+//                               subject: convo["last_message"] ?? "",
+//                               imageUrl: opponent["dp"] ?? "",
+//                               onTap: () {
+//                                 context
+//                                     .pushNamed(
+//                                       RouteConstants.chatScreen,
+//                                       extra: ChatModel(
+//                                         opponentId: opponent["id"],
+//                                         opponentName: opponent["name"],
+//                                       ),
+//                                     )
+//                                     .then((_) {
+//                                       if (!mounted) return;
+//                                       _chatProvider.loadUsersList(reset: true);
+//                                     });
+//                               },
+//                             );
+//                           },
+//                         ),
+//               ),
+//               SizedBox(height: 100),
+//             ],
+//           );
+//         },
+//       ),
+//       floatingActionButton:
+//           widget.forParent
+//               ? FloatingActionButton(
+//                 onPressed: () {
+//                   showModalBottomSheet(
+//                     isDismissible: true,
+//                     enableDrag: true,
+//                     backgroundColor: Colors.transparent,
+//                     barrierColor: Colors.black.withAlpha(50),
+//                     context: context,
+//                     builder: (_) => ShareBottomSheet(),
+//                   );
+//                 },
+//                 child: Icon(Icons.chat),
+//               )
+//               : CommonFloatingActionButton(
+//                 onPressed: () {
+//                   context.pushNamed(RouteConstants.noteListingScreen);
+//                 },
+//                 text: "Add New Parent Note",
+//               ),
+//     );
+//   }
+// }
+
 class ChatsHomeScreen extends StatefulWidget {
   final bool forParent;
   const ChatsHomeScreen({super.key, this.forParent = false});
@@ -22,40 +208,48 @@ class ChatsHomeScreen extends StatefulWidget {
 class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
   String searchQuery = "";
 
-  late ChatProvider _chatProvider;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _chatProvider = context.read<ChatProvider>();
-      _getUsersList();
-      _scrollController.addListener(() {
-        if (_scrollController.position.pixels >=
-                _scrollController.position.maxScrollExtent - 200 &&
-            !_chatProvider.isLoadingUsers) {
-          _chatProvider.loadUsersList();
-        }
-      });
+
+    _initChat();
+    _scrollController.addListener(_onScroll);
+  }
+
+  // ================= INIT =================
+
+  void _initChat() {
+    Future.microtask(() async {
+      final token = await AuthStorageService().getToken();
+      if (!mounted) return;
+
+      if (token != null) {
+        context.read<ChatProvider>().init(token);
+      } else {
+        debugPrint("No token found");
+      }
     });
   }
 
-  Future<void> _getUsersList() async {
-    final token = await AuthStorageService().getToken();
-    if (token != null) {
-      _chatProvider.connect(token);
-      _chatProvider.loadUsersList(reset: true);
-    } else {
-      debugPrint("No token found, cannot connect to chat");
+  // ================= SCROLL =================
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final provider = context.read<ChatProvider>();
+
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      provider.loadUsers();
     }
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
-    // _chatProvider.disconnect();
     _searchController.dispose();
     super.dispose();
   }
@@ -66,13 +260,12 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
       appBar: CommonAppBar(title: "Chats"),
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, _) {
-          final users = chatProvider.usersList;
+          final users = chatProvider.users;
 
-          final filtered =
-              users.where((u) {
-                final name = (u["opponent"]["name"] ?? "").toLowerCase();
-                return name.contains(searchQuery.toLowerCase());
-              }).toList();
+          final filtered = users.where((u) {
+            final name = (u["opponent"]["name"] ?? "").toLowerCase();
+            return name.contains(searchQuery.toLowerCase());
+          }).toList();
 
           if (chatProvider.isLoadingUsers && users.isEmpty) {
             return const Center(child: ChatShimmer());
@@ -84,7 +277,7 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
 
           return Column(
             children: [
-              //  Search bar
+              // Search
               Padding(
                 padding: const EdgeInsets.all(12),
                 child: TextField(
@@ -94,27 +287,24 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
                   },
                   decoration: InputDecoration(
                     hintText: "Search for Chats",
-                    prefixIcon: Icon(Icons.search),
-                    suffixIcon:
-                        searchQuery.isNotEmpty
-                            ? IconButton(
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  searchQuery = "";
-                                });
-                              },
-                              icon: CircleAvatar(
-                                radius: 10,
-                                backgroundColor: Colors.grey.shade300,
-                                child: Icon(
-                                  Icons.close,
-                                  size: 14,
-                                  color: Colors.black,
-                                ),
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: searchQuery.isNotEmpty
+                        ? IconButton(
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => searchQuery = "");
+                            },
+                            icon: CircleAvatar(
+                              radius: 10,
+                              backgroundColor: Colors.grey.shade300,
+                              child: const Icon(
+                                Icons.close,
+                                size: 14,
+                                color: Colors.black,
                               ),
-                            )
-                            : null,
+                            ),
+                          )
+                        : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -122,139 +312,78 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
                 ),
               ),
 
-              //     Expanded(
-              //       child:
-              //           filtered.isEmpty
-              //               ? const Center(child: Text("No chats found"))
-              //               : ListView.separated(
-              //                 controller: _scrollController,
-              //                 physics: const BouncingScrollPhysics(),
-              // itemCount: filtered.length,
-              //                 separatorBuilder: (context, index) {
-              //                   if (index == users.length - 1) {
-              //                     return const SizedBox.shrink();
-              //                   }
-              //                   return Padding(
-              //                     padding: const EdgeInsets.symmetric(
-              //                       horizontal: 16,
-              //                     ),
-              //                     child: Divider(
-              //                       height: 1,
-              //                       thickness: 1,
-              //                       color: Colors.grey.shade300,
-              //                     ),
-              //                   );
-              //                 },
-
-              //                 // itemCount: users.length + 1,
-              //                 itemBuilder: (context, index) {
-              //                   if (index == users.length) {
-              //                     return chatProvider.isLoadingUsers
-              //                         ? const Padding(
-              //                           padding: EdgeInsets.all(16),
-              //                           child: Center(
-              //                             child: CircularProgressIndicator(),
-              //                           ),
-              //                         )
-              //                         : const SizedBox.shrink();
-              //                   }
-
-              //                   final convo = users[index];
-              //                   final opponent = convo["opponent"];
-
-              //                   return CommonChatTile(
-              //                     name: opponent["name"] ?? "Unknown",
-              //                     subject: convo["last_message"] ?? "",
-              //                     imageUrl: opponent["dp"] ?? "",
-              //                     onTap: () {
-              //                       context
-              //                           .pushNamed(
-              //                             RouteConstants.chatScreen,
-              //                             extra: ChatModel(
-              //                               opponentId: opponent["id"],
-              //                               opponentName: opponent["name"],
-              //                             ),
-              //                           )
-              //                           .then((_) {
-              //                             if (!mounted) return;
-              //                             _chatProvider.loadUsersList(reset: true);
-              //                           });
-              //                     },
-              //                   );
-              //                 },
-              //               ),
-              //     ),
+              //  List
               Expanded(
-                child:
-                    filtered.isEmpty
-                        ? const Center(child: Text("No chats found"))
-                        : ListView.separated(
-                          controller: _scrollController,
-                          physics: const BouncingScrollPhysics(),
-                          itemCount: filtered.length,
-                          separatorBuilder:
-                              (context, index) => Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                child: Divider(
-                                  height: 1,
-                                  thickness: 1,
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                          itemBuilder: (context, index) {
-                            final convo = filtered[index];
-                            final opponent = convo["opponent"];
-
-                            return CommonChatTile(
-                              name: opponent["name"] ?? "Unknown",
-                              subject: convo["last_message"] ?? "",
-                              imageUrl: opponent["dp"] ?? "",
-                              onTap: () {
-                                context
-                                    .pushNamed(
-                                      RouteConstants.chatScreen,
-                                      extra: ChatModel(
-                                        opponentId: opponent["id"],
-                                        opponentName: opponent["name"],
-                                      ),
-                                    )
-                                    .then((_) {
-                                      if (!mounted) return;
-                                      _chatProvider.loadUsersList(reset: true);
-                                    });
-                              },
-                            );
-                          },
+                child: filtered.isEmpty
+                    ? const Center(child: Text("No chats found"))
+                    : ListView.separated(
+                        controller: _scrollController,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: filtered.length,
+                        separatorBuilder: (_, __) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Divider(
+                            height: 1,
+                            thickness: 1,
+                            color: Colors.grey.shade300,
+                          ),
                         ),
+                        itemBuilder: (context, index) {
+                          final convo = filtered[index];
+                          final opponent = convo["opponent"];
+
+                          return CommonChatTile(
+                            name: opponent["name"] ?? "Unknown",
+                            subject: convo["last_message"] ?? "",
+                            imageUrl: opponent["dp"] ?? "",
+                            onTap: () async {
+                              await context.pushNamed(
+                                RouteConstants.chatScreen,
+                                extra: ChatModel(
+                                  opponentId: opponent["id"],
+                                  opponentName: opponent["name"],
+                                ),
+                              );
+
+                              if (!mounted) return;
+
+                              // refresh safely
+                              context.read<ChatProvider>().loadUsers(reset: true);
+                            },
+                          );
+                        },
+                      ),
               ),
-              SizedBox(height: 100),
+
+              const SizedBox(height: 100),
+              
             ],
           );
         },
       ),
-      floatingActionButton:
-          widget.forParent
-              ? FloatingActionButton(
-                onPressed: () {
-                  showModalBottomSheet(
-                    isDismissible: true,
-                    enableDrag: true,
-                    backgroundColor: Colors.transparent,
-                    barrierColor: Colors.black.withAlpha(50),
-                    context: context,
-                    builder: (_) => ShareBottomSheet(),
-                  );
-                },
-                child: Icon(Icons.chat),
-              )
-              : CommonFloatingActionButton(
-                onPressed: () {
-                  context.pushNamed(RouteConstants.noteListingScreen);
-                },
-                text: "Add New Parent Note",
-              ),
+
+      // ================= FAB =================
+
+      floatingActionButton: widget.forParent
+          ? FloatingActionButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  isDismissible: true,
+                  enableDrag: true,
+                  backgroundColor: Colors.transparent,
+                  barrierColor: Colors.black.withAlpha(50),
+                  context: context,
+                  builder: (_) => ShareBottomSheet(),
+                );
+              },
+              child: const Icon(Icons.chat),
+            )
+          : CommonFloatingActionButton(
+              onPressed: () {
+                context.pushNamed(RouteConstants.noteListingScreen);
+              },
+              text: "Add New Parent Note",
+            ),
     );
   }
 }

@@ -8,6 +8,9 @@ class ApiEndpoints {
   // LOGIN
   static const String login = "/public/login";
 
+  // Refresh token
+  static const String refreshToken = "/public/refresh-token";
+
   // PROFILE SETTINGS
   static const String staffChangePassword = "/staff/changePassword";
   static const String guardianChangePassword = "/guardian/changePassword";

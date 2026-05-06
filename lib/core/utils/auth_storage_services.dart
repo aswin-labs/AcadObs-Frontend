@@ -1,5 +1,6 @@
 // lib/services/auth_storage_service.dart
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:acadobs/shared/models/user_permission_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -10,6 +11,7 @@ class AuthStorageService {
   factory AuthStorageService() => _instance;
 
   static const _kToken = 'auth_token';
+  static const _kRefreshToken = 'refresh_token';
   static const _kUser = 'user_data';
   static const _kSchoolId = 'school_id';
   static const _kSchoolName = 'school_name';
@@ -29,9 +31,11 @@ class AuthStorageService {
   /// Save token and user data
   Future<void> saveUserCredentials({
     required String token,
+    // required String refreshToken,
     required Map<String, dynamic> userData,
   }) async {
     await _storage.write(key: _kToken, value: token);
+    // await _storage.write(key: _kRefreshToken, value: refreshToken);
     await _storage.write(key: _kUser, value: jsonEncode(userData));
   }
 
@@ -70,12 +74,46 @@ class AuthStorageService {
     );
   }
 
-  // **********Retrieve*****************
+  //****************Access&Refresh Token*****************
+ Future<void> saveTokens({
+    required String accessToken,
+    required String refreshToken,
+  }) async {
+    log('SAVING ACCESS TOKEN => $accessToken', name: 'STORAGE_SERVICE');
+
+    await _storage.write(key: _kToken, value: accessToken);
+
+    log('SAVING REFRESH TOKEN => $refreshToken', name: 'STORAGE_SERVICE');
+
+    await _storage.write(key: _kRefreshToken, value: refreshToken);
+
+    final savedAccess = await _storage.read(key: _kToken);
+
+    final savedRefresh = await _storage.read(key: _kRefreshToken);
+
+    log('SAVED ACCESS TOKEN => $savedAccess', name: 'STORAGE_SERVICE');
+
+    log('SAVED REFRESH TOKEN => $savedRefresh', name: 'STORAGE_SERVICE');
+  }
+
+  Future<String?> getAccessToken() async {
+    return await _storage.read(key: _kToken);
+  }
+
+  Future<String?> getRefreshToken() async {
+    return await _storage.read(key: _kRefreshToken);
+  }
+
+  Future<void> clearTokens() async {
+    await _storage.deleteAll();
+  }
 
   // Get stored school id
   Future<String?> getSchoolIdForParent() async {
     return await _storage.read(key: _kSchoolId);
   }
+
+  // **********Retrieve*****************
 
   // Get stored school name
   Future<String?> getSchoolNameForParent() async {
@@ -141,5 +179,10 @@ class AuthStorageService {
   /// Clear everything (on logout)
   Future<void> clear() async {
     await _storage.deleteAll();
+  }
+
+  /// Logout helper
+  Future<void> logout() async {
+    await clear();
   }
 }

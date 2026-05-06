@@ -32,6 +32,11 @@
   <title>flutter_provider_template</title>
   <link rel="manifest" href="manifest.json">
 </head>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('firebase-messaging-sw.js');
+  }
+</script>
 <body>
   <script src="flutter_bootstrap.js" async></script>
 </body>

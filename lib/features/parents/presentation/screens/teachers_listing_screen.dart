@@ -32,7 +32,7 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
         _scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200;
 
-    if (isNearBottom && !_chatProvider.isLoading && _chatProvider.hasMore) {
+    if (isNearBottom && !_chatProvider.isLoadingStaffs && _chatProvider.hasMore) {
       _chatProvider.fetchStaffsUnderSchool(loadMore: true);
     }
   }
@@ -69,7 +69,7 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
                   children: [
                     Consumer<ChatProvider>(
                       builder: (context, provider, _) {
-                        if (provider.isLoading && provider.staffs.isEmpty) {
+                        if (provider.isLoadingStaffs && provider.staffs.isEmpty) {
                           return commonShimmerList();
                         }
 
@@ -105,7 +105,7 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
                     ),
                     Consumer<ChatProvider>(
                       builder: (context, provider, _) {
-                        return provider.isLoading && provider.hasMore
+                        return provider.isLoadingStaffs && provider.hasMoreStaffs
                             ? const Padding(
                               padding: EdgeInsets.symmetric(vertical: 16),
                               child: Center(child: CircularProgressIndicator()),
@@ -113,7 +113,6 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
                             : const SizedBox();
                       },
                     ),
-
                     SizedBox(height: Responsive.height * 4),
                   ],
                 ),

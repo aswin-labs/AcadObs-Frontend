@@ -13,52 +13,65 @@ class ChatService {
 
   io.Socket get socket => _socket;
 
-  void connect(String token, Function onConnect, Function onDisconnect) {
+  // void connect(String token, Function onConnect, Function onDisconnect) {
+  //   _socket = io.io(
+  //     BaseUrls.socketUrl,
+  //     io.OptionBuilder()
+  //         .setTransports(['websocket'])
+  //         .setExtraHeaders({'Authorization': 'Bearer $token'})
+  //         .enableAutoConnect()
+  //         .build(),
+  //   );
+
+  void connect(String token) {
     _socket = io.io(
       BaseUrls.socketUrl,
       io.OptionBuilder()
           .setTransports(['websocket'])
           .setExtraHeaders({'Authorization': 'Bearer $token'})
-          .enableAutoConnect()
+          .disableAutoConnect() // ✅ important
           .build(),
     );
 
-    // ======== Connection Events ========
-    _socket.onConnect((_) {
-      debugPrint("✅ [SOCKET] Connected with id: ${_socket.id}");
-      onConnect();
-    });
-
-    _socket.onDisconnect((_) {
-      debugPrint("❌ [SOCKET] Disconnected");
-      onDisconnect();
-    });
-
-    _socket.onConnectError((err) {
-      debugPrint("⚠️ [SOCKET] Connect error: $err");
-    });
-
-    _socket.onError((err) {
-      debugPrint("🚨 [SOCKET] General error: $err");
-    });
-
-    _socket.onReconnect((attempt) {
-      debugPrint("🔄 [SOCKET] Reconnecting... attempt $attempt");
-    });
-
-    _socket.onReconnectError((err) {
-      debugPrint("⚡ [SOCKET] Reconnect error: $err");
-    });
-
-    _socket.onReconnectFailed((_) {
-      debugPrint("🔥 [SOCKET] Reconnect failed");
-    });
-
-    // ======== Debug All Incoming Events ========
-    _socket.onAny((event, data) {
-      log("📩 [SOCKET EVENT] $event -> $data");
-    });
+    _socket.connect(); // manual connect
   }
+
+  // ======== Connection Events ========
+  //   _socket.onConnect((_) {
+  //     debugPrint("✅ [SOCKET] Connected with id: ${_socket.id}");
+  //     onConnect();
+  //   });
+
+  //   _socket.onDisconnect((_) {
+  //     debugPrint("❌ [SOCKET] Disconnected");
+  //     onDisconnect();
+  //   });
+
+  //   _socket.onConnectError((err) {
+  //     debugPrint("⚠️ [SOCKET] Connect error: $err");
+  //   });
+
+  //   _socket.onError((err) {
+  //     debugPrint("🚨 [SOCKET] General error: $err");
+  //   });
+
+  //   _socket.onReconnect((attempt) {
+  //     debugPrint("🔄 [SOCKET] Reconnecting... attempt $attempt");
+  //   });
+
+  //   _socket.onReconnectError((err) {
+  //     debugPrint("⚡ [SOCKET] Reconnect error: $err");
+  //   });
+
+  //   _socket.onReconnectFailed((_) {
+  //     debugPrint("🔥 [SOCKET] Reconnect failed");
+  //   });
+
+  //   // ======== Debug All Incoming Events ========
+  //   _socket.onAny((event, data) {
+  //     log("📩 [SOCKET EVENT] $event -> $data");
+  //   });
+  // }
 
   void disconnect() {
     debugPrint("🔌 [SOCKET] Disposing connection");
@@ -69,17 +82,17 @@ class ChatService {
 
   void sendMessage({
     required int receiverId,
-    required int studentId,
+    int? studentId,
     required String message,
     required String type,
-    required int typeId
+    int? typeId,
   }) {
     final payload = {
       "receiver_id": receiverId,
-      "student_id": studentId,
       "message": message,
-      "type":type,
-      "type_id":typeId
+      "type": type,
+      if (studentId != null) "student_id": studentId,
+      if (typeId != null) "type_id": typeId,
     };
     debugPrint("➡️ [EMIT] sendMessage -> $payload");
     _socket.emit("sendMessage", payload);
@@ -107,19 +120,23 @@ class ChatService {
   }
 
   // Get staffs under school
-Future<Response> fetchStaffsUnderSchool({required int pageNo, String? query}) async {
-  final schoolId = await AuthStorageService().getSchoolIdForParent();
-  if (schoolId == null) {
-    throw Exception("School ID is null");
-  }
+  Future<Response> fetchStaffsUnderSchool({
+    required int pageNo,
+    String? query,
+  }) async {
+    final schoolId = await AuthStorageService().getSchoolIdForParent();
+    if (schoolId == null) {
+      throw Exception("School ID is null");
+    }
 
-  // Build the URL conditionally depending on whether query is present
-  String url = "${ApiEndpoints.staffsBySchoolId}/$schoolId?page=$pageNo&limit=10";
-  if (query != null && query.isNotEmpty) {
-    url += "&q=$query";
-  }
+    // Build the URL conditionally depending on whether query is present
+    String url =
+        "${ApiEndpoints.staffsBySchoolId}/$schoolId?page=$pageNo&limit=10";
+    if (query != null && query.isNotEmpty) {
+      url += "&q=$query";
+    }
 
-  final response = await ApiServices.get(url);
-  return response;
-}
+    final response = await ApiServices.get(url);
+    return response;
+  }
 }

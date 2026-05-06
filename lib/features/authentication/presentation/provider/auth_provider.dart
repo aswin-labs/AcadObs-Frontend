@@ -75,7 +75,13 @@ class AuthProvider with ChangeNotifier {
       );
       await _storageService.saveUserCredentials(
         token: response.data['token'],
+        // refreshToken: response.data['refreshToken'],
         userData: response.data['userData'],
+      );
+
+      await _storageService.saveTokens(
+        accessToken: response.data['token'],
+        refreshToken: response.data['refreshToken'],
       );
 
       if (response.statusCode == 200) {

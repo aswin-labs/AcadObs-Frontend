@@ -2,7 +2,6 @@ import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/chats/presentation/widgets/chat_bubble.dart';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,63 +17,104 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
-  ChatProvider? _chatProvider;
+  // ChatProvider? _chatProvider;
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _chatProvider = Provider.of<ChatProvider>(context, listen: false);
+  //   _initChat();
+  // }
   @override
   void initState() {
     super.initState();
-    _chatProvider = Provider.of<ChatProvider>(context, listen: false);
-    _initChat();
-  }
 
-  Future<void> _initChat() async {
-    final token = await AuthStorageService().getToken();
-    if (token != null) {
-      _chatProvider?.connect(token);
-      _chatProvider?.getMessages(widget.chatModel.opponentId);
-    } else {
-      debugPrint("No token found, cannot connect to chat");
-    }
+    Future.microtask(() {
+      if(!mounted) return;
+      context.read<ChatProvider>().openChat(widget.chatModel.opponentId);
+    });
   }
-
   @override
   void dispose() {
     _controller.dispose();
     _scrollController.dispose();
-    _chatProvider?.disconnect();
-    _focusNode.dispose();
     super.dispose();
   }
 
-  void _sendMessage() {
-    if (_controller.text.trim().isNotEmpty) {
-      context.read<ChatProvider>().sendMessage(
-        receiverId: widget.chatModel.opponentId,
-        message: _controller.text.trim(),
-        studentId: widget.chatModel.studentId,
-        type: widget.chatModel.msgType,
-        typeId: widget.chatModel.typeId,
-      );
-      _controller.clear();
+  void _send() {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
 
-      // Remove context details after sending
-      setState(() {
-        widget.chatModel.title = null;
-        widget.chatModel.subtitle = null;
-      });
+    context.read<ChatProvider>().sendMessage(
+          receiverId: widget.chatModel.opponentId,
+          message: text,
+        );
 
-      // Auto scroll to bottom
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            0.0,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
-    }
+    _controller.clear();
+
+    _scrollToBottom();
   }
+
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (!_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+
+  // Future<void> _initChat() async {
+  //   final token = await AuthStorageService().getToken();
+  //   if (token != null) {
+  //     _chatProvider?.connect(token);
+  //     _chatProvider?.getMessages(widget.chatModel.opponentId);
+  //   } else {
+  //     debugPrint("No token found, cannot connect to chat");
+  //   }
+  // }
+
+  // @override
+  // void dispose() {
+  //   _controller.dispose();
+  //   _scrollController.dispose();
+  //   _chatProvider?.disconnect();
+  //   _focusNode.dispose();
+  //   super.dispose();
+  // }
+
+  // void _sendMessage() {
+  //   if (_controller.text.trim().isNotEmpty) {
+  //     context.read<ChatProvider>().sendMessage(
+  //       receiverId: widget.chatModel.opponentId,
+  //       message: _controller.text.trim(),
+  //       studentId: widget.chatModel.studentId,
+  //       type: widget.chatModel.msgType,
+  //       typeId: widget.chatModel.typeId,
+  //     );
+  //     _controller.clear();
+
+  //     // Remove context details after sending
+  //     setState(() {
+  //       widget.chatModel.title = null;
+  //       widget.chatModel.subtitle = null;
+  //     });
+
+  // Auto scroll to bottom
+  //     Future.delayed(const Duration(milliseconds: 100), () {
+  //       if (_scrollController.hasClients) {
+  //         _scrollController.animateTo(
+  //           0.0,
+  //           duration: const Duration(milliseconds: 300),
+  //           curve: Curves.easeOut,
+  //         );
+  //       }
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -150,10 +190,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
-      // appBar: CommonAppBar(
-      //   title: widget.chatModel.opponentName,
-      //   isBackButton: true,
-      // ),
       body: Stack(
         children: [
           Container(
@@ -169,12 +205,12 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
 
           Container(
-            color: Colors.white.withAlpha(203), // 0.85 → 0.95 recommended
+            color: Colors.white.withAlpha(203),
           ),
 
           Column(
             children: [
-              /// Messages
+              // Messages
               Expanded(
                 child: Consumer<ChatProvider>(
                   builder: (context, provider, _) {
@@ -403,13 +439,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                     //   ),
                                     // ),
                                   ),
-                                  onSubmitted: (_) => _sendMessage(),
+                                  onSubmitted: (_) => _send(),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 8),
                             GestureDetector(
-                              onTap: _sendMessage,
+                              onTap: _send,
                               child: Container(
                                 width: 48,
                                 height: 48,
@@ -441,66 +477,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           ],
                         ),
                       ),
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(vertical: 12),
-                      //   child: Row(
-                      //     children: [
-                      //       Expanded(
-                      //         child: TextField(
-                      //           controller: _controller,
-                      //           decoration: InputDecoration(
-                      //             hintText: "Type a message...",
-                      //             border: OutlineInputBorder(
-                      //               borderRadius: BorderRadius.circular(20),
-                      //             ),
-                      //             contentPadding: const EdgeInsets.symmetric(
-                      //               horizontal: 12,
-                      //               vertical: 8,
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //       const SizedBox(width: 6),
-                      //       IconButton(
-                      //         icon: const Icon(Icons.send),
-                      //         onPressed: () {
-                      //           if (_controller.text.trim().isNotEmpty) {
-                      //             context.read<ChatProvider>().sendMessage(
-                      //               receiverId: widget.chatModel.opponentId,
-                      //               message: _controller.text.trim(),
-                      //               studentId: widget.chatModel.studentId,
-                      //               type: widget.chatModel.msgType,
-                      //               typeId: widget.chatModel.typeId,
-                      //             );
-                      //             _controller.clear();
-
-                      //             // remove context details after sending
-                      //             setState(() {
-                      //               widget.chatModel.title = null;
-                      //               widget.chatModel.subtitle = null;
-                      //             });
-
-                      //             // auto scroll to bottom
-                      //             Future.delayed(
-                      //               const Duration(milliseconds: 100),
-                      //               () {
-                      //                 if (_scrollController.hasClients) {
-                      //                   _scrollController.animateTo(
-                      //                     0.0,
-                      //                     duration: const Duration(
-                      //                       milliseconds: 300,
-                      //                     ),
-                      //                     curve: Curves.easeOut,
-                      //                   );
-                      //                 }
-                      //               },
-                      //             );
-                      //           }
-                      //         },
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
