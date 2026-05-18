@@ -439,7 +439,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                             backgroundColor: Colors.black,
                           ),
                           onPressed: () {
-                            context.pushNamed(RouteConstants.prediction);
+                            // context.pushNamed(RouteConstants.prediction);
+                            context.pushNamed(RouteConstants.aiInsightsHome);
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,

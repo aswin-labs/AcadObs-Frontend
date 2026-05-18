@@ -80,4 +80,10 @@ class RouteConstants {
 
   //prediction
   static const String prediction = "prediction";
+
+  // AI Insights
+  static const String aiInsightsHome = "aiInsightsHome";
+
+  // Subject Insights
+  static const String subjectInsights = "subjectInsights";
 }

@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
+import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
@@ -35,7 +38,16 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
   void initState() {
     super.initState();
     parentProvider = context.read<ParentProvider>();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final refreshToken = await AuthStorageService().getRefreshToken();
+      final accessToken = await AuthStorageService().getAccessToken();
+      final token = await AuthStorageService().getToken();
+
+      log("Refresh Token saved: $refreshToken");
+      log("Access Token saved: $accessToken");
+      log("Bearer Token saved: $token");
+
       parentProvider.loadSchoolName();
       refreshAllData();
     });

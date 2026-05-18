@@ -1,3 +1,5 @@
+import 'package:acadobs/features/ai_insights/presentation/screens/ai_insights_homescreen.dart';
+import 'package:acadobs/features/ai_insights/presentation/screens/subject_insights_screen.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/presentation/screens/login_screen.dart';
 import 'package:acadobs/features/authentication/presentation/screens/splash_screen.dart';
@@ -102,6 +104,24 @@ final List<GoRoute> commonRoutes = [
     builder: (context, state) {
       // final bool forStaff = state.extra as bool;
       return EditCredential();
+    },
+  ),
+
+  // AI Insights
+  GoRoute(
+    path: '/aiInsightsHome',
+    name: RouteConstants.aiInsightsHome,
+    builder: (context, state) {
+      return AiInsightsHomescreen();
+    },
+  ),
+
+  // Subject Insights
+  GoRoute(
+    path: '/subjectInsights',
+    name: RouteConstants.subjectInsights,
+    builder: (context, state) {
+      return SubjectInsightsScreen();
     },
   ),
 ];
