@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/popup_loader.dart';
 import 'package:acadobs/features/teacher/data/services/teacher_attendance_services.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class TeacherAttendanceProvider extends ChangeNotifier {
@@ -46,47 +47,82 @@ class TeacherAttendanceProvider extends ChangeNotifier {
   }) async {
     _isFetchedOnce = false;
     _isLoadingForChangeStatus = true;
+
     PopupLoader.show(context, message: "Updating status...");
+
     notifyListeners();
+
     try {
-      // if (position != null) {
       final response = await TeacherAttendanceServices().checkInAttendance(
         latitude: latitude,
         longitude: longitude,
       );
+
+      if (!context.mounted) return;
+
       if (response.statusCode == 201) {
         await getTodayAttendanceStatus();
+
         if (!context.mounted) return;
+
         CustomSnackbar.show(
           context,
-          message: response.data['message'],
+          message: response.data['message'] ?? "Attendance marked successfully",
           type: SnackbarType.success,
         );
-        if (!context.mounted) return;
-        PopupLoader.hide(context);
       } else if (response.statusCode == 400) {
-        if (!context.mounted) return;
         CustomSnackbar.show(
           context,
-          message: response.data['message'],
+          message: response.data['message'] ?? "Unable to mark attendance",
           type: SnackbarType.failure,
         );
-        if (!context.mounted) return;
-        PopupLoader.hide(context);
       } else {
-        if (!context.mounted) return;
         CustomSnackbar.show(
           context,
-          message: "Unknown Error!",
+          message: response.data['message'] ?? "Unknown error occurred",
           type: SnackbarType.failure,
         );
-        if (!context.mounted) return;
-        PopupLoader.hide(context);
-        // }
       }
+    } on DioException catch (e) {
+      if (!context.mounted) return;
+
+      final response = e.response;
+
+      if (response != null) {
+        CustomSnackbar.show(
+          context,
+          message:
+              response.data is Map
+                  ? (response.data['message'] ?? 'Something went wrong')
+                  : 'Something went wrong',
+          type: SnackbarType.failure,
+        );
+      } else {
+        CustomSnackbar.show(
+          context,
+          message: "Network error. Please check your internet connection.",
+          type: SnackbarType.failure,
+        );
+      }
+
+      log("Dio Error: ${e.message}");
+      log("Status Code: ${response?.statusCode}");
+      log("Response Data: ${response?.data}");
     } catch (e) {
+      if (!context.mounted) return;
+
+      CustomSnackbar.show(
+        context,
+        message: "Something went wrong",
+        type: SnackbarType.failure,
+      );
+
       log("Error sending location: $e");
     } finally {
+      if (context.mounted) {
+        PopupLoader.hide(context);
+      }
+
       _isLoadingForChangeStatus = false;
       notifyListeners();
     }

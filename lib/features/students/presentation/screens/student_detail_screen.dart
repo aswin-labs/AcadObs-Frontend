@@ -448,7 +448,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                               Icon(Icons.auto_awesome),
                               SizedBox(width: 10),
                               Text(
-                                "See AI Prediction",
+                                "AI Insights",
                                 style: TextStyle(color: Colors.white),
                               ),
                             ],

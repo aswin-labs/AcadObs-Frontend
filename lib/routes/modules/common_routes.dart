@@ -1,4 +1,5 @@
 import 'package:acadobs/features/ai_insights/presentation/screens/ai_insights_homescreen.dart';
+import 'package:acadobs/features/ai_insights/presentation/screens/career_insights_screen.dart';
 import 'package:acadobs/features/ai_insights/presentation/screens/subject_insights_screen.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/presentation/screens/login_screen.dart';
@@ -122,6 +123,15 @@ final List<GoRoute> commonRoutes = [
     name: RouteConstants.subjectInsights,
     builder: (context, state) {
       return SubjectInsightsScreen();
+    },
+  ),
+
+  // Career Guidance
+  GoRoute(
+    path: '/careerGuidance',
+    name: RouteConstants.careerGuidance,
+    builder: (context, state) {
+      return CareerInsightsScreen();
     },
   ),
 ];

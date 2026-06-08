@@ -1,26 +1,14 @@
+import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
 
 class CareerInsightsScreen extends StatelessWidget {
   const CareerInsightsScreen({super.key});
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8F6),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: false,
-        title: const Text(
-          'Career Guidance',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF111827),
-          ),
-        ),
-        leading: const BackButton(color: Color(0xFF111827)),
-      ),
+      appBar: CommonAppBar(title: "Career Insights", isBackButton: true),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         children: [
@@ -46,19 +34,17 @@ class CareerInsightsScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
- 
+
           // ── Student Strengths ───────────────────────────────────────────
           StudentStrengthsWidget(
             strengths: const ['Logical Reasoning', 'Curiosity'],
           ),
           const SizedBox(height: 12),
- 
+
           // ── Areas to Improve ────────────────────────────────────────────
-          AreasToImproveWidget(
-            areas: const ['Public Speaking'],
-          ),
+          AreasToImproveWidget(areas: const ['Public Speaking']),
           const SizedBox(height: 20),
- 
+
           // ── Career Roadmap ──────────────────────────────────────────────
           CareerRoadmapWidget(
             milestones: const [
@@ -87,11 +73,11 @@ class CareerInsightsScreen extends StatelessWidget {
     );
   }
 }
- 
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. SUGGESTED CAREER AREAS WIDGET
 // ─────────────────────────────────────────────────────────────────────────────
- 
+
 class CareerItem {
   final String label;
   final String title;
@@ -99,7 +85,7 @@ class CareerItem {
   final Color iconColor;
   final Color iconBg;
   final Color borderColor;
- 
+
   const CareerItem({
     required this.label,
     required this.title,
@@ -109,17 +95,17 @@ class CareerItem {
     required this.borderColor,
   });
 }
- 
+
 class SuggestedCareerAreasWidget extends StatelessWidget {
   final List<CareerItem> careers;
   final String heading;
- 
+
   const SuggestedCareerAreasWidget({
     super.key,
     required this.careers,
     this.heading = 'Suggested Career Areas',
   });
- 
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -135,7 +121,9 @@ class SuggestedCareerAreasWidget extends StatelessWidget {
           children: List.generate(careers.length, (i) {
             return Expanded(
               child: Padding(
-                padding: EdgeInsets.only(right: i < careers.length - 1 ? 10 : 0),
+                padding: EdgeInsets.only(
+                  right: i < careers.length - 1 ? 10 : 0,
+                ),
                 child: _CareerCard(item: careers[i]),
               ),
             );
@@ -145,11 +133,11 @@ class SuggestedCareerAreasWidget extends StatelessWidget {
     );
   }
 }
- 
+
 class _CareerCard extends StatelessWidget {
   final CareerItem item;
   const _CareerCard({required this.item});
- 
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -157,9 +145,7 @@ class _CareerCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border(
-          left: BorderSide(color: item.borderColor, width: 3.5),
-        ),
+        border: Border(left: BorderSide(color: item.borderColor, width: 3.5)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withAlpha(10),
@@ -206,21 +192,21 @@ class _CareerCard extends StatelessWidget {
     );
   }
 }
- 
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. STUDENT STRENGTHS WIDGET
 // ─────────────────────────────────────────────────────────────────────────────
- 
+
 class StudentStrengthsWidget extends StatelessWidget {
   final List<String> strengths;
   final String heading;
- 
+
   const StudentStrengthsWidget({
     super.key,
     required this.strengths,
     this.heading = 'Student Strengths',
   });
- 
+
   @override
   Widget build(BuildContext context) {
     return _TagSectionCard(
@@ -236,21 +222,21 @@ class StudentStrengthsWidget extends StatelessWidget {
     );
   }
 }
- 
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. AREAS TO IMPROVE WIDGET
 // ─────────────────────────────────────────────────────────────────────────────
- 
+
 class AreasToImproveWidget extends StatelessWidget {
   final List<String> areas;
   final String heading;
- 
+
   const AreasToImproveWidget({
     super.key,
     required this.areas,
     this.heading = 'Areas to Improve',
   });
- 
+
   @override
   Widget build(BuildContext context) {
     return _TagSectionCard(
@@ -266,11 +252,11 @@ class AreasToImproveWidget extends StatelessWidget {
     );
   }
 }
- 
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SHARED: Tag Section Card (used by Strengths & Areas to Improve)
 // ─────────────────────────────────────────────────────────────────────────────
- 
+
 class _TagSectionCard extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
@@ -281,7 +267,7 @@ class _TagSectionCard extends StatelessWidget {
   final Color tagBorderColor;
   final Color cardBg;
   final Color cardBorderColor;
- 
+
   const _TagSectionCard({
     required this.icon,
     required this.iconColor,
@@ -293,7 +279,7 @@ class _TagSectionCard extends StatelessWidget {
     required this.cardBg,
     required this.cardBorderColor,
   });
- 
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -312,34 +298,37 @@ class _TagSectionCard extends StatelessWidget {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children: tags
-                .map((t) => _Tag(
-                      label: t,
-                      textColor: tagTextColor,
-                      bgColor: tagBgColor,
-                      borderColor: tagBorderColor,
-                    ))
-                .toList(),
+            children:
+                tags
+                    .map(
+                      (t) => _Tag(
+                        label: t,
+                        textColor: tagTextColor,
+                        bgColor: tagBgColor,
+                        borderColor: tagBorderColor,
+                      ),
+                    )
+                    .toList(),
           ),
         ],
       ),
     );
   }
 }
- 
+
 class _Tag extends StatelessWidget {
   final String label;
   final Color textColor;
   final Color bgColor;
   final Color borderColor;
- 
+
   const _Tag({
     required this.label,
     required this.textColor,
     required this.bgColor,
     required this.borderColor,
   });
- 
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -360,33 +349,33 @@ class _Tag extends StatelessWidget {
     );
   }
 }
- 
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. CAREER ROADMAP WIDGET
 // ─────────────────────────────────────────────────────────────────────────────
- 
+
 class RoadmapMilestone {
   final String stage;
   final String description;
   final Color dotColor;
- 
+
   const RoadmapMilestone({
     required this.stage,
     required this.description,
     required this.dotColor,
   });
 }
- 
+
 class CareerRoadmapWidget extends StatelessWidget {
   final List<RoadmapMilestone> milestones;
   final String heading;
- 
+
   const CareerRoadmapWidget({
     super.key,
     required this.milestones,
     this.heading = 'Career Roadmap',
   });
- 
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -402,22 +391,19 @@ class CareerRoadmapWidget extends StatelessWidget {
         ...List.generate(milestones.length, (i) {
           final milestone = milestones[i];
           final isLast = i == milestones.length - 1;
-          return _RoadmapStep(
-            milestone: milestone,
-            isLast: isLast,
-          );
+          return _RoadmapStep(milestone: milestone, isLast: isLast);
         }),
       ],
     );
   }
 }
- 
+
 class _RoadmapStep extends StatelessWidget {
   final RoadmapMilestone milestone;
   final bool isLast;
- 
+
   const _RoadmapStep({required this.milestone, required this.isLast});
- 
+
   @override
   Widget build(BuildContext context) {
     return IntrinsicHeight(
@@ -461,7 +447,7 @@ class _RoadmapStep extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
- 
+
           // Content
           Expanded(
             child: Padding(
@@ -471,10 +457,7 @@ class _RoadmapStep extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: const Color(0xFFE5E7EB),
-                    width: 1,
-                  ),
+                  border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withAlpha(8),
@@ -528,24 +511,24 @@ class _RoadmapStep extends StatelessWidget {
     );
   }
 }
- 
+
 // ─────────────────────────────────────────────────────────────────────────────
 // SHARED: Section Heading
 // ─────────────────────────────────────────────────────────────────────────────
- 
+
 class _SectionHeading extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final String text;
   final double fontSize;
- 
+
   const _SectionHeading({
     required this.icon,
     required this.iconColor,
     required this.text,
     this.fontSize = 14.5,
   });
- 
+
   @override
   Widget build(BuildContext context) {
     return Row(

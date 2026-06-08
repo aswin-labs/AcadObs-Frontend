@@ -71,7 +71,7 @@ class AiInsightsHomescreen extends StatelessWidget {
                     'Get personalized career advice based on the student\'s interests and strengths.',
                 buttonLabel: 'Explore Career Guidance',
                 onExplore: () {
-                  // Navigate to risk analysis screen
+                  context.pushNamed(RouteConstants.careerGuidance);
                 },
               ),
               SizedBox(height: 20),
