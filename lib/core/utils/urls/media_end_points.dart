@@ -1,14 +1,27 @@
 /// Media/Image Endpoints (relative paths only)
 class MediaEndpoints {
-  static const String schoolLogos = "/uploads/school_logos/";
-  static const String eventImages = "/uploads/event_files/";
-  static const String newsImages = "/uploads/news_images/";
-  static const String leaveRequests = "/uploads/leave_requests/";
-  static const String notices = "/uploads/notices/";
-  static const String homeworks = "/uploads/homeworks/";
-  static const String duties = "/uploads/solved_duties/";
-  static const String dp = "/uploads/dp/";
-  static const String studentDp = "/uploads/students_images/";
-  static const String logo = "/uploads/school_logos/";
-  static const String schoolImage = "/uploads/school_image/";
+  // static const String schoolLogos = "/uploads/school_logos/";
+  // static const String eventImages = "/uploads/event_files/";
+  // static const String newsImages = "/uploads/news_images/";
+  // static const String leaveRequests = "/uploads/leave_requests/";
+  // static const String notices = "/uploads/notices/";
+  // static const String homeworks = "/uploads/homeworks/";
+  // static const String duties = "/uploads/solved_duties/";
+  // static const String dp = "/uploads/dp/";
+  // static const String studentDp = "/uploads/students_images/";
+  // static const String logo = "/uploads/school_logos/";
+  // static const String schoolImage = "/uploads/school_image/";
+
+  // aws
+  static const String schoolLogos = "";
+  static const String eventImages = "";
+  static const String newsImages = "";
+  static const String leaveRequests = "";
+  static const String notices = "";
+  static const String homeworks = "";
+  static const String duties = "";
+  static const String dp = "";
+  static const String studentDp = "";
+  static const String logo = "";
+  static const String schoolImage = "";
 }

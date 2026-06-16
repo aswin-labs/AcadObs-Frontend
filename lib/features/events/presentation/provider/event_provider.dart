@@ -58,6 +58,7 @@ class EventProvider extends ChangeNotifier {
       );
 
       if (response.statusCode == 200) {
+        log("Events listing:${response.data.toString()}");
         final data = response.data;
         _totalPages = data['totalPages'] ?? 1;
         _currentPage = data['currentPage'] ?? 1;

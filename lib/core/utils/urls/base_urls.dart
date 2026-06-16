@@ -7,6 +7,7 @@ class BaseUrls {
 
   // ---------- FOR DEVELOPMENT --------------------
   static const String api = 'https://acadobs-dev-backend.altezzai.com/api/s1';
-  static const String media = 'https://acadobs-dev-backend.altezzai.com';
+  // // static const String media = 'https://acadobs-dev-backend.altezzai.com';
+  static const String media = '';
   static const String socketUrl = 'https://acadobs-dev-backend.altezzai.com';
 }
