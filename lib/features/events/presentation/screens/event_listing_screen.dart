@@ -61,7 +61,7 @@ class _EventListingScreenState extends State<EventListingScreen> {
             }
 
             if (provider.eventsAll.isEmpty) {
-              return emptyScreen(message: 'No Notices Found.');
+              return emptyScreen(message: 'No Events Found.');
             }
 
             return ListView.builder(

@@ -40,6 +40,7 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
 
     final shouldShowRemarks =
         selectedStatus == "Late" || selectedStatus == "Absent";
+    // final showTextField = selectedRemarks == "Other";
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -108,7 +109,39 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                       : shouldShowRemarks
                       ? Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child: DropdownButton<String>(
+                        child:
+                        // (showTextField)
+                        //     ? SizedBox(
+                        //       width: 120,
+                        //       child: TextField(
+                        //         style:
+                        //             Theme.of(context).textTheme.bodySmall,
+                        //         decoration: InputDecoration(
+                        //           hintText: "Enter remark",
+                        //           isDense: true,
+                        //           contentPadding:
+                        //               const EdgeInsets.symmetric(
+                        //                 horizontal: 8,
+                        //                 vertical: 6,
+                        //               ),
+                        //           border: OutlineInputBorder(
+                        //             borderRadius: BorderRadius.circular(6),
+                        //           ),
+                        //         ),
+                        //         onChanged: (value) {
+                        //           provider.setRemarks(
+                        //             widget.studentId,
+                        //             value,
+                        //           );
+                        //           provider.setAttendance(
+                        //             widget.studentId,
+                        //             selectedStatus!,
+                        //             value,
+                        //           );
+                        //         },
+                        //       ),
+                        //     )
+                        DropdownButton<String>(
                           value:
                               AppConstants.attendanceRemarks.contains(
                                     selectedRemarks,

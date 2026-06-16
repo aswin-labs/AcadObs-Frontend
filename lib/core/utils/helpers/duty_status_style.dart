@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class DutyStatusStyle {
   final IconData icon;
@@ -21,7 +21,7 @@ DutyStatusStyle getDutyStatusStyle(String status) {
         iconColor: Colors.orange,
         backgroundColor: Color(0xFFFFF3E0),
       );
-    case 'in progress'|| 'in_progress':
+    case 'in progress' || 'in_progress':
       return const DutyStatusStyle(
         icon: LucideIcons.loader2,
         iconColor: Colors.blue,

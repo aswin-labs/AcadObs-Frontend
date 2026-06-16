@@ -28,11 +28,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserData();
-    profileProvider = context.read<ProfileProvider>();
-    widget.forStaff
-        ? profileProvider.fetchProfileStaff()
-        : profileProvider.fetchProfileGuardian();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUserData();
+      profileProvider = context.read<ProfileProvider>();
+      widget.forStaff
+          ? profileProvider.fetchProfileStaff()
+          : profileProvider.fetchProfileGuardian();
+    });
   }
 
   Future<void> _loadUserData() async {

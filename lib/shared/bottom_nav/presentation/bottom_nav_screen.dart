@@ -2,7 +2,7 @@ import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/admin/presentation/home/admin_home_screen.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
-import 'package:acadobs/features/chats/presentation/screens/chats_home_screen.dart';
+// import 'package:acadobs/features/chats/presentation/screens/chats_home_screen.dart';
 import 'package:acadobs/features/events/presentation/screens/event_listing_screen.dart';
 import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
@@ -17,7 +17,7 @@ import 'package:acadobs/features/teacher/presentation/duties/screens/duty_home_s
 import 'package:acadobs/features/teacher/presentation/home/screens/teacher_home_screen.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class BottomNavScreen extends StatefulWidget {
@@ -48,14 +48,14 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         AttendanceHomeScreen(),
         MarksHomeScreen(),
         DutyHomeScreen(),
-        ChatsHomeScreen(),
+        // ChatsHomeScreen(),
       ];
     } else if (userType == UserType.parent) {
       return [
         ParentHomeScreen(),
         EventListingScreen(forStaff: false),
         NewsListingScreen(forStaff: false),
-        ChatsHomeScreen(forParent: true),
+        // ChatsHomeScreen(forParent: true),
         TeachersListingScreen(),
       ];
     } else {
@@ -85,14 +85,14 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         _bottomNavItem(icon: LucideIcons.calendarCheck, label: 'Attendance'),
         _bottomNavItem(icon: LucideIcons.fileText, label: 'Marks'),
         _bottomNavItem(icon: LucideIcons.listTodo, label: 'Duties'),
-        _bottomNavItem(icon: LucideIcons.messageSquarePlus, label: 'Chats'),
+        // _bottomNavItem(icon: LucideIcons.messageSquarePlus, label: 'Chats'),
       ];
     } else if (userType == UserType.parent) {
       return [
         _bottomNavItem(icon: LucideIcons.home, label: 'Home'),
         _bottomNavItem(icon: LucideIcons.calendarDays, label: 'Events'),
         _bottomNavItem(icon: LucideIcons.bell, label: 'News'),
-        _bottomNavItem(icon: LucideIcons.messageSquare, label: 'Chat'),
+        // _bottomNavItem(icon: LucideIcons.messageSquare, label: 'Chat'),
         _bottomNavItem(icon: LucideIcons.users, label: 'Teachers'),
       ];
     } else {

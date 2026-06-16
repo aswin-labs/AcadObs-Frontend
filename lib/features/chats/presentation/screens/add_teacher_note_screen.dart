@@ -15,7 +15,7 @@ import 'package:acadobs/shared/widgets/custom_filepicker.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:acadobs/shared/widgets/students_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class AddTeacherNoteScreen extends StatelessWidget {
@@ -179,7 +179,10 @@ class AddTeacherNoteScreen extends StatelessWidget {
                           );
                         }
                       },
-                      widget: provider.isLoadingTwo?ButtonLoading(): Text("Send Note"),
+                      widget:
+                          provider.isLoadingTwo
+                              ? ButtonLoading()
+                              : Text("Send Note"),
                     );
                   },
                 ),

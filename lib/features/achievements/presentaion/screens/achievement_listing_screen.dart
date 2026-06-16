@@ -8,7 +8,7 @@ import 'package:acadobs/shared/widgets/common_floating_button2.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class AchievementListingScreen extends StatefulWidget {
