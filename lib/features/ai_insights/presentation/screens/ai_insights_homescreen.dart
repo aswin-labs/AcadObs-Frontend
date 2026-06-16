@@ -52,18 +52,21 @@ class AiInsightsHomescreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               InsightsWidget(
+                bannerImagePath: "assets/subject-insights.png",
                 icon: Icons.book_rounded,
-                iconColor: const Color(0xFFDBEAFE),
+                iconColor: const Color.fromARGB(255, 116, 163, 225),
                 title: 'Subject Insights',
                 description:
                     'Get detailed insights into the student\'s performance in each subject.',
                 buttonLabel: 'View Subject Insights',
+
                 onExplore: () {
                   context.pushNamed(RouteConstants.subjectInsights);
                 },
               ),
               const SizedBox(height: 20),
               InsightsWidget(
+                bannerImagePath: "assets/career-insights.png",
                 icon: Icons.trending_up_rounded,
                 iconColor: const Color(0xFFFEE2E2),
                 title: 'Career Guidance',

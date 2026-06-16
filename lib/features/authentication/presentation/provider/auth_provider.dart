@@ -73,28 +73,33 @@ class AuthProvider with ChangeNotifier {
         identifier: identifier,
         password: password,
       );
+      log("Login Response: ${response.data}");
       await _storageService.saveUserCredentials(
         token: response.data['token'],
         // refreshToken: response.data['refreshToken'],
         userData: response.data['userData'],
       );
+      log(">>>>>>>>>>>>>>>>>>0");
 
       await _storageService.saveTokens(
         accessToken: response.data['token'],
         refreshToken: response.data['refreshToken'],
       );
+      log(">>>status code: ${response.statusCode}");
 
       if (response.statusCode == 200) {
         final userRole = await _storageService.getUserRole();
         if (!context.mounted) return;
-
+        log(">>>>>>>>>>>>>>1");
         CustomSnackbar.show(
           context,
           message: "Login Successfull",
           type: SnackbarType.success,
         );
+        log(">>>>>>>>>>>>>>>2");
 
         if (userRole == 'guardian') {
+          log(">>>>>>>>>>>>>>>3");
           await fetchSchoolsByParent();
           await AuthServices().sendFcmToken();
           if (_totalSchoolsUnderParent == 1) {
@@ -127,7 +132,7 @@ class AuthProvider with ChangeNotifier {
         }
         return;
       }
-
+      log(">>>>>>>>>>>>>>>>4");
       final serverMsg =
           response.data['message']?.toString() ??
           response.data['error']?.toString() ??
