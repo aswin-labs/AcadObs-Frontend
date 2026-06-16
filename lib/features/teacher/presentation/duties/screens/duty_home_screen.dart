@@ -37,7 +37,9 @@ class _DutyHomeScreenState extends State<DutyHomeScreen> {
         _scrollController.position.maxScrollExtent - 200;
 
     if (isNearBottom && !_dutyProvider.isLoading && _dutyProvider.hasMore) {
-      _dutyProvider.fetchStaffDuties(loadMore: true);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _dutyProvider.fetchStaffDuties(loadMore: true);
+      });
     }
   }
 

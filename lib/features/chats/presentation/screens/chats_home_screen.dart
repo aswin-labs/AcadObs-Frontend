@@ -11,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-
 // class ChatsHomeScreen extends StatefulWidget {
 //   final bool forParent;
 //   const ChatsHomeScreen({super.key, this.forParent = false});
@@ -262,10 +261,11 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
         builder: (context, chatProvider, _) {
           final users = chatProvider.users;
 
-          final filtered = users.where((u) {
-            final name = (u["opponent"]["name"] ?? "").toLowerCase();
-            return name.contains(searchQuery.toLowerCase());
-          }).toList();
+          final filtered =
+              users.where((u) {
+                final name = (u["opponent"]["name"] ?? "").toLowerCase();
+                return name.contains(searchQuery.toLowerCase());
+              }).toList();
 
           if (chatProvider.isLoadingUsers && users.isEmpty) {
             return const Center(child: ChatShimmer());
@@ -288,23 +288,24 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
                   decoration: InputDecoration(
                     hintText: "Search for Chats",
                     prefixIcon: const Icon(Icons.search),
-                    suffixIcon: searchQuery.isNotEmpty
-                        ? IconButton(
-                            onPressed: () {
-                              _searchController.clear();
-                              setState(() => searchQuery = "");
-                            },
-                            icon: CircleAvatar(
-                              radius: 10,
-                              backgroundColor: Colors.grey.shade300,
-                              child: const Icon(
-                                Icons.close,
-                                size: 14,
-                                color: Colors.black,
+                    suffixIcon:
+                        searchQuery.isNotEmpty
+                            ? IconButton(
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() => searchQuery = "");
+                              },
+                              icon: CircleAvatar(
+                                radius: 10,
+                                backgroundColor: Colors.grey.shade300,
+                                child: const Icon(
+                                  Icons.close,
+                                  size: 14,
+                                  color: Colors.black,
+                                ),
                               ),
-                            ),
-                          )
-                        : null,
+                            )
+                            : null,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -314,76 +315,81 @@ class _ChatsHomeScreenState extends State<ChatsHomeScreen> {
 
               //  List
               Expanded(
-                child: filtered.isEmpty
-                    ? const Center(child: Text("No chats found"))
-                    : ListView.separated(
-                        controller: _scrollController,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: filtered.length,
-                        separatorBuilder: (_, __) => Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Divider(
-                            height: 1,
-                            thickness: 1,
-                            color: Colors.grey.shade300,
-                          ),
-                        ),
-                        itemBuilder: (context, index) {
-                          final convo = filtered[index];
-                          final opponent = convo["opponent"];
-
-                          return CommonChatTile(
-                            name: opponent["name"] ?? "Unknown",
-                            subject: convo["last_message"] ?? "",
-                            imageUrl: opponent["dp"] ?? "",
-                            onTap: () async {
-                              await context.pushNamed(
-                                RouteConstants.chatScreen,
-                                extra: ChatModel(
-                                  opponentId: opponent["id"],
-                                  opponentName: opponent["name"],
+                child:
+                    filtered.isEmpty
+                        ? const Center(child: Text("No chats found"))
+                        : ListView.separated(
+                          controller: _scrollController,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: filtered.length,
+                          separatorBuilder:
+                              (_, __) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
                                 ),
-                              );
+                                child: Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                          itemBuilder: (context, index) {
+                            final convo = filtered[index];
+                            final opponent = convo["opponent"];
 
-                              if (!mounted) return;
+                            return CommonChatTile(
+                              name: opponent["name"] ?? "Unknown",
+                              subject: convo["last_message"] ?? "",
+                              imageUrl: opponent["dp"] ?? "",
+                              onTap: () async {
+                                await context.pushNamed(
+                                  RouteConstants.chatScreen,
+                                  extra: ChatModel(
+                                    opponentId: opponent["id"],
+                                    opponentName: opponent["name"],
+                                  ),
+                                );
 
-                              // refresh safely
-                              context.read<ChatProvider>().loadUsers(reset: true);
-                            },
-                          );
-                        },
-                      ),
+                                if (!context.mounted) return;
+
+                                // refresh safely
+                                context.read<ChatProvider>().loadUsers(
+                                  reset: true,
+                                );
+                              },
+                            );
+                          },
+                        ),
               ),
 
               const SizedBox(height: 100),
-              
             ],
           );
         },
       ),
 
       // ================= FAB =================
-
-      floatingActionButton: widget.forParent
-          ? FloatingActionButton(
-              onPressed: () {
-                showModalBottomSheet(
-                  isDismissible: true,
-                  enableDrag: true,
-                  backgroundColor: Colors.transparent,
-                  barrierColor: Colors.black.withAlpha(50),
-                  context: context,
-                  builder: (_) => ShareBottomSheet(),
-                );
-              },
-              child: const Icon(Icons.chat),
-            )
-          : CommonFloatingActionButton(
-              onPressed: () {
-                context.pushNamed(RouteConstants.noteListingScreen);
-              },
-              text: "Add New Parent Note",
-            ),
+      floatingActionButton:
+          widget.forParent
+              ? FloatingActionButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    isDismissible: true,
+                    enableDrag: true,
+                    backgroundColor: Colors.transparent,
+                    barrierColor: Colors.black.withAlpha(50),
+                    context: context,
+                    builder: (_) => ShareBottomSheet(),
+                  );
+                },
+                child: const Icon(Icons.chat),
+              )
+              : CommonFloatingActionButton(
+                onPressed: () {
+                  context.pushNamed(RouteConstants.noteListingScreen);
+                },
+                text: "Add New Parent Note",
+              ),
     );
   }
 }

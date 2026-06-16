@@ -34,18 +34,21 @@ class EventProvider extends ChangeNotifier {
 
   bool get hasMore => _currentPage < _totalPages;
 
+  bool _isFetchedOnce = false;
+  bool get isFetchedOnce => _isFetchedOnce;
+
   Future<void> fetchEvents({
     required bool forStaff,
     bool loadMore = false,
     bool forceRefresh = false,
-    int limit = AppConstants.paginationLimit, // Default = 13
+    int limit = AppConstants.paginationLimit,
   }) async {
+    if (_isFetchedOnce && !loadMore && !forceRefresh) return;
     if (_isLoading) return;
     _isLoading = true;
     notifyListeners();
 
     try {
-      // Reset when not loading more or forcing refresh
       if (!loadMore || forceRefresh) {
         _currentPage = 1;
         _eventsAll.clear();
@@ -68,7 +71,9 @@ class EventProvider extends ChangeNotifier {
                 .toList();
 
         _eventsAll.addAll(fetched);
-
+        if (!loadMore && !forceRefresh) {
+          _isFetchedOnce = true;
+        }
         if (_currentPage < _totalPages) {
           _currentPage++;
         }

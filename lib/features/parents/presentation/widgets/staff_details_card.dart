@@ -1,6 +1,6 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart'; // Make sure this package is added to pubspec.yaml
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class StaffDetailsCard extends StatelessWidget {
   final String name;
@@ -10,7 +10,7 @@ class StaffDetailsCard extends StatelessWidget {
   final String subjects;
   final Color backgroundColor;
   final Color borderColor;
-  final String profileImageUrl; // Can be empty for default avatar
+  final String profileImageUrl;
 
   const StaffDetailsCard({
     super.key,
@@ -61,7 +61,7 @@ class StaffDetailsCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-         
+
           _buildRow(
             context,
             LucideIcons.mail,
@@ -86,7 +86,7 @@ class StaffDetailsCard extends StatelessWidget {
             iconSize,
             fontSize,
           ),
-           _buildRow(
+          _buildRow(
             context,
             LucideIcons.award,
             "Qualifications",

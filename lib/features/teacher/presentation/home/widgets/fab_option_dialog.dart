@@ -1,10 +1,11 @@
 import 'dart:ui';
 
+import 'package:acadobs/features/marks/presentation/widgets/add_marks_bottomsheet.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/option_tile.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class FabOptionsDialog extends StatelessWidget {
   const FabOptionsDialog({super.key});
@@ -68,6 +69,16 @@ class FabOptionsDialog extends StatelessWidget {
                     onTap: () {
                       context.pushNamed(RouteConstants.achievementList);
                       Navigator.pop(context);
+                    },
+                  ),
+                  Divider(height: 1, color: Colors.grey.shade200),
+                  OptionTile(
+                    icon: LucideIcons.fileText,
+                    label: 'Marks',
+                    iconColor: Color(0xFFFF6B6B),
+                    onTap: () {
+                      context.pop();
+                      showAddMarksBottomSheet(context: context);
                     },
                   ),
                 ],

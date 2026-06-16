@@ -1,6 +1,3 @@
-// lib/screens/splash_screen.dart
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -17,46 +14,24 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> {
   final AuthStorageService _authStorage = AuthStorageService();
-
-  late AnimationController _animationController;
-  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-
-    _animation = Tween<double>(begin: 1.0, end: 1.15).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-
-    _animationController.repeat(reverse: true);
-
     // _checkLogin();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkLogin();
     });
   }
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
   Future<void> _checkLogin() async {
-    // Simulate splash delay (optional)
-    await Future.delayed(const Duration(seconds: 3));
+    await Future.delayed(const Duration(seconds: 2));
 
     final token = await _authStorage.getToken();
     final userRole = await _authStorage.getUserRole();
-
+    if (!mounted) return;
     if (token != null && token.isNotEmpty) {
       if (userRole == 'guardian') {
         context.pushNamed(
@@ -80,7 +55,6 @@ class _SplashScreenState extends State<SplashScreen>
         );
       }
     } else {
-      // No token → go to LoginPage
       context.pushReplacementNamed(RouteConstants.loginScreen);
     }
   }
@@ -89,22 +63,59 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: tBackgroundColor,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Transform.scale(scale: _animation.value, child: child);
-              },
-              child: SizedBox(
-                height: 150,
-                width: 150,
-                child: Image.asset('assets/logo.png', fit: BoxFit.contain),
-              ),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Logo
+                Container(
+                  height: 140,
+                  width: 140,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Image.asset(
+                    'assets/acadobs_logo.jpg',
+                    fit: BoxFit.contain,
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                const Text(
+                  'AcadObs',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: tPrimaryColor,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  'Smart School Management',
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                ),
+
+                const SizedBox(height: 48),
+
+                const CircularProgressIndicator(color: Colors.black),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

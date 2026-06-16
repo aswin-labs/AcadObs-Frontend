@@ -2,7 +2,7 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:flutter/material.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 
 class AttendanceSummaryCard extends StatelessWidget {
   final String title;
@@ -19,7 +19,7 @@ class AttendanceSummaryCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.backgroundColor,
-     required this.borderColor,
+    required this.borderColor,
     required this.className,
     required this.date,
     required this.period,

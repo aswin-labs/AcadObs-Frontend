@@ -20,7 +20,7 @@ import 'package:acadobs/shared/widgets/students_picker.dart';
 import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 void showCreateHomeworkBottomSheet({required BuildContext context}) {

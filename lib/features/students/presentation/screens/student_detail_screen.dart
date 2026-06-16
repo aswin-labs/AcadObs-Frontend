@@ -4,8 +4,8 @@ import 'package:acadobs/core/utils/profile_container_shimmer.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
-import 'package:acadobs/features/chats/data/models/chat_model.dart';
-import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
+// import 'package:acadobs/features/chats/data/models/chat_model.dart';
+// import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/students/presentation/widgets/leave_letter_screen.dart';
@@ -197,46 +197,46 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 ),
                 centerTitle: true,
                 actions: [
-                  if (widget.forStaff)
-                    Consumer2<StudentProvider, ChatProvider>(
-                      builder: (context, studentProvider, chatProvider, _) {
-                        final student = studentProvider.individualStudent;
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8),
-                          child: IconButton(
-                            onPressed: () {
-                              context
-                                  .pushNamed(
-                                    RouteConstants.chatScreen,
-                                    extra: ChatModel(
-                                      opponentId: student?.user?.id ?? 0,
-                                      opponentName: student?.user?.name ?? "",
-                                      studentId: student?.id,
-                                    ),
-                                  )
-                                  .then((_) {
-                                    if (!mounted) return;
-                                    chatProvider.loadUsers();
-                                  });
-                            },
-                            icon: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade200,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.chat_bubble_outline,
-                                size: 20,
-                                // color: Color(0xFF35C2C1),
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+                  // if (widget.forStaff)
+                  // Consumer2<StudentProvider, ChatProvider>(
+                  //   builder: (context, studentProvider, chatProvider, _) {
+                  //     final student = studentProvider.individualStudent;
+                  //     return Padding(
+                  //       padding: const EdgeInsets.only(right: 8),
+                  //       child: IconButton(
+                  //         onPressed: () {
+                  //           context
+                  //               .pushNamed(
+                  //                 RouteConstants.chatScreen,
+                  //                 extra: ChatModel(
+                  //                   opponentId: student?.user?.id ?? 0,
+                  //                   opponentName: student?.user?.name ?? "",
+                  //                   studentId: student?.id,
+                  //                 ),
+                  //               )
+                  //               .then((_) {
+                  //                 if (!mounted) return;
+                  //                 chatProvider.loadUsers();
+                  //               });
+                  //         },
+                  //         icon: Container(
+                  //           width: 36,
+                  //           height: 36,
+                  //           decoration: BoxDecoration(
+                  //             color: Colors.grey.shade200,
+                  //             shape: BoxShape.circle,
+                  //           ),
+                  //           child: const Icon(
+                  //             Icons.chat_bubble_outline,
+                  //             size: 20,
+                  //             // color: Color(0xFF35C2C1),
+                  //             color: Colors.black,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
                 ],
               ),
 

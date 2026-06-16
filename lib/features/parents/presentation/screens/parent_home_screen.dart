@@ -3,10 +3,7 @@ import 'dart:developer';
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
-import 'package:acadobs/core/utils/urls/base_urls.dart';
-import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
-import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
@@ -38,7 +35,6 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
   void initState() {
     super.initState();
     parentProvider = context.read<ParentProvider>();
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final refreshToken = await AuthStorageService().getRefreshToken();
       final accessToken = await AuthStorageService().getAccessToken();
@@ -47,8 +43,6 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
       log("Refresh Token saved: $refreshToken");
       log("Access Token saved: $accessToken");
       log("Bearer Token saved: $token");
-
-      parentProvider.loadSchoolName();
       refreshAllData();
     });
   }
@@ -65,6 +59,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
         forStaff: false,
       ),
       context.read<StudentRouteProvider>().getStudentRoutes(),
+      parentProvider.loadSchoolName(),
     ]);
   }
 
@@ -81,91 +76,12 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
             onRefresh: refreshAllData,
             child: CustomScrollView(
               slivers: [
-                // Modern App Bar with curved bottom
                 SliverAppBar(
-                  expandedHeight: 200,
-                  floating: false,
+                  expandedHeight: 180,
                   pinned: true,
-                  backgroundColor: Color(0xFF00AEF0),
+                  floating: false,
                   automaticallyImplyLeading: false,
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Image.asset("assets/school.jpg", fit: BoxFit.cover),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xE635C2C1), Color(0xE600AEF0)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 60,
-                          left: 20,
-                          right: 20,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Consumer<AuthProvider>(
-                                builder: (context, provider, _) {
-                                  return Row(
-                                    children: [
-                                      // Icon(Icons.school, size: 35),
-                                      Image.network(
-                                        errorBuilder: (
-                                          context,
-                                          error,
-                                          stackTrace,
-                                        ) {
-                                          return const Icon(
-                                            Icons.school,
-                                            size: 35,
-                                          );
-                                        },
-                                        width: 30,
-                                        height: 30,
-                                        "${BaseUrls.media}${MediaEndpoints.logo}${provider.logo}",
-                                      ),
-                                      SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          provider.schoolName ?? "",
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            // color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                              SizedBox(height: 8),
-                              GestureDetector(
-                                onTap: () {
-                                  refreshAllData();
-                                },
-                                child: Text(
-                                  "Hi, Parent",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 28,
-                                    color: Colors.white,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  backgroundColor: const Color(0xFF00AEF0),
                   actions: [
                     Padding(
                       padding: const EdgeInsets.only(right: 12),
@@ -179,6 +95,79 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                       ),
                     ),
                   ],
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.asset("assets/school.jpg", fit: BoxFit.cover),
+
+                        Container(
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xE635C2C1), Color(0xE600AEF0)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                        ),
+
+                        SafeArea(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Consumer<ParentProvider>(
+                                  builder: (context, provider, _) {
+                                    return Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.school,
+                                          size: 32,
+                                          color: Colors.black,
+                                        ),
+
+                                        const SizedBox(width: 8),
+
+                                        Expanded(
+                                          child: Text(
+                                            provider.schoolName ??
+                                                "Not Available",
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                GestureDetector(
+                                  onTap: refreshAllData,
+                                  child: const Text(
+                                    "Hi, Parent",
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
 
                 // Content

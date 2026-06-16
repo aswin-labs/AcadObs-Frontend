@@ -15,7 +15,7 @@ import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:lucide_icons/lucide_icons.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class EditMarksScreen extends StatefulWidget {

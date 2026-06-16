@@ -30,7 +30,7 @@ class SubjectPicker extends StatelessWidget {
               controller: TextEditingController(
                 text:
                     subjectProvider.selectedSubject?.subjectName ??
-                    'Select Subject*',
+                    'Select Subject',
               ),
               validator:
                   (value) =>
