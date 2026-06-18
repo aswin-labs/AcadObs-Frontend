@@ -2,15 +2,15 @@ import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
+import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
-import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
-import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -174,7 +174,7 @@ void showAttendanceBottomSheet(BuildContext context) {
                   },
                 ),
                 SizedBox(height: Responsive.height * 1),
-                SubjectPicker(),
+                SubjectPicker(isSubjectRequired: false),
                 SizedBox(height: Responsive.height * 1),
                 CustomDatePicker(
                   label: "Date*",

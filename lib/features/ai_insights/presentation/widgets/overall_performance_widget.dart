@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class OverallPerformanceWidget extends StatelessWidget {
   const OverallPerformanceWidget({super.key});
- 
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -74,14 +74,10 @@ class OverallPerformanceWidget extends StatelessWidget {
               ],
             ),
           ),
- 
+
           // Divider
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: Color(0xFFF3F4F6),
-          ),
- 
+          const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+
           // Metrics Row
           IntrinsicHeight(
             child: Row(
@@ -95,7 +91,7 @@ class OverallPerformanceWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Attendance',
+                          'Performance',
                           style: TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w500,
@@ -131,13 +127,10 @@ class OverallPerformanceWidget extends StatelessWidget {
                     ),
                   ),
                 ),
- 
+
                 // Vertical divider
-                Container(
-                  width: 1,
-                  color: const Color(0xFFF3F4F6),
-                ),
- 
+                Container(width: 1, color: const Color(0xFFF3F4F6)),
+
                 // Right metric: Academic Risk
                 Expanded(
                   child: Padding(

@@ -25,6 +25,9 @@ class SubjectProvider extends ChangeNotifier {
 
     try {
       final response = await SubjectServices().fetchAllSubjects();
+      if (response.statusCode != 200) {
+        throw Exception('Failed to fetch subjects');
+      }
       final data = response.data;
       _subjectsAll =
           (data['subjects'] as List<dynamic>)

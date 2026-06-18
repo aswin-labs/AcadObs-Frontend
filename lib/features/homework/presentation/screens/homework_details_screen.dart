@@ -5,7 +5,6 @@ import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
-import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/homework/data/models/homework_model.dart';
 import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -152,28 +151,28 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
     if (widget.homework.forStudent == true) {
       return Padding(
         padding: const EdgeInsets.only(right: 16),
-        child: GestureDetector(
-          onTap: () {
-            context.pushNamed(
-              RouteConstants.chatScreen,
-              extra: ChatModel(
-                opponentId:
-                    widget.homework.forStaff == false
-                        ? widget.homework.user?.id ?? 0
-                        : widget.homework.guardianIdForChat ?? 0,
-                opponentName:
-                    widget.homework.forStaff == false
-                        ? widget.homework.user?.name ?? ""
-                        : widget.homework.guardianNameForChat ?? "",
-                title: widget.homework.title ?? "",
-                subtitle: widget.homework.description ?? "",
-                msgType: "homeworks",
-                typeId: widget.homework.studentHomeworkId,
-              ),
-            );
-          },
-          child: Icon(Icons.chat),
-        ),
+        // child: GestureDetector(
+        //   onTap: () {
+        //     context.pushNamed(
+        //       RouteConstants.chatScreen,
+        //       extra: ChatModel(
+        //         opponentId:
+        //             widget.homework.forStaff == false
+        //                 ? widget.homework.user?.id ?? 0
+        //                 : widget.homework.guardianIdForChat ?? 0,
+        //         opponentName:
+        //             widget.homework.forStaff == false
+        //                 ? widget.homework.user?.name ?? ""
+        //                 : widget.homework.guardianNameForChat ?? "",
+        //         title: widget.homework.title ?? "",
+        //         subtitle: widget.homework.description ?? "",
+        //         msgType: "homeworks",
+        //         typeId: widget.homework.studentHomeworkId,
+        //       ),
+        //   );
+        // },
+        // child: Icon(Icons.chat),
+        // ),
       );
     }
 

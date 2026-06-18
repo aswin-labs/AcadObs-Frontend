@@ -159,7 +159,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 8,
+      length:widget.forStaff ? 6 : 8,
       child: Scaffold(
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {

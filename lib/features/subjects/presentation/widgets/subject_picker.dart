@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class SubjectPicker extends StatelessWidget {
-  const SubjectPicker({super.key});
+  final bool? isSubjectRequired;
+  const SubjectPicker({super.key, this.isSubjectRequired = true});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class SubjectPicker extends StatelessWidget {
                   vertical: 15.0,
                   horizontal: 15.0,
                 ),
-                labelText: 'Subject*',
+                labelText: isSubjectRequired == true ? 'Subject*' : 'Subject',
 
                 prefixIcon: Icon(Icons.book),
                 border: OutlineInputBorder(
@@ -34,7 +35,8 @@ class SubjectPicker extends StatelessWidget {
               ),
               validator:
                   (value) =>
-                      subjectProvider.selectedSubject == null
+                      subjectProvider.selectedSubject == null &&
+                              isSubjectRequired == true
                           ? 'Please select a subject'
                           : null,
             ),

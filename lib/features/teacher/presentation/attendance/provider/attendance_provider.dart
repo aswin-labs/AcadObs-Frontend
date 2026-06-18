@@ -215,14 +215,19 @@ class AttendanceProvider extends ChangeNotifier {
     _isLoadingTwo = true;
     notifyListeners();
     try {
+      final Map<String, dynamic> attendanceData = {
+        "period": period,
+        "class_id": classId,
+        "date": date,
+        "students": getAttendanceList(),
+      };
+
+      if (subjectId != null) {
+        attendanceData["subject_id"] = subjectId;
+      }
+
       final response = await AttendanceServices().submitAttendance(
-        data: {
-          "period": period,
-          "class_id": classId,
-          "date": date,
-          "subject_id": subjectId ?? 0,
-          "students": getAttendanceList(),
-        },
+        data: attendanceData,
       );
       if (response.statusCode == 201) {
         await fetchAttendanceByTeacher(forceRefresh: true);
