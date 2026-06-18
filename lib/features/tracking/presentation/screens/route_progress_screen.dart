@@ -14,9 +14,9 @@ class RouteProgressScreen extends StatefulWidget {
 }
 
 class _RouteProgressScreenState extends State<RouteProgressScreen> {
-  static const _gradientStart = Color(0xFF35C2C1);
-  static const _gradientEnd = Color(0xFF00AEF0);
-  static const _accentDone = Color(0xFF22C55E);
+  static const _gradientStart = Color(0xFF2563EB);
+  static const _gradientEnd = Color(0xFF1D4ED8);
+  static const _accentDone = Color(0xFF10B981);
 
   @override
   void initState() {
@@ -311,7 +311,6 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
           ),
           const SizedBox(width: 12),
 
-          // ── Card ──
           Expanded(
             child: Container(
               margin: const EdgeInsets.only(bottom: 10),

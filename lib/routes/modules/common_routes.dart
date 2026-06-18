@@ -36,7 +36,7 @@ final List<GoRoute> commonRoutes = [
     path: '/bottomNavScreen',
     name: RouteConstants.bottomNavScreen,
     builder: (context, state) {
-      final UserType userType = state.extra as UserType;
+      final UserType? userType = state.extra as UserType?;
       return BottomNavScreen(userType: userType);
     },
   ),

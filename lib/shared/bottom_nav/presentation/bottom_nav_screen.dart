@@ -8,21 +8,24 @@ import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.da
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/parent_home_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/teachers_listing_screen.dart';
-// import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_classes/screens/school_classes_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/school_subjects/screens/school_subjects_screen.dart';
 import 'package:acadobs/features/superadmin/presentation/schools/screens/schools_list_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/teacher_home_screen.dart';
+import 'package:acadobs/core/utils/auth_storage_services.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
+import 'dart:developer';
 
 class BottomNavScreen extends StatefulWidget {
-  final UserType userType;
-  const BottomNavScreen({super.key, required this.userType});
+  final UserType? userType;
+  const BottomNavScreen({super.key, this.userType});
 
   @override
   State<BottomNavScreen> createState() => _BottomNavScreenState();
@@ -30,6 +33,48 @@ class BottomNavScreen extends StatefulWidget {
 
 class _BottomNavScreenState extends State<BottomNavScreen> {
   DateTime? lastPressed;
+  UserType? _userType;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _userType = widget.userType;
+    if (_userType == null) {
+      _loadUserType();
+    }
+  }
+
+  Future<void> _loadUserType() async {
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      final role = await AuthStorageService().getUserRole();
+      if (role == 'guardian') {
+        _userType = UserType.parent;
+      } else if (role == 'teacher') {
+        _userType = UserType.teacher;
+      } else if (role == 'admin') {
+        _userType = UserType.schoolAdmin;
+      } else if (role != null) {
+        _userType = UserType.superAdmin;
+      } else {
+        if (mounted) {
+          context.goNamed(RouteConstants.loginScreen);
+        }
+        return;
+      }
+    } catch (e) {
+      log("Error loading user type in BottomNavScreen: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   // Define pages for each user type
   List<Widget> _getPages(UserType userType) {
@@ -102,10 +147,26 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading || _userType == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: Colors.black)),
+      );
+    }
+
     final bottomNavProvider = Provider.of<BottomNavbarController>(context);
     final int currentIndex = bottomNavProvider.currentIndex;
-    final pages = _getPages(widget.userType);
-    final navItems = _getBottomNavItems(widget.userType);
+    final pages = _getPages(_userType!);
+    final navItems = _getBottomNavItems(_userType!);
+
+    if (currentIndex >= pages.length) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        bottomNavProvider.setIndex(0);
+      });
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator(color: Colors.black)),
+      );
+    }
+
     return Scaffold(
       body: pages[currentIndex],
       bottomNavigationBar: SizedBox(

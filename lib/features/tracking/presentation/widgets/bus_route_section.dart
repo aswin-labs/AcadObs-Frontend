@@ -43,7 +43,7 @@ class _BusRouteSectionState extends State<BusRouteSection> {
               ),
             ],
           ),
-          // SizedBox(height: 16),
+          SizedBox(height: 10),
           Consumer<StudentRouteProvider>(
             builder: (context, provider, _) {
               if (provider.isLoading) {
@@ -67,6 +67,7 @@ class _BusRouteSectionState extends State<BusRouteSection> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: routes.length,
+                padding: EdgeInsets.zero,
                 itemBuilder: (context, index) {
                   final studentroute = routes[index];
                   return BusRouteCard(
