@@ -16,23 +16,23 @@ class TeacherAttendanceProvider extends ChangeNotifier {
   String _todayAttendanceStatus = '';
   String get todayAttendanceStatus => _todayAttendanceStatus;
 
-  bool _isFetchedOnce = false;
 
   // get today attendance status
   Future<void> getTodayAttendanceStatus() async {
-    if (_isFetchedOnce) return;
     _isLoading = true;
     _todayAttendanceStatus = '';
     notifyListeners();
+
     try {
       final response =
           await TeacherAttendanceServices().getTodayAttendanceStatus();
+
       if (response.statusCode == 200) {
-        _todayAttendanceStatus = response.data['status'];
-        _isFetchedOnce = true;
+        _todayAttendanceStatus = response.data['status'] ?? 'Not Marked';
       }
     } catch (e) {
       log(e.toString());
+      _todayAttendanceStatus = 'Not Marked';
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -45,7 +45,6 @@ class TeacherAttendanceProvider extends ChangeNotifier {
     required String latitude,
     required String longitude,
   }) async {
-    _isFetchedOnce = false;
     _isLoadingForChangeStatus = true;
 
     PopupLoader.show(context, message: "Updating status...");
@@ -134,49 +133,92 @@ class TeacherAttendanceProvider extends ChangeNotifier {
     required String latitude,
     required String longitude,
   }) async {
-    _isFetchedOnce = false;
     _isLoadingForChangeStatus = true;
+
     PopupLoader.show(context, message: "Updating status...");
+
     notifyListeners();
+
     try {
       final response = await TeacherAttendanceServices().checkOutAttendance(
         latitude: latitude,
         longitude: longitude,
       );
+
+      if (!context.mounted) return;
+
       if (response.statusCode == 200) {
         await getTodayAttendanceStatus();
+
         if (!context.mounted) return;
+
         CustomSnackbar.show(
           context,
-          message: response.data['message'],
+          message: response.data['message'] ?? "Checked out successfully",
           type: SnackbarType.success,
         );
-        if (!context.mounted) return;
-        PopupLoader.hide(context);
       } else if (response.statusCode == 400) {
-        if (!context.mounted) return;
         CustomSnackbar.show(
           context,
-          message: response.data['message'],
+          message: response.data['message'] ?? "Unable to checkout attendance",
           type: SnackbarType.failure,
         );
-        if (!context.mounted) return;
-        PopupLoader.hide(context);
       } else {
-        if (!context.mounted) return;
         CustomSnackbar.show(
           context,
-          message: "Unknown Error!",
+          message: response.data['message'] ?? "Unknown error occurred",
           type: SnackbarType.failure,
         );
-        if (!context.mounted) return;
+      }
+    } on DioException catch (e) {
+      if (!context.mounted) return;
+
+      final response = e.response;
+
+      if (response != null) {
+        CustomSnackbar.show(
+          context,
+          message:
+              response.data is Map
+                  ? (response.data['message'] ?? "Something went wrong")
+                  : "Something went wrong",
+          type: SnackbarType.failure,
+        );
+      } else {
+        CustomSnackbar.show(
+          context,
+          message: "Network error. Please check your internet connection.",
+          type: SnackbarType.failure,
+        );
+      }
+
+      log("Dio Error: ${e.message}");
+      log("Status Code: ${response?.statusCode}");
+      log("Response Data: ${response?.data}");
+    } catch (e) {
+      if (!context.mounted) return;
+
+      CustomSnackbar.show(
+        context,
+        message: "Something went wrong",
+        type: SnackbarType.failure,
+      );
+
+      log("Error checking out attendance: $e");
+    } finally {
+      if (context.mounted) {
         PopupLoader.hide(context);
       }
-    } catch (e) {
-      log("Error sending location: $e");
-    } finally {
+
       _isLoadingForChangeStatus = false;
       notifyListeners();
     }
+  }
+
+  // reset attndance status
+  void resetAttendance() {
+    _todayAttendanceStatus = '';
+    _isLoading = false;
+    notifyListeners();
   }
 }

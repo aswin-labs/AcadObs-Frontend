@@ -6,10 +6,12 @@ import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/authentication/data/models/parent_school_model.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/data/services/auth_services.dart';
+import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_permission_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthStorageService _storageService = AuthStorageService();
@@ -158,6 +160,7 @@ class AuthProvider with ChangeNotifier {
       message: "Logout successfull",
       type: SnackbarType.success,
     );
+    context.read<TeacherAttendanceProvider>().resetAttendance();
     context.goNamed(RouteConstants.loginScreen);
     notifyListeners();
   }

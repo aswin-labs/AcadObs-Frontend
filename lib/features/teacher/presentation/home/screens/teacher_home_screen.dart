@@ -130,7 +130,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                             },
                           ),
 
-                          /// 2️⃣ Blur Effect
+                          /// 2️ Blur Effect
                           ImageFiltered(
                             imageFilter: ImageFilter.blur(
                               sigmaX: 10,
