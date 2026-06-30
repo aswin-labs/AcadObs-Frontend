@@ -6,6 +6,8 @@ class AppConstants {
   // ********Other Constants*******
   // classgrades
   static const List<String> classGrades = [
+    'LKG',
+    'UKG',
     '1',
     '2',
     '3',
