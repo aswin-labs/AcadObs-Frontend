@@ -12,6 +12,7 @@ class Payment {
   int? id;
   int? schoolId;
   int? studentId;
+  int? inVoiceStudentId;
   String? paymentType;
   String? amount;
   DateTime? paymentDate;
@@ -28,6 +29,7 @@ class Payment {
     this.id,
     this.schoolId,
     this.studentId,
+    this.inVoiceStudentId,
     this.paymentType,
     this.amount,
     this.paymentDate,
@@ -45,6 +47,7 @@ class Payment {
     id: json["id"],
     schoolId: json["school_id"],
     studentId: json["student_id"],
+    inVoiceStudentId: json['invoice_student_id'],
     paymentType: json["payment_type"],
     amount: json["amount"],
     paymentDate:
@@ -67,6 +70,7 @@ class Payment {
     "id": id,
     "school_id": schoolId,
     "student_id": studentId,
+    "invoice_student_id": inVoiceStudentId,
     "payment_type": paymentType,
     "amount": amount,
     "payment_date":

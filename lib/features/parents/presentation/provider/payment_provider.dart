@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/parents/data/models/payment_model.dart';
 import 'package:acadobs/features/parents/data/services/payment_service.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +71,50 @@ class PaymentProvider extends ChangeNotifier {
         _isFetchedOnce = true;
       } else {
         throw Exception('Failed to fetch payments: ${response.statusCode}');
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  //upload payment details
+  Future<void> uploadPaymentDetails({
+    required BuildContext context,
+    required int studentId,
+    required int invoiceStudentId,
+    required int amount,
+    required String paymentDate,
+    required String paymentType,
+    required String transactionId,
+    required String paymentMethod,
+    File? paymentAttachment,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final response = await PaymentService().uploadPaymentDetails(
+        studentId: studentId,
+        invoiceStudentId: invoiceStudentId,
+        amount: amount,
+        paymentDate: paymentDate,
+        paymentType: paymentType,
+        transactionId: transactionId,
+        paymentMethod: paymentMethod,
+        paymentAttachment: paymentAttachment,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        log('uploaded successfull');
+        log(response.data.toString());
+        final message = response.data['message'];
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: message,
+          type: SnackbarType.success,
+        );
       }
     } catch (e) {
       log(e.toString());
