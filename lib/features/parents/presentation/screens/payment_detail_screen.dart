@@ -207,9 +207,8 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                                   );
                               amountController.clear();
                               dateController.clear();
-
                               transactionController.clear();
-
+                              fileProvider.clearFile("solved_file");
                               context.pop();
                             },
                             widget: const Text('Upload'),
