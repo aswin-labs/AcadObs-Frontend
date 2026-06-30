@@ -137,6 +137,7 @@ class ApiEndpoints {
 
   static const String updateCredentialAndName =
       "/guardian/changeIdentifiersAndName";
+  static const String uploadPaymentDetails = "/guardian/payments";
 
   //profile details for staff
   static const String staffProfileDetails = "/staff/getProfileDetails";

@@ -126,23 +126,6 @@ class CustomFilePicker extends StatelessWidget {
                           ),
                       ],
                     ),
-                    // child: Row(
-                    //   children: [
-                    //     Expanded(
-                    //       child: Text(
-                    //         file?.name ?? "No File selected",
-                    //         // fileProvider.getFile(fieldName)?.name ??
-                    //         //     'No file selected',
-                    //         overflow: TextOverflow.ellipsis,
-                    //         style: const TextStyle(
-                    //           fontSize: 14,
-                    //           color: Colors.black54,
-                    //         ),
-                    //       ),
-                    //     ),
-                    //     const Icon(Icons.upload_file, color: Colors.grey),
-                    //   ],
-                    // ),
                   ),
                 );
               },
