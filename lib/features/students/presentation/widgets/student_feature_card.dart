@@ -4,11 +4,13 @@ class StudentFeatureCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final VoidCallback? onTap;
+  final Color? color;
   const StudentFeatureCard({
     super.key,
     required this.icon,
     required this.title,
     this.onTap,
+    this.color = Colors.black,
   });
 
   @override
@@ -22,13 +24,7 @@ class StudentFeatureCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(20),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
+
           border: Border.all(color: Colors.grey.shade200),
         ),
         child: Column(
@@ -36,8 +32,8 @@ class StudentFeatureCard extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 24,
-              backgroundColor: Colors.blue.shade100,
-              child: Icon(icon, color: Colors.black, size: 24),
+              backgroundColor: Colors.blue.withValues(alpha: 0.1),
+              child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(height: 10),
             Expanded(
