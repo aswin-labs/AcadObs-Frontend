@@ -153,7 +153,7 @@ class AuthProvider with ChangeNotifier {
   // Logout
 
   Future<void> logout(BuildContext context) async {
-    await _storageService.clear();
+    await clearSession();
     if (!context.mounted) return;
     CustomSnackbar.show(
       context,
@@ -276,5 +276,11 @@ class AuthProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // clear session data on logout
+  Future<void> clearSession() async {
+    await _storageService.clear();
+    notifyListeners();
   }
 }

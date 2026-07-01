@@ -1,10 +1,13 @@
 import 'dart:developer';
 
 import 'package:acadobs/core/interceptor/custom_interceptor.dart';
+import 'package:acadobs/core/services/session_manager.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:dio/dio.dart';
 
 class ApiServices {
+  static late SessionManager sessionManager;
+
   static final Dio dio = Dio(
     BaseOptions(
       baseUrl: BaseUrls.api,
@@ -18,12 +21,14 @@ class ApiServices {
     ),
   );
 
-  static void initialize() {
+  static void initialize(SessionManager manager) {
+    sessionManager = manager;
+
     log('INTERCEPTOR INITIALIZED', name: 'API_SERVICE');
 
     dio.interceptors.clear();
 
-    dio.interceptors.add(CustomInterceptor(dio));
+    dio.interceptors.add(CustomInterceptor(dio, sessionManager));
   }
 
   /// Generic GET request
