@@ -356,11 +356,18 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               ),
 
               const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              GridView.count(
+                padding: EdgeInsets.zero,
+                crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 3,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.95,
                 children: [
                   StudentFeatureCard(
                     icon: Icons.assignment,
+                    color: Colors.brown,
                     title: "Homework",
                     onTap: () {
                       context.pushNamed(
@@ -387,6 +394,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   ),
                   StudentFeatureCard(
                     icon: Icons.emoji_events,
+                    color: Colors.amber,
                     title: "Achievement",
                     onTap: () {
                       context.pushNamed(
@@ -398,15 +406,10 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       );
                     },
                   ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
                   StudentFeatureCard(
                     icon: Icons.notifications,
                     title: "Notice",
+                    color: Colors.amberAccent,
                     onTap: () {
                       context.pushNamed(
                         RouteConstants.studentNoticeScreen,
@@ -435,6 +438,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       final student = provider.individualStudent;
                       return StudentFeatureCard(
                         icon: Icons.person,
+                        color: Colors.blueGrey,
                         title: "Profile",
                         onTap: () {
                           context.pushNamed(
@@ -451,6 +455,14 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 ],
               ),
               const SizedBox(height: 20),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Attendance',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 10),
               StudentAttendenceTab(
                 studentId: widget.studentId,
                 date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
