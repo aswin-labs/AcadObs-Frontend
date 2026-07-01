@@ -9,11 +9,9 @@ import 'package:provider/provider.dart';
 
 class PaymentScreen extends StatefulWidget {
   final int studentId;
-  final bool forParent;
   const PaymentScreen({
     super.key,
     required this.studentId,
-    required this.forParent,
   });
 
   @override

@@ -25,7 +25,6 @@ class CustomInterceptor extends Interceptor {
     final token = await storage.getToken();
 
     final isRefreshApi = options.path == ApiEndpoints.refreshToken;
-
     log('================ REQUEST ================', name: 'API_SERVICE');
 
     log('URL => ${options.uri}', name: 'API_SERVICE');
