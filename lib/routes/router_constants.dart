@@ -54,6 +54,12 @@ class RouteConstants {
   static const String studentLeaveLetter = "studentLeaveLetter";
   static const String editProfileStaff = "editProfileStaff";
   static const String schoolAchievements = "schoolAchievements";
+  static const String studentHomeworkScreen = "studentHomeworkScreen";
+  static const String studentExamScreen = "studentExamScreen";
+  static const String studentAchievementScreen = "studentAchievementScreen";
+  static const String studentNoticeScreen = "studentNoticeScreen";
+  static const String studentLeaveScreen = "studentLeaveScreen";
+  static const String studentProfileScreen = "studentProfileScreen";
 
   //PARENT
   static const String noticedetails = 'noticedetails';

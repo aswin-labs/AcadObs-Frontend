@@ -30,57 +30,57 @@ class _DailyAttendanceWidgetState extends State<DailyAttendanceWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
         color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Spacer(),
-                  Text("Date"),
-                  DateWidget(
-                    initialDate: _selectedDate,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Spacer(),
+                Text("Date"),
+                DateWidget(
+                  initialDate: _selectedDate,
 
-                    onDateChanged: (newDate) {
-                      setState(() {
-                        _selectedDate = DateTime.parse(newDate);
-                      });
+                  onDateChanged: (newDate) {
+                    setState(() {
+                      _selectedDate = DateTime.parse(newDate);
+                    });
 
-                      final formattedDate = DateFormat(
-                        "yyyy-MM-dd",
-                      ).format(_selectedDate);
-                      widget.onDateChanged(formattedDate);
-                    },
-                  ),
-                ],
-              ),
-              Text(
-                DateFormat('EEEE').format(_selectedDate),
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
-              ),
-              SizedBox(height: 10),
-              Row(
-                children: List.generate(
-                  widget.totalPeriodCount,
-                  (index) => PeriodContainer(
-                    status:
-                        (index < widget.statuses.length &&
-                                widget.statuses[index].isNotEmpty)
-                            ? widget.statuses[index]
-                            : "",
-                    periodNumber: index + 1,
-                  ),
+                    final formattedDate = DateFormat(
+                      "yyyy-MM-dd",
+                    ).format(_selectedDate);
+                    widget.onDateChanged(formattedDate);
+                  },
+                ),
+              ],
+            ),
+            Text(
+              DateFormat('EEEE').format(_selectedDate),
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Row(
+              children: List.generate(
+                widget.totalPeriodCount,
+                (index) => PeriodContainer(
+                  status:
+                      (index < widget.statuses.length &&
+                              widget.statuses[index].isNotEmpty)
+                          ? widget.statuses[index]
+                          : "",
+                  periodNumber: index + 1,
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
