@@ -26,7 +26,15 @@ import 'package:acadobs/features/notices/presentation/screens/notice_details_scr
 import 'package:acadobs/features/notices/presentation/screens/notice_listing_screen.dart';
 import 'package:acadobs/features/parents/data/models/payment_model.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_detail_screen.dart';
+import 'package:acadobs/features/students/data/models/student_profile_args.dart';
+import 'package:acadobs/features/students/data/models/student_screen_args.dart';
+import 'package:acadobs/features/students/presentation/screens/student_achievement_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_detail_screen.dart';
+import 'package:acadobs/features/students/presentation/screens/student_exam_screen.dart';
+import 'package:acadobs/features/students/presentation/screens/student_homework_screen.dart';
+import 'package:acadobs/features/students/presentation/screens/student_leave_screen.dart';
+import 'package:acadobs/features/students/presentation/screens/student_notice_screen.dart';
+import 'package:acadobs/features/students/presentation/screens/student_profile_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/students_listing_screen.dart';
 import 'package:acadobs/features/students/presentation/widgets/time_table_day_tab.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_model.dart';
@@ -334,7 +342,6 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       final forStaff = state.extra as bool;
       return TimeTableDayTabStaff(forStaff: forStaff);
-     
     },
   ),
 
@@ -363,6 +370,77 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       final forStaff = state.extra as bool;
       return SchoolAchievementListing(forStaff: forStaff);
+    },
+  ),
+  GoRoute(
+    path: '/studentHomeworkScreen',
+    name: RouteConstants.studentHomeworkScreen,
+    builder: (context, state) {
+      final args = state.extra as StudentScreenArgs;
+      return StudentHomeworkScreen(
+        studentId: args.studentId,
+        forStaff: args.forStaff,
+      );
+    },
+  ),
+  //student exam screen
+  GoRoute(
+    path: '/studentExamScreen',
+    name: RouteConstants.studentExamScreen,
+    builder: (context, state) {
+      final args = state.extra as StudentScreenArgs;
+      return StudentExamScreen(
+        studentId: args.studentId,
+        forStaff: args.forStaff,
+      );
+    },
+  ),
+  //student achievement screen
+  GoRoute(
+    path: '/studentAchievementScreen',
+    name: RouteConstants.studentAchievementScreen,
+    builder: (context, state) {
+      final args = state.extra as StudentScreenArgs;
+      return StudentAchievementScreen(
+        studentId: args.studentId,
+        forStaff: args.forStaff,
+      );
+    },
+  ),
+
+  //student notice screen
+  GoRoute(
+    path: '/studentNoticeScreen',
+    name: RouteConstants.studentNoticeScreen,
+    builder: (context, state) {
+      final args = state.extra as StudentScreenArgs;
+      return StudentNoticeScreen(
+        studentId: args.studentId,
+        forStaff: args.forStaff,
+      );
+    },
+  ),
+  GoRoute(
+    path: '/studentLeaveScreen',
+    name: RouteConstants.studentLeaveScreen,
+    builder: (context, state) {
+      final args = state.extra as StudentScreenArgs;
+      return StudentLeaveScreen(
+        studentId: args.studentId,
+        forStaff: args.forStaff,
+      );
+    },
+  ),
+  //student profile screen
+  GoRoute(
+    path: '/studentProfileScreen',
+    name: RouteConstants.studentProfileScreen,
+    builder: (context, state) {
+      final args = state.extra as StudentProfileArgs;
+      return StudentProfileScreen(
+        student: args.student,
+        forStaff: args.forStaff,
+      );
     },
   ),
 ];
