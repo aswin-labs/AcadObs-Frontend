@@ -159,7 +159,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length:widget.forStaff ? 6 : 8,
+      length: widget.forStaff ? 6 : 8,
       child: Scaffold(
         body: NestedScrollView(
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
@@ -608,10 +608,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
 
                 //payment
                 if (!widget.forStaff) ...[
-                  PaymentScreen(
-                    studentId: widget.studentId,
-                    forParent: widget.forStaff,
-                  ),
+                  PaymentScreen(studentId: widget.studentId),
                 ],
 
                 // notices

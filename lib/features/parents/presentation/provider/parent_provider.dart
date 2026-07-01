@@ -25,16 +25,24 @@ class ParentProvider extends ChangeNotifier {
   }
 
   // fetch students under parent
-  Future<void> fetchStudentsUnderParentBySchoolId() async {
+  Future<void> fetchStudentsUnderParentBySchoolId({
+    bool forceRefresh = false,
+  }) async {
+    if (_isLoading) return;
+
+    if (!forceRefresh && _students.isNotEmpty) {
+      return;
+    }
+
     _isLoading = true;
-    _students.clear();
+    notifyListeners();
+
     try {
       final response =
           await ParentServices().fetchStudentsUnderParentBySchoolId();
+
       _students =
-          (response.data as List<dynamic>)
-              .map((result) => StudentModel.fromJson(result))
-              .toList();
+          (response.data as List).map((e) => StudentModel.fromJson(e)).toList();
     } catch (e) {
       log(e.toString());
     } finally {
