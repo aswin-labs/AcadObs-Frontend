@@ -81,6 +81,7 @@ class _StudentLeaveScreenState extends State<StudentLeaveScreen> {
                       studentId: widget.studentId,
                     ),
               ),
+      appBar: CommonAppBar(title: 'Leave Requests', isBackButton: true),
 
       body: RefreshIndicator(
         onRefresh: () async {
@@ -102,9 +103,6 @@ class _StudentLeaveScreenState extends State<StudentLeaveScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 🔵 AppBar
-                CommonAppBar(title: 'Leave request', isBackButton: true),
-
                 const SizedBox(height: 10),
 
                 // 🔵 Filter
@@ -166,15 +164,15 @@ class _StudentLeaveScreenState extends State<StudentLeaveScreen> {
                   builder: (context, provider, _) {
                     if (provider.isLoading && provider.leaveRequests.isEmpty) {
                       return Padding(
-                        padding: const EdgeInsets.only(top: 30),
-                        child: commonShimmerList(),
+                        padding: const EdgeInsets.only(top: 300),
+                        child: commonShimmerList(itemCount: 10),
                       );
                     }
 
                     if (provider.leaveRequests.isEmpty) {
                       return emptyScreen(
                         message: "No Leave Requests Found",
-                        heightMultiplier: 16,
+                        heightMultiplier: 25,
                       );
                     }
 

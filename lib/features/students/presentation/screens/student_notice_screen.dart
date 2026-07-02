@@ -1,7 +1,6 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
-
 import 'package:acadobs/features/notices/presentation/widgets/notice_card.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -60,6 +59,7 @@ class _StudentNoticeScreenState extends State<StudentNoticeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CommonAppBar(title: 'Notices', isBackButton: true),
       body: RefreshIndicator(
         onRefresh: () async {
           await context.read<StudentProvider>().fetchNoticeByStudentId(
@@ -69,67 +69,70 @@ class _StudentNoticeScreenState extends State<StudentNoticeScreen> {
         },
         child: Consumer<StudentProvider>(
           builder: (context, provider, _) {
-            return CustomScrollView(
-              controller: _scrollController,
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                const SliverToBoxAdapter(child: SizedBox(height: 16)),
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: CustomScrollView(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-                SliverToBoxAdapter(
-                  child: CommonAppBar(title: 'Notices', isBackButton: true),
-                ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
-                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                  if (provider.isLoading && provider.notices.isEmpty)
+                    SliverFillRemaining(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: commonShimmerList(itemCount: 10),
+                      ),
+                    )
+                  else if (provider.notices.isEmpty)
+                    SliverFillRemaining(
+                      child: emptyScreen(
+                        message: "No Notices Found",
+                        heightMultiplier: 25,
+                      ),
+                    )
+                  else
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          if (index < provider.notices.length) {
+                            final notice = provider.notices[index];
 
-                if (provider.isLoading && provider.notices.isEmpty)
-                  SliverFillRemaining(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 90),
-                      child: commonShimmerList(),
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: NoticeCard(
+                                icon: Icons.notifications_none,
+                                title: notice.title ?? "",
+                                date: notice.date,
+                                time: TimeFormatter.formatTime(
+                                  notice.createdAt,
+                                ),
+                                onTap: () {
+                                  context.pushNamed(
+                                    RouteConstants.noticedetails,
+                                    extra: notice,
+                                  );
+                                },
+                              ),
+                            );
+                          } else {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+                        },
+                        childCount:
+                            provider.notices.length +
+                            (provider.isLoading && provider.hasMore ? 1 : 0),
+                      ),
                     ),
-                  )
-                else if (provider.notices.isEmpty)
-                  SliverFillRemaining(
-                    child: emptyScreen(
-                      message: "No Notices Found",
-                      heightMultiplier: 16,
-                    ),
-                  )
-                else
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        if (index < provider.notices.length) {
-                          final notice = provider.notices[index];
-
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: NoticeCard(
-                              icon: Icons.notifications_none,
-                              title: notice.title ?? "",
-                              date: notice.date,
-                              time: TimeFormatter.formatTime(notice.createdAt),
-                              onTap: () {
-                                context.pushNamed(
-                                  RouteConstants.noticedetails,
-                                  extra: notice,
-                                );
-                              },
-                            ),
-                          );
-                        } else {
-                          return const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            child: Center(child: CircularProgressIndicator()),
-                          );
-                        }
-                      },
-                      childCount:
-                          provider.notices.length +
-                          (provider.isLoading && provider.hasMore ? 1 : 0),
-                    ),
-                  ),
-              ],
+                ],
+              ),
             );
           },
         ),

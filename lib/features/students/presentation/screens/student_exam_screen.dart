@@ -58,27 +58,27 @@ class _StudentExamScreenState extends State<StudentExamScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CommonAppBar(title: 'Exams', isBackButton: true),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              CommonAppBar(title: 'Exams', isBackButton: true),
               const SizedBox(height: 20),
               Consumer<MarksProvider>(
                 builder: (context, provider, _) {
                   if (provider.isLoading && provider.studentMarks.isEmpty) {
                     return Padding(
-                      padding: const EdgeInsets.only(top: 40),
-                      child: commonShimmerList(),
+                      padding: const EdgeInsets.only(top: 16),
+                      child: commonShimmerList(itemCount: 10),
                     );
                   }
 
                   if (provider.studentMarks.isEmpty) {
                     return emptyScreen(
                       message: 'No Marks Found.',
-                      heightMultiplier: 16,
+                      heightMultiplier: 25,
                     );
                   }
                   return ListView.builder(

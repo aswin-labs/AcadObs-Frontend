@@ -1,17 +1,13 @@
 import 'dart:io';
 
 import 'package:acadobs/core/utils/common_shimmer_tile.dart';
-
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/students/data/models/student_profile_args.dart';
 import 'package:acadobs/features/students/data/models/student_screen_args.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
-
 import 'package:acadobs/features/students/presentation/widgets/student_attendence_tab.dart';
-
 import 'package:acadobs/features/students/presentation/widgets/student_feature_card.dart';
-
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
@@ -157,12 +153,13 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CommonAppBar(title: 'Student Profile', isBackButton: true),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
-              CommonAppBar(title: 'Student Profile', isBackButton: true),
+              SizedBox(height: 20),
               Row(
                 children: [
                   Expanded(
@@ -310,6 +307,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                                   Text(
                                     student?.fullName ?? "Student Name",
                                     textAlign: TextAlign.center,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 2,
                                     style: const TextStyle(
                                       fontSize: 24,
                                       fontWeight: FontWeight.bold,

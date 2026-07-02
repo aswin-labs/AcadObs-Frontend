@@ -65,21 +65,18 @@ class _StudentAchievementScreenState extends State<StudentAchievementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CommonAppBar(title: 'Achievements', isBackButton: true),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              CommonAppBar(title: 'Achievements', isBackButton: true),
               const SizedBox(height: 20),
               Consumer<AchievementProvider>(
                 builder: (context, provider, _) {
                   if (provider.isLoadingStudent &&
                       provider.studentAchievements.isEmpty) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: commonShimmerList(),
-                    );
+                    return commonShimmerList(itemCount: 10);
                   }
 
                   if (provider.studentAchievements.isEmpty) {

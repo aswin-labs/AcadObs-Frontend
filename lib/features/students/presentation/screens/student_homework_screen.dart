@@ -70,18 +70,18 @@ class _StudentHomeworkPageState extends State<StudentHomeworkScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CommonAppBar(title: 'Homeworks', isBackButton: true),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            CommonAppBar(title: 'Homeworks', isBackButton: true),
             const SizedBox(height: 20),
             Consumer<HomeworkProvider>(
               builder: (context, provider, _) {
                 if (provider.isLoading && provider.studentHomeworks.isEmpty) {
                   return Padding(
-                    padding: const EdgeInsets.only(top: 90),
-                    child: commonShimmerList(),
+                    padding: const EdgeInsets.only(top: 16),
+                    child: commonShimmerList(itemCount: 10),
                   );
                 }
 
