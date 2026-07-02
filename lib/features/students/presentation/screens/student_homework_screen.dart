@@ -81,7 +81,7 @@ class _StudentHomeworkPageState extends State<StudentHomeworkScreen> {
                 if (provider.isLoading && provider.studentHomeworks.isEmpty) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 16),
-                    child: commonShimmerList(itemCount: 10),
+                    child: commonShimmerList(itemCount: 6),
                   );
                 }
 
