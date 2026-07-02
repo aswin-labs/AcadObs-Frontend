@@ -10,10 +10,12 @@ import 'package:acadobs/features/students/presentation/widgets/student_attendenc
 import 'package:acadobs/features/students/presentation/widgets/student_feature_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_floating_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class StudentDetailScreen extends StatefulWidget {
@@ -302,6 +304,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                               ),
                               const SizedBox(width: 10),
                               Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // Student Name
                                   Text(
@@ -310,7 +313,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 2,
                                     style: const TextStyle(
-                                      fontSize: 24,
+                                      fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black87,
                                     ),
@@ -470,6 +473,12 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             ],
           ),
         ),
+      ),
+      floatingActionButton: CommonFloatingButton2(
+        onPressed: () {
+          context.pushNamed(RouteConstants.aiInsightsHome);
+        },
+        icon: LucideIcons.sparkles,
       ),
     );
   }
