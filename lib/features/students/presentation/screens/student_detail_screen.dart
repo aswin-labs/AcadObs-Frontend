@@ -10,6 +10,7 @@ import 'package:acadobs/features/students/presentation/widgets/student_attendenc
 import 'package:acadobs/features/students/presentation/widgets/student_feature_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/common_floating_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -192,7 +193,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           ),
                           child: Row(
                             children: [
-                              // Profile Image & Name
                               Stack(
                                 children: [
                                   Container(
@@ -303,50 +303,53 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                                 ],
                               ),
                               const SizedBox(width: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Student Name
-                                  Text(
-                                    student?.fullName ?? "Student Name",
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 2,
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-
-                                  const SizedBox(height: 8),
-
-                                  // Class Badge
-                                  if (student?.classGrade?.classname != null)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        gradient: const LinearGradient(
-                                          colors: [
-                                            Color(0xFF35C2C1),
-                                            Color(0xFF00AEF0),
-                                          ],
-                                        ),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        student!.classGrade!.classname,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                        ),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Student Name
+                                    Text(
+                                      student?.fullName ?? "Student Name",
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 3,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
                                       ),
                                     ),
-                                ],
+
+                                    const SizedBox(height: 8),
+
+                                    // Class Badge
+                                    if (student?.classGrade?.classname != null)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 6,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color(0xFF35C2C1),
+                                              Color(0xFF00AEF0),
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          student!.classGrade!.classname,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -397,7 +400,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   StudentFeatureCard(
                     icon: Icons.emoji_events,
                     color: Colors.amber,
-                    title: "Achievement",
+                    title: "Awards",
                     onTap: () {
                       context.pushNamed(
                         RouteConstants.studentAchievementScreen,
@@ -476,7 +479,66 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       ),
       floatingActionButton: CommonFloatingButton2(
         onPressed: () {
-          context.pushNamed(RouteConstants.aiInsightsHome);
+          // context.pushNamed(RouteConstants.aiInsightsHome);
+          showDialog(
+            context: context,
+            builder: (context) {
+              return Dialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                insetPadding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 24,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Icon
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: Theme.of(
+                            context,
+                          ).primaryColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          LucideIcons.sparkles,
+                          size: 42,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Title
+                      const Text(
+                        "Coming Soon!",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 12),
+
+                      // Button
+                      CommonButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        widget: Text('OK'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
         },
         icon: LucideIcons.sparkles,
       ),
