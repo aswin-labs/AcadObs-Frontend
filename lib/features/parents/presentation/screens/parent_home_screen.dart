@@ -1,5 +1,6 @@
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
+import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
@@ -59,7 +60,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
       context.read<StudentRouteProvider>().getStudentRoutes(
         // forceRefresh: forceRefresh,
       ),
-      parentProvider.loadSchoolName(),
+      parentProvider.fetchSchoolDetailsForParent(),
     ]);
   }
 
@@ -122,43 +123,56 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                                   builder: (context, provider, _) {
                                     return Row(
                                       children: [
-                                        const Icon(
-                                          Icons.school,
-                                          size: 32,
-                                          color: Colors.black,
-                                        ),
-
-                                        const SizedBox(width: 8),
-
-                                        Expanded(
-                                          child: Text(
-                                            provider.schoolName ??
-                                                "Not Available",
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
+                                        if (provider.schoolDetails?['logo'] !=
+                                            null)
+                                          CircleAvatar(
+                                            radius: 16,
+                                            backgroundColor: Colors.white,
+                                            child: ClipOval(
+                                              child: Image.network(
+                                                provider.schoolDetails!['logo'],
+                                                width: 32,
+                                                height: 32,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) {
+                                                  return const Icon(
+                                                    Icons.error,
+                                                    color: Colors.red,
+                                                  );
+                                                },
+                                              ),
                                             ),
                                           ),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          capitalizeEachWord(
+                                            provider.schoolDetails?['name'] ??
+                                                '',
+                                          ),
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
+                                        const SizedBox(width: 8),
                                       ],
                                     );
                                   },
                                 ),
 
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 8),
 
-                                GestureDetector(
-                                  onTap: refreshAllData,
-                                  child: const Text(
-                                    "Hi, Parent",
-                                    style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
+                                Text(
+                                  "Hi, Parent",
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    letterSpacing: 0.5,
                                   ),
                                 ),
                               ],

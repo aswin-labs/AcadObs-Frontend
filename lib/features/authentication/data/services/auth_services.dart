@@ -16,6 +16,14 @@ class AuthServices {
     return response;
   }
 
+  // Logout
+  Future<Response> logout({required String refreshToken}) async {
+    final response = await ApiServices.post(ApiEndpoints.logout, {
+      {"refreshToken": refreshToken},
+    });
+    return response;
+  }
+
   // get schools by parent
   Future<Response> fetchSchoolsByParent() async {
     final response = await ApiServices.get(ApiEndpoints.schoolsByGuardian);

@@ -16,6 +16,7 @@ class AuthStorageService {
   static const _kSchoolId = 'school_id';
   static const _kSchoolName = 'school_name';
   static const _kSchoolDetailsForTeacher = 'school_details_for_teacher';
+  static const _kSchoolDetailsForParent = 'school_details_for_parent';
   static const _kFcmToken = 'fcm_token';
   static const _kUserPermissions = 'user_permissions';
 
@@ -39,14 +40,24 @@ class AuthStorageService {
     await _storage.write(key: _kUser, value: jsonEncode(userData));
   }
 
-  // Save school Id
+  // Save school Id for parent
   Future<void> saveSchoolIdForParent({required String schoolId}) async {
     await _storage.write(key: _kSchoolId, value: schoolId);
   }
 
-  // Save school Name
+  // Save school Name for parent
   Future<void> saveSchoolNameForParent({required String schoolName}) async {
     await _storage.write(key: _kSchoolName, value: schoolName);
+  }
+
+  // Save school details for parent
+  Future<void> saveSchoolDetailsForParent({
+    required Map<String, dynamic> schoolData,
+  }) async {
+    await _storage.write(
+      key: _kSchoolDetailsForParent,
+      value: jsonEncode(schoolData),
+    );
   }
 
   // Save school details for teacher
@@ -108,16 +119,22 @@ class AuthStorageService {
     await _storage.deleteAll();
   }
 
+  // **********Retrieve*****************
   // Get stored school id
   Future<String?> getSchoolIdForParent() async {
     return await _storage.read(key: _kSchoolId);
   }
 
-  // **********Retrieve*****************
-
   // Get stored school name
   Future<String?> getSchoolNameForParent() async {
     return await _storage.read(key: _kSchoolName);
+  }
+
+  // Get school details for parent
+  Future<Map<String, dynamic>?> getSchoolDetailsForParent() async {
+    final raw = await _storage.read(key: _kSchoolDetailsForParent);
+    if (raw == null) return null;
+    return jsonDecode(raw);
   }
 
   /// Get stored token

@@ -7,6 +7,7 @@ import 'package:acadobs/features/events/presentation/screens/event_listing_scree
 import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/parent_home_screen.dart';
+import 'package:acadobs/features/parents/presentation/screens/payments_home_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/teachers_listing_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_home_screen.dart';
@@ -90,9 +91,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         ParentHomeScreen(),
         EventListingScreen(forStaff: false),
         NewsListingScreen(forStaff: false),
-        Center(
-          child: Text('Payments Screen'),
-        ), // Placeholder for Payments screen
+        PaymentsHomeScreen(),
         TeachersListingScreen(),
       ];
     } else {

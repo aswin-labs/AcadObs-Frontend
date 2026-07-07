@@ -5,8 +5,9 @@ class ApiEndpoints {
   static const String classes = "/superadmin/classes";
   static const String subjects = "/superadmin/subjects";
 
-  // LOGIN
+  // LOGIN - LOGOUT
   static const String login = "/public/login";
+  static const String logout = "/public/logout";
 
   // Refresh token
   static const String refreshToken = "/public/refresh-token";
@@ -120,6 +121,7 @@ class ApiEndpoints {
       "/guardian/getStudentsUnderGuardianBySchoolId";
 
   static const String studentPayment = "/guardian/getPaymentbyStudentId";
+  static const String studentInvoices = "/guardian/getInvoiceByStudentId";
   static const String studentNotices = "/guardian/getNoticeByStudentId/";
   static const String staffsBySchoolId = "/guardian/getStaffsBySchoolId";
   static const String fetchTimeTable = "/guardian/getTodayTimeTableByStudentId";

@@ -6,6 +6,7 @@ import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 
 class PaymentService {
+  // fetch payments
   Future<Response> fetchPayments({
     required int pageNo,
     required int studentId,
@@ -16,6 +17,18 @@ class PaymentService {
     return response;
   }
 
+  // fetch invoices
+  Future<Response> fetchInvoices({
+    required int studentId,
+  }) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.studentInvoices}/$studentId",
+    );
+    return response;
+  }
+
+
+  // upload payment details
   Future<Response> uploadPaymentDetails({
     required int studentId,
     required int invoiceStudentId,

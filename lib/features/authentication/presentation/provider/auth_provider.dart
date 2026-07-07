@@ -81,7 +81,6 @@ class AuthProvider with ChangeNotifier {
         // refreshToken: response.data['refreshToken'],
         userData: response.data['userData'],
       );
-      log(">>>>>>>>>>>>>>>>>>0");
 
       await _storageService.saveTokens(
         accessToken: response.data['token'],
@@ -92,16 +91,13 @@ class AuthProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final userRole = await _storageService.getUserRole();
         if (!context.mounted) return;
-        log(">>>>>>>>>>>>>>1");
         CustomSnackbar.show(
           context,
           message: "Login Successfull",
           type: SnackbarType.success,
         );
-        log(">>>>>>>>>>>>>>>2");
 
         if (userRole == 'guardian') {
-          log(">>>>>>>>>>>>>>>3");
           await fetchSchoolsByParent();
           await AuthServices().sendFcmToken();
           if (_totalSchoolsUnderParent == 1) {
@@ -134,7 +130,6 @@ class AuthProvider with ChangeNotifier {
         }
         return;
       }
-      log(">>>>>>>>>>>>>>>>4");
       final serverMsg =
           response.data['message']?.toString() ??
           response.data['error']?.toString() ??
@@ -153,16 +148,34 @@ class AuthProvider with ChangeNotifier {
   // Logout
 
   Future<void> logout(BuildContext context) async {
-    await clearSession();
-    if (!context.mounted) return;
-    CustomSnackbar.show(
-      context,
-      message: "Logout successfull",
-      type: SnackbarType.success,
-    );
-    context.read<TeacherAttendanceProvider>().resetAttendance();
-    context.goNamed(RouteConstants.loginScreen);
-    notifyListeners();
+    try {
+      final refreshToken = await _storageService.getRefreshToken();
+      log("Logging out with refresh token: $refreshToken");
+      if (refreshToken != null) {
+        final response = await AuthServices().logout(
+          refreshToken: refreshToken,
+        );
+        log("Logout Response: ${response.data}");
+        if (response.statusCode == 200) {
+          log("Logout successful");
+          if (!context.mounted) return;
+          CustomSnackbar.show(
+            context,
+            message: "Logout successful",
+            type: SnackbarType.success,
+          );
+          context.read<TeacherAttendanceProvider>().resetAttendance();
+          context.goNamed(RouteConstants.loginScreen);
+          notifyListeners();
+        } else {
+          log("Logout failed with status code: ${response.statusCode}");
+        }
+      }
+    } catch (e) {
+      log("Logout error: $e");
+    } finally {
+      await clearSession();
+    }
   }
 
   // Schools by guardian
@@ -173,6 +186,7 @@ class AuthProvider with ChangeNotifier {
       final response = await AuthServices().fetchSchoolsByParent();
       if (response.statusCode == 200) {
         final data = response.data;
+        log("Schools under parent: $data");
         _totalSchoolsUnderParent = data['totalcontent'];
 
         _schools =
@@ -213,8 +227,15 @@ class AuthProvider with ChangeNotifier {
       await _storageService.saveSchoolIdForParent(
         schoolId: _selectedSchool!.schoolId.toString(),
       );
-      await _storageService.saveSchoolNameForParent(
-        schoolName: _selectedSchool!.school!.name!,
+      await _storageService.saveSchoolDetailsForParent(
+        schoolData: {
+          "id": _selectedSchool!.school?.id,
+          "name": _selectedSchool!.school?.name,
+          "address": _selectedSchool!.school?.address,
+          "phone": _selectedSchool!.school?.phone,
+          "email": _selectedSchool!.school?.email,
+          "logo": _selectedSchool!.school?.logo,
+        },
       );
     }
   }

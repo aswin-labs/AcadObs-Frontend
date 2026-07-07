@@ -23,6 +23,7 @@ class School {
     String? address;
     String? phone;
     String? email;
+    String? logo;
 
     School({
         this.id,
@@ -30,6 +31,7 @@ class School {
         this.address,
         this.phone,
         this.email,
+        this.logo,
     });
 
     factory School.fromJson(Map<String, dynamic> json) => School(
@@ -38,5 +40,6 @@ class School {
         address: json["address"],
         phone: json["phone"],
         email: json["email"],
+        logo: json["logo"],
     );
 }

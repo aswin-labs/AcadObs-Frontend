@@ -95,4 +95,7 @@ class RouteConstants {
 
   // Career Guidance
   static const String careerGuidance = "careerGuidance";
+
+  // payments screen
+  static const String paymentsScreen = "paymentsScreen";
 }

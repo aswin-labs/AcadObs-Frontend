@@ -1,9 +1,10 @@
 import 'package:acadobs/features/authentication/presentation/screens/school_selection_screen.dart';
 import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
-import 'package:acadobs/features/tracking/presentation/screens/route_progress_screen.dart';
+import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/prediction.dart';
 import 'package:acadobs/features/students/presentation/screens/student_leave_request_details_screen.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
+import 'package:acadobs/features/tracking/presentation/screens/route_progress_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -54,6 +55,16 @@ List<GoRoute> parentRoutes = [
           return FadeTransition(opacity: animation, child: child);
         },
       );
+    },
+  ),
+
+  // payments screen
+  GoRoute(
+    path: '/paymentsScreen',
+    name: RouteConstants.paymentsScreen,
+    builder: (context, state) {
+      final int studentId = state.extra as int;
+      return PaymentScreen(studentId: studentId);
     },
   ),
 ];

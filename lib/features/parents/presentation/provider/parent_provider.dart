@@ -17,11 +17,20 @@ class ParentProvider extends ChangeNotifier {
 
   final _authStorage = AuthStorageService();
 
-  // school name
-  Future<void> loadSchoolName() async {
-    if (_schoolName != null) return;
-    _schoolName = await _authStorage.getSchoolNameForParent();
-    notifyListeners();
+  Map<String, dynamic>? _schoolDetails;
+  Map<String, dynamic>? get schoolDetails => _schoolDetails;
+
+  // fetch school details for parent
+  Future<void> fetchSchoolDetailsForParent() async {
+    try {
+      final schoolDetails = await _authStorage.getSchoolDetailsForParent();
+      if (schoolDetails != null) {
+        _schoolDetails = schoolDetails;
+        notifyListeners();
+      }
+    } catch (e) {
+      log('Error fetching school details for parent: $e');
+    }
   }
 
   // fetch students under parent
