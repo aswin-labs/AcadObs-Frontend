@@ -2,8 +2,7 @@ import 'dart:ui';
 
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
-import 'package:acadobs/core/utils/urls/base_urls.dart';
-import 'package:acadobs/core/utils/urls/media_end_points.dart';
+import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
@@ -118,7 +117,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           Consumer<AuthProvider>(
                             builder: (context, provider, _) {
                               return Image.network(
-                                "${BaseUrls.media}${MediaEndpoints.schoolImage}${provider.schoolImage}",
+                                provider.schoolImage ?? "",
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Image.asset(
@@ -177,36 +176,42 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                           builder: (context, provider, _) {
                                             return Row(
                                               children: [
-                                                // Icon(Icons.school, size: 35),
-                                                Image.network(
-                                                  errorBuilder: (
-                                                    context,
-                                                    error,
-                                                    stackTrace,
-                                                  ) {
-                                                    return const Icon(
-                                                      Icons.school,
-                                                      size: 35,
-                                                    );
-                                                  },
-                                                  width: 30,
-                                                  height: 30,
-                                                  "${BaseUrls.media}${MediaEndpoints.logo}${provider.logo}",
-                                                ),
-                                                SizedBox(width: 8),
-                                                Expanded(
-                                                  child: Text(
-                                                    provider.schoolName ?? "",
-                                                    maxLines: 2,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                      // color: Colors.white,
-                                                      fontWeight:
-                                                          FontWeight.bold,
+                                                if (provider.logo != null &&
+                                                    provider.logo!.isNotEmpty)
+                                                  CircleAvatar(
+                                                    radius: 16,
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    child: ClipOval(
+                                                      child: Image.network(
+                                                        provider.logo ?? "",
+                                                        width: 32,
+                                                        height: 32,
+                                                        fit: BoxFit.cover,
+                                                        errorBuilder: (
+                                                          context,
+                                                          error,
+                                                          stackTrace,
+                                                        ) {
+                                                          return const Icon(
+                                                            Icons.error,
+                                                            color: Colors.red,
+                                                          );
+                                                        },
+                                                      ),
                                                     ),
                                                   ),
+                                                SizedBox(width: 8),
+                                                Text(
+                                                  capitalizeEachWord(
+                                                    provider.schoolName ?? '',
+                                                  ),
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
+                                                const SizedBox(width: 8),
                                               ],
                                             );
                                           },
@@ -307,7 +312,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         buildTimeTableSection(context),
                         const SizedBox(height: 12),
                         buildSubstitutionSection(context),
-
+                        const SizedBox(height: 12),
                         _buildSectionHeader("Updates", null),
                         // Latest Notices
                         NoticeSection(),

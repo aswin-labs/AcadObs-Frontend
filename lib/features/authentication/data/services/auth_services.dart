@@ -19,7 +19,7 @@ class AuthServices {
   // Logout
   Future<Response> logout({required String refreshToken}) async {
     final response = await ApiServices.post(ApiEndpoints.logout, {
-      {"refreshToken": refreshToken},
+      "refreshToken": refreshToken,
     });
     return response;
   }

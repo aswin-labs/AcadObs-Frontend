@@ -50,11 +50,12 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
       forStaff: widget.forStaff,
       date: DateFormat("yyyy-MM-dd").format(_initialDate),
     );
-
-    timeTableProvider.fetchTimeTable(
-      studentId: widget.studentId,
-      forStaff: false,
-    );
+    if (!widget.forStaff) {
+      timeTableProvider.fetchTimeTable(
+        studentId: widget.studentId,
+        forStaff: false,
+      );
+    }
   }
 
   @override
@@ -66,12 +67,12 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
             if (provider.isLoading) {
               return const AttendanceCardShimmer();
             }
-            if (provider.totalPeriod == 0 && provider.status.isEmpty) {
+            if (provider.attendanceCount == 0 && provider.status.isEmpty) {
               // Add this block
               return const Center(child: Text("No attendance data available"));
             }
             return DailyAttendanceWidget(
-              totalPeriodCount: provider.totalPeriod,
+              totalAttendanceCount: provider.attendanceCount,
               initialDate: _initialDate,
               statuses: provider.status,
               onDateChanged: (newDate) {

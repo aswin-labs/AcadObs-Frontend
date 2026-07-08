@@ -129,13 +129,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     content: 'Are you sure you want to logout?',
                                     action: "Logout",
                                     onConfirm: () async {
-                                      final storage = AuthStorageService();
-                                      await storage.clear();
                                       if (!context.mounted) return;
                                       context.read<AuthProvider>().logout(
                                         context,
                                       );
-                                      context.go('/login');
+                                      // context.go('/login');
                                     },
                                   ),
 

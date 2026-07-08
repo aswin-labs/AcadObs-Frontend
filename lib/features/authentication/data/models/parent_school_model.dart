@@ -24,6 +24,7 @@ class School {
     String? phone;
     String? email;
     String? logo;
+    String? bgImage;
 
     School({
         this.id,
@@ -32,6 +33,7 @@ class School {
         this.phone,
         this.email,
         this.logo,
+        this.bgImage,
     });
 
     factory School.fromJson(Map<String, dynamic> json) => School(
@@ -41,5 +43,6 @@ class School {
         phone: json["phone"],
         email: json["email"],
         logo: json["logo"],
+        bgImage: json["bg_image"]
     );
 }

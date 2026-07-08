@@ -172,7 +172,11 @@ class _StudentsListingScreenState extends State<StudentsListingScreen> {
                                   .read<SharedProvider>()
                                   .getClassNameFromStandard(
                                     context: context,
-                                    standard: int.parse(standard),
+                                    standard: switch (standard) {
+                                      'LKG' => -2,
+                                      'UKG' => -1,
+                                      _ => int.parse(standard),
+                                    },
                                   );
                             },
                           ),
