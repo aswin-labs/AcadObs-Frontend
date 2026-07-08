@@ -35,9 +35,13 @@ void showAttendanceBottomSheet(BuildContext context) {
     final authService = AuthStorageService();
     final schoolData = await authService.getSchoolDetailsForTeacher();
     if (schoolData == null) return [];
-    final periodCount = schoolData['period_count'];
-    if (periodCount == null) return [];
-    return List.generate(periodCount as int, (i) => '${i + 1}');
+    // final periodCount = schoolData['period_count'];
+    final attendanceCount = schoolData['attendance_count'];
+    if (attendanceCount == null) return [];
+    return List.generate(attendanceCount as int, (i) => '${i + 1}');
+
+    // if (periodCount == null) return [];
+    // return List.generate(periodCount as int, (i) => '${i + 1}');
   }
 
   showModalBottomSheet(
@@ -80,9 +84,15 @@ void showAttendanceBottomSheet(BuildContext context) {
                               ? 'Please select a class standard'
                               : null,
                   onChanged: (standard) {
+                    final standardValue = switch (standard) {
+                      'LKG' => -2,
+                      'UKG' => -1,
+                      _ => int.parse(standard),
+                    };
+
                     context.read<SharedProvider>().getClassNameFromStandard(
                       context: context,
-                      standard: int.parse(standard),
+                      standard: standardValue,
                     );
                   },
                 ),

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DailyAttendanceWidget extends StatefulWidget {
-  final int totalPeriodCount;
+  final int totalAttendanceCount;
   final List<String> statuses;
   final DateTime initialDate;
   final ValueChanged<String> onDateChanged;
 
   const DailyAttendanceWidget({
     super.key,
-    required this.totalPeriodCount,
+    required this.totalAttendanceCount,
     required this.statuses,
     required this.onDateChanged,
     required this.initialDate,
@@ -69,7 +69,7 @@ class _DailyAttendanceWidgetState extends State<DailyAttendanceWidget> {
             SizedBox(height: 10),
             Row(
               children: List.generate(
-                widget.totalPeriodCount,
+                widget.totalAttendanceCount,
                 (index) => PeriodContainer(
                   status:
                       (index < widget.statuses.length &&

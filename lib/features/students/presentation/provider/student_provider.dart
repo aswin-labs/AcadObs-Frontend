@@ -126,8 +126,10 @@ class StudentProvider extends ChangeNotifier {
   }
 
   //get student attendace by date
-  int _totalPeriod = 0;
-  int get totalPeriod => _totalPeriod;
+  // int _totalPeriod = 0;
+  // int get totalPeriod => _totalPeriod;
+  int _attendanceCount = 0;
+  int get attendanceCount => _attendanceCount;
 
   List<String> _status = [];
   List<String> get status => _status;
@@ -140,7 +142,7 @@ class StudentProvider extends ChangeNotifier {
     try {
       _isLoading = true;
 
-      _totalPeriod = 0;
+      _attendanceCount = 0;
       _status = [];
       log(" Sending request for studentId=$studentId, date=$date");
 
@@ -153,11 +155,10 @@ class StudentProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         log(" Attendance API response: $data");
+        _attendanceCount = data['attendance_count'] ?? 0;
+        log(" attendanceCount = $_attendanceCount");
 
-        _totalPeriod = data['period_count'] ?? 0;
-        log(" totalPeriod = $_totalPeriod");
-
-        _status = List<String>.filled(_totalPeriod, "NA");
+        _status = List<String>.filled(_attendanceCount, "NA");
 
         final List<dynamic> attendanceList = data['attendance'] ?? [];
         log("attendanceList = $attendanceList");
@@ -167,12 +168,10 @@ class StudentProvider extends ChangeNotifier {
           final int? period = (p is int) ? p : int.tryParse('$p');
           final String st = (item['status'] ?? 'NA').toString().toLowerCase();
 
-          if (period != null && period >= 1 && period <= _totalPeriod) {
+          if (period != null && period >= 1 && period <= _attendanceCount) {
             _status[period - 1] = st;
           }
         }
-
-        log("total period: $_totalPeriod");
         log("status list: $_status");
       } else {
         log(
@@ -188,9 +187,9 @@ class StudentProvider extends ChangeNotifier {
   }
 
   void resetAttendance() {
-    log("Resetting attendance: _totalPeriod = 0, _status = []");
+    log("Resetting attendance: _attendanceCount = 0, _status = []");
     _isLoading = true;
-    _totalPeriod = 0;
+    _attendanceCount = 0;
     _status = [];
     // notifyListeners();
   }

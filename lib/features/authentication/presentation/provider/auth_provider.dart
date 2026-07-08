@@ -168,6 +168,12 @@ class AuthProvider with ChangeNotifier {
           context.goNamed(RouteConstants.loginScreen);
           notifyListeners();
         } else {
+          if (!context.mounted) return;
+          CustomSnackbar.show(
+            context,
+            message: "Logout failed. Please try again later.",
+            type: SnackbarType.failure,
+          );
           log("Logout failed with status code: ${response.statusCode}");
         }
       }
@@ -235,6 +241,7 @@ class AuthProvider with ChangeNotifier {
           "phone": _selectedSchool!.school?.phone,
           "email": _selectedSchool!.school?.email,
           "logo": _selectedSchool!.school?.logo,
+          "bg_image": _selectedSchool!.school?.bgImage,
         },
       );
     }
@@ -254,7 +261,7 @@ class AuthProvider with ChangeNotifier {
         );
         _schoolName = data['school']['name'];
         _logo = data['school']['logo'];
-        _schoolImage = data['school']['image'];
+        _schoolImage = data['school']['bg_image'];
         notifyListeners();
       }
     } catch (e) {

@@ -66,7 +66,6 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final schoolName = context.watch<ParentProvider>().schoolName;
     final networkProvider = context.watch<NetworkProvider>();
 
     return Scaffold(
@@ -100,7 +99,31 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                     background: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.asset("assets/school.jpg", fit: BoxFit.cover),
+                        Consumer<ParentProvider>(
+                          builder: (context, parentProvider, _) {
+                            final bgImage =
+                                parentProvider.schoolDetails?['bg_image'];
+
+                            if (bgImage == null ||
+                                bgImage.toString().trim().isEmpty) {
+                              return Image.asset(
+                                'assets/school.jpg',
+                                fit: BoxFit.cover,
+                              );
+                            }
+
+                            return Image.network(
+                              bgImage,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/school.jpg',
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            );
+                          },
+                        ),
 
                         Container(
                           decoration: const BoxDecoration(

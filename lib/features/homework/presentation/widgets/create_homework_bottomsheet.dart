@@ -75,9 +75,15 @@ void showCreateHomeworkBottomSheet({required BuildContext context}) {
                               ? 'Please select a class standard'
                               : null,
                   onChanged: (standard) {
+                    final standardValue = switch (standard) {
+                      'LKG' => -2,
+                      'UKG' => -1,
+                      _ => int.parse(standard),
+                    };
+
                     context.read<SharedProvider>().getClassNameFromStandard(
                       context: context,
-                      standard: int.parse(standard),
+                      standard: standardValue,
                     );
                   },
                 ),
