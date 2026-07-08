@@ -218,6 +218,7 @@ class DutyProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
         singleDuty = Duty.fromJson(data);
+        log(response.data.toString());
       }
     } catch (e) {
       log(e.toString());

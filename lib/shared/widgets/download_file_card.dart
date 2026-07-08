@@ -1,4 +1,3 @@
-import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
@@ -25,12 +24,13 @@ class _DownloadFileCardState extends State<DownloadFileCard> {
       });
 
       final dio = Dio();
-      final url = "${BaseUrls.media}${widget.fileName}";
       final dir = await getApplicationDocumentsDirectory();
-      final savePath = '${dir.path}/${widget.fileName.split('/').last}';
+      final uri = Uri.parse(widget.fileName);
+      final fileName = uri.pathSegments.last;
+      final savePath = '${dir.path}/$fileName';
 
       await dio.download(
-        url,
+        widget.fileName,
         savePath,
         onReceiveProgress: (received, total) {
           if (total != -1) {

@@ -216,10 +216,10 @@ class _InvoiceTab extends StatelessWidget {
                             ),
                             iconColor: statusStyle.iconColor,
                             onTap: () {
-                              // context.pushNamed(
-                              //   RouteConstants.invoiceDetailScreen,
-                              //   extra: invoice,
-                              // );
+                              context.pushNamed(
+                                RouteConstants.invoiceDetailScreen,
+                                extra: invoice,
+                              );
                             },
                           );
                         },

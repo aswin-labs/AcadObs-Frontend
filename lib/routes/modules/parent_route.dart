@@ -1,5 +1,7 @@
 import 'package:acadobs/features/authentication/presentation/screens/school_selection_screen.dart';
 import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
+import 'package:acadobs/features/parents/data/models/invoice_model.dart';
+import 'package:acadobs/features/parents/presentation/screens/invoice_detail_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/prediction.dart';
 import 'package:acadobs/features/students/presentation/screens/student_leave_request_details_screen.dart';
@@ -65,6 +67,15 @@ List<GoRoute> parentRoutes = [
     builder: (context, state) {
       final int studentId = state.extra as int;
       return PaymentScreen(studentId: studentId);
+    },
+  ),
+  //invoice detail screen
+  GoRoute(
+    path: '/invoiceDetailScreen',
+    name: RouteConstants.invoiceDetailScreen,
+    builder: (context, state) {
+      final invoice = state.extra as InvoiceModel;
+      return InvoiceDetailScreen(invoice: invoice);
     },
   ),
 ];

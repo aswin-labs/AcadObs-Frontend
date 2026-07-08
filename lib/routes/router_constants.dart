@@ -73,6 +73,7 @@ class RouteConstants {
   static const String profileDetails = 'profileDetails';
   static const String changelogin = 'changelogin';
   static const String routeProgress = 'routeProgress';
+  static const String invoiceDetailScreen = 'invoiceDetailScreen';
 
   // STUDENTS
   static const String studentListing = 'studentListing';
