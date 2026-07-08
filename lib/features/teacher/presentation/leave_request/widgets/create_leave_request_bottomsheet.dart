@@ -99,7 +99,7 @@ void showCreateLeaveRequesBottomSheet(
                               dropdownKey: 'halfSection',
                               label: "Select Section",
                               icon: Icons.lock_clock_outlined,
-                              items: ["fornoon", "afternoon"],
+                              items: ["forenoon", "afternoon"],
                             ),
                             SizedBox(height: Responsive.height * 1),
                           ],

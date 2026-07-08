@@ -18,7 +18,7 @@ class PaymentProvider extends ChangeNotifier {
   int _totalPages = 1;
 
   int _currentInvoicePage = 1;
- int get _totalInvoicePages => 1;
+  int get _totalInvoicePages => 1;
 
   bool get hasMore => _currentPage < _totalPages;
   bool get hasMoreInvoice => _currentInvoicePage < _totalInvoicePages;
@@ -32,7 +32,7 @@ class PaymentProvider extends ChangeNotifier {
   final List<InvoiceModel> _invoices = [];
   List<InvoiceModel> get invoices => _invoices;
 
-//  fetch payments
+  //  fetch payments
   Future<void> fetchPayments({
     bool loadMore = false,
     bool forceRefresh = false,
@@ -114,7 +114,9 @@ class PaymentProvider extends ChangeNotifier {
       final response = await PaymentService().fetchInvoices(
         studentId: studentId,
       );
-      log("API Response invoices: ${response.data}, Status: ${response.statusCode}");
+      log(
+        "API Response invoices: ${response.data.toString()}, Status: ${response.statusCode}",
+      );
       if (response.statusCode == 200) {
         final data = response.data;
 
@@ -123,7 +125,9 @@ class PaymentProvider extends ChangeNotifier {
         final List leavesJson = data['invoices'];
 
         final List<InvoiceModel> fetchedInvoices =
-            leavesJson.map((jsonItem) => InvoiceModel.fromJson(jsonItem)).toList();
+            leavesJson
+                .map((jsonItem) => InvoiceModel.fromJson(jsonItem))
+                .toList();
 
         //avoids the duplication
         final ids = _invoices.map((e) => e.id).toSet();

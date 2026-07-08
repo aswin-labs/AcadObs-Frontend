@@ -113,19 +113,46 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Remarks added by you: ',
-                            style: context.textTheme.bodyMedium!.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.attach_file,
+                                size: 18,
+                                color: Colors.grey.shade700,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                "Attachment",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: Responsive.height * 1),
-                          Text(
-                            capitalizeFirstLetter(displayRemarks),
-                            style: context.textTheme.bodyMedium!.copyWith(
-                              color: Colors.grey,
+                          (widget.staffDuty.duty?.file != null)
+                              ? DownloadFileCard(
+                                fileName:
+                                    "${MediaEndpoints.duties}${widget.staffDuty.duty?.file}",
+                              )
+                              : SizedBox.shrink(),
+
+                          if (displayRemarks != '') ...[
+                            Text(
+                              'Remarks added by you: ',
+                              style: context.textTheme.bodyMedium!.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
+                            SizedBox(height: Responsive.height * 1),
+                            Text(
+                              capitalizeFirstLetter(displayRemarks),
+                              style: context.textTheme.bodyMedium!.copyWith(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
                           SizedBox(height: Responsive.height * 2),
 
                           if (displayStatus != "in_progress" &&
@@ -166,32 +193,31 @@ class _DutyDetailScreenState extends State<DutyDetailScreen> {
                   if (widget.staffDuty.solvedFile != null &&
                       widget.staffDuty.solvedFile!.isNotEmpty) ...[
                     // Attachment Section Header
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 12),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.attach_file,
-                            size: 18,
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.attach_file,
+                          size: 18,
+                          color: Colors.grey.shade700,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          "File uploaded by you",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
                             color: Colors.grey.shade700,
                           ),
-                          SizedBox(width: 8),
-                          Text(
-                            "Attachment",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.grey.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    DownloadFileCard(
-                      fileName:
-                          "${MediaEndpoints.duties}${widget.staffDuty.solvedFile}",
-                    ),
-                    SizedBox(height: Responsive.height * 10),
+                    (widget.staffDuty.solvedFile != null)
+                        ? DownloadFileCard(
+                          fileName:
+                              "${MediaEndpoints.duties}${widget.staffDuty.solvedFile}",
+                        )
+                        : SizedBox.shrink(),
+                    const SizedBox(height: 10),
                   ],
                 ],
               ),
