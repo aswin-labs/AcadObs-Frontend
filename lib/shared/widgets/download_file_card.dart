@@ -1,7 +1,5 @@
-import 'package:dio/dio.dart';
+import 'package:acadobs/core/services/file_download_service.dart';
 import 'package:flutter/material.dart';
-import 'package:open_file/open_file.dart';
-import 'package:path_provider/path_provider.dart';
 
 class DownloadFileCard extends StatefulWidget {
   final String fileName;
@@ -17,34 +15,39 @@ class _DownloadFileCardState extends State<DownloadFileCard> {
   double _progress = 0.0;
 
   Future<void> _downloadFile() async {
+    if (_isDownloading) return;
+
     try {
       setState(() {
         _isDownloading = true;
         _progress = 0;
       });
 
-      final dio = Dio();
-      final dir = await getApplicationDocumentsDirectory();
-      final uri = Uri.parse(widget.fileName);
-      final fileName = uri.pathSegments.last;
-      final savePath = '${dir.path}/$fileName';
+      await FileDownloadService.download(
+        url: widget.fileName,
+        onProgress: (progress) {
+          if (!mounted) return;
 
-      await dio.download(
-        widget.fileName,
-        savePath,
-        onReceiveProgress: (received, total) {
-          if (total != -1) {
-            setState(() => _progress = received / total);
-          }
+          setState(() {
+            _progress = progress;
+          });
         },
       );
+    } catch (e, stackTrace) {
+      debugPrint('Download error: $e');
+      debugPrintStack(stackTrace: stackTrace);
 
-      setState(() => _isDownloading = false);
-
-      await OpenFile.open(savePath);
-    } catch (e) {
-      setState(() => _isDownloading = false);
-      debugPrint("Download error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Unable to download the file.')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDownloading = false;
+        });
+      }
     }
   }
 
