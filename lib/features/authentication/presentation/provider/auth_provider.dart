@@ -44,19 +44,18 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // call this when login succeeds
-  void _clearError() {
-    _loginError = null;
-    notifyListeners();
-  }
-
   // call this when login fails
   void _setError(String msg) {
     _loginError = msg;
     notifyListeners();
   }
 
-  void clearLoginError() => _clearError();
+  void clearLoginError() {
+    if (_loginError == null) return;
+
+    _loginError = null;
+    notifyListeners();
+  }
 
   // Login
 
@@ -67,7 +66,7 @@ class AuthProvider with ChangeNotifier {
   }) async {
     // _isLoading = true;
     _setLoading(true);
-    _clearError();
+    _loginError = null;
     notifyListeners();
 
     try {

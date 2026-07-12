@@ -8,4 +8,10 @@ class SubjectServices {
     final response = await ApiServices.get(ApiEndpoints.subjectsAll);
     return response;
   }
+
+  // Fetch subjects for staff
+  Future<Response> fetchStaffSubjects() async {
+    final response = await ApiServices.get(ApiEndpoints.staffSubjects);
+    return response;
+  }
 }
