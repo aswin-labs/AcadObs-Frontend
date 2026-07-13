@@ -202,13 +202,19 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                     ),
                                                   ),
                                                 SizedBox(width: 8),
-                                                Text(
-                                                  capitalizeEachWord(
-                                                    provider.schoolName ?? '',
-                                                  ),
-                                                  style: const TextStyle(
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.bold,
+                                                Expanded(
+                                                  child: Text(
+                                                    capitalizeEachWord(
+                                                      provider.schoolName ?? '',
+                                                    ),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: const TextStyle(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
                                                   ),
                                                 ),
                                                 const SizedBox(width: 8),
