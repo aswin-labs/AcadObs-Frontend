@@ -75,10 +75,6 @@ class _StudentNoticeScreenState extends State<StudentNoticeScreen> {
                 controller: _scrollController,
                 physics: const BouncingScrollPhysics(),
                 slivers: [
-                  const SliverToBoxAdapter(child: SizedBox(height: 16)),
-
-                  const SliverToBoxAdapter(child: SizedBox(height: 20)),
-
                   if (provider.isLoading && provider.notices.isEmpty)
                     SliverFillRemaining(
                       child: Padding(
@@ -100,24 +96,17 @@ class _StudentNoticeScreenState extends State<StudentNoticeScreen> {
                           if (index < provider.notices.length) {
                             final notice = provider.notices[index];
 
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: NoticeCard(
-                                icon: Icons.notifications_none,
-                                title: notice.title ?? "",
-                                date: notice.date,
-                                time: TimeFormatter.formatTime(
-                                  notice.createdAt,
-                                ),
-                                onTap: () {
-                                  context.pushNamed(
-                                    RouteConstants.noticedetails,
-                                    extra: notice,
-                                  );
-                                },
-                              ),
+                            return NoticeCard(
+                              icon: Icons.notifications_none,
+                              title: notice.title ?? "",
+                              date: notice.date,
+                              time: TimeFormatter.formatTime(notice.createdAt),
+                              onTap: () {
+                                context.pushNamed(
+                                  RouteConstants.noticedetails,
+                                  extra: notice,
+                                );
+                              },
                             );
                           } else {
                             return const Padding(
