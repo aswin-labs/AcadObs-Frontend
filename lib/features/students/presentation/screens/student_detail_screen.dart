@@ -519,7 +519,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       const Text(
                         "Coming Soon!",
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

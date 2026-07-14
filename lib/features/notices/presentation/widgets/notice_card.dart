@@ -123,12 +123,15 @@ class NoticeCard extends StatelessWidget {
                   ),
                 ],
               ),
-              Text(
-                time,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.grey.shade600,
+              Expanded(
+                child: Text(
+                  time,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
               ),
             ],

@@ -159,7 +159,7 @@ class _StudentLeaveScreenState extends State<StudentLeaveScreen> {
 
                 const SizedBox(height: 20),
 
-                // 🔵 Content
+                //Content
                 Consumer<StudentLeaveRequestProvider>(
                   builder: (context, provider, _) {
                     if (provider.isLoading && provider.leaveRequests.isEmpty) {
@@ -188,25 +188,22 @@ class _StudentLeaveScreenState extends State<StudentLeaveScreen> {
                               leave.status ?? "",
                             );
 
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 12),
-                              child: ItemCard(
-                                title: '${leave.leaveType} leave',
-                                description: leave.reason ?? "",
-                                status: leave.status ?? "",
-                                date: DateFormatter.formatDateString(
-                                  leave.fromDate.toString(),
-                                ),
-                                onTap: () {
-                                  context.pushNamed(
-                                    RouteConstants.studentLeaveLetterScreen,
-                                    extra: leave,
-                                  );
-                                },
-                                icon: style.icon,
-                                iconColor: style.iconColor,
-                                backgroundColor: style.backgroundColor,
+                            return ItemCard(
+                              title: '${leave.leaveType} leave',
+                              description: leave.reason ?? "",
+                              status: leave.status ?? "",
+                              date: DateFormatter.formatDateString(
+                                leave.fromDate.toString(),
                               ),
+                              onTap: () {
+                                context.pushNamed(
+                                  RouteConstants.studentLeaveLetterScreen,
+                                  extra: leave,
+                                );
+                              },
+                              icon: style.icon,
+                              iconColor: style.iconColor,
+                              backgroundColor: style.backgroundColor,
                             );
                           },
                         ),
