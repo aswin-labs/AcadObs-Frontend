@@ -55,7 +55,7 @@ Future<void> showSubjectSelectionDialog(BuildContext context) async {
     context: context,
     builder: (ctx) {
       return AlertDialog(
-        title: Text('Select Subject*'),
+        title: Text('Select Subject'),
         content: Consumer<SubjectProvider>(
           builder: (context, subjectProvider, _) {
             if (subjectProvider.isLoading) {
@@ -65,9 +65,17 @@ Future<void> showSubjectSelectionDialog(BuildContext context) async {
               return Text("No subjects found.");
             }
 
+            final itemCount = subjectProvider.subjectsAll.length;
+            const itemHeight = 56.0;
+            final maxHeight = MediaQuery.of(context).size.height * 0.6;
+            final calculatedHeight = (itemCount * itemHeight).clamp(
+              0.0,
+              maxHeight,
+            );
+
             return SizedBox(
               width: double.maxFinite,
-              height: 300,
+              height: calculatedHeight,
               child: ListView.builder(
                 itemCount: subjectProvider.subjectsAll.length,
                 itemBuilder: (context, index) {
