@@ -5,11 +5,19 @@ import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 
 class TermExamServices {
+  // fetch term exams
+  Future<Response> fetchTermExams() async {
+    final response = await ApiServices.get(ApiEndpoints.termExams);
+    return response;
+  }
+
   // fetch marks added by teacher
-  Future<Response> fetchTermExamMarksAddedByTeacher({required int pageNo}) async {
+  Future<Response> fetchTermExamMarksAddedByTeacher({
+    required int pageNo,
+  }) async {
     final teacherId = await AuthStorageService().getUserId();
     final response = await ApiServices.get(
-      "${ApiEndpoints.marksAddedByTeacher}?recorded_by=$teacherId&limit=${AppConstants.paginationLimit}&page=$pageNo",
+      "${ApiEndpoints.termExamAddedByTeacher}?recorded_by=$teacherId&limit=${AppConstants.paginationLimit}&page=$pageNo",
     );
     return response;
   }
@@ -27,7 +35,7 @@ class TermExamServices {
     required String date,
     required int subjectId,
     required int totalMarks,
-    required String term,
+    required int termExamId,
     required List<Map<String, dynamic>> studentMarks,
   }) async {
     final teacherId = await AuthStorageService().getUserId();
@@ -39,7 +47,7 @@ class TermExamServices {
       "date": date,
       "recorded_by": teacherId,
       "marks": studentMarks,
-      "term":term,
+      "exam_id": termExamId,
     });
     return response;
   }
@@ -85,5 +93,11 @@ class TermExamServices {
           : "${ApiEndpoints.studentMarksForParent}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return response;
+  }
+
+  // delete marks
+  Future<Response> deleteTermExamMarks({required int marksId}) async {
+    final response = await ApiServices.delete("${ApiEndpoints.marks}/$marksId");
+    return response;  
   }
 }

@@ -6,11 +6,18 @@ import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/data/models/student_mark_model.dart';
 import 'package:acadobs/features/marks/data/services/marks_services.dart';
 import 'package:acadobs/features/marks/data/services/term_exam_services.dart';
+import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class TermExamProvider extends ChangeNotifier {
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  bool _isLoadingExams = false;
+  bool _isLoadingMarks = false;
+  bool _isLoadingStudentMarks = false;
+
+  bool get isLoadingExams => _isLoadingExams;
+  bool get isLoadingMarks => _isLoadingMarks;
+  bool get isLoadingStudentMarks => _isLoadingStudentMarks;
 
   bool _isLoadingTwo = false;
   bool get isLoadingTwo => _isLoadingTwo;
@@ -36,19 +43,45 @@ class TermExamProvider extends ChangeNotifier {
 
   bool get hasMoreForStudent => _currentPageForStudent < _totalPagesForStudent;
 
-  // bool _isFetchedOnceForStudent = false;
+  List<Map<String, dynamic>> _termExams = [];
+
+  List<Map<String, dynamic>> get termExams => List.unmodifiable(_termExams);
+
+  // fetch term exams
+  Future<void> fetchTermExams() async {
+    _isLoadingExams = true;
+    notifyListeners();
+    try {
+      final response = await TermExamServices().fetchTermExams();
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final List examsJson = data['data'];
+        _termExams =
+            examsJson
+                .map((jsonItem) => Map<String, dynamic>.from(jsonItem))
+                .toList();
+      } else {
+        throw Exception('Failed to fetch term exams: ${response.statusCode}');
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoadingExams = false;
+      notifyListeners();
+    }
+  }
 
   // Fetch marks
   Future<void> fetchAddedTermExamMarks({
     bool loadMore = false,
     bool forceRefresh = false,
   }) async {
-    if (_isLoading) return;
+    if (_isLoadingMarks) return;
 
     // If not loading more, check if already fetched once.
     if (!loadMore && !forceRefresh && _isFetchedOnce) return;
 
-    _isLoading = true;
+    _isLoadingMarks = true;
 
     try {
       if (loadMore) {
@@ -79,14 +112,14 @@ class TermExamProvider extends ChangeNotifier {
     } catch (e) {
       log(e.toString());
     } finally {
-      _isLoading = false;
+      _isLoadingMarks = false;
       notifyListeners();
     }
   }
 
   // Get Single homework
   Future<void> fetchSingleTermExamMarks({required int marksId}) async {
-    _isLoading = true;
+    _isLoadingMarks = true;
     try {
       final response = await TermExamServices().fetchSingleTermExamMarks(
         marksId: marksId,
@@ -98,7 +131,7 @@ class TermExamProvider extends ChangeNotifier {
     } catch (e) {
       log(e.toString());
     } finally {
-      _isLoading = false;
+      _isLoadingMarks = false;
       notifyListeners();
     }
   }
@@ -111,7 +144,7 @@ class TermExamProvider extends ChangeNotifier {
     required String date,
     required int subjectId,
     required int totalMarks,
-    required String term,
+    required int termExamId,
     required List<Map<String, dynamic>> studentMarks,
   }) async {
     _isLoadingTwo = true;
@@ -125,7 +158,7 @@ class TermExamProvider extends ChangeNotifier {
         subjectId: subjectId,
         totalMarks: totalMarks,
         studentMarks: studentMarks,
-        term: term,
+        termExamId: termExamId,
       );
       if (response.statusCode == 201) {
         await fetchAddedTermExamMarks(forceRefresh: true);
@@ -224,13 +257,13 @@ class TermExamProvider extends ChangeNotifier {
     bool loadMore = false,
     bool forceRefresh = false,
   }) async {
-    if (_isLoading) return;
-    _isLoading = true;
+    if (_isLoadingStudentMarks) return;
+    _isLoadingStudentMarks = true;
 
     try {
       if (loadMore) {
         if (_currentPageForStudent >= _totalPagesForStudent) {
-          _isLoading = false;
+          _isLoadingStudentMarks = false;
           return;
         }
         _currentPageForStudent++;
@@ -266,7 +299,41 @@ class TermExamProvider extends ChangeNotifier {
     } catch (e) {
       log(e.toString());
     } finally {
-      _isLoading = false;
+      _isLoadingStudentMarks = false;
+      notifyListeners();
+    }
+  }
+
+  // delete marks
+  Future<void> deleteTermExamMarks({
+    required BuildContext context,
+    required int marksId,
+  }) async {
+    _isLoadingTwo = true;
+    notifyListeners();
+    try {
+      final response = await TermExamServices().deleteTermExamMarks(
+        marksId: marksId,
+      );
+      if (response.statusCode == 200) {
+        await fetchAddedTermExamMarks(forceRefresh: true);
+        if (!context.mounted) return;
+        await context.read<MarksProvider>().fetchAddedMarks(forceRefresh: true);
+        if (!context.mounted) return;
+        Navigator.pop(context);
+        CustomSnackbar.show(
+          context,
+          message: "Marks Deleted Successfully",
+          type: SnackbarType.success,
+        );
+      } else {
+        log('Failed to delete Marks ${response.statusCode}');
+      }
+      notifyListeners();
+    } catch (e) {
+      log('Error deleting Marks: $e');
+    } finally {
+      _isLoadingTwo = false;
       notifyListeners();
     }
   }

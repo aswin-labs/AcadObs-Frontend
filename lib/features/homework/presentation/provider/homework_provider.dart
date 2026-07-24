@@ -246,7 +246,7 @@ class HomeworkProvider extends ChangeNotifier {
         CustomSnackbar.show(
           context,
           message: "Homework deleted",
-          type: SnackbarType.success,
+          type: SnackbarType.failure,
         );
         Navigator.pop(context);
       } else {

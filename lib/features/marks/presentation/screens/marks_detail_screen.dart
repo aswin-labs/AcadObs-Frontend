@@ -5,8 +5,10 @@ import 'package:acadobs/core/utils/detail_section.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
+import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +34,12 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final title =
+        widget.marks.termExam?.examName == null
+            ? capitali(widget.marks.internalName)
+            : capitali(
+              "${widget.marks.termExam?.examName ?? ''} - ${widget.marks.internalName} (${widget.marks.termExam?.educationYear ?? ''}) ",
+            );
     return HeroMode(
       enabled: false,
       child: Scaffold(
@@ -39,13 +47,29 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
           title: "Marks",
           isBackButton: true,
           actions: [
-            CustomPopupMenu(
-              showDelete: false,
-              onEdit:
-                  () => context.pushNamed(
-                    RouteConstants.marksEdit,
-                    extra: widget.marks,
-                  ),
+            Consumer<TermExamProvider>(
+              builder: (context, provider, _) {
+                return CustomPopupMenu(
+                  onEdit:
+                      () => context.pushNamed(
+                        RouteConstants.marksEdit,
+                        extra: widget.marks,
+                      ),
+                  onDelete:
+                      () => showConfirmationDialog(
+                        context: context,
+                        title: 'Delete Marks',
+                        content:
+                            'Are you sure you want to delete this marks entry?',
+                        onConfirm: () {
+                          provider.deleteTermExamMarks(
+                            context: context,
+                            marksId: widget.marks.id,
+                          );
+                        },
+                      ),
+                );
+              },
             ),
           ],
         ),
@@ -64,7 +88,7 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
                     DetailSection(
                       title: "Details",
                       details: {
-                        "Title": widget.marks.internalName,
+                        "Title": title,
                         "Class": widget.marks.classGrade?.classname ?? "",
                         "Total Marks": widget.marks.maxMarks,
                         "Date": DateFormatter.formatDateTime(

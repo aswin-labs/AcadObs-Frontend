@@ -49,7 +49,7 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
     widget.marks.isTermExam
         ? termExamProvider.addStudentTermExamMarks(
           context: context,
-          term: widget.marks.term ?? '',
+          termExamId: widget.marks.termExamId ?? 0,
           classId: widget.marks.classId,
           title: widget.marks.title,
           date: widget.marks.date,
@@ -96,7 +96,7 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
       appBar: CommonAppBar(
         title:
             widget.marks.isTermExam
-                ? capitalizeEachWord(
+                ? capitali(
                   "${widget.marks.className} - ${widget.marks.term} ${widget.marks.title}",
                 )
                 : capitalizeEachWord(

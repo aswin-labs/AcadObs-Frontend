@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/features/students/data/models/student_model.dart';
+import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/models/subject_model.dart';
 
 MarksModel marksModelFromJson(String str) =>
@@ -17,6 +17,7 @@ class MarksModel {
   School? school;
   ClassGradeModel? classGrade;
   SubjectModel? subject;
+  TermExam? termExam;
 
   MarksModel({
     required this.id,
@@ -28,6 +29,7 @@ class MarksModel {
     this.school,
     this.classGrade,
     this.subject,
+    this.termExam,
   });
 
   factory MarksModel.fromJson(Map<String, dynamic> json) => MarksModel(
@@ -46,6 +48,7 @@ class MarksModel {
         json["Class"] == null ? null : ClassGradeModel.fromJson(json["Class"]),
     subject:
         json["Subject"] == null ? null : SubjectModel.fromJson(json["Subject"]),
+    termExam: json["exam"] == null ? null : TermExam.fromJson(json["exam"]),
   );
 }
 
@@ -55,16 +58,14 @@ class StudentMark {
   String? status;
   StudentModel? student;
 
-  StudentMark({this.id, this.marksObtained, this.status,  this.student});
+  StudentMark({this.id, this.marksObtained, this.status, this.student});
 
   factory StudentMark.fromJson(Map<String, dynamic> json) => StudentMark(
     id: json["id"],
     marksObtained: json["marks_obtained"],
     status: json["status"],
     student:
-            json["Student"] == null
-                ? null
-                : StudentModel.fromJson(json["Student"]),
+        json["Student"] == null ? null : StudentModel.fromJson(json["Student"]),
   );
 }
 
@@ -76,4 +77,18 @@ class School {
 
   factory School.fromJson(Map<String, dynamic> json) =>
       School(id: json["id"], name: json["name"]);
+}
+
+class TermExam {
+  int? id;
+  String? examName;
+  String? educationYear;
+
+  TermExam({this.id, this.examName, this.educationYear});
+
+  factory TermExam.fromJson(Map<String, dynamic> json) => TermExam(
+    id: json["id"],
+    examName: json["exam_name"],
+    educationYear: json["education_year"],
+  );
 }

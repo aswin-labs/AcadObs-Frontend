@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:acadobs/features/marks/presentation/widgets/add_marks_bottomsheet.dart';
+import 'package:acadobs/features/marks/presentation/widgets/add_term_marks_bottomsheet.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/option_tile.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
@@ -76,9 +76,9 @@ class FabOptionsDialog extends StatelessWidget {
                     icon: LucideIcons.fileText,
                     label: 'Marks',
                     iconColor: Color(0xFFFF6B6B),
-                    onTap: () {
+                    onTap: () async {
                       context.pop();
-                      showAddMarksBottomSheet(context: context);
+                      await showAddTermMarksBottomSheet(context: context);
                     },
                   ),
                 ],

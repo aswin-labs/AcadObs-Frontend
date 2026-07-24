@@ -1,7 +1,9 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
+import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
+import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
 import 'package:acadobs/features/marks/presentation/widgets/add_marks_bottomsheet.dart';
 import 'package:acadobs/features/marks/presentation/widgets/add_term_marks_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -12,8 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
-
-
 
 class MarksHomeScreen extends StatefulWidget {
   const MarksHomeScreen({super.key});
@@ -26,16 +26,29 @@ class _MarksHomeScreenState extends State<MarksHomeScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   late final MarksProvider _marksProvider;
+  late final TermExamProvider _termExamProvider;
 
   final ScrollController _termMarksScrollController = ScrollController();
   final ScrollController _otherMarksScrollController = ScrollController();
   @override
   void initState() {
     super.initState();
+
     _marksProvider = context.read<MarksProvider>();
-    _marksProvider.fetchAddedMarks();
+    _termExamProvider = context.read<TermExamProvider>();
+
     _tabController = TabController(length: 2, vsync: this);
+
+    _termMarksScrollController.addListener(_termMarksScrollListener);
     _otherMarksScrollController.addListener(_marksScrollListener);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      _marksProvider.fetchAddedMarks();
+      _termExamProvider.fetchTermExams();
+      _termExamProvider.fetchAddedTermExamMarks();
+    });
   }
 
   void _marksScrollListener() {
@@ -48,15 +61,34 @@ class _MarksHomeScreenState extends State<MarksHomeScreen>
     }
   }
 
+  void _termMarksScrollListener() {
+    final isNearBottom =
+        _termMarksScrollController.position.pixels >=
+        _termMarksScrollController.position.maxScrollExtent - 200;
+
+    if (isNearBottom &&
+        !_termExamProvider.isLoadingMarks &&
+        _termExamProvider.hasMore) {
+      _termExamProvider.fetchAddedTermExamMarks(loadMore: true);
+    }
+  }
+
   @override
   void dispose() {
     _otherMarksScrollController.dispose();
+    _termMarksScrollController.dispose();
     _tabController.dispose();
     super.dispose();
   }
 
   Future<void> _refreshMarks() async {
     await context.read<MarksProvider>().fetchAddedMarks(forceRefresh: true);
+  }
+
+  Future<void> _refreshTermMarks() async {
+    await context.read<TermExamProvider>().fetchAddedTermExamMarks(
+      forceRefresh: true,
+    );
   }
 
   @override
@@ -104,7 +136,7 @@ class _MarksHomeScreenState extends State<MarksHomeScreen>
               children: [
                 _TermMarksTab(
                   scrollController: _termMarksScrollController,
-                  onRefresh: _refreshMarks,
+                  onRefresh: _refreshTermMarks,
                 ),
                 _OtherMarksTab(
                   scrollController: _otherMarksScrollController,
@@ -148,7 +180,64 @@ class _TermMarksTab extends StatelessWidget {
                     widget: Text("Add Term Marks"),
                   ),
                   SizedBox(height: 16),
-                  
+                  Consumer<TermExamProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.isLoadingMarks && provider.marks.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 40),
+                          child: commonShimmerList(),
+                        );
+                      }
+
+                      if (provider.marks.isEmpty) {
+                        return emptyScreen(
+                          message: "No marks found",
+                          heightMultiplier: 16,
+                        );
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: provider.marks.length,
+                        itemBuilder: (context, index) {
+                          final mark = provider.marks[index];
+
+                          final title = capitali(
+                            "${mark.termExam?.examName ?? ''} - ${mark.internalName} (${mark.termExam?.educationYear ?? ''}) ",
+                          );
+
+                          final className = mark.classGrade?.classname ?? '';
+                          return ItemCard(
+                            title: title,
+                            description:
+                                className.isNotEmpty
+                                    ? "Class: $className"
+                                    : "Class: Not Specified",
+
+                            iconColor: Colors.green,
+                            backgroundColor: const Color(0xFFE8F5E9),
+                            icon: LucideIcons.clipboardList,
+                            onTap:
+                                () => context.pushNamed(
+                                  RouteConstants.marksDetails,
+                                  extra: mark,
+                                ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  Consumer<TermExamProvider>(
+                    builder: (context, provider, _) {
+                      return provider.isLoadingMarks && provider.hasMore
+                          ? const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                          : const SizedBox();
+                    },
+                  ),
                 ],
               ),
             ),

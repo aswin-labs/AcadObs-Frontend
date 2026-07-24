@@ -1,10 +1,5 @@
 /// API Endpoints (relative paths only)
 class ApiEndpoints {
-  // SUPER ADMIN
-  static const String schools = "/superadmin/schools";
-  static const String classes = "/superadmin/classes";
-  static const String subjects = "/superadmin/subjects";
-
   // LOGIN - LOGOUT
   static const String login = "/public/login";
   static const String logout = "/public/logout";
@@ -80,8 +75,10 @@ class ApiEndpoints {
   static const String marks = "/staff/internalmarks";
   static const String marksAddedByTeacher =
       "/staff/getInternalMarkByRecordedBy";
+  static const String termExamAddedByTeacher = "/staff/getExamMarkByRecordedBy";
   static const String marksBulkUpdate = "/staff/bulkUpdateMarks";
   static const String studentMarks = "/staff/getInternalMarkByStudentId";
+  static const String termExams = "/staff/getExams";
 
   //Achievement
   static const String getAllAchievement = "/staff/allAchievements";

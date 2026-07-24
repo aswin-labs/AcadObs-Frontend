@@ -20,19 +20,29 @@ import 'package:intl/intl.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
-void showAddTermMarksBottomSheet({required BuildContext context}) {
+Future<void> showAddTermMarksBottomSheet({
+  required BuildContext context,
+}) async {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController totalMarksController = TextEditingController();
+
+  int? selectedTermExamId;
+  String? selectedTermExamName;
+
+  final termExamProvider = context.read<TermExamProvider>();
+
+  if (termExamProvider.termExams.isEmpty) {
+    await termExamProvider.fetchTermExams();
+  }
+
+  if (!context.mounted) return;
   context.read<SharedProvider>().clearSelectedClassId();
   context.read<DropdownProvider>().clearSelectedItem('standard');
   context.read<DropdownProvider>().clearSelectedItem('className');
   context.read<DropdownProvider>().clearSelectedItem('termExam');
   context.read<DropdownProvider>().clearSelectedItem('termExamName');
   context.read<SubjectProvider>().clearSelection();
-
-  String? selectedTerm;
-  List<String> availableExaminationNames = [];
 
   showModalBottomSheet(
     context: context,
@@ -63,28 +73,68 @@ void showAddTermMarksBottomSheet({required BuildContext context}) {
                       ),
                     ),
                     SizedBox(height: Responsive.height * 3),
-                    CustomDropdown(
-                      dropdownKey: 'termExam',
-                      label: 'Select Term*',
-                      icon: LucideIcons.bookOpen,
-                      items: AppConstants.termExams,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please select a term';
+                    Consumer<TermExamProvider>(
+                      builder: (context, provider, _) {
+                        if (provider.isLoadingExams) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: CircularProgressIndicator(),
+                          );
                         }
 
-                        return null;
-                      },
-                      onChanged: (value) {
-                        setModalState(() {
-                          selectedTerm = value;
+                        if (provider.termExams.isEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                              'No term exams available',
+                              style: context.textTheme.bodySmall?.copyWith(
+                                color: Colors.red,
+                              ),
+                            ),
+                          );
+                        }
 
-                          availableExaminationNames =
-                              AppConstants.examinationNames[value] ?? [];
-                        });
+                        final examLabels =
+                            provider.termExams.map((exam) {
+                              final examName =
+                                  exam['exam_name']?.toString() ?? '';
+                              final educationYear =
+                                  exam['education_year']?.toString() ?? '';
 
-                        context.read<DropdownProvider>().clearSelectedItem(
-                          'termExamName',
+                              return '$examName - $educationYear';
+                            }).toList();
+
+                        return CustomDropdown(
+                          dropdownKey: 'termExam',
+                          label: 'Select Term Exam*',
+                          icon: LucideIcons.notebookTabs,
+                          items: examLabels,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please select a term exam';
+                            }
+
+                            return null;
+                          },
+                          onChanged: (selectedLabel) {
+                            final selectedExam = provider.termExams.firstWhere((
+                              exam,
+                            ) {
+                              final examName =
+                                  exam['exam_name']?.toString() ?? '';
+                              final educationYear =
+                                  exam['education_year']?.toString() ?? '';
+                              final label = '$examName - $educationYear';
+
+                              return label == selectedLabel;
+                            });
+
+                            setModalState(() {
+                              selectedTermExamId = selectedExam['id'] as int?;
+                              selectedTermExamName =
+                                  selectedExam['exam_name']?.toString();
+                            });
+                          },
                         );
                       },
                     ),
@@ -92,24 +142,21 @@ void showAddTermMarksBottomSheet({required BuildContext context}) {
                     SizedBox(height: Responsive.height * 1),
 
                     CustomDropdown(
-                      key: ValueKey(selectedTerm),
-                      dropdownKey: 'termExamName',
-                      label: 'Select Examination Name*',
-                      icon: LucideIcons.bookOpen,
-                      items: availableExaminationNames,
+                      dropdownKey: "termExamName",
+                      label: "Select Term Exam Name*",
+                      icon: LucideIcons.notebookTabs,
+                      items: AppConstants.termExamNames,
                       validator: (value) {
-                        if (selectedTerm == null) {
-                          return 'Please select a term first';
-                        }
-
                         if (value == null || value.isEmpty) {
-                          return 'Please select an examination name';
+                          return 'Please select a term exam name';
                         }
-
                         return null;
                       },
-                      onChanged: (value) {
-                        setModalState(() {});
+                      onChanged: (selectedTermExamName) {
+                        context.read<DropdownProvider>().setSelectedItem(
+                          'termExamName',
+                          selectedTermExamName,
+                        );
                       },
                     ),
                     SizedBox(height: Responsive.height * 1),
@@ -227,33 +274,43 @@ void showAddTermMarksBottomSheet({required BuildContext context}) {
 
                         return CommonButton(
                           onPressed: () {
-                            if (formKey.currentState!.validate()) {
-                              final className = context
-                                  .read<DropdownProvider>()
-                                  .getSelectedItem('className');
-                              final termExam = context
-                                  .read<DropdownProvider>()
-                                  .getSelectedItem('termExam');
-                              final termExamName = context
-                                  .read<DropdownProvider>()
-                                  .getSelectedItem('termExamName');
-                              context.pushNamed(
-                                RouteConstants.addStudentMarks,
-                                extra: MarksUploadModel(
-                                  isTermExam: true,
-                                  term: termExam,
-                                  classId: classId ?? 0,
-                                  className: className,
-                                  subjectId: subject?.id ?? 0,
-                                  title: termExamName,
-                                  totalMarks: int.parse(
-                                    totalMarksController.text,
-                                  ),
-                                  date: dateController.text,
+                            if (!formKey.currentState!.validate()) return;
+
+                            if (selectedTermExamId == null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please select a term exam'),
                                 ),
                               );
-                              Navigator.pop(context);
+                              return;
                             }
+
+                            final className = context
+                                .read<DropdownProvider>()
+                                .getSelectedItem('className');
+
+                            final termExamName = context
+                                .read<DropdownProvider>()
+                                .getSelectedItem('termExamName');
+
+                            context.pushNamed(
+                              RouteConstants.addStudentMarks,
+                              extra: MarksUploadModel(
+                                isTermExam: true,
+                                term: selectedTermExamName ?? '',
+                                termExamId: selectedTermExamId!,
+                                classId: classId ?? 0,
+                                className: className,
+                                subjectId: subject?.id ?? 0,
+                                title: termExamName,
+                                totalMarks: int.parse(
+                                  totalMarksController.text.trim(),
+                                ),
+                                date: dateController.text,
+                              ),
+                            );
+
+                            Navigator.pop(context);
                           },
                           widget:
                               provider.isLoadingTwo

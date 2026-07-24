@@ -19,3 +19,9 @@ String capitalizeEachWord(String input) {
       )
       .join(' ');
 }
+
+// capitalize complete string
+String capitali(String input) {
+  if (input.isEmpty) return input;
+  return input.toUpperCase();
+}

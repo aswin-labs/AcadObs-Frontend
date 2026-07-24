@@ -6,6 +6,7 @@ class MarksUploadModel {
   final String title;
   final int totalMarks;
   final String date;
+  int? termExamId;
   String? term;
 
   MarksUploadModel({
@@ -16,6 +17,7 @@ class MarksUploadModel {
     required this.title,
     required this.totalMarks,
     required this.date,
+    this.termExamId,
     this.term,
   });
 }

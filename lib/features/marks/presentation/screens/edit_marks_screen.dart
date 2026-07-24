@@ -6,14 +6,12 @@ import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/marks/presentation/widgets/editable_grade_card.dart';
 import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
-import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class EditMarksScreen extends StatefulWidget {
@@ -127,20 +125,20 @@ class _EditMarksScreenState extends State<EditMarksScreen> {
                     ),
 
                     SizedBox(height: Responsive.height * 2),
-                    SubjectPicker(),
-                    SizedBox(height: Responsive.height * 2),
-                    CustomTextfield(
-                      iconData: Icon(LucideIcons.fileText),
-                      controller: titleController,
-                      hintText: 'Title*',
-                      label: "Title*",
-                      validator:
-                          (value) =>
-                              value == null || value.trim().isEmpty
-                                  ? "Title is required"
-                                  : null,
-                    ),
-                    SizedBox(height: Responsive.height * 2),
+                    // SubjectPicker(),
+                    // SizedBox(height: Responsive.height * 2),
+                    // CustomTextfield(
+                    //   iconData: Icon(LucideIcons.fileText),
+                    //   controller: titleController,
+                    //   hintText: 'Title*',
+                    //   label: "Title*",
+                    //   validator:
+                    //       (value) =>
+                    //           value == null || value.trim().isEmpty
+                    //               ? "Title is required"
+                    //               : null,
+                    // ),
+                    // SizedBox(height: Responsive.height * 2),
                     CustomTextfield(
                       iconData: Icon(Icons.calculate_outlined),
                       controller: totalMarksController,

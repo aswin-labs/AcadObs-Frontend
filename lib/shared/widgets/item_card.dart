@@ -116,7 +116,7 @@ class ItemCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              capitalizeEachWord(title),
+                              title,
                               style: context.textTheme.bodyMedium!.copyWith(
                                 fontWeight: FontWeight.w600,
                                 fontSize: titleFontSize,
