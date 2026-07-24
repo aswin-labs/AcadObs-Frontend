@@ -5,6 +5,7 @@ import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart'
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
+import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
@@ -83,5 +84,8 @@ getProviders() {
 
     //**************student route ****************//
     ChangeNotifierProvider(create: (_) => StudentRouteProvider()),
+    
+    //**************term exam provider ****************//
+    ChangeNotifierProvider(create: (_) => TermExamProvider()),
   ];
 }

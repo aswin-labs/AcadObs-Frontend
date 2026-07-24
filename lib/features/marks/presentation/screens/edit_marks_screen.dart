@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
@@ -8,11 +6,11 @@ import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/marks/presentation/widgets/editable_grade_card.dart';
 import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
+import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
-import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
@@ -90,20 +88,6 @@ class _EditMarksScreenState extends State<EditMarksScreen> {
       }
       final formatted = enteredMarks.toStringAsFixed(0);
       final status = _statusMap[i] ?? "present";
-      // final hasMarks = text.isNotEmpty;
-
-      // final marks = hasMarks ? enteredMarks.toInt() : 0;
-      // final status = hasMarks ? (_statusMap[i] ?? "present") : "absent";
-      // final formatted = double.tryParse(text)?.toStringAsFixed(0) ?? text;
-      // final hasMarks = text.isNotEmpty;
-
-      // final marks = hasMarks ? int.tryParse(text) : 0;
-      // final status = hasMarks ? (_statusMap[i] ?? "present") : "absent";
-
-      log("Student ID: ${student.student?.id}");
-      log("Entered Marks: '$text' → Parsed: $enteredMarks");
-      log("Status: $status");
-
       updatedMarks.add({
         "student_id": student.student?.id,
         "marks_obtained": formatted,
@@ -249,7 +233,6 @@ class _EditMarksScreenState extends State<EditMarksScreen> {
                               rollNumber: student.student?.rollNumber ?? 0,
                               marksController: controller,
                               status: status,
-                              // totalMarks: double.parse(totalMarks.toString()),
                               totalMarks: totalMarks,
                               onStatusChanged: (newStatus) {
                                 setState(() {

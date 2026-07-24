@@ -216,7 +216,6 @@ class _SchoolSelectionScreenState extends State<SchoolSelectionScreen> {
                         ),
                       ],
                     ),
-                    buttonHeight: 56,
                   );
                 },
               ),

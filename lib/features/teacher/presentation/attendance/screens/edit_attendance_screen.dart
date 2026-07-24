@@ -185,7 +185,6 @@ class _EditAttendanceScreenState extends State<EditAttendanceScreen> {
                   Consumer<AttendanceProvider>(
                     builder: (context, value, child) {
                       return CommonButton(
-                        buttonHeight: 60,
                         onPressed: () {
                           context.read<AttendanceProvider>().editBulkAttendance(
                             attendanceId: widget.attendance.id,

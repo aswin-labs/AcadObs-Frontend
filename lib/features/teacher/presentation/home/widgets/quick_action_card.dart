@@ -30,10 +30,9 @@ class QuickActionCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             onTap: onTap,
             child: Container(
-              height: 85,
+              constraints: const BoxConstraints(minHeight: 85),
               width: isFullWidth ? double.infinity : null,
               margin: const EdgeInsets.all(2),
-
               decoration: BoxDecoration(
                 gradient: gradient,
                 borderRadius: BorderRadius.circular(20),
@@ -45,32 +44,33 @@ class QuickActionCard extends StatelessWidget {
                   ),
                 ],
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              // padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
               child: Row(
-                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        height: 30,
-                        width: 30,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(34),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(icon, color: Colors.white, size: 22),
+                  SizedBox(
+                    height: 36,
+                    width: 36,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withAlpha(34),
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        label,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      child: Icon(icon, color: Colors.white, size: 22),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      label,
+                      softWrap: true,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),

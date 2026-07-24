@@ -5,6 +5,7 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/marks/data/models/marks_upload_model.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
+import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
 import 'package:acadobs/features/marks/presentation/widgets/grade_card.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
@@ -23,6 +24,7 @@ class AddStudentMarksScreen extends StatefulWidget {
 class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
   late StudentProvider studentProvider;
   late MarksProvider marksProvider;
+  late TermExamProvider termExamProvider;
   final Map<int, TextEditingController> _marksControllers = {};
   final Map<int, String> _statusMap = {};
   @override
@@ -43,15 +45,27 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
   // submit button
   void submitMarks(BuildContext context) {
     marksProvider = context.read<MarksProvider>();
-    marksProvider.addStudentMarks(
-      context: context,
-      classId: widget.marks.classId,
-      title: widget.marks.title,
-      date: widget.marks.date,
-      subjectId: widget.marks.subjectId,
-      totalMarks: widget.marks.totalMarks,
-      studentMarks: getStudentsMarkList(),
-    );
+    termExamProvider = context.read<TermExamProvider>();
+    widget.marks.isTermExam
+        ? termExamProvider.addStudentTermExamMarks(
+          context: context,
+          term: widget.marks.term ?? '',
+          classId: widget.marks.classId,
+          title: widget.marks.title,
+          date: widget.marks.date,
+          subjectId: widget.marks.subjectId,
+          totalMarks: widget.marks.totalMarks,
+          studentMarks: getStudentsMarkList(),
+        )
+        : marksProvider.addStudentMarks(
+          context: context,
+          classId: widget.marks.classId,
+          title: widget.marks.title,
+          date: widget.marks.date,
+          subjectId: widget.marks.subjectId,
+          totalMarks: widget.marks.totalMarks,
+          studentMarks: getStudentsMarkList(),
+        );
   }
 
   List<Map<String, dynamic>> getStudentsMarkList() {
@@ -80,7 +94,14 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(
-        title: capitalizeEachWord(widget.marks.className),
+        title:
+            widget.marks.isTermExam
+                ? capitalizeEachWord(
+                  "${widget.marks.className} - ${widget.marks.term} ${widget.marks.title}",
+                )
+                : capitalizeEachWord(
+                  "${widget.marks.className} - ${widget.marks.title}",
+                ),
         isBackButton: true,
       ),
       body: Column(
@@ -161,13 +182,6 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
           ),
         ],
       ),
-      // floatingActionButton: CommonFloatingActionButton(
-      //   onPressed: () {
-      //     submitMarks(context);
-      //   },
-      //   text: "Submit",
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

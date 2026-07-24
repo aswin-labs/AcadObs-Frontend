@@ -4,16 +4,16 @@ import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/marks/data/models/marks_upload_model.dart';
-import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
+import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
+import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
+import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
-import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
-import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -172,7 +172,7 @@ void showAddMarksBottomSheet({required BuildContext context}) {
                 ),
 
                 SizedBox(height: Responsive.height * 4),
-                Consumer<HomeworkProvider>(
+                Consumer<MarksProvider>(
                   builder: (context, provider, _) {
                     final classId = context.watch<SharedProvider>().classId;
                     final subject =

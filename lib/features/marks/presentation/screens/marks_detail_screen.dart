@@ -32,73 +32,79 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(
-        title: "Marks",
-        isBackButton: true,
-        actions: [
-          CustomPopupMenu(
-            showDelete: false,
-            onEdit:
-                () => context.pushNamed(
-                  RouteConstants.marksEdit,
-                  extra: widget.marks,
-                ),
+    return HeroMode(
+      enabled: false,
+      child: Scaffold(
+        appBar: CommonAppBar(
+          title: "Marks",
+          isBackButton: true,
+          actions: [
+            CustomPopupMenu(
+              showDelete: false,
+              onEdit:
+                  () => context.pushNamed(
+                    RouteConstants.marksEdit,
+                    extra: widget.marks,
+                  ),
+            ),
+          ],
+        ),
+        body: CustomScrollView(
+          physics: BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
           ),
-        ],
-      ),
-      body: CustomScrollView(
-        physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: context.paddingHorizontal.add(
-                EdgeInsets.only(top: Responsive.height * 2),
-              ),
-              child: Column(
-                children: [
-                  DetailSection(
-                    title: "Details",
-                    details: {
-                      "Title": widget.marks.internalName,
-                      "Class": widget.marks.classGrade?.classname ?? "",
-                      "Total Marks": widget.marks.maxMarks,
-                      "Date": DateFormatter.formatDateTime(
-                        widget.marks.date ?? DateTime.now(),
-                      ),
-                      "Subject":
-                          widget.marks.subject?.subjectName ?? "Not Specified",
-                    },
-                  ),
-                  SizedBox(height: Responsive.height * 2),
-                  Consumer<MarksProvider>(
-                    builder: (context, provider, _) {
-                      if (provider.singleMarks?.studentMarks == null) {
-                        return commonShimmerList();
-                      }
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: provider.singleMarks?.studentMarks!.length,
-                        itemBuilder: (context, index) {
-                          final studentMark =
-                              provider.singleMarks?.studentMarks?[index];
-                          return _gradeCard(
-                            name: studentMark?.student?.fullName ?? "",
-                            rollNumber: studentMark?.student?.rollNumber ?? 0,
-                            isAbsent: studentMark?.status == "absent",
-                            mark: studentMark?.marksObtained ?? "0",
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  SizedBox(height: Responsive.height * 6),
-                ],
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: context.paddingHorizontal.add(
+                  EdgeInsets.only(top: Responsive.height * 2),
+                ),
+                child: Column(
+                  children: [
+                    DetailSection(
+                      title: "Details",
+                      details: {
+                        "Title": widget.marks.internalName,
+                        "Class": widget.marks.classGrade?.classname ?? "",
+                        "Total Marks": widget.marks.maxMarks,
+                        "Date": DateFormatter.formatDateTime(
+                          widget.marks.date ?? DateTime.now(),
+                        ),
+                        "Subject":
+                            widget.marks.subject?.subjectName ??
+                            "Not Specified",
+                      },
+                    ),
+                    SizedBox(height: Responsive.height * 2),
+                    Consumer<MarksProvider>(
+                      builder: (context, provider, _) {
+                        if (provider.singleMarks?.studentMarks == null) {
+                          return commonShimmerList();
+                        }
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: provider.singleMarks?.studentMarks!.length,
+                          itemBuilder: (context, index) {
+                            final studentMark =
+                                provider.singleMarks?.studentMarks?[index];
+                            return _gradeCard(
+                              name: studentMark?.student?.fullName ?? "",
+                              rollNumber: studentMark?.student?.rollNumber ?? 0,
+                              isAbsent: studentMark?.status == "absent",
+                              mark: studentMark?.marksObtained ?? "0",
+                            );
+                          },
+                        );
+                      },
+                    ),
+                    SizedBox(height: Responsive.height * 6),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

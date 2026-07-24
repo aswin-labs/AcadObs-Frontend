@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/responsive.dart';
@@ -145,7 +146,14 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     }
 
     return Scaffold(
-      body: IndexedStack(index: currentIndex, children: pages),
+      body: IndexedStack(
+        index: currentIndex,
+        children: List.generate(
+          pages.length,
+          (index) =>
+              HeroMode(enabled: index == currentIndex, child: pages[index]),
+        ),
+      ),
       bottomNavigationBar: SizedBox(
         height: Responsive.height * 8,
         child: BottomNavigationBar(

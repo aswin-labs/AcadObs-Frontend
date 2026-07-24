@@ -10,6 +10,7 @@ MarksModel marksModelFromJson(String str) =>
 class MarksModel {
   int id;
   String internalName;
+  String? term;
   String maxMarks;
   DateTime? date;
   List<StudentMark>? studentMarks;
@@ -20,6 +21,7 @@ class MarksModel {
   MarksModel({
     required this.id,
     required this.internalName,
+    this.term,
     required this.maxMarks,
     this.date,
     this.studentMarks,

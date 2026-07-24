@@ -71,4 +71,24 @@ class AppConstants {
     "participant",
     "other",
   ];
+
+  // term exams
+  static List<String> termExams = [
+    "Term 1",
+    "Term 2",
+  ];
+
+  // term exam names
+  static const Map<String, List<String>> examinationNames = {
+  "Term 1": [
+    "PT 1",
+    "Internal 1",
+    "Term 1",
+  ],
+  "Term 2": [
+    "PT 2",
+    "Internal 2",
+    "Term 2",
+  ],
+};
 }
