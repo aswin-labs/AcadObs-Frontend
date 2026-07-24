@@ -35,6 +35,7 @@ import 'package:acadobs/features/students/presentation/screens/student_homework_
 import 'package:acadobs/features/students/presentation/screens/student_leave_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_notice_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_profile_screen.dart';
+import 'package:acadobs/features/students/presentation/screens/student_progress_card_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/students_listing_screen.dart';
 import 'package:acadobs/features/students/presentation/widgets/time_table_day_tab.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_model.dart';
@@ -441,6 +442,14 @@ List<GoRoute> staffRoutes = [
         student: args.student,
         forStaff: args.forStaff,
       );
+    },
+  ),
+
+  GoRoute(
+    path: '/studentProgressCardScreen',
+    name: RouteConstants.studentProgressCardScreen,
+    builder: (context, state) {
+      return StudentProgressCardScreen();
     },
   ),
 ];
