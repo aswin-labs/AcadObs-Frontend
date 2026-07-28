@@ -48,6 +48,7 @@ import 'package:acadobs/features/teacher/presentation/attendance/screens/attenda
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/edit_profile_staff.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/my_class_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/leave_request_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/student_leaves_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/teacher_leave_request_home_screen.dart';
@@ -450,6 +451,13 @@ List<GoRoute> staffRoutes = [
     name: RouteConstants.studentProgressCardScreen,
     builder: (context, state) {
       return StudentProgressCardScreen();
+    },
+  ),
+  GoRoute(
+    path: '/myClassesScreen',
+    name: RouteConstants.myClassesScreen,
+    builder: (context, state) {
+      return MyClassScreen();
     },
   ),
 ];
