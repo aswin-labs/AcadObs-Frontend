@@ -12,6 +12,7 @@ import 'package:acadobs/features/parents/presentation/widgets/my_children_sectio
 import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/features/tracking/presentation/widgets/bus_route_section.dart';
 import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/widgets/double_back_to_exit.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -68,187 +69,195 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
   Widget build(BuildContext context) {
     final networkProvider = context.watch<NetworkProvider>();
 
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: Stack(
-        children: [
-          RefreshIndicator(
-            onRefresh: refreshAllData,
-            child: CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  expandedHeight: 180,
-                  pinned: true,
-                  floating: false,
-                  automaticallyImplyLeading: false,
-                  backgroundColor: const Color(0xFF00AEF0),
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 12),
-                      child: ProfileIcon(
-                        icon: CupertinoIcons.profile_circled,
-                        ontap:
-                            () => context.pushNamed(
-                              RouteConstants.profileScreen,
-                              extra: false,
-                            ),
+    return DoubleBackToExit(
+      child: Scaffold(
+        backgroundColor: Colors.grey[50],
+        body: Stack(
+          children: [
+            RefreshIndicator(
+              onRefresh: refreshAllData,
+              child: CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    expandedHeight: 180,
+                    pinned: true,
+                    floating: false,
+                    automaticallyImplyLeading: false,
+                    backgroundColor: const Color(0xFF00AEF0),
+                    actions: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 12),
+                        child: ProfileIcon(
+                          icon: CupertinoIcons.profile_circled,
+                          ontap:
+                              () => context.pushNamed(
+                                RouteConstants.profileScreen,
+                                extra: false,
+                              ),
+                        ),
                       ),
-                    ),
-                  ],
-                  flexibleSpace: FlexibleSpaceBar(
-                    background: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Consumer<ParentProvider>(
-                          builder: (context, parentProvider, _) {
-                            final bgImage =
-                                parentProvider.schoolDetails?['bg_image'];
+                    ],
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Consumer<ParentProvider>(
+                            builder: (context, parentProvider, _) {
+                              final bgImage =
+                                  parentProvider.schoolDetails?['bg_image'];
 
-                            if (bgImage == null ||
-                                bgImage.toString().trim().isEmpty) {
-                              return Image.asset(
-                                'assets/school.jpg',
-                                fit: BoxFit.cover,
-                              );
-                            }
-
-                            return Image.network(
-                              bgImage,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
+                              if (bgImage == null ||
+                                  bgImage.toString().trim().isEmpty) {
                                 return Image.asset(
                                   'assets/school.jpg',
                                   fit: BoxFit.cover,
                                 );
-                              },
-                            );
-                          },
-                        ),
+                              }
 
-                        Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Color(0xE635C2C1), Color(0xE600AEF0)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                              return Image.network(
+                                bgImage,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    'assets/school.jpg',
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              );
+                            },
+                          ),
+
+                          Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Color(0xE635C2C1), Color(0xE600AEF0)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                             ),
                           ),
-                        ),
 
-                        SafeArea(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Consumer<ParentProvider>(
-                                  builder: (context, provider, _) {
-                                    return Row(
-                                      children: [
-                                        if (provider.schoolDetails?['logo'] !=
-                                            null)
-                                          CircleAvatar(
-                                            radius: 16,
-                                            backgroundColor: Colors.white,
-                                            child: ClipOval(
-                                              child: Image.network(
-                                                provider.schoolDetails!['logo'],
-                                                width: 32,
-                                                height: 32,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (
-                                                  context,
-                                                  error,
-                                                  stackTrace,
-                                                ) {
-                                                  return const Icon(
-                                                    Icons.error,
-                                                    color: Colors.red,
-                                                  );
-                                                },
+                          SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                20,
+                                20,
+                                20,
+                                16,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Consumer<ParentProvider>(
+                                    builder: (context, provider, _) {
+                                      return Row(
+                                        children: [
+                                          if (provider.schoolDetails?['logo'] !=
+                                              null)
+                                            CircleAvatar(
+                                              radius: 16,
+                                              backgroundColor: Colors.white,
+                                              child: ClipOval(
+                                                child: Image.network(
+                                                  provider
+                                                      .schoolDetails!['logo'],
+                                                  width: 32,
+                                                  height: 32,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (
+                                                    context,
+                                                    error,
+                                                    stackTrace,
+                                                  ) {
+                                                    return const Icon(
+                                                      Icons.error,
+                                                      color: Colors.red,
+                                                    );
+                                                  },
+                                                ),
                                               ),
                                             ),
+                                          SizedBox(width: 8),
+                                          Text(
+                                            capitalizeEachWord(
+                                              provider.schoolDetails?['name'] ??
+                                                  '',
+                                            ),
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                           ),
-                                        SizedBox(width: 8),
-                                        Text(
-                                          capitalizeEachWord(
-                                            provider.schoolDetails?['name'] ??
-                                                '',
-                                          ),
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                      ],
-                                    );
-                                  },
-                                ),
-
-                                const SizedBox(height: 8),
-
-                                Text(
-                                  "Hi, Parent",
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    letterSpacing: 0.5,
+                                          const SizedBox(width: 8),
+                                        ],
+                                      );
+                                    },
                                   ),
-                                ),
-                              ],
+
+                                  const SizedBox(height: 8),
+
+                                  Text(
+                                    "Hi, Parent",
+                                    style: TextStyle(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      letterSpacing: 0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Content
+                  SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        // My Children Section
+                        MyChildrenSection(),
+                        // Bus route section
+                        Consumer<StudentRouteProvider>(
+                          builder: (context, provider, _) {
+                            final studentRoutes = provider.studentRoutes;
+
+                            bool hasRoutes =
+                                studentRoutes.isNotEmpty &&
+                                (studentRoutes[0].routes?.isNotEmpty ?? false);
+
+                            if (provider.isLoading) {
+                              return BusRouteSection();
+                            }
+
+                            if (!hasRoutes) {
+                              return SizedBox();
+                            }
+                            return BusRouteSection();
+                          },
                         ),
+                        // Latest Events Section
+                        LatestEventsSection(),
+
+                        // Latest News Section
+                        LatestNewsSection(),
+
+                        SizedBox(height: 15),
+                        // latest Award section
+                        LatestAwardSection(),
                       ],
                     ),
                   ),
-                ),
-
-                // Content
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      // My Children Section
-                      MyChildrenSection(),
-                      // Bus route section
-                      Consumer<StudentRouteProvider>(
-                        builder: (context, provider, _) {
-                          final studentRoutes = provider.studentRoutes;
-
-                          bool hasRoutes =
-                              studentRoutes.isNotEmpty &&
-                              (studentRoutes[0].routes?.isNotEmpty ?? false);
-
-                          if (provider.isLoading) {
-                            return BusRouteSection();
-                          }
-
-                          if (!hasRoutes) {
-                            return SizedBox();
-                          }
-                          return BusRouteSection();
-                        },
-                      ),
-                      // Latest Events Section
-                      LatestEventsSection(),
-
-                      // Latest News Section
-                      LatestNewsSection(),
-
-                      SizedBox(height: 15),
-                      // latest Award section
-                      LatestAwardSection(),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          if (!networkProvider.isConnected) OfflineBanner(),
-        ],
+            if (!networkProvider.isConnected) OfflineBanner(),
+          ],
+        ),
       ),
     );
   }
