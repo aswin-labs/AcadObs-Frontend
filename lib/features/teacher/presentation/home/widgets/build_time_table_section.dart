@@ -17,16 +17,22 @@ Widget buildTimeTableSection(BuildContext context) {
         return const SizedBox.shrink();
       }
 
-      final screenWidth = MediaQuery.of(context).size.width;
+      // final screenWidth = MediaQuery.of(context).size.width;
 
-      double maxCrossAxisExtent;
-      if (screenWidth >= 1200) {
-        maxCrossAxisExtent = 250;
-      } else if (screenWidth >= 800) {
-        maxCrossAxisExtent = 200; // tablet
-      } else {
-        maxCrossAxisExtent = 150; // phone
-      }
+      // double maxCrossAxisExtent;
+      // if (screenWidth >= 1200) {
+      //   maxCrossAxisExtent = 250;
+      // } else if (screenWidth >= 800) {
+      //   maxCrossAxisExtent = 200; // tablet
+      // } else {
+      //   maxCrossAxisExtent = 150; // phone
+      // }
+
+      final textScale = MediaQuery.textScalerOf(
+        context,
+      ).scale(1.0).clamp(1.0, 1.3);
+
+      final aspectRatio = textScale > 1.15 ? 0.70 : 0.85;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,15 +61,15 @@ Widget buildTimeTableSection(BuildContext context) {
               ),
             ],
           ),
-          SizedBox(height: 20),
+          SizedBox(height: 10),
           GridView.builder(
             padding: EdgeInsets.zero,
             itemCount: provider.timetableForStaff.length,
-            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: maxCrossAxisExtent,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.8,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: aspectRatio,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
             ),
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

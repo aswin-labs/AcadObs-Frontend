@@ -16,56 +16,78 @@ class TimeTableCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      // margin: const EdgeInsets.all(2),
-      padding: const EdgeInsets.all(3),
+      // width: 110,
+      height: 130,
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
         color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xffECECEC), width: 1),
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 6, spreadRadius: 2),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: .05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(6.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                color: Color(0xFFFFECCE),
-              ),
-              child: Text(
-                periodnumber.toString(),
-                style: TextStyle(color: Color(0xFFA86637)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFECCE),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Text(
+              periodnumber.toString(),
+              style: const TextStyle(
+                fontWeight: FontWeight.w700,
+                color: Color(0xFFA86637),
+                fontSize: 15,
               ),
             ),
-            const SizedBox(height: 8),
-            Text(
+          ),
+
+          const SizedBox(height: 14),
+
+          Expanded(
+            child: Text(
               subject,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Icon(forStaff == true ? Icons.school : Icons.person, size: 16),
-                const SizedBox(width: 4),
+          ),
 
-                Expanded(
-                  child: Text(
-                    description,
-                    style: TextStyle(fontSize: 10),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          // const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(
+                Icons.school_outlined,
+                size: 15,
+                color: Colors.grey.shade700,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  description,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
