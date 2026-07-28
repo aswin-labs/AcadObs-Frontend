@@ -174,26 +174,11 @@ class _AttendanceTakingScreenState extends State<AttendanceTakingScreen> {
                               itemBuilder: (context, index) {
                                 final student =
                                     attendance?.studentRecords?[index];
-                                // final isLeaveApproved =
-                                //     student.studentRecords?.isNotEmpty;
-                                // final remarks =
-                                //     student?.remarks == null
-                                //         ? ""
-                                //         : student?.remarks ?? "";
                                 return AttendanceStatusCard(
                                   rollNo: student?.student?.rollNumber ?? 0,
                                   name: student?.student?.fullName ?? "",
                                   status: student?.status ?? "",
                                 );
-                                // AttendanceTakingWidget(
-                                //   // isLeaveApproved: isLeaveApproved,
-                                //   remarks: remarks,
-                                //   currentStatus: student?.status ?? "",
-                                //   alreadyTaken: true,
-                                //   studentId: student?.id ?? 0,
-                                //   rollNo: student?.student?.rollNumber ?? 0,
-                                //   studentName: student?.student?.fullName ?? "",
-                                // );
                               },
                             ),
                           ],

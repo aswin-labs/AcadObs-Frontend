@@ -11,5 +11,4 @@ class BaseUrls {
   static const String socketUrl = 'https://acadobs-dev-backend.altezzai.com';
 }
 
-
-  // // static const String media = 'https://acadobs-dev-backend.altezzai.com';
+// // static const String media = 'https://acadobs-dev-backend.altezzai.com';

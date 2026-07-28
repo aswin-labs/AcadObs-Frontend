@@ -29,14 +29,9 @@ class AuthProvider with ChangeNotifier {
   SchoolModel? get selectedSchool => _selectedSchool;
   String? get loginError => _loginError;
 
-  String? _schoolName;
-  String? get schoolName => _schoolName;
+  Map<String, dynamic>? _schoolDetails;
 
-  String? _logo;
-  String? get logo => _logo;
-
-  String? _schoolImage;
-  String? get schoolImage => _schoolImage;
+  Map<String, dynamic>? get schoolDetails => _schoolDetails;
 
   // call this at the start of login
   void _setLoading(bool v) {
@@ -77,7 +72,6 @@ class AuthProvider with ChangeNotifier {
       log("Login Response: ${response.data}");
       await _storageService.saveUserCredentials(
         token: response.data['token'],
-        // refreshToken: response.data['refreshToken'],
         userData: response.data['userData'],
       );
 
@@ -107,24 +101,14 @@ class AuthProvider with ChangeNotifier {
             );
           } else {
             if (!context.mounted) return;
-            context.goNamed(RouteConstants.schoolSelectionScreen);
+            context.pushReplacementNamed(RouteConstants.schoolSelectionScreen);
           }
         } else if (userRole == 'teacher') {
           await fetchSchoolDetailsForTeacher();
           if (!context.mounted) return;
-          context.goNamed(
+          context.pushReplacementNamed(
             RouteConstants.bottomNavScreen,
             extra: UserType.teacher,
-          );
-        } else if (userRole == 'admin') {
-          context.goNamed(
-            RouteConstants.bottomNavScreen,
-            extra: UserType.schoolAdmin,
-          );
-        } else {
-          context.goNamed(
-            RouteConstants.bottomNavScreen,
-            extra: UserType.superAdmin,
           );
         }
         return;
@@ -164,7 +148,7 @@ class AuthProvider with ChangeNotifier {
             type: SnackbarType.success,
           );
           context.read<TeacherAttendanceProvider>().resetAttendance();
-          context.goNamed(RouteConstants.loginScreen);
+          context.pushReplacementNamed(RouteConstants.loginScreen);
           notifyListeners();
         } else {
           if (!context.mounted) return;
@@ -220,9 +204,6 @@ class AuthProvider with ChangeNotifier {
     }
     log("Selected schoolId: ${_selectedSchool?.schoolId}");
     notifyListeners();
-    // _selectedSchool = school;
-    // log("Selected schoolId: ${_selectedSchool?.schoolId}");
-    // notifyListeners();
   }
 
   /// Save schoolId in secure storage
@@ -253,14 +234,11 @@ class AuthProvider with ChangeNotifier {
       final response = await AuthServices().fetchSchoolDetailsForTeacher();
       if (response.statusCode == 200) {
         log("School Details Fetched Successfully");
-        final data = response.data;
-        log(data.toString());
+        final data = Map<String, dynamic>.from(response.data);
+        _schoolDetails = Map<String, dynamic>.from(data);
         await _storageService.saveSchoolDetailsForTeacher(
-          schoolData: data['school'],
+          schoolData: _schoolDetails!,
         );
-        _schoolName = data['school']['name'];
-        _logo = data['school']['logo'];
-        _schoolImage = data['school']['bg_image'];
         notifyListeners();
       }
     } catch (e) {
@@ -269,6 +247,21 @@ class AuthProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  //  load school details for teacher
+  Future<void> loadSchoolDetailsForTeacher() async {
+    try {
+      final storedData = await _storageService.getSchoolDetailsForTeacher();
+
+      _schoolDetails =
+          storedData == null ? null : Map<String, dynamic>.from(storedData);
+    } catch (e) {
+      log("Failed to load stored school details: $e");
+      _schoolDetails = null;
+    }
+
+    notifyListeners();
   }
 
   // retrieve and save staff permissions

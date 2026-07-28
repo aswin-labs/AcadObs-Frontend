@@ -175,6 +175,7 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
                       },
                       widget: Text('Submit'),
                     ),
+                     SizedBox(height: 30),
                   ],
                 ),
               ),

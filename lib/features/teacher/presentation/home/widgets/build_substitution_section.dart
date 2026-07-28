@@ -15,15 +15,26 @@ Widget buildSubstitutionSection(BuildContext context) {
         return const SizedBox.shrink();
       }
 
+      final screenWidth = MediaQuery.sizeOf(context).width;
+
+      final double maxCrossAxisExtent;
+      if (screenWidth >= 1200) {
+        maxCrossAxisExtent = 250;
+      } else if (screenWidth >= 800) {
+        maxCrossAxisExtent = 200;
+      } else {
+        maxCrossAxisExtent = 150;
+      }
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(Icons.swap_horiz, color: Color(0xFFFF9800), size: 20),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
-                "Substitution Classes",
+                'Substitution Classes',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -32,40 +43,28 @@ Widget buildSubstitutionSection(BuildContext context) {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withAlpha(12),
-                  blurRadius: 10,
-                  offset: Offset(0, 2),
-                ),
-              ],
+          const SizedBox(height: 20),
+          GridView.builder(
+            padding: EdgeInsets.zero,
+            itemCount: provider.substitution.length,
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: maxCrossAxisExtent,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 0.8,
             ),
-            padding: const EdgeInsets.all(16),
-            child: GridView.builder(
-              itemCount: provider.substitution.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 0.7,
-              ),
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                final item = provider.substitution[index];
-                return TimeTableCard(
-                  forStaff: true,
-                  periodnumber: item.timeTable?.periodNumber ?? 0,
-                  subject: item.subject?.subjectName ?? "",
-                  description: item.timeTable?.classGrade?.classname ?? "",
-                );
-              },
-            ),
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) {
+              final item = provider.substitution[index];
+
+              return TimeTableCard(
+                forStaff: true,
+                periodnumber: item.timeTable?.periodNumber ?? 0,
+                subject: item.subject?.subjectName ?? 'N/A',
+                description: item.timeTable?.classGrade?.classname ?? 'N/A',
+              );
+            },
           ),
         ],
       );

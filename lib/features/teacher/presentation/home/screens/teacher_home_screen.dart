@@ -62,22 +62,37 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     profileProvider = context.read<ProfileProvider>();
     authProvider = context.read<AuthProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      refreshAllData();
+      if (mounted) {
+        refreshAllData();
+      }
     });
   }
 
+  bool _isRefreshing = false;
+
   Future<void> refreshAllData() async {
-    await Future.wait([
-      eventProvider.fetchLatestEvents(forStaff: true),
-      noticeProvider.fetchLatestNotices(),
-      newsProvider.fetchLatestNews(limit: 3, forStaff: true),
-      timeTableProvider.fetchTimeTable(forStaff: true),
-      studentLeaveRequestProvider.getLeaveRequestNotification(),
-      teacherAttendanceProvider.getTodayAttendanceStatus(),
-      achievementProvider.fetchLatestSchoolAchievements(forStaff: true),
-      profileProvider.fetchProfileStaff(),
-      authProvider.fetchSchoolDetailsForTeacher(),
-    ]);
+    if (_isRefreshing) return;
+
+    _isRefreshing = true;
+
+    try {
+      await Future.wait([
+        authProvider.fetchSchoolDetailsForTeacher(),
+        eventProvider.fetchLatestEvents(forStaff: true),
+        noticeProvider.fetchLatestNotices(),
+        newsProvider.fetchLatestNews(limit: 3, forStaff: true),
+        timeTableProvider.fetchTimeTable(forStaff: true),
+        studentLeaveRequestProvider.getLeaveRequestNotification(),
+        teacherAttendanceProvider.getTodayAttendanceStatus(),
+        achievementProvider.fetchLatestSchoolAchievements(forStaff: true),
+        profileProvider.fetchProfileStaff(),
+      ]);
+    } catch (error, stackTrace) {
+      debugPrint('Teacher home refresh error: $error');
+      debugPrintStack(stackTrace: stackTrace);
+    } finally {
+      _isRefreshing = false;
+    }
   }
 
   @override
@@ -119,8 +134,20 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         children: [
                           Consumer<AuthProvider>(
                             builder: (context, provider, _) {
+                              final bgImage =
+                                  provider.schoolDetails?["bg_image"]
+                                      ?.toString() ??
+                                  '';
+
+                              if (bgImage.isEmpty) {
+                                return Image.asset(
+                                  'assets/school.jpg',
+                                  fit: BoxFit.cover,
+                                );
+                              }
+
                               return Image.network(
-                                provider.schoolImage ?? "",
+                                bgImage,
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Image.asset(
@@ -174,21 +201,30 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                       children: [
                                         Consumer<AuthProvider>(
                                           builder: (context, provider, _) {
+                                            final schoolDetails =
+                                                provider.schoolDetails;
+
+                                            final logo =
+                                                schoolDetails?["logo"]
+                                                    ?.toString() ??
+                                                '';
+                                            final schoolName =
+                                                schoolDetails?["name"]
+                                                    ?.toString() ??
+                                                'School';
+
                                             return Row(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.center,
                                               children: [
-                                                if (provider.logo != null &&
-                                                    provider
-                                                        .logo!
-                                                        .isNotEmpty) ...[
+                                                if (logo.isNotEmpty) ...[
                                                   CircleAvatar(
                                                     radius: 16,
                                                     backgroundColor:
                                                         Colors.white,
                                                     child: ClipOval(
                                                       child: Image.network(
-                                                        provider.logo!,
+                                                        logo,
                                                         width: 32,
                                                         height: 32,
                                                         fit: BoxFit.cover,
@@ -198,8 +234,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                           stackTrace,
                                                         ) {
                                                           return const Icon(
-                                                            Icons.error,
-                                                            color: Colors.red,
+                                                            Icons.school,
+                                                            size: 20,
+                                                            color: Colors.grey,
                                                           );
                                                         },
                                                       ),
@@ -207,11 +244,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                   ),
                                                   const SizedBox(width: 8),
                                                 ],
-
                                                 Expanded(
                                                   child: Text(
                                                     capitalizeEachWord(
-                                                      provider.schoolName ?? '',
+                                                      schoolName,
                                                     ),
                                                     maxLines: 3,
                                                     softWrap: true,
@@ -338,9 +374,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
                         // Today's Schedule Section
                         buildTimeTableSection(context),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 24),
                         buildSubstitutionSection(context),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 24),
                         _buildSectionHeader("Updates", null),
                         // Latest Notices
                         NoticeSection(),

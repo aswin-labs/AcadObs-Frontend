@@ -35,13 +35,9 @@ void showAttendanceBottomSheet(BuildContext context) {
     final authService = AuthStorageService();
     final schoolData = await authService.getSchoolDetailsForTeacher();
     if (schoolData == null) return [];
-    // final periodCount = schoolData['period_count'];
     final attendanceCount = schoolData['attendance_count'];
     if (attendanceCount == null) return [];
     return List.generate(attendanceCount as int, (i) => '${i + 1}');
-
-    // if (periodCount == null) return [];
-    // return List.generate(periodCount as int, (i) => '${i + 1}');
   }
 
   showModalBottomSheet(
@@ -96,7 +92,6 @@ void showAttendanceBottomSheet(BuildContext context) {
                     );
                   },
                 ),
-                // SizedBox(height: Responsive.height * 1),
                 Consumer<SharedProvider>(
                   builder: (context, provider, _) {
                     List<Map<String, dynamic>> classMapList =
