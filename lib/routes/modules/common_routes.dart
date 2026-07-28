@@ -3,7 +3,7 @@ import 'package:acadobs/features/ai_insights/presentation/screens/career_insight
 import 'package:acadobs/features/ai_insights/presentation/screens/subject_insights_screen.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/presentation/screens/login_screen.dart';
-import 'package:acadobs/features/authentication/presentation/screens/splash_screen.dart';
+import 'package:acadobs/features/authentication/presentation/screens/auth_checker.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/screens/chat_screen.dart';
 import 'package:acadobs/features/profile/presentation/screens/change_password_screen.dart';
@@ -17,11 +17,11 @@ import 'package:acadobs/shared/widgets/no_internet_screen.dart';
 import 'package:go_router/go_router.dart';
 
 final List<GoRoute> commonRoutes = [
-  // Splash
+  // auth checker
   GoRoute(
     path: '/',
-    name: RouteConstants.splashScreen,
-    builder: (context, state) => SplashScreen(),
+    name: RouteConstants.authChecker,
+    builder: (context, state) => AuthChecker(),
   ),
 
   // Login

@@ -3,7 +3,7 @@ class RouteConstants {
   static const String userRolesScreen = 'userRoleScreen';
   static const String bottomNavScreen = 'bottomNavScreen';
   static const String loginScreen = 'loginScreen';
-  static const String splashScreen = 'splashScreen';
+  static const String authChecker = 'authChecker';
   static const String noInternetScreen = 'noInternetScreen';
   static const String updateProfilePhoto = 'updateProfilePhoto';
 
