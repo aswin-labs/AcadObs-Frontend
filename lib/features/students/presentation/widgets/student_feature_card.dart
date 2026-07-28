@@ -5,12 +5,14 @@ class StudentFeatureCard extends StatelessWidget {
   final String title;
   final VoidCallback? onTap;
   final Color? color;
+  final int? notificationCount;
   const StudentFeatureCard({
     super.key,
     required this.icon,
     required this.title,
     this.onTap,
     this.color = Colors.black,
+    this.notificationCount,
   });
 
   @override
@@ -30,10 +32,43 @@ class StudentFeatureCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundColor: Colors.blue.withValues(alpha: 0.1),
-              child: Icon(icon, color: color, size: 24),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: Colors.blue.withValues(alpha: 0.1),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                if ((notificationCount ?? 0) > 0)
+                  Positioned(
+                    right: -2,
+                    top: -2,
+                    child: Container(
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        notificationCount! > 99
+                            ? "99+"
+                            : notificationCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 10),
             Expanded(
@@ -43,7 +78,7 @@ class StudentFeatureCard extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
