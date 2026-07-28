@@ -8,101 +8,106 @@ class ApiEndpoints {
   static const String refreshToken = "/public/refresh-token";
 
   // PROFILE SETTINGS
-  static const String staffChangePassword = "/staff/changePassword";
+  static const String staffChangePassword = "/teacher/changePassword";
   static const String guardianChangePassword = "/guardian/changePassword";
   static const String guardianProfile = "/guardian/getProfileDetails";
   static const String updateGuardianProfile = "/guardian/updateProfileDetails";
   static const String updateProfilePhotoGuardian = "/guardian/updateDp";
-  static const String updateProfilePhotoStaff = "/staff/updateDp";
+  static const String updateProfilePhotoStaff = "/teacher/updateDp";
 
   //*****************STAFF*********************
-  static const String classesByYear = "/staff/getClassesByYear";
-  static const String students = "/staff/students";
+  static const String classesByYear = "/teacher/getClassesByYear";
+  static const String students = "/teacher/students";
   static const String guardian = "/guardian/students";
-  static const String studentsByClassId = "/staff/getStudentsByClassId";
-  static const String createAcheivement = "/staff/achievements";
-  static const String achievementByStudentId = "/staff/achievementByStudentId";
+  static const String studentsByClassId = "/teacher/getStudentsByClassId";
+  static const String createAcheivement = "/teacher/achievements";
+  static const String achievementByStudentId =
+      "/teacher/achievementByStudentId";
   static const String studentLeaveRequestStaff =
-      "/staff/getLeaveRequestByStudentId";
-  static const String createParentNote = "/staff/parentNotes";
-  static const String getLatestNotes = "/staff/parentNotes";
-  static const String deleteNote = "/staff/parentNotes";
+      "/teacher/getLeaveRequestByStudentId";
+  static const String createParentNote = "/teacher/parentNotes";
+  static const String getLatestNotes = "/teacher/parentNotes";
+  static const String deleteNote = "/teacher/parentNotes";
   static const String getTodayTimetableForStaff =
-      "/staff/getTodayTimetableForStaff";
+      "/teacher/getTodayTimetableForStaff";
   static const String getAllDayTimetableForStaff =
-      "/staff/getAllDayTimetableForStaff";
-  static const String schoolDetailsForTeacher = "/staff/getSchoolDetails";
-  static const String getMyClassMarks = "/staff/getMyClassExamMark";
-  static const String getMyClassInternalMarks = "/staff/getMyClassInternalMark";
+      "/teacher/getAllDayTimetableForStaff";
+  static const String schoolDetailsForTeacher = "/teacher/getSchoolDetails";
+  static const String getMyClassMarks = "/teacher/getMyClassExamMark";
+  static const String getMyClassInternalMarks =
+      "/teacher/getMyClassInternalMark";
 
   // duties
-  static const String staffDuties = "/staff/duties";
-  static const String updateDutyStatus = "/staff/updateAssignedDuty";
+  static const String staffDuties = "/teacher/duties";
+  static const String updateDutyStatus = "/teacher/updateAssignedDuty";
 
   // attendance
-  static const String attendance = "/staff/attendance";
-  static const String attendanceByTeacher = "/staff/getAttendanceByTeacher";
+  static const String attendance = "/teacher/attendance";
+  static const String attendanceByTeacher = "/teacher/getAttendanceByTeacher";
   static const String attendanceByClassIdAndDate =
-      "/staff/getAttendanceByclassIdAndDate";
-  static const String editBulkAttendance = "/staff/bulkUpdateAttendanceById";
+      "/teacher/getAttendanceByclassIdAndDate";
+  static const String editBulkAttendance = "/teacher/bulkUpdateAttendanceById";
   static const String attendanceByDateForStaff =
-      "/staff/getStudentAttendanceByDate/";
+      "/teacher/getStudentAttendanceByDate/";
 
   // leave request
-  static const String staffLeaveRequest = "/staff/leaveRequest";
+  static const String staffLeaveRequest = "/teacher/leaveRequest";
   static const String studentLeaveLetter =
-      "/staff/getStudentLeaveRequestsForClassTeacher";
-  static const String studentLeavePermission = "/staff/leaveRequestpermission";
+      "/teacher/getStudentLeaveRequestsForClassTeacher";
+  static const String studentLeavePermission =
+      "/teacher/leaveRequestpermission";
   static const String leaveRequestNotification =
-      "/staff/getNavigationBarCounts";
+      "/teacher/getNavigationBarCounts";
 
   // homeworks
-  static const String homeworks = "/staff/homeworks";
-  static const String homeworkByTeacher = "/staff/getHomeworkByTeacher";
-  static const String homeworkRanking = "/staff/bulkUpdateHomeworkAssignments/";
+  static const String homeworks = "/teacher/homeworks";
+  static const String homeworkByTeacher = "/teacher/getHomeworkByTeacher";
+  static const String homeworkRanking =
+      "/teacher/bulkUpdateHomeworkAssignments/";
   static const String fetchHomeworksByStudentIdForStaff =
-      "/staff/getHomeworkByStudentId";
-  static const String sendRemarks = "/staff/updateHomeworkAssignment";
+      "/teacher/getHomeworkByStudentId";
+  static const String sendRemarks = "/teacher/updateHomeworkAssignment";
 
   //notices
-  static const String fetchLatestNotices = "/staff/getLatestNotices";
+  static const String fetchLatestNotices = "/teacher/getLatestNotices";
 
   //events
-  static const String fetchLatestEventsStaff = "/staff/getLatestEvents";
+  static const String fetchLatestEventsStaff = "/teacher/getLatestEvents";
 
   //news
-  static const String fetchLatestNews = "/staff/getLatestNews";
+  static const String fetchLatestNews = "/teacher/getLatestNews";
 
   // marks
-  static const String marks = "/staff/internalmarks";
+  static const String marks = "/teacher/internalmarks";
   static const String marksAddedByTeacher =
-      "/staff/getInternalMarkByRecordedBy";
-  static const String termExamAddedByTeacher = "/staff/getExamMarkByRecordedBy";
-  static const String marksBulkUpdate = "/staff/bulkUpdateMarks";
-  static const String studentMarks = "/staff/getInternalMarkByStudentId";
-  static const String studentExamMarks = "/staff/getExamMarkByStudentId";
-  static const String termExams = "/staff/getExams";
+      "/teacher/getInternalMarkByRecordedBy";
+  static const String termExamAddedByTeacher =
+      "/teacher/getExamMarkByRecordedBy";
+  static const String marksBulkUpdate = "/teacher/bulkUpdateMarks";
+  static const String studentMarks = "/teacher/getInternalMarkByStudentId";
+  static const String studentExamMarks = "/teacher/getExamMarkByStudentId";
+  static const String termExams = "/teacher/getExams";
 
   //Achievement
-  static const String getAllAchievement = "/staff/allAchievements";
-  static const String deleteAchievement = "/staff/achievements";
-  static const String achievements = "/staff/achievements";
+  static const String getAllAchievement = "/teacher/allAchievements";
+  static const String deleteAchievement = "/teacher/achievements";
+  static const String achievements = "/teacher/achievements";
 
   static const String getAchievementsBySchoolStaff =
-      "/staff/getAchievementsBySchool";
+      "/teacher/getAchievementsBySchool";
 
   // teacher attendance
-  static const String teacherTodayAttendance = "/staff/todayAttendanceStatus";
-  static const String teacherCheckIn = "/staff/markSelfAttendance";
-  static const String teacherCheckOut = "/staff/markCheckOutSelfAttendance";
+  static const String teacherTodayAttendance = "/teacher/todayAttendanceStatus";
+  static const String teacherCheckIn = "/teacher/markSelfAttendance";
+  static const String teacherCheckOut = "/teacher/markCheckOutSelfAttendance";
 
-  static const String staffProfile = "/staff/getProfileDetails";
+  static const String staffProfile = "/teacher/getProfileDetails";
 
-  static const String singleAchievementForStaff = "/staff/achievements";
+  static const String singleAchievementForStaff = "/teacher/achievements";
   static const String staffPermissions = "staff/getMyPermissions";
   //  subjects
-  static const String staffSubjects = "/staff/getStaffSubjects";
-  static const String subjectsAll = "/staff/getSubjects";
+  static const String staffSubjects = "/teacher/getStaffSubjects";
+  static const String subjectsAll = "/teacher/getSubjects";
 
   //***********************GUARDIAN*************************
   static const String fetchLatestEventsGuardian = "/guardian/getLatestEvents";
@@ -111,7 +116,7 @@ class ApiEndpoints {
       "/guardian/getHomeworkByStudentId";
   static const String studentMarksForParent =
       "/guardian/getInternalMarkByStudentId";
-       static const String studentExamMarksForParent =
+  static const String studentExamMarksForParent =
       "/guardian/getExamMarkByStudentId";
   static const String createStudentLeaveRequest = "/guardian/leaveRequest";
   static const String getStudentLeaveRequest =
@@ -144,8 +149,8 @@ class ApiEndpoints {
   static const String uploadPaymentDetails = "/guardian/payments";
 
   //profile details for staff
-  static const String staffProfileDetails = "/staff/getProfileDetails";
-  static const String updateStaffProfile = "/staff/updateProfileDetails";
+  static const String staffProfileDetails = "/teacher/getProfileDetails";
+  static const String updateStaffProfile = "/teacher/updateProfileDetails";
 
   //get student route for guardian
   static const String getStudentRoute = "/guardian/getRoutesForGuardian";
