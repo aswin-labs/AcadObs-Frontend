@@ -56,6 +56,7 @@ import 'package:acadobs/features/teacher/presentation/notes/screens/note_details
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_listing_screen.dart';
 import 'package:acadobs/features/timetable/presentation/time_table_day_tab_staff.dart';
 import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
 import 'package:go_router/go_router.dart';
 
@@ -457,7 +458,10 @@ List<GoRoute> staffRoutes = [
     path: '/myClassesScreen',
     name: RouteConstants.myClassesScreen,
     builder: (context, state) {
-      return MyClassScreen();
+      final ClassGradeModel classGrade = state.extra as ClassGradeModel;
+      return MyClassScreen(
+        classGrade: classGrade,
+      );
     },
   ),
 ];

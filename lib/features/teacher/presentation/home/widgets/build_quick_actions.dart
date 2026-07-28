@@ -1,11 +1,8 @@
-import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_flutter/lucide_flutter.dart';
-import 'package:provider/provider.dart';
 
 Widget buildQuickActions(BuildContext context) {
   return Column(
@@ -33,32 +30,6 @@ Widget buildQuickActions(BuildContext context) {
             ),
           ),
         ],
-      ),
-      SizedBox(height: 10),
-      Consumer<StudentLeaveRequestProvider>(
-        builder: (context, provider, _) {
-          return QuickActionCard(
-            icon: Icons.description_outlined,
-            label: 'Student Leave Requests',
-            gradient: const LinearGradient(
-              colors: [Color(0xFF00BCD4), Color(0xFF0097A7)],
-            ),
-            notificationCount: provider.leaveNotificationCount,
-            onTap: () => context.pushNamed(RouteConstants.studentLeaveLetter),
-            isFullWidth: true,
-          );
-        },
-      ),
-      const SizedBox(height: 10),
-      QuickActionCard(
-        icon: LucideIcons.school,
-        label: "My Class",
-        gradient: const LinearGradient(
-          colors: [Color(0xFF7B61FF), Color(0xFF5B42F3)],
-        ),
-        onTap: () {
-          context.pushNamed(RouteConstants.myClassesScreen);
-        },
       ),
     ],
   );

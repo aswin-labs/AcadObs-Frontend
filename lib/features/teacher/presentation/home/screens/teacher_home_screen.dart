@@ -20,8 +20,10 @@ import 'package:acadobs/features/teacher/presentation/home/widgets/event_section
 import 'package:acadobs/features/teacher/presentation/home/widgets/fab_option_dialog.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/news_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/notice_section.dart';
+import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_card.dart';
 import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/double_back_to_exit.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
@@ -29,6 +31,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -377,6 +380,52 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           _buildSectionHeader("Quick Actions", null),
                           const SizedBox(height: 12),
                           buildQuickActions(context),
+                          const SizedBox(height: 10),
+                          // my class
+                          Consumer2<AuthProvider, StudentLeaveRequestProvider>(
+                            builder: (context, authProvider, leaveProvider, _) {
+                              final classData =
+                                  authProvider.schoolDetails?["Class"];
+                              final leaveNotificationCount =
+                                  leaveProvider.leaveNotificationCount;
+
+                              if (classData is! Map) {
+                                return const SizedBox.shrink();
+                              }
+
+                              final classId = classData["id"];
+                              final className =
+                                  classData["classname"]?.toString() ?? '';
+
+                              if (classId == null || className.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+
+                              return QuickActionCard(
+                                icon: LucideIcons.school,
+                                label: "My Class Details",
+                                notificationCount: leaveNotificationCount,
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF7B61FF),
+                                    Color(0xFF5B42F3),
+                                  ],
+                                ),
+                                onTap: () {
+                                  context.pushNamed(
+                                    RouteConstants.myClassesScreen,
+                                    extra: ClassGradeModel(
+                                      id:
+                                          classId is int
+                                              ? classId
+                                              : int.parse(classId.toString()),
+                                      classname: className,
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
                           const SizedBox(height: 24),
 
                           // Today's Schedule Section
