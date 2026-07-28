@@ -48,6 +48,11 @@ class _AuthCheckerState extends State<AuthChecker> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(backgroundColor: tBackgroundColor, body: SizedBox());
+    return Scaffold(
+      backgroundColor: tBackgroundColor,
+      body: Center(
+        child: SizedBox(height: 120, child: Image.asset("assets/logo.png")),
+      ),
+    );
   }
 }

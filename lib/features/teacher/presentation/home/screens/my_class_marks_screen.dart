@@ -1,32 +1,29 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
-import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
-import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
-import 'package:acadobs/features/marks/presentation/widgets/add_marks_bottomsheet.dart';
-import 'package:acadobs/features/marks/presentation/widgets/add_term_marks_bottomsheet.dart';
+import 'package:acadobs/features/teacher/presentation/home/provider/my_class_provider.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
-class MarksHomeScreen extends StatefulWidget {
-  const MarksHomeScreen({super.key});
+class MyClassMarksScreen extends StatefulWidget {
+  final ClassGradeModel classGrade;
+  const MyClassMarksScreen({super.key, required this.classGrade});
 
   @override
-  State<MarksHomeScreen> createState() => _MarksHomeScreenState();
+  State<MyClassMarksScreen> createState() => _MyClassMarksScreenState();
 }
 
-class _MarksHomeScreenState extends State<MarksHomeScreen>
+class _MyClassMarksScreenState extends State<MyClassMarksScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
-  late final MarksProvider _marksProvider;
-  late final TermExamProvider _termExamProvider;
+  late final MyClassProvider _myClassProvider;
 
   final ScrollController _termMarksScrollController = ScrollController();
   final ScrollController _otherMarksScrollController = ScrollController();
@@ -34,30 +31,18 @@ class _MarksHomeScreenState extends State<MarksHomeScreen>
   void initState() {
     super.initState();
 
-    _marksProvider = context.read<MarksProvider>();
-    _termExamProvider = context.read<TermExamProvider>();
+    _myClassProvider = context.read<MyClassProvider>();
 
     _tabController = TabController(length: 2, vsync: this);
 
     _termMarksScrollController.addListener(_termMarksScrollListener);
-    _otherMarksScrollController.addListener(_marksScrollListener);
+    _otherMarksScrollController.addListener(_otherMarksScrollListener);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _marksProvider.fetchAddedMarks();
-      _termExamProvider.fetchTermExams();
-      _termExamProvider.fetchAddedTermExamMarks();
+      _myClassProvider.fetchMyClassTermExamMarks();
+      _myClassProvider.fetchMyClassInternalMarks();
     });
-  }
-
-  void _marksScrollListener() {
-    final isNearBottom =
-        _otherMarksScrollController.position.pixels >=
-        _otherMarksScrollController.position.maxScrollExtent - 200;
-
-    if (isNearBottom && !_marksProvider.isLoading && _marksProvider.hasMore) {
-      _marksProvider.fetchAddedMarks(loadMore: true);
-    }
   }
 
   void _termMarksScrollListener() {
@@ -66,9 +51,21 @@ class _MarksHomeScreenState extends State<MarksHomeScreen>
         _termMarksScrollController.position.maxScrollExtent - 200;
 
     if (isNearBottom &&
-        !_termExamProvider.isLoadingMarks &&
-        _termExamProvider.hasMore) {
-      _termExamProvider.fetchAddedTermExamMarks(loadMore: true);
+        !_myClassProvider.isLoadingMarks &&
+        _myClassProvider.hasMore) {
+      _myClassProvider.fetchMyClassTermExamMarks(loadMore: true);
+    }
+  }
+
+  void _otherMarksScrollListener() {
+    final isNearBottom =
+        _otherMarksScrollController.position.pixels >=
+        _otherMarksScrollController.position.maxScrollExtent - 200;
+
+    if (isNearBottom &&
+        !_myClassProvider.isLoadingMarks &&
+        _myClassProvider.hasMore) {
+      _myClassProvider.fetchMyClassTermExamMarks(loadMore: true);
     }
   }
 
@@ -80,12 +77,14 @@ class _MarksHomeScreenState extends State<MarksHomeScreen>
     super.dispose();
   }
 
-  Future<void> _refreshMarks() async {
-    await context.read<MarksProvider>().fetchAddedMarks(forceRefresh: true);
+  Future<void> _refreshTermMarks() async {
+    await context.read<MyClassProvider>().fetchMyClassTermExamMarks(
+      forceRefresh: true,
+    );
   }
 
-  Future<void> _refreshTermMarks() async {
-    await context.read<TermExamProvider>().fetchAddedTermExamMarks(
+  Future<void> _refreshOtherMarks() async {
+    await context.read<MyClassProvider>().fetchMyClassInternalMarks(
       forceRefresh: true,
     );
   }
@@ -93,7 +92,10 @@ class _MarksHomeScreenState extends State<MarksHomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Marks"),
+      appBar: CommonAppBar(
+        title: "Class ${widget.classGrade.classname}",
+        isBackButton: true,
+      ),
       body: Column(
         children: [
           SizedBox(height: 16),
@@ -139,7 +141,7 @@ class _MarksHomeScreenState extends State<MarksHomeScreen>
                 ),
                 _OtherMarksTab(
                   scrollController: _otherMarksScrollController,
-                  onRefresh: _refreshMarks,
+                  onRefresh: _refreshOtherMarks,
                 ),
               ],
             ),
@@ -173,13 +175,7 @@ class _TermMarksTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Column(
                 children: [
-                  CommonButton(
-                    onPressed:
-                        () => {showAddTermMarksBottomSheet(context: context)},
-                    widget: Text("Add Term Marks"),
-                  ),
-                  SizedBox(height: 16),
-                  Consumer<TermExamProvider>(
+                  Consumer<MyClassProvider>(
                     builder: (context, provider, _) {
                       if (provider.isLoadingMarks && provider.marks.isEmpty) {
                         return Padding(
@@ -205,12 +201,16 @@ class _TermMarksTab extends StatelessWidget {
                           final title = capitali(
                             "${mark.termExam?.examName ?? ''} - ${mark.internalName} (${mark.termExam?.educationYear ?? ''}) ",
                           );
-
-                          final className = mark.classGrade?.classname ?? '';
                           final subjectName = mark.subject?.subjectName ?? "";
+
                           return ItemCard(
-                            title: title,
-                            description: "Class: $className - $subjectName",
+                            title:
+                                subjectName.isNotEmpty
+                                    ? subjectName
+                                    : "Subject Not Specified",
+                            description:
+                                title.isNotEmpty ? title : "Not Specified",
+
                             iconColor: Colors.green,
                             backgroundColor: const Color(0xFFE8F5E9),
                             icon: LucideIcons.clipboardList,
@@ -219,7 +219,7 @@ class _TermMarksTab extends StatelessWidget {
                                   RouteConstants.marksDetails,
                                   extra: MarkDetailParameters(
                                     mark: mark,
-                                    isEditNeeded: true,
+                                    isEditNeeded: false,
                                   ),
                                 ),
                           );
@@ -227,7 +227,7 @@ class _TermMarksTab extends StatelessWidget {
                       );
                     },
                   ),
-                  Consumer<TermExamProvider>(
+                  Consumer<MyClassProvider>(
                     builder: (context, provider, _) {
                       return provider.isLoadingMarks && provider.hasMore
                           ? const Padding(
@@ -270,24 +270,19 @@ class _OtherMarksTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Column(
                 children: [
-                  CommonButton(
-                    onPressed:
-                        () => {showAddMarksBottomSheet(context: context)},
-                    widget: Text("Add Marks"),
-                  ),
-                  SizedBox(height: 16),
-                  Consumer<MarksProvider>(
+                  Consumer<MyClassProvider>(
                     builder: (context, provider, _) {
-                      if (provider.isLoading && provider.marks.isEmpty) {
+                      if (provider.isLoadingInternalMarks &&
+                          provider.internalMarks.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.only(top: 40),
                           child: commonShimmerList(),
                         );
                       }
 
-                      if (provider.marks.isEmpty) {
+                      if (provider.internalMarks.isEmpty) {
                         return emptyScreen(
-                          message: "No marks found",
+                          message: "No Marks found",
                           heightMultiplier: 16,
                         );
                       }
@@ -295,15 +290,16 @@ class _OtherMarksTab extends StatelessWidget {
                       return ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: provider.marks.length,
+                        itemCount: provider.internalMarks.length,
                         itemBuilder: (context, index) {
-                          final mark = provider.marks[index];
+                          final mark = provider.internalMarks[index];
                           final subjectName = mark.subject?.subjectName ?? "";
-                          final className = mark.classGrade?.classname ?? '';
-
                           return ItemCard(
-                            title: mark.internalName,
-                            description: "Class: $className - $subjectName",
+                            title:
+                                subjectName.isNotEmpty
+                                    ? subjectName
+                                    : "Subject Not Specified",
+                            description: "Title: ${mark.internalName}",
                             iconColor: Color(0xFFB14F6F),
                             backgroundColor: Color(0xFFFFCEDE),
                             icon: LucideIcons.clipboardList,
@@ -312,7 +308,7 @@ class _OtherMarksTab extends StatelessWidget {
                                   RouteConstants.marksDetails,
                                   extra: MarkDetailParameters(
                                     mark: mark,
-                                    isEditNeeded: true,
+                                    isEditNeeded: false,
                                   ),
                                 ),
                           );
@@ -320,9 +316,10 @@ class _OtherMarksTab extends StatelessWidget {
                       );
                     },
                   ),
-                  Consumer<MarksProvider>(
+                  Consumer<MyClassProvider>(
                     builder: (context, provider, _) {
-                      return provider.isLoading && provider.hasMore
+                      return provider.isLoadingInternalMarks &&
+                              provider.hasMoreInternal
                           ? const Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Center(child: CircularProgressIndicator()),

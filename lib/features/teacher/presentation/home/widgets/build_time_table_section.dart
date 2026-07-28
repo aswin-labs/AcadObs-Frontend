@@ -16,18 +16,6 @@ Widget buildTimeTableSection(BuildContext context) {
       if (provider.timetableForStaff.isEmpty) {
         return const SizedBox.shrink();
       }
-
-      // final screenWidth = MediaQuery.of(context).size.width;
-
-      // double maxCrossAxisExtent;
-      // if (screenWidth >= 1200) {
-      //   maxCrossAxisExtent = 250;
-      // } else if (screenWidth >= 800) {
-      //   maxCrossAxisExtent = 200; // tablet
-      // } else {
-      //   maxCrossAxisExtent = 150; // phone
-      // }
-
       final textScale = MediaQuery.textScalerOf(
         context,
       ).scale(1.0).clamp(1.0, 1.3);
@@ -37,6 +25,7 @@ Widget buildTimeTableSection(BuildContext context) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+           const SizedBox(height: 24),
           Row(
             children: [
               Icon(Icons.schedule, color: Color(0xFF2196F3), size: 20),

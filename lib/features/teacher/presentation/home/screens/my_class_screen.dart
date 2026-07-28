@@ -176,7 +176,10 @@ class _MyClassScreenState extends State<MyClassScreen> {
                         title: 'Student Marks',
                         color: Colors.brown,
                         onTap: () {
-                          // Pass widget.classGrade when marks route is ready.
+                          context.pushNamed(
+                            RouteConstants.myClassMarksScreen,
+                            extra: widget.classGrade,
+                          );
                         },
                       ),
                     ),

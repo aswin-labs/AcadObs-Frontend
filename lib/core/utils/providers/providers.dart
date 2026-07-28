@@ -13,8 +13,10 @@ import 'package:acadobs/features/parents/presentation/provider/parent_provider.d
 import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
+import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/provider/attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/duties/provider/duty_provider.dart';
+import 'package:acadobs/features/teacher/presentation/home/provider/my_class_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
 import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
@@ -24,7 +26,6 @@ import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.da
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
-import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
 import 'package:provider/provider.dart';
 
 getProviders() {
@@ -84,8 +85,11 @@ getProviders() {
 
     //**************student route ****************//
     ChangeNotifierProvider(create: (_) => StudentRouteProvider()),
-    
+
     //**************term exam provider ****************//
     ChangeNotifierProvider(create: (_) => TermExamProvider()),
+
+    //**************my class provider ****************//
+    ChangeNotifierProvider(create: (_) => MyClassProvider()),
   ];
 }

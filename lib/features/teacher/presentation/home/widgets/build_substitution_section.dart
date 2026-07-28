@@ -29,6 +29,7 @@ Widget buildSubstitutionSection(BuildContext context) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+           const SizedBox(height: 24),
           const Row(
             children: [
               Icon(Icons.swap_horiz, color: Color(0xFFFF9800), size: 20),

@@ -45,7 +45,7 @@ class ItemCard extends StatelessWidget {
     final double verticalPadding = isTablet ? 14 : 12;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 3),
       child: Material(
         color: Colors.transparent,
         child: InkWell(

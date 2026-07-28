@@ -4,7 +4,6 @@ import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/popup_loader.dart';
 import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/data/models/student_mark_model.dart';
-import 'package:acadobs/features/marks/data/services/marks_services.dart';
 import 'package:acadobs/features/marks/data/services/term_exam_services.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:flutter/material.dart';
@@ -25,24 +24,22 @@ class TermExamProvider extends ChangeNotifier {
   final List<MarksModel> _marks = [];
   List<MarksModel> get marks => _marks;
 
+  final List<StudentMarkModel> _studentMarks = [];
+  List<StudentMarkModel> get studentMarks => _studentMarks;
+
   MarksModel? singleMarks;
 
   int _currentPage = 1;
   int _totalPages = 1;
 
-  bool get hasMore => _currentPage < _totalPages;
-
-  bool _isFetchedOnce = false;
-  bool isFetchedOnceForStudent = false;
-
-  final List<StudentMarkModel> _studentMarks = [];
-  List<StudentMarkModel> get studentMarks => _studentMarks;
-
   int _currentPageForStudent = 1;
   int _totalPagesForStudent = 1;
 
-  bool get hasMoreForStudent => _currentPageForStudent < _totalPagesForStudent;
+  bool get hasMore => _currentPage < _totalPages;
+   bool get hasMoreStudentMarks => _currentPageForStudent < _totalPagesForStudent;
 
+  bool _isFetchedOnce = false;
+  bool isFetchedOnceForStudent = false;
   List<Map<String, dynamic>> _termExams = [];
 
   List<Map<String, dynamic>> get termExams => List.unmodifiable(_termExams);
@@ -101,32 +98,13 @@ class TermExamProvider extends ChangeNotifier {
 
         final List marksJson = data['exams'];
 
-        final List<MarksModel> fetchHomeworks =
+        final List<MarksModel> fetchMarks =
             marksJson.map((jsonItem) => MarksModel.fromJson(jsonItem)).toList();
 
-        _marks.addAll(fetchHomeworks);
+        _marks.addAll(fetchMarks);
         _isFetchedOnce = true;
       } else {
         throw Exception('Failed to fetch marks: ${response.statusCode}');
-      }
-    } catch (e) {
-      log(e.toString());
-    } finally {
-      _isLoadingMarks = false;
-      notifyListeners();
-    }
-  }
-
-  // Get Single homework
-  Future<void> fetchSingleTermExamMarks({required int marksId}) async {
-    _isLoadingMarks = true;
-    try {
-      final response = await TermExamServices().fetchSingleTermExamMarks(
-        marksId: marksId,
-      );
-      if (response.statusCode == 200) {
-        final data = response.data;
-        singleMarks = MarksModel.fromJson(data);
       }
     } catch (e) {
       log(e.toString());
@@ -179,78 +157,7 @@ class TermExamProvider extends ChangeNotifier {
     }
   }
 
-  // Edit marks details
-  Future<void> editTermExamMarksDetails({
-    required BuildContext context,
-    required int marksId,
-    required String title,
-    required String date,
-    required int subjectId,
-    required double totalMarks,
-  }) async {
-    _isLoadingTwo = true;
-    notifyListeners();
-    try {
-      final response = await TermExamServices().editTermExamMarksDetails(
-        marksId: marksId,
-        title: title,
-        totalMarks: totalMarks,
-        date: date,
-        subjectId: subjectId,
-      );
-      if (response.statusCode == 200) {
-        await fetchAddedTermExamMarks(forceRefresh: true);
-        if (!context.mounted) return;
-        Navigator.pop(context);
-        Navigator.pop(context);
-        CustomSnackbar.show(
-          context,
-          message: "Mark Details Saved",
-          type: SnackbarType.success,
-        );
-      }
-    } catch (e) {
-      log(e.toString());
-    } finally {
-      _isLoadingTwo = false;
-      notifyListeners();
-    }
-  }
-
-  // edit student marks
-  Future<void> editStudentMarks({
-    required BuildContext context,
-    required int marksId,
-    required List<Map<String, dynamic>> editedMarks,
-  }) async {
-    _isLoadingTwo = true;
-    PopupLoader.show(context, message: "Adding Marks...");
-    notifyListeners();
-    try {
-      final response = await MarksServices().editStudentMarks(
-        marksId: marksId,
-        editedMarks: editedMarks,
-      );
-      if (response.statusCode == 200) {
-        if (!context.mounted) return;
-        PopupLoader.hide(context);
-        Navigator.pop(context);
-        Navigator.pop(context);
-        CustomSnackbar.show(
-          context,
-          message: "Marks Edited Successfully",
-          type: SnackbarType.success,
-        );
-      }
-    } catch (e) {
-      log(e.toString());
-    } finally {
-      _isLoadingTwo = false;
-      notifyListeners();
-    }
-  }
-
-  // fetch student Marks
+  // fetch student term exam marks
   Future<void> fetchStudentTermExamMarks({
     required int studentId,
     required bool forStaff,
@@ -272,7 +179,7 @@ class TermExamProvider extends ChangeNotifier {
         _studentMarks.clear();
         isFetchedOnceForStudent = false;
       }
-      final response = await MarksServices().fetchStudentMarks(
+      final response = await TermExamServices().fetchStudentTermExamMarks(
         studentId: studentId,
         forStaff: forStaff,
         pageNo: _currentPageForStudent,
@@ -285,12 +192,12 @@ class TermExamProvider extends ChangeNotifier {
 
         final List marksJson = data['Mark'];
 
-        final List<StudentMarkModel> fetchHomeworks =
+        final List<StudentMarkModel> fetchMarks =
             marksJson
                 .map((jsonItem) => StudentMarkModel.fromJson(jsonItem))
                 .toList();
 
-        _studentMarks.addAll(fetchHomeworks);
+        _studentMarks.addAll(fetchMarks);
         log(_studentMarks.toString());
         isFetchedOnceForStudent = true;
       } else {

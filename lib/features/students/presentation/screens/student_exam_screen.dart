@@ -2,12 +2,10 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
+import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
 import 'package:acadobs/features/students/presentation/widgets/mark_card.dart';
-import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class StudentExamScreen extends StatefulWidget {
@@ -26,6 +24,7 @@ class StudentExamScreen extends StatefulWidget {
 class _StudentExamScreenState extends State<StudentExamScreen>
     with SingleTickerProviderStateMixin {
   late final MarksProvider _marksProvider;
+  late final TermExamProvider _termExamProvider;
   final ScrollController _scrollController = ScrollController();
   late final TabController _tabController;
 
@@ -37,14 +36,36 @@ class _StudentExamScreenState extends State<StudentExamScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _marksProvider = context.read<MarksProvider>();
+    _termExamProvider = context.read<TermExamProvider>();
+    _termExamProvider.fetchStudentTermExamMarks(
+      studentId: widget.studentId,
+      forStaff: widget.forStaff,
+    );
     _marksProvider.fetchStudentMarks(
       studentId: widget.studentId,
       forStaff: widget.forStaff,
     );
-    _otherMarksScrollController.addListener(_scrollListener);
+    _termMarksScrollController.addListener(_termMarksScrollListener);
+    _otherMarksScrollController.addListener(_otherMarksScrollListener);
   }
 
-  void _scrollListener() {
+  void _termMarksScrollListener() {
+    final isNearBottom =
+        _termMarksScrollController.position.pixels >=
+        _termMarksScrollController.position.maxScrollExtent - 200;
+
+    if (isNearBottom &&
+        !_termExamProvider.isLoadingStudentMarks &&
+        _termExamProvider.hasMore) {
+      _termExamProvider.fetchStudentTermExamMarks(
+        loadMore: true,
+        studentId: widget.studentId,
+        forStaff: widget.forStaff,
+      );
+    }
+  }
+
+  void _otherMarksScrollListener() {
     final isNearBottom =
         _otherMarksScrollController.position.pixels >=
         _otherMarksScrollController.position.maxScrollExtent - 200;
@@ -157,22 +178,72 @@ class _TermMarksTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Column(
                 children: [
-                  ListView.builder(
-                    shrinkWrap: true,
-                    padding: EdgeInsets.zero,
-                    itemCount: 3,
-                    itemBuilder: (context, index) {
-                      return ItemCard(
-                        title: 'term 1',
-                        description: 'term exam',
-                        onTap: () {
-                          context.pushNamed(
-                            RouteConstants.studentProgressCardScreen,
+                  Consumer<TermExamProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.isLoadingStudentMarks &&
+                          provider.studentMarks.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: commonShimmerList(itemCount: 10),
+                        );
+                      }
+
+                      if (provider.studentMarks.isEmpty) {
+                        return emptyScreen(
+                          message: 'No Marks Found.',
+                          heightMultiplier: 25,
+                        );
+                      }
+                      return ListView.builder(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: provider.studentMarks.length,
+                        itemBuilder: (context, index) {
+                          final studentMark = provider.studentMarks[index];
+                          final title =
+                              "${studentMark.internalExam?.termExam?.examName ?? ''} - ${studentMark.internalExam?.internalName} (${studentMark.internalExam?.termExam?.educationYear ?? ''}) ";
+                          return MarkCard(
+                            examtitle: title,
+                            subject:
+                                studentMark
+                                    .internalExam
+                                    ?.subject
+                                    ?.subjectName ??
+                                "N/A",
+                            mark:
+                                studentMark.marksObtained != null &&
+                                        studentMark.marksObtained!.isNotEmpty
+                                    ? double.parse(studentMark.marksObtained!)
+                                    : 0.0,
+                            total:
+                                studentMark.internalExam?.maxMarks != null &&
+                                        studentMark
+                                            .internalExam!
+                                            .maxMarks
+                                            .isNotEmpty
+                                    ? double.parse(
+                                      studentMark.internalExam!.maxMarks,
+                                    )
+                                    : 0.0,
                           );
                         },
                       );
                     },
                   ),
+
+                  Consumer<TermExamProvider>(
+                    builder: (context, provider, _) {
+                      return provider.isLoadingStudentMarks &&
+                              provider.hasMoreStudentMarks
+                          ? const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                          : const SizedBox();
+                    },
+                  ),
+                  SizedBox(height: Responsive.height * 4),
                 ],
               ),
             ),

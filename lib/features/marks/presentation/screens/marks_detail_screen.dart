@@ -6,9 +6,9 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
-import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
+import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
@@ -16,8 +16,8 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class MarksDetailScreen extends StatefulWidget {
-  final MarksModel marks;
-  const MarksDetailScreen({super.key, required this.marks});
+  final MarkDetailParameters marksParams;
+  const MarksDetailScreen({super.key, required this.marksParams});
 
   @override
   State<MarksDetailScreen> createState() => _MarksDetailScreenState();
@@ -29,16 +29,17 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
   void initState() {
     super.initState();
     marksProvider = context.read<MarksProvider>();
-    marksProvider.fetchSingleMarks(marksId: widget.marks.id);
+    marksProvider.fetchSingleMarks(marksId: widget.marksParams.mark.id);
   }
 
   @override
   Widget build(BuildContext context) {
+    final mark = widget.marksParams.mark;
     final title =
-        widget.marks.termExam?.examName == null
-            ? capitali(widget.marks.internalName)
+        mark.termExam?.examName == null
+            ? capitali(mark.internalName)
             : capitali(
-              "${widget.marks.termExam?.examName ?? ''} - ${widget.marks.internalName} (${widget.marks.termExam?.educationYear ?? ''}) ",
+              "${mark.termExam?.examName ?? ''} - ${mark.internalName} (${mark.termExam?.educationYear ?? ''}) ",
             );
     return HeroMode(
       enabled: false,
@@ -47,30 +48,32 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
           title: "Marks",
           isBackButton: true,
           actions: [
-            Consumer<TermExamProvider>(
-              builder: (context, provider, _) {
-                return CustomPopupMenu(
-                  onEdit:
-                      () => context.pushNamed(
-                        RouteConstants.marksEdit,
-                        extra: widget.marks,
-                      ),
-                  onDelete:
-                      () => showConfirmationDialog(
-                        context: context,
-                        title: 'Delete Marks',
-                        content:
-                            'Are you sure you want to delete this marks entry?',
-                        onConfirm: () {
-                          provider.deleteTermExamMarks(
+            widget.marksParams.isEditNeeded
+                ? Consumer<TermExamProvider>(
+                  builder: (context, provider, _) {
+                    return CustomPopupMenu(
+                      onEdit:
+                          () => context.pushNamed(
+                            RouteConstants.marksEdit,
+                            extra: widget.marksParams.mark,
+                          ),
+                      onDelete:
+                          () => showConfirmationDialog(
                             context: context,
-                            marksId: widget.marks.id,
-                          );
-                        },
-                      ),
-                );
-              },
-            ),
+                            title: 'Delete Marks',
+                            content:
+                                'Are you sure you want to delete this marks entry?',
+                            onConfirm: () {
+                              provider.deleteTermExamMarks(
+                                context: context,
+                                marksId: mark.id,
+                              );
+                            },
+                          ),
+                    );
+                  },
+                )
+                : SizedBox.shrink(),
           ],
         ),
         body: CustomScrollView(
@@ -89,14 +92,12 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
                       title: "Details",
                       details: {
                         "Title": title,
-                        "Class": widget.marks.classGrade?.classname ?? "",
-                        "Total Marks": widget.marks.maxMarks,
+                        "Class": mark.classGrade?.classname ?? "",
+                        "Total Marks": mark.maxMarks,
                         "Date": DateFormatter.formatDateTime(
-                          widget.marks.date ?? DateTime.now(),
+                          mark.date ?? DateTime.now(),
                         ),
-                        "Subject":
-                            widget.marks.subject?.subjectName ??
-                            "Not Specified",
+                        "Subject": mark.subject?.subjectName ?? "Not Specified",
                       },
                     ),
                     SizedBox(height: Responsive.height * 2),

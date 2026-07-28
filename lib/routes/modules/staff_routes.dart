@@ -48,6 +48,7 @@ import 'package:acadobs/features/teacher/presentation/attendance/screens/attenda
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/edit_profile_staff.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/my_class_marks_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/my_class_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/leave_request_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/student_leaves_screen.dart';
@@ -236,8 +237,9 @@ List<GoRoute> staffRoutes = [
     path: '/marksDetails',
     name: RouteConstants.marksDetails,
     builder: (context, state) {
-      final MarksModel marks = state.extra as MarksModel;
-      return MarksDetailScreen(marks: marks);
+      // final MarksModel marks = state.extra as MarksModel;
+      final MarkDetailParameters args = state.extra as MarkDetailParameters;
+      return MarksDetailScreen(marksParams: args);
     },
   ),
 
@@ -459,9 +461,16 @@ List<GoRoute> staffRoutes = [
     name: RouteConstants.myClassesScreen,
     builder: (context, state) {
       final ClassGradeModel classGrade = state.extra as ClassGradeModel;
-      return MyClassScreen(
-        classGrade: classGrade,
-      );
+      return MyClassScreen(classGrade: classGrade);
+    },
+  ),
+
+  GoRoute(
+    path: '/myClassMarksScreen',
+    name: RouteConstants.myClassMarksScreen,
+    builder: (context, state) {
+      final ClassGradeModel classGrade = state.extra as ClassGradeModel;
+      return MyClassMarksScreen(classGrade: classGrade);
     },
   ),
 ];
@@ -470,4 +479,10 @@ class StudentDetailParameters {
   final int studentId;
   final bool forStaff;
   StudentDetailParameters({required this.forStaff, required this.studentId});
+}
+
+class MarkDetailParameters {
+  final MarksModel mark;
+  final bool isEditNeeded;
+  MarkDetailParameters({required this.mark, required this.isEditNeeded});
 }

@@ -380,7 +380,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           _buildSectionHeader("Quick Actions", null),
                           const SizedBox(height: 12),
                           buildQuickActions(context),
-                          const SizedBox(height: 10),
+
                           // my class
                           Consumer2<AuthProvider, StudentLeaveRequestProvider>(
                             builder: (context, authProvider, leaveProvider, _) {
@@ -401,36 +401,41 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                 return const SizedBox.shrink();
                               }
 
-                              return QuickActionCard(
-                                icon: LucideIcons.school,
-                                label: "My Class Details",
-                                notificationCount: leaveNotificationCount,
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF7B61FF),
-                                    Color(0xFF5B42F3),
-                                  ],
-                                ),
-                                onTap: () {
-                                  context.pushNamed(
-                                    RouteConstants.myClassesScreen,
-                                    extra: ClassGradeModel(
-                                      id:
-                                          classId is int
-                                              ? classId
-                                              : int.parse(classId.toString()),
-                                      classname: className,
+                              return Column(
+                                children: [
+                                  const SizedBox(height: 10),
+                                  QuickActionCard(
+                                    icon: LucideIcons.school,
+                                    label: "My Class Details",
+                                    notificationCount: leaveNotificationCount,
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFF7B61FF),
+                                        Color(0xFF5B42F3),
+                                      ],
                                     ),
-                                  );
-                                },
+                                    onTap: () {
+                                      context.pushNamed(
+                                        RouteConstants.myClassesScreen,
+                                        extra: ClassGradeModel(
+                                          id:
+                                              classId is int
+                                                  ? classId
+                                                  : int.parse(
+                                                    classId.toString(),
+                                                  ),
+                                          classname: className,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               );
                             },
                           ),
-                          const SizedBox(height: 24),
 
                           // Today's Schedule Section
                           buildTimeTableSection(context),
-                          const SizedBox(height: 24),
                           buildSubstitutionSection(context),
                           const SizedBox(height: 24),
                           _buildSectionHeader("Updates", null),

@@ -18,6 +18,7 @@ class MarksModel {
   ClassGradeModel? classGrade;
   SubjectModel? subject;
   TermExam? termExam;
+  bool? forStaff;
 
   MarksModel({
     required this.id,

@@ -32,6 +32,8 @@ class ApiEndpoints {
   static const String getAllDayTimetableForStaff =
       "/staff/getAllDayTimetableForStaff";
   static const String schoolDetailsForTeacher = "/staff/getSchoolDetails";
+  static const String getMyClassMarks = "/staff/getMyClassExamMark";
+  static const String getMyClassInternalMarks = "/staff/getMyClassInternalMark";
 
   // duties
   static const String staffDuties = "/staff/duties";
@@ -78,6 +80,7 @@ class ApiEndpoints {
   static const String termExamAddedByTeacher = "/staff/getExamMarkByRecordedBy";
   static const String marksBulkUpdate = "/staff/bulkUpdateMarks";
   static const String studentMarks = "/staff/getInternalMarkByStudentId";
+  static const String studentExamMarks = "/staff/getExamMarkByStudentId";
   static const String termExams = "/staff/getExams";
 
   //Achievement
@@ -108,6 +111,8 @@ class ApiEndpoints {
       "/guardian/getHomeworkByStudentId";
   static const String studentMarksForParent =
       "/guardian/getInternalMarkByStudentId";
+       static const String studentExamMarksForParent =
+      "/guardian/getExamMarkByStudentId";
   static const String createStudentLeaveRequest = "/guardian/leaveRequest";
   static const String getStudentLeaveRequest =
       "/guardian/getLeaveRequestByStudentId";

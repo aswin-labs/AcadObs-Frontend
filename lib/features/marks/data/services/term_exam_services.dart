@@ -95,6 +95,20 @@ class TermExamServices {
     return response;
   }
 
+   // fetch student term exam marks
+  Future<Response> fetchStudentTermMarks({
+    required int pageNo,
+    required int studentId,
+    required bool forStaff,
+  }) async {
+    final response = await ApiServices.get(
+      forStaff
+          ? "${ApiEndpoints.studentExamMarks}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}"
+          : "${ApiEndpoints.studentExamMarksForParent}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}",
+    );
+    return response;
+  }
+
   // delete marks
   Future<Response> deleteTermExamMarks({required int marksId}) async {
     final response = await ApiServices.delete("${ApiEndpoints.marks}/$marksId");

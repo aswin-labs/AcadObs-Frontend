@@ -68,10 +68,10 @@ class MarksProvider extends ChangeNotifier {
 
         final List marksJson = data['exams'];
 
-        final List<MarksModel> fetchHomeworks =
+        final List<MarksModel> fetchMarks =
             marksJson.map((jsonItem) => MarksModel.fromJson(jsonItem)).toList();
 
-        _marks.addAll(fetchHomeworks);
+        _marks.addAll(fetchMarks);
         _isFetchedOnce = true;
       } else {
         throw Exception('Failed to fetch marks: ${response.statusCode}');
@@ -249,12 +249,12 @@ class MarksProvider extends ChangeNotifier {
 
         final List marksJson = data['Mark'];
 
-        final List<StudentMarkModel> fetchHomeworks =
+        final List<StudentMarkModel> fetchMarks =
             marksJson
                 .map((jsonItem) => StudentMarkModel.fromJson(jsonItem))
                 .toList();
 
-        _studentMarks.addAll(fetchHomeworks);
+        _studentMarks.addAll(fetchMarks);
         log(_studentMarks.toString());
         isFetchedOnceForStudent = true;
       } else {
