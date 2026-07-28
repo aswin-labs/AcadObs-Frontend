@@ -78,7 +78,7 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
       final text = controller?.text.trim() ?? '';
       final hasMarks = text.isNotEmpty;
 
-      final marks = hasMarks ? int.tryParse(text) ?? 0 : 0;
+      final marks = hasMarks ? double.tryParse(text) ?? 0.0 : 0.0;
       final status = hasMarks ? (_statusMap[i] ?? "present") : "absent";
 
       studentMarksList.add({
@@ -175,7 +175,7 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
                       },
                       widget: Text('Submit'),
                     ),
-                     SizedBox(height: 30),
+                    SizedBox(height: 30),
                   ],
                 ),
               ),

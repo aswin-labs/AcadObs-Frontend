@@ -177,7 +177,7 @@ class TimeTableProvider extends ChangeNotifier {
     return _timeTableByDays[dayOfWeek] ?? [];
   }
 
-  // Fetch all day timetable for the teacher/staff
+  // Fetch all day timetable for the teacher staff
   Future<void> fetchAllDayTimeTableStaff({bool forStaff = true}) async {
     _isLoading = true;
     _error = null;

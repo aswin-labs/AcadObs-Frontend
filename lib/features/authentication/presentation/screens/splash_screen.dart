@@ -34,26 +34,17 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
     if (token != null && token.isNotEmpty) {
       if (userRole == 'guardian') {
-        context.pushNamed(
+        context.pushReplacementNamed(
           RouteConstants.bottomNavScreen,
           extra: UserType.parent,
         );
       } else if (userRole == 'teacher') {
-        context.pushNamed(
+        context.pushReplacementNamed(
           RouteConstants.bottomNavScreen,
           extra: UserType.teacher,
         );
-      } else if (userRole == 'admin') {
-        context.pushNamed(
-          RouteConstants.bottomNavScreen,
-          extra: UserType.schoolAdmin,
-        );
-      } else {
-        context.pushNamed(
-          RouteConstants.bottomNavScreen,
-          extra: UserType.superAdmin,
-        );
       }
+      return;
     } else {
       context.pushReplacementNamed(RouteConstants.loginScreen);
     }

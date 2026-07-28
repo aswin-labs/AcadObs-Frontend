@@ -72,7 +72,7 @@ class _EditMarksScreenState extends State<EditMarksScreen> {
 
       if (text.isEmpty) continue;
 
-      final enteredMarks = double.tryParse(text) ?? 0;
+      final enteredMarks = double.tryParse(text) ?? 0.0;
 
       if (enteredMarks > totalMarks) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -84,11 +84,10 @@ class _EditMarksScreenState extends State<EditMarksScreen> {
         );
         return; // Stop submission
       }
-      final formatted = enteredMarks.toStringAsFixed(0);
       final status = _statusMap[i] ?? "present";
       updatedMarks.add({
         "student_id": student.student?.id,
-        "marks_obtained": formatted,
+        "marks_obtained": enteredMarks,
         "status": status,
       });
     }

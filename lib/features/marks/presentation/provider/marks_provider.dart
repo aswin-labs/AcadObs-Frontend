@@ -91,6 +91,7 @@ class MarksProvider extends ChangeNotifier {
       final response = await MarksServices().fetchSingleMarks(marksId: marksId);
       if (response.statusCode == 200) {
         final data = response.data;
+        log(data.toString());
         singleMarks = MarksModel.fromJson(data);
       }
     } catch (e) {
