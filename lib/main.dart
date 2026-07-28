@@ -8,12 +8,15 @@ import 'package:acadobs/routes/app_router.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  FlutterNativeSplash.preserve(widgetsBinding: WidgetsBinding.instance);
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -29,13 +32,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return LayoutBuilder(
       builder: (context, constraints) {
-
         return OrientationBuilder(
           builder: (context, orientation) {
-
             Responsive().init(constraints, orientation);
 
             return MultiProvider(
@@ -43,9 +43,7 @@ class MyApp extends StatelessWidget {
 
               child: Builder(
                 builder: (context) {
-                  final sessionManager = SessionManager(
-                    router: appRouter,
-                  );
+                  final sessionManager = SessionManager(router: appRouter);
                   ApiServices.initialize(sessionManager);
                   return MaterialApp.router(
                     title: 'Acadobs',
