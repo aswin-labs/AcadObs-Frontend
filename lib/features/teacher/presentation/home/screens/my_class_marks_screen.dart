@@ -177,7 +177,9 @@ class _TermMarksTab extends StatelessWidget {
                 children: [
                   Consumer<MyClassProvider>(
                     builder: (context, provider, _) {
-                      if (provider.isLoadingMarks && provider.marks.isEmpty) {
+                      if ((!provider.isTermMarksFetchedOnce ||
+                              provider.isLoadingMarks) &&
+                          provider.marks.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.only(top: 40),
                           child: commonShimmerList(),
@@ -272,7 +274,8 @@ class _OtherMarksTab extends StatelessWidget {
                 children: [
                   Consumer<MyClassProvider>(
                     builder: (context, provider, _) {
-                      if (provider.isLoadingInternalMarks &&
+                      if ((!provider.isInternalMarksFetchedOnce ||
+                              provider.isLoadingInternalMarks) &&
                           provider.internalMarks.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.only(top: 40),

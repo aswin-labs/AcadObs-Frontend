@@ -113,6 +113,7 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
                             ),
                             "Subject":
                                 mark.subject?.subjectName ?? "Not Specified",
+                            "Recorded By": mark.user?.name ?? "Not Specified",
                           },
                         );
                       },

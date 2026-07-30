@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/models/subject_model.dart';
+import 'package:acadobs/shared/models/user_model.dart';
 
 MarksModel marksModelFromJson(String str) =>
     MarksModel.fromJson(json.decode(str));
@@ -19,6 +20,7 @@ class MarksModel {
   SubjectModel? subject;
   TermExam? termExam;
   bool? forStaff;
+  UserModel? user;
 
   MarksModel({
     required this.id,
@@ -31,6 +33,7 @@ class MarksModel {
     this.classGrade,
     this.subject,
     this.termExam,
+    this.user,
   });
 
   factory MarksModel.fromJson(Map<String, dynamic> json) => MarksModel(
@@ -50,6 +53,7 @@ class MarksModel {
     subject:
         json["Subject"] == null ? null : SubjectModel.fromJson(json["Subject"]),
     termExam: json["exam"] == null ? null : TermExam.fromJson(json["exam"]),
+    user: json["User"] == null ? null : UserModel.fromJson(json["User"]),
   );
 }
 

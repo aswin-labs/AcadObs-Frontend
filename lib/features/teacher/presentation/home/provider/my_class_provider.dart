@@ -22,14 +22,16 @@ class MyClassProvider extends ChangeNotifier {
 
   bool get hasMore => _currentPage < _totalPages;
 
-  bool _isFetchedOnce = false;
-
   int _currentPageInternal = 1;
   int _totalPagesInternal = 1;
 
   bool get hasMoreInternal => _currentPageInternal < _totalPagesInternal;
 
+  bool _isFetchedOnce = false;
+  bool get isTermMarksFetchedOnce => _isFetchedOnce;
+
   bool _isFetchedOnceInternal = false;
+  bool get isInternalMarksFetchedOnce => _isFetchedOnceInternal;
 
   // get my class term exam marks
   Future<void> fetchMyClassTermExamMarks({
@@ -42,7 +44,7 @@ class MyClassProvider extends ChangeNotifier {
     if (!loadMore && !forceRefresh && _isFetchedOnce) return;
 
     _isLoadingMarks = true;
-
+notifyListeners();
     try {
       if (loadMore) {
         _currentPage++;
@@ -89,7 +91,7 @@ class MyClassProvider extends ChangeNotifier {
     if (!loadMore && !forceRefresh && _isFetchedOnceInternal) return;
 
     _isLoadingInternalMarks = true;
-
+notifyListeners();
     try {
       if (loadMore) {
         _currentPageInternal++;

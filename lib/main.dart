@@ -1,4 +1,5 @@
 import 'package:acadobs/core/services/api_services.dart';
+import 'package:acadobs/core/services/app_update_service.dart';
 import 'package:acadobs/core/services/notification_services.dart';
 import 'package:acadobs/core/services/session_manager.dart';
 import 'package:acadobs/core/theme/theme.dart';
@@ -27,8 +28,22 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppUpdateService.checkForUpdate();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,11 +55,11 @@ class MyApp extends StatelessWidget {
 
             return MultiProvider(
               providers: getProviders(),
-
               child: Builder(
                 builder: (context) {
                   final sessionManager = SessionManager(router: appRouter);
                   ApiServices.initialize(sessionManager);
+
                   return MaterialApp.router(
                     title: 'Acadobs',
                     debugShowCheckedModeBanner: false,

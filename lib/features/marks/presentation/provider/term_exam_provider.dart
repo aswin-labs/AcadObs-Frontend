@@ -36,7 +36,8 @@ class TermExamProvider extends ChangeNotifier {
   int _totalPagesForStudent = 1;
 
   bool get hasMore => _currentPage < _totalPages;
-   bool get hasMoreStudentMarks => _currentPageForStudent < _totalPagesForStudent;
+  bool get hasMoreStudentMarks =>
+      _currentPageForStudent < _totalPagesForStudent;
 
   bool _isFetchedOnce = false;
   bool isFetchedOnceForStudent = false;
@@ -79,7 +80,7 @@ class TermExamProvider extends ChangeNotifier {
     if (!loadMore && !forceRefresh && _isFetchedOnce) return;
 
     _isLoadingMarks = true;
-
+    notifyListeners();
     try {
       if (loadMore) {
         _currentPage++;
