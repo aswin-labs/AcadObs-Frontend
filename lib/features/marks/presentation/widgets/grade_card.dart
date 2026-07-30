@@ -2,6 +2,7 @@ import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class GradeCard extends StatelessWidget {
   final int studentId;
@@ -103,7 +104,15 @@ class GradeCard extends StatelessWidget {
                   child: TextField(
                     controller: marksController,
                     textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                      signed: false,
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*[.,]?\d{0,2}'),
+                      ),
+                    ],
                     decoration: InputDecoration(
                       hintText: "0",
                       isDense: true,

@@ -5,14 +5,22 @@ import 'package:acadobs/core/utils/popup_loader.dart';
 import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/data/models/student_mark_model.dart';
 import 'package:acadobs/features/marks/data/services/marks_services.dart';
+import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MarksProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  bool _isLoadingForSingleMarks = false;
+  bool get isLoadingForSingleMarks => _isLoadingForSingleMarks;
+
   bool _isLoadingTwo = false;
   bool get isLoadingTwo => _isLoadingTwo;
+
+  bool _isLoadingForEditDetails = false;
+  bool get isLoadingForEditDetails => _isLoadingForEditDetails;
 
   final List<MarksModel> _marks = [];
   List<MarksModel> get marks => _marks;
@@ -86,7 +94,7 @@ class MarksProvider extends ChangeNotifier {
 
   // Get Single homework
   Future<void> fetchSingleMarks({required int marksId}) async {
-    _isLoading = true;
+    _isLoadingForSingleMarks = true;
     try {
       final response = await MarksServices().fetchSingleMarks(marksId: marksId);
       if (response.statusCode == 200) {
@@ -97,7 +105,7 @@ class MarksProvider extends ChangeNotifier {
     } catch (e) {
       log(e.toString());
     } finally {
-      _isLoading = false;
+      _isLoadingForSingleMarks = false;
       notifyListeners();
     }
   }
@@ -147,12 +155,12 @@ class MarksProvider extends ChangeNotifier {
   Future<void> editMarksDetails({
     required BuildContext context,
     required int marksId,
-    required String title,
-    required String date,
-    required int subjectId,
-    required double totalMarks,
+    String? title,
+    String? date,
+    int? subjectId,
+    double? totalMarks,
   }) async {
-    _isLoadingTwo = true;
+    _isLoadingForEditDetails = true;
     notifyListeners();
     try {
       final response = await MarksServices().editMarksDetails(
@@ -163,7 +171,11 @@ class MarksProvider extends ChangeNotifier {
         subjectId: subjectId,
       );
       if (response.statusCode == 200) {
-        await fetchAddedMarks(forceRefresh: true);
+        if (!context.mounted) return;
+        await context.read<TermExamProvider>().fetchAddedTermExamMarks(
+          forceRefresh: true,
+        );
+        await fetchSingleMarks(marksId: marksId);
         if (!context.mounted) return;
         Navigator.pop(context);
         Navigator.pop(context);
@@ -176,7 +188,7 @@ class MarksProvider extends ChangeNotifier {
     } catch (e) {
       log(e.toString());
     } finally {
-      _isLoadingTwo = false;
+      _isLoadingForEditDetails = false;
       notifyListeners();
     }
   }
@@ -196,10 +208,9 @@ class MarksProvider extends ChangeNotifier {
         editedMarks: editedMarks,
       );
       if (response.statusCode == 200) {
+        await fetchSingleMarks(marksId: marksId);
         if (!context.mounted) return;
         PopupLoader.hide(context);
-        Navigator.pop(context);
-        Navigator.pop(context);
         CustomSnackbar.show(
           context,
           message: "Marks Edited Successfully",

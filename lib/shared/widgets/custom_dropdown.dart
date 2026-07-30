@@ -30,7 +30,7 @@ class CustomDropdown extends StatelessWidget {
                 : null;
 
         return DropdownButtonFormField<String>(
-          value: selectedValue,
+          initialValue: selectedValue,
           decoration: InputDecoration(
             labelText: label,
             border: OutlineInputBorder(

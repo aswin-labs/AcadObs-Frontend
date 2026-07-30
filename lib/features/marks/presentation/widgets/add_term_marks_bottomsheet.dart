@@ -37,6 +37,7 @@ Future<void> showAddTermMarksBottomSheet({
   }
 
   if (!context.mounted) return;
+  dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
   context.read<SharedProvider>().clearSelectedClassId();
   context.read<DropdownProvider>().clearSelectedItem('standard');
   context.read<DropdownProvider>().clearSelectedItem('className');
@@ -299,9 +300,9 @@ Future<void> showAddTermMarksBottomSheet({
                                 isTermExam: true,
                                 term: selectedTermExamName ?? '',
                                 termExamId: selectedTermExamId!,
-                                classId: classId ?? 0,
+                                classId: classId!,
                                 className: className,
-                                subjectId: subject?.id ?? 0,
+                                subjectId: subject!.id,
                                 title: termExamName,
                                 totalMarks: int.parse(
                                   totalMarksController.text.trim(),

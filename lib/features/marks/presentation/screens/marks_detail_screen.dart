@@ -1,5 +1,6 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
+import 'package:acadobs/core/utils/common_shimmer_tile.dart';
 import 'package:acadobs/core/utils/custom_popup_menu.dart';
 import 'package:acadobs/core/utils/detail_section.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
@@ -34,13 +35,6 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final mark = widget.marksParams.mark;
-    final title =
-        mark.termExam?.examName == null
-            ? capitali(mark.internalName)
-            : capitali(
-              "${mark.termExam?.examName ?? ''} - ${mark.internalName} (${mark.termExam?.educationYear ?? ''}) ",
-            );
     return HeroMode(
       enabled: false,
       child: Scaffold(
@@ -49,13 +43,14 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
           isBackButton: true,
           actions: [
             widget.marksParams.isEditNeeded
-                ? Consumer<TermExamProvider>(
-                  builder: (context, provider, _) {
+                ? Consumer2<TermExamProvider, MarksProvider>(
+                  builder: (context, termProvider, markProvider, _) {
+                    final mark = markProvider.singleMarks;
                     return CustomPopupMenu(
                       onEdit:
                           () => context.pushNamed(
                             RouteConstants.marksEdit,
-                            extra: widget.marksParams.mark,
+                            extra: mark,
                           ),
                       onDelete:
                           () => showConfirmationDialog(
@@ -64,9 +59,9 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
                             content:
                                 'Are you sure you want to delete this marks entry?',
                             onConfirm: () {
-                              provider.deleteTermExamMarks(
+                              termProvider.deleteTermExamMarks(
                                 context: context,
-                                marksId: mark.id,
+                                marksId: mark!.id,
                               );
                             },
                           ),
@@ -88,36 +83,71 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
                 ),
                 child: Column(
                   children: [
-                    DetailSection(
-                      title: "Details",
-                      details: {
-                        "Title": title,
-                        "Class": mark.classGrade?.classname ?? "",
-                        "Total Marks": mark.maxMarks,
-                        "Date": DateFormatter.formatDateTime(
-                          mark.date ?? DateTime.now(),
-                        ),
-                        "Subject": mark.subject?.subjectName ?? "Not Specified",
+                    Consumer<MarksProvider>(
+                      builder: (context, provider, _) {
+                        if (provider.isLoadingForSingleMarks) {
+                          return CommonShimmerTile(height: 200);
+                        }
+
+                        final mark = provider.singleMarks;
+
+                        if (mark == null) {
+                          return const SizedBox.shrink();
+                        }
+
+                        final title =
+                            mark.termExam?.examName == null
+                                ? capitali(mark.internalName)
+                                : capitali(
+                                  "${mark.termExam?.examName ?? ''} - ${mark.internalName} (${mark.termExam?.educationYear ?? ''})",
+                                );
+
+                        return DetailSection(
+                          title: "Details",
+                          details: {
+                            "Title": title,
+                            "Class": mark.classGrade?.classname ?? "",
+                            "Total Marks": mark.maxMarks,
+                            "Date": DateFormatter.formatDateTime(
+                              mark.date ?? DateTime.now(),
+                            ),
+                            "Subject":
+                                mark.subject?.subjectName ?? "Not Specified",
+                          },
+                        );
                       },
                     ),
                     SizedBox(height: Responsive.height * 2),
                     Consumer<MarksProvider>(
                       builder: (context, provider, _) {
-                        if (provider.singleMarks?.studentMarks == null) {
+                        if (provider.isLoadingForSingleMarks) {
                           return commonShimmerList();
                         }
+
+                        final studentMarks =
+                            provider.singleMarks?.studentMarks ?? [];
+
+                        if (studentMarks.isEmpty) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 24),
+                              child: Text("No student marks available"),
+                            ),
+                          );
+                        }
+
                         return ListView.builder(
                           shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: provider.singleMarks?.studentMarks!.length,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: studentMarks.length,
                           itemBuilder: (context, index) {
-                            final studentMark =
-                                provider.singleMarks?.studentMarks?[index];
+                            final studentMark = studentMarks[index];
+
                             return _gradeCard(
-                              name: studentMark?.student?.fullName ?? "",
-                              rollNumber: studentMark?.student?.rollNumber ?? 0,
-                              isAbsent: studentMark?.status == "absent",
-                              mark: studentMark?.marksObtained ?? "0",
+                              name: studentMark.student?.fullName ?? "",
+                              rollNumber: studentMark.student?.rollNumber ?? 0,
+                              isAbsent: studentMark.status == "absent",
+                              mark: studentMark.marksObtained ?? "0",
                             );
                           },
                         );

@@ -168,14 +168,7 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
                         );
                       },
                     ),
-                    SizedBox(height: 30),
-                    CommonButton(
-                      onPressed: () {
-                        submitMarks(context);
-                      },
-                      widget: Text('Submit'),
-                    ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 100),
                   ],
                 ),
               ),
@@ -183,6 +176,16 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
           ),
         ],
       ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: CommonButton(
+          onPressed: () {
+            submitMarks(context);
+          },
+          widget: Text('Submit'),
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

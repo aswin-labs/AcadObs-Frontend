@@ -26,6 +26,7 @@ void showAddMarksBottomSheet({required BuildContext context}) {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
   final TextEditingController totalMarksController = TextEditingController();
+  dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
   context.read<SharedProvider>().clearSelectedClassId();
   context.read<DropdownProvider>().clearSelectedItem('standard');
   context.read<DropdownProvider>().clearSelectedItem('className');

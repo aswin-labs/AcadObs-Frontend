@@ -39,6 +39,7 @@ class AppConstants {
     "Casual",
     "Emergency",
     "Vacation",
+    "Onduty",
     "Other",
   ];
 

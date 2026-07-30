@@ -43,19 +43,26 @@ class MarksServices {
   }
 
   // edit mark details
+  // edit mark details
   Future<Response> editMarksDetails({
-    required String title,
-    required String date,
-    required int subjectId,
-    required double totalMarks,
+    String? title,
+    String? date,
+    int? subjectId,
+    double? totalMarks,
     required int marksId,
   }) async {
-    final response = await ApiServices.put("${ApiEndpoints.marks}/$marksId", {
-      "subject_id": subjectId,
-      "internal_name": title,
-      "max_marks": totalMarks,
-      "date": date,
-    });
+    final Map<String, dynamic> data = {};
+
+    if (subjectId != null) data["subject_id"] = subjectId;
+    if (title != null) data["internal_name"] = title;
+    if (totalMarks != null) data["max_marks"] = totalMarks;
+    if (date != null) data["date"] = date;
+
+    final response = await ApiServices.put(
+      "${ApiEndpoints.marks}/$marksId",
+      data,
+    );
+
     return response;
   }
 

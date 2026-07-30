@@ -118,7 +118,9 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProfileProvider>().fetchProfileGuardian();
+      widget.forStaff
+          ? null
+          : context.read<ProfileProvider>().fetchProfileGuardian();
     });
   }
 

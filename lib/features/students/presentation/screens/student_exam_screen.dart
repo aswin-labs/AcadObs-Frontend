@@ -178,72 +178,76 @@ class _TermMarksTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Column(
                 children: [
-                  Consumer<TermExamProvider>(
-                    builder: (context, provider, _) {
-                      if (provider.isLoadingStudentMarks &&
-                          provider.studentMarks.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: commonShimmerList(itemCount: 10),
-                        );
-                      }
-
-                      if (provider.studentMarks.isEmpty) {
-                        return emptyScreen(
-                          message: 'No Marks Found.',
-                          heightMultiplier: 25,
-                        );
-                      }
-                      return ListView.builder(
-                        padding: EdgeInsets.zero,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: provider.studentMarks.length,
-                        itemBuilder: (context, index) {
-                          final studentMark = provider.studentMarks[index];
-                          final title =
-                              "${studentMark.internalExam?.termExam?.examName ?? ''} - ${studentMark.internalExam?.internalName} (${studentMark.internalExam?.termExam?.educationYear ?? ''}) ";
-                          return MarkCard(
-                            examtitle: title,
-                            subject:
-                                studentMark
-                                    .internalExam
-                                    ?.subject
-                                    ?.subjectName ??
-                                "N/A",
-                            mark:
-                                studentMark.marksObtained != null &&
-                                        studentMark.marksObtained!.isNotEmpty
-                                    ? double.parse(studentMark.marksObtained!)
-                                    : 0.0,
-                            total:
-                                studentMark.internalExam?.maxMarks != null &&
-                                        studentMark
-                                            .internalExam!
-                                            .maxMarks
-                                            .isNotEmpty
-                                    ? double.parse(
-                                      studentMark.internalExam!.maxMarks,
-                                    )
-                                    : 0.0,
-                          );
-                        },
-                      );
-                    },
+                  emptyScreen(
+                    message: 'Progress Card Coming Soon',
+                    heightMultiplier: 25,
                   ),
+                  // Consumer<TermExamProvider>(
+                  //   builder: (context, provider, _) {
+                  //     if (provider.isLoadingStudentMarks &&
+                  //         provider.studentMarks.isEmpty) {
+                  //       return Padding(
+                  //         padding: const EdgeInsets.only(top: 16),
+                  //         child: commonShimmerList(itemCount: 10),
+                  //       );
+                  //     }
 
-                  Consumer<TermExamProvider>(
-                    builder: (context, provider, _) {
-                      return provider.isLoadingStudentMarks &&
-                              provider.hasMoreStudentMarks
-                          ? const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                          : const SizedBox();
-                    },
-                  ),
-                  SizedBox(height: Responsive.height * 4),
+                  //     if (provider.studentMarks.isEmpty) {
+                  //       return emptyScreen(
+                  //         message: 'No Marks Found.',
+                  //         heightMultiplier: 25,
+                  //       );
+                  //     }
+                  //     return ListView.builder(
+                  //       padding: EdgeInsets.zero,
+                  //       shrinkWrap: true,
+                  //       physics: NeverScrollableScrollPhysics(),
+                  //       itemCount: provider.studentMarks.length,
+                  //       itemBuilder: (context, index) {
+                  //         final studentMark = provider.studentMarks[index];
+                  //         final title =
+                  //             "${studentMark.internalExam?.termExam?.examName ?? ''} - ${studentMark.internalExam?.internalName} (${studentMark.internalExam?.termExam?.educationYear ?? ''}) ";
+                  //         return MarkCard(
+                  //           examtitle: title,
+                  //           subject:
+                  //               studentMark
+                  //                   .internalExam
+                  //                   ?.subject
+                  //                   ?.subjectName ??
+                  //               "N/A",
+                  //           mark:
+                  //               studentMark.marksObtained != null &&
+                  //                       studentMark.marksObtained!.isNotEmpty
+                  //                   ? double.parse(studentMark.marksObtained!)
+                  //                   : 0.0,
+                  //           total:
+                  //               studentMark.internalExam?.maxMarks != null &&
+                  //                       studentMark
+                  //                           .internalExam!
+                  //                           .maxMarks
+                  //                           .isNotEmpty
+                  //                   ? double.parse(
+                  //                     studentMark.internalExam!.maxMarks,
+                  //                   )
+                  //                   : 0.0,
+                  //         );
+                  //       },
+                  //     );
+                  //   },
+                  // ),
+
+                  // Consumer<TermExamProvider>(
+                  //   builder: (context, provider, _) {
+                  //     return provider.isLoadingStudentMarks &&
+                  //             provider.hasMoreStudentMarks
+                  //         ? const Padding(
+                  //           padding: EdgeInsets.symmetric(vertical: 16),
+                  //           child: Center(child: CircularProgressIndicator()),
+                  //         )
+                  //         : const SizedBox();
+                  //   },
+                  // ),
+                  // SizedBox(height: Responsive.height * 4),
                 ],
               ),
             ),

@@ -52,35 +52,6 @@ class TermExamServices {
     return response;
   }
 
-  // edit mark details
-  Future<Response> editTermExamMarksDetails({
-    required String title,
-    required String date,
-    required int subjectId,
-    required double totalMarks,
-    required int marksId,
-  }) async {
-    final response = await ApiServices.put("${ApiEndpoints.marks}/$marksId", {
-      "subject_id": subjectId,
-      "internal_name": title,
-      "max_marks": totalMarks,
-      "date": date,
-    });
-    return response;
-  }
-
-  // edit student marks
-  Future<Response> editStudentTermExamMarks({
-    required int marksId,
-    required List<Map<String, dynamic>> editedMarks,
-  }) async {
-    final response = await ApiServices.put(ApiEndpoints.marksBulkUpdate, {
-      "internal_id": marksId,
-      "marks": editedMarks,
-    });
-    return response;
-  }
-
   // fetch student marks
   Future<Response> fetchStudentTermExamMarks({
     required int pageNo,
