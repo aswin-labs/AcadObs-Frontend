@@ -4,6 +4,7 @@ import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
+import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
@@ -36,7 +37,8 @@ import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
 class TeacherHomeScreen extends StatefulWidget {
-  const TeacherHomeScreen({super.key});
+  final UserType userType;
+  const TeacherHomeScreen({super.key, required this.userType});
 
   @override
   State<TeacherHomeScreen> createState() => _TeacherHomeScreenState();
@@ -74,25 +76,46 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
 
   bool _isRefreshing = false;
 
+  List<Future<dynamic>> _getRefreshTasks() {
+    final commonTasks = <Future<dynamic>>[
+      authProvider.fetchSchoolDetailsForTeacher(),
+      eventProvider.fetchLatestEvents(forStaff: true),
+      noticeProvider.fetchLatestNotices(),
+      teacherAttendanceProvider.getTodayAttendanceStatus(),
+      achievementProvider.fetchLatestSchoolAchievements(forStaff: true),
+      profileProvider.fetchProfileStaff(),
+      newsProvider.fetchLatestNews(limit: 3, forStaff: true),
+    ];
+
+    switch (widget.userType) {
+      case UserType.teacher:
+        return [
+          ...commonTasks,
+          timeTableProvider.fetchTimeTable(forStaff: true),
+          studentLeaveRequestProvider.getLeaveRequestNotification(),
+        ];
+
+      case UserType.nonTeachingStaff:
+        return commonTasks;
+
+      default:
+        return [];
+    }
+  }
+
   Future<void> refreshAllData() async {
     if (_isRefreshing) return;
 
     _isRefreshing = true;
 
     try {
-      await Future.wait([
-        authProvider.fetchSchoolDetailsForTeacher(),
-        eventProvider.fetchLatestEvents(forStaff: true),
-        noticeProvider.fetchLatestNotices(),
-        newsProvider.fetchLatestNews(limit: 3, forStaff: true),
-        timeTableProvider.fetchTimeTable(forStaff: true),
-        studentLeaveRequestProvider.getLeaveRequestNotification(),
-        teacherAttendanceProvider.getTodayAttendanceStatus(),
-        achievementProvider.fetchLatestSchoolAchievements(forStaff: true),
-        profileProvider.fetchProfileStaff(),
-      ]);
+      final tasks = _getRefreshTasks();
+
+      if (tasks.isNotEmpty) {
+        await Future.wait(tasks);
+      }
     } catch (error, stackTrace) {
-      debugPrint('Teacher home refresh error: $error');
+      debugPrint('${widget.userType.name} home refresh error: $error');
       debugPrintStack(stackTrace: stackTrace);
     } finally {
       _isRefreshing = false;
@@ -377,67 +400,86 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                           const SizedBox(height: 20),
 
                           // Quick Actions Section
-                          _buildSectionHeader("Quick Actions", null),
-                          const SizedBox(height: 12),
-                          buildQuickActions(context),
-
-                          // my class
-                          Consumer2<AuthProvider, StudentLeaveRequestProvider>(
-                            builder: (context, authProvider, leaveProvider, _) {
-                              final classData =
-                                  authProvider.schoolDetails?["Class"];
-                              final leaveNotificationCount =
-                                  leaveProvider.leaveNotificationCount;
-
-                              if (classData is! Map) {
-                                return const SizedBox.shrink();
-                              }
-
-                              final classId = classData["id"];
-                              final className =
-                                  classData["classname"]?.toString() ?? '';
-
-                              if (classId == null || className.isEmpty) {
-                                return const SizedBox.shrink();
-                              }
-
-                              return Column(
+                          widget.userType == UserType.teacher
+                              ? Column(
                                 children: [
-                                  const SizedBox(height: 10),
-                                  QuickActionCard(
-                                    icon: LucideIcons.school,
-                                    label: "My Class Details",
-                                    notificationCount: leaveNotificationCount,
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFF7B61FF),
-                                        Color(0xFF5B42F3),
-                                      ],
-                                    ),
-                                    onTap: () {
-                                      context.pushNamed(
-                                        RouteConstants.myClassesScreen,
-                                        extra: ClassGradeModel(
-                                          id:
-                                              classId is int
-                                                  ? classId
-                                                  : int.parse(
-                                                    classId.toString(),
-                                                  ),
-                                          classname: className,
-                                        ),
+                                  _buildSectionHeader("Quick Actions", null),
+                                  const SizedBox(height: 12),
+                                  buildQuickActions(context),
+
+                                  // my class
+                                  Consumer2<
+                                    AuthProvider,
+                                    StudentLeaveRequestProvider
+                                  >(
+                                    builder: (
+                                      context,
+                                      authProvider,
+                                      leaveProvider,
+                                      _,
+                                    ) {
+                                      final classData =
+                                          authProvider.schoolDetails?["Class"];
+                                      final leaveNotificationCount =
+                                          leaveProvider.leaveNotificationCount;
+
+                                      if (classData is! Map) {
+                                        return const SizedBox.shrink();
+                                      }
+
+                                      final classId = classData["id"];
+                                      final className =
+                                          classData["classname"]?.toString() ??
+                                          '';
+
+                                      if (classId == null ||
+                                          className.isEmpty) {
+                                        return const SizedBox.shrink();
+                                      }
+
+                                      return Column(
+                                        children: [
+                                          const SizedBox(height: 10),
+                                          QuickActionCard(
+                                            icon: LucideIcons.school,
+                                            label: "My Class Details",
+                                            notificationCount:
+                                                leaveNotificationCount,
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFF7B61FF),
+                                                Color(0xFF5B42F3),
+                                              ],
+                                            ),
+                                            onTap: () {
+                                              context.pushNamed(
+                                                RouteConstants.myClassesScreen,
+                                                extra: ClassGradeModel(
+                                                  id:
+                                                      classId is int
+                                                          ? classId
+                                                          : int.parse(
+                                                            classId.toString(),
+                                                          ),
+                                                  classname: className,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
                                       );
                                     },
                                   ),
-                                ],
-                              );
-                            },
-                          ),
 
-                          // Today's Schedule Section
-                          buildTimeTableSection(context),
-                          buildSubstitutionSection(context),
-                          const SizedBox(height: 24),
+                                  // Today's Schedule Section
+                                  buildTimeTableSection(context),
+                                  buildSubstitutionSection(context),
+                                  const SizedBox(height: 24),
+                                ],
+                              )
+                              : SizedBox.shrink(),
+
+                          // Updates Section
                           _buildSectionHeader("Updates", null),
                           // Latest Notices
                           NoticeSection(),
@@ -459,13 +501,16 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
             if (!networkProvider.isConnected) OfflineBanner(),
           ],
         ),
-        floatingActionButton: CommonFloatingButton(
-          onPressed:
-              () => showDialog(
-                context: context,
-                builder: (context) => FabOptionsDialog(),
-              ),
-        ),
+        floatingActionButton:
+            widget.userType == UserType.teacher
+                ? CommonFloatingButton(
+                  onPressed:
+                      () => showDialog(
+                        context: context,
+                        builder: (context) => FabOptionsDialog(),
+                      ),
+                )
+                : null,
       ),
     );
   }

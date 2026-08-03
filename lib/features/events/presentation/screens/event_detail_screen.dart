@@ -220,8 +220,43 @@ class EventDetailScreen extends StatelessWidget {
                     ),
                   ),
 
+                  const SizedBox(height: 4),
+                  events.venue == null
+                      ? SizedBox.shrink()
+                      : Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade50,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              size: 20,
+                              color: Colors.grey.shade600,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              capitalizeEachWord(
+                                events.venue ?? "Venue not mentioned",
+                              ),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey.shade700,
+                                height: 1.6,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                   const SizedBox(height: 24),
-
                   // Created Time Info Card
                   Container(
                     padding: const EdgeInsets.symmetric(

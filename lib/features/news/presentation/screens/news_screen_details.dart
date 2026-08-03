@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
@@ -27,6 +29,9 @@ class _NewsScreenDetailsState extends State<NewsScreenDetails> {
 
   @override
   Widget build(BuildContext context) {
+    log(
+      "NewsScreenDetails: ${widget.news.title}, Date: ${widget.news.date}, Images: ${widget.news.images.length}",
+    );
     return Scaffold(
       appBar: CommonAppBar(title: widget.news.title, isBackButton: true),
       body: CustomScrollView(
@@ -108,6 +113,7 @@ class _NewsScreenDetailsState extends State<NewsScreenDetails> {
                   BaseUrls.media +
                   MediaEndpoints.newsImages +
                   (images[index].imageUrl ?? '');
+              log("Image URL: $imageUrl"); // Log the image URL for debugging
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -208,6 +214,8 @@ class _NewsScreenDetailsState extends State<NewsScreenDetails> {
             ),
           ),
         ),
+        SizedBox(height: 16),
+        
       ],
     );
   }

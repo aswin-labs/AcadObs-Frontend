@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 News newsFromJson(String str) => News.fromJson(json.decode(str));
+// toJson
+String newsToJson(News data) => json.encode(data.toJson());
 
 class News {
   int? id;
@@ -9,7 +11,7 @@ class News {
   String content;
   DateTime date;
   int? userId;
-  List<NewsImage> images; 
+  List<NewsImage> images;
   bool? trash;
   DateTime createdAt;
   DateTime? updatedAt;
@@ -35,20 +37,31 @@ class News {
       content: json["content"] ?? "",
       date: DateTime.parse(json["date"]),
       userId: json["user_id"],
-      images: json["NewsImages"] == null
-          ? []
-          : (json["NewsImages"] as List)
-              .map((e) => NewsImage.fromJson(e))
-              .toList(),
+      images:
+          json["images"] == null
+              ? []
+              : (json["images"] as List)
+                  .map((e) => NewsImage.fromJson(e))
+                  .toList(),
       trash: json["trash"],
       createdAt: DateTime.parse(json["createdAt"]),
-      updatedAt: json["updatedAt"] == null
-          ? null
-          : DateTime.parse(json["updatedAt"]),
+      updatedAt:
+          json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
     );
   }
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "school_id": schoolId,
+    "title": title,
+    "content": content,
+    "date": date.toIso8601String(),
+    "user_id": userId,
+    "NewsImages": images.map((e) => e.toJson()).toList(),
+    "trash": trash,
+    "createdAt": createdAt.toIso8601String(),
+    "updatedAt": updatedAt?.toIso8601String(),
+  };
 }
-
 
 class NewsImage {
   int? id;
@@ -61,4 +74,9 @@ class NewsImage {
     imageUrl: json["image_url"],
     caption: json["caption"],
   );
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "image_url": imageUrl,
+    "caption": caption,
+  };
 }

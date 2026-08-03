@@ -12,6 +12,7 @@ class EventModel {
   String? description;
   DateTime? date;
   String? file;
+  String? venue;
 
   EventModel({
     this.createdAt,
@@ -23,6 +24,7 @@ class EventModel {
     this.description,
     this.date,
     this.file,
+    this.venue,
   });
 
   factory EventModel.fromJson(Map<String, dynamic> json) => EventModel(
@@ -37,5 +39,6 @@ class EventModel {
     description: json['description'],
     date: json["date"] == null ? null : DateTime.parse(json["date"]),
     file: json["file"],
+    venue: json["venue"],
   );
 }

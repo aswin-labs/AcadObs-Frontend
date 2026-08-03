@@ -110,6 +110,13 @@ class AuthProvider with ChangeNotifier {
             RouteConstants.bottomNavScreen,
             extra: UserType.teacher,
           );
+        } else if (userRole == 'staff') {
+          await fetchSchoolDetailsForTeacher();
+          if (!context.mounted) return;
+          context.pushReplacementNamed(
+            RouteConstants.bottomNavScreen,
+            extra: UserType.nonTeachingStaff,
+          );
         }
         return;
       }

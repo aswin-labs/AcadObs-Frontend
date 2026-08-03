@@ -13,6 +13,7 @@ import 'package:acadobs/features/parents/presentation/screens/teachers_listing_s
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/teacher_home_screen.dart';
+import 'package:acadobs/features/teacher/presentation/leave_request/screens/teacher_leave_request_home_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +57,10 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         _userType = UserType.parent;
       } else if (role == 'teacher') {
         _userType = UserType.teacher;
+      } else if (role == 'staff') {
+        _userType = UserType.nonTeachingStaff;
+      } else {
+        _userType = null;
       }
 
       if (_userType != null) {
@@ -81,7 +86,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   List<Widget> _getPages(UserType userType) {
     if (userType == UserType.teacher) {
       return [
-        TeacherHomeScreen(),
+        TeacherHomeScreen(userType: userType),
         AttendanceHomeScreen(),
         MarksHomeScreen(),
         DutyHomeScreen(),
@@ -94,6 +99,12 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         NewsListingScreen(forStaff: false),
         PaymentsHomeScreen(),
         TeachersListingScreen(),
+      ];
+    } else if (userType == UserType.nonTeachingStaff) {
+      return [
+        TeacherHomeScreen(userType: userType),
+        DutyHomeScreen(),
+        TeacherLeaveRequestHomeScreen(),
       ];
     } else {
       return [];
@@ -117,6 +128,12 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         _bottomNavItem(icon: LucideIcons.bell, label: 'News'),
         _bottomNavItem(icon: LucideIcons.creditCard, label: 'Payments'),
         _bottomNavItem(icon: LucideIcons.users, label: 'Teachers'),
+      ];
+    } else if (userType == UserType.nonTeachingStaff) {
+      return [
+        _bottomNavItem(icon: LucideIcons.home, label: 'Home'),
+        _bottomNavItem(icon: LucideIcons.listTodo, label: 'Duties'),
+        _bottomNavItem(icon: LucideIcons.notepadText, label: 'My Leaves'),
       ];
     } else {
       return [];

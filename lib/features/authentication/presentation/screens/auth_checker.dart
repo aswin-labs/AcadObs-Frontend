@@ -39,6 +39,11 @@ class _AuthCheckerState extends State<AuthChecker> {
           RouteConstants.bottomNavScreen,
           extra: UserType.teacher,
         );
+      } else if (userRole == 'staff') {
+        context.pushReplacementNamed(
+          RouteConstants.bottomNavScreen,
+          extra: UserType.nonTeachingStaff,
+        );
       }
       return;
     } else {

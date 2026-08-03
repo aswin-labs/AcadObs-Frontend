@@ -204,6 +204,8 @@ class _TermMarksTab extends StatelessWidget {
                             "${mark.termExam?.examName ?? ''} - ${mark.internalName} (${mark.termExam?.educationYear ?? ''}) ",
                           );
                           final subjectName = mark.subject?.subjectName ?? "";
+                          // final className = mark.classGrade?.classname ?? "";
+                          
 
                           return ItemCard(
                             title:

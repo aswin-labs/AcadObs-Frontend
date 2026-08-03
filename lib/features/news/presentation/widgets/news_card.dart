@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/news/data/models/news_model.dart';
@@ -34,6 +37,7 @@ class NewsCard extends StatelessWidget {
                 MediaEndpoints.newsImages +
                 news.images.first.imageUrl!
             : null;
+    log(jsonEncode(news.toJson())); // Log the image URL for debugging
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
