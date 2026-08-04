@@ -7,6 +7,7 @@ import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/homework/data/models/homework_model.dart';
 import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
+import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/download_file_card.dart';
@@ -64,6 +65,10 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                       _gap(2),
                       _description(widget.homework.description),
                       _gap(2),
+                      widget.homework.forStudent == true
+                          ? _studentStatus(widget.homework.studentPoints)
+                          : _markHomeworkButton(provider.singleHomework),
+                      _gap(2),
                       Row(
                         children: [
                           Expanded(child: _dueDate(widget.homework.dueDate)),
@@ -111,11 +116,6 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                         _gap(2),
                         _assignedBy(widget.homework.user?.name ?? ""),
                       ],
-
-                      _gap(2),
-                      widget.homework.forStudent == true
-                          ? _studentStatus(widget.homework.studentPoints)
-                          : _markHomeworkButton(provider.singleHomework),
 
                       _gap(2),
 
@@ -430,9 +430,13 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
   Widget _markHomeworkButton(HomeworkModel? homework) {
     return GestureDetector(
       onTap: () {
+        if (homework == null) return; // guard against nullable homework
         context.pushNamed(
           RouteConstants.homeworkRankingScreen,
-          extra: homework,
+          extra: HomeworkRankScreenParameters(
+            homework: homework,
+            forClassTeacher: false,
+          ),
         );
       },
       child: Container(

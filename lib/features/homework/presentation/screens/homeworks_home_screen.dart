@@ -5,6 +5,7 @@ import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
 import 'package:acadobs/features/homework/presentation/widgets/create_homework_bottomsheet.dart';
+import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
@@ -15,7 +16,8 @@ import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class HomeworksHomeScreen extends StatefulWidget {
-  const HomeworksHomeScreen({super.key});
+  final bool forClassTeacher;
+  const HomeworksHomeScreen({super.key, required this.forClassTeacher});
 
   @override
   State<HomeworksHomeScreen> createState() => _HomeworksHomeScreenState();
@@ -29,14 +31,20 @@ class _HomeworksHomeScreenState extends State<HomeworksHomeScreen> {
   void initState() {
     super.initState();
     _provider = context.read<HomeworkProvider>();
-    _provider.fetchHomeworks(forceRefresh: true);
+    _provider.fetchHomeworks(
+      forceRefresh: true,
+      forClassTeacher: widget.forClassTeacher,
+    );
 
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 200 &&
           !_provider.isLoading &&
           _provider.hasMore) {
-        _provider.fetchHomeworks(loadMore: true);
+        _provider.fetchHomeworks(
+          loadMore: true,
+          forClassTeacher: widget.forClassTeacher,
+        );
       }
     });
   }
@@ -52,7 +60,11 @@ class _HomeworksHomeScreenState extends State<HomeworksHomeScreen> {
     return Scaffold(
       appBar: CommonAppBar(title: "Homeworks", isBackButton: true),
       body: RefreshIndicator(
-        onRefresh: () => _provider.fetchHomeworks(forceRefresh: true),
+        onRefresh:
+            () => _provider.fetchHomeworks(
+              forceRefresh: true,
+              forClassTeacher: widget.forClassTeacher,
+            ),
         child: Consumer<HomeworkProvider>(
           builder: (context, provider, _) {
             if (provider.isLoading && provider.homeworks.isEmpty) {
@@ -103,18 +115,32 @@ class _HomeworksHomeScreenState extends State<HomeworksHomeScreen> {
                     ...grouped.homeworks!.map(
                       (hw) => ItemCard(
                         title: hw.title ?? "",
-                        description: hw.classGrade?.classname ?? "",
+                        description:
+                            widget.forClassTeacher
+                                ? "${hw.subject?.subjectName ?? "Subject Not Mentioned"} - ${hw.user?.name ?? " "}"
+                                : hw.classGrade?.classname ?? "",
                         iconColor: const Color(0xFFB14F6F),
                         status:
-                            "Due: ${DateFormatter.formatDateTime(hw.dueDate ?? DateTime.now())}",
+                            widget.forClassTeacher
+                                ? ""
+                                : "Due: ${DateFormatter.formatDateTime(hw.dueDate ?? DateTime.now())}",
                         backgroundColor: const Color(0xFFFFCEDE),
                         icon: LucideIcons.clipboardList,
 
                         onTap:
-                            () => context.pushNamed(
-                              RouteConstants.homeworkDetails,
-                              extra: hw,
-                            ),
+                            () =>
+                                widget.forClassTeacher
+                                    ? context.pushNamed(
+                                      RouteConstants.homeworkRankingScreen,
+                                      extra: HomeworkRankScreenParameters(
+                                        homework: hw,
+                                        forClassTeacher: widget.forClassTeacher,
+                                      ),
+                                    )
+                                    : context.pushNamed(
+                                      RouteConstants.homeworkDetails,
+                                      extra: hw,
+                                    ),
                       ),
                     ),
                     SizedBox(height: Responsive.height * 2),
@@ -125,12 +151,16 @@ class _HomeworksHomeScreenState extends State<HomeworksHomeScreen> {
           },
         ),
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(16),
-        child: CommonFloatingButton(
-          onPressed: () => showCreateHomeworkBottomSheet(context: context),
-        ),
-      ),
+      floatingActionButton:
+          widget.forClassTeacher
+              ? null
+              : Padding(
+                padding: const EdgeInsets.all(16),
+                child: CommonFloatingButton(
+                  onPressed:
+                      () => showCreateHomeworkBottomSheet(context: context),
+                ),
+              ),
     );
   }
 }

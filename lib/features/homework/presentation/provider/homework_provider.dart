@@ -7,6 +7,7 @@ import 'package:acadobs/features/homework/data/models/homework_model.dart';
 import 'package:acadobs/features/homework/data/models/student_homework_model.dart';
 import 'package:acadobs/features/homework/data/services/homework_services.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
+import 'package:acadobs/features/teacher/data/services/my_class_services.dart';
 import 'package:flutter/material.dart';
 // import 'package:http/http.dart';
 import 'package:provider/provider.dart';
@@ -53,6 +54,7 @@ class HomeworkProvider extends ChangeNotifier {
   Future<void> fetchHomeworks({
     bool loadMore = false,
     bool forceRefresh = false,
+    bool forClassTeacher = false,
   }) async {
     if (_isLoading) return;
 
@@ -72,9 +74,14 @@ class HomeworkProvider extends ChangeNotifier {
         _currentPage = 1;
         _homeworks.clear();
       }
-      final response = await HomeworkServices().fetchHomeworksByTeacher(
-        pageNo: _currentPage,
-      );
+      final response =
+          forClassTeacher
+              ? await MyClassServices().fetchMyClassHomeworks(
+                pageNo: _currentPage,
+              )
+              : await HomeworkServices().fetchHomeworksByTeacher(
+                pageNo: _currentPage,
+              );
       if (response.statusCode == 200) {
         final data = response.data;
 

@@ -16,7 +16,9 @@ Widget buildQuickActions(BuildContext context) {
               gradient: const LinearGradient(
                 colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
               ),
-              onTap: () => context.pushNamed(RouteConstants.homeworks),
+              onTap:
+                  () =>
+                      context.pushNamed(RouteConstants.homeworks, extra: false),
             ),
           ),
           Expanded(

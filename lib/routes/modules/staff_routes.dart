@@ -137,7 +137,10 @@ List<GoRoute> staffRoutes = [
   GoRoute(
     path: '/homeworks',
     name: RouteConstants.homeworks,
-    builder: (context, state) => HomeworksHomeScreen(),
+    builder: (context, state) {
+      bool forClassTeacher = state.extra as bool;
+      return HomeworksHomeScreen(forClassTeacher: forClassTeacher);
+    },
   ),
   GoRoute(
     path: '/homeworkDetails',
@@ -160,8 +163,9 @@ List<GoRoute> staffRoutes = [
     path: '/homeworkRankingScreen',
     name: RouteConstants.homeworkRankingScreen,
     builder: (context, state) {
-      HomeworkModel homework = state.extra as HomeworkModel;
-      return HomeworkRankingScreen(homework: homework);
+      HomeworkRankScreenParameters params =
+          state.extra as HomeworkRankScreenParameters;
+      return HomeworkRankingScreen(homeworkParams: params);
     },
   ),
 
@@ -485,4 +489,13 @@ class MarkDetailParameters {
   final MarksModel mark;
   final bool isEditNeeded;
   MarkDetailParameters({required this.mark, required this.isEditNeeded});
+}
+
+class HomeworkRankScreenParameters {
+  final HomeworkModel homework;
+  final bool forClassTeacher;
+  HomeworkRankScreenParameters({
+    required this.homework,
+    required this.forClassTeacher,
+  });
 }

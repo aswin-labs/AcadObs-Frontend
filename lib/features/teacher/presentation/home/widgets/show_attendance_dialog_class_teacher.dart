@@ -3,6 +3,7 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
+import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -16,8 +17,10 @@ Future<void> showAttendancePeriodDialog({
   required BuildContext context,
 }) async {
   final formKey = GlobalKey<FormState>();
+  final TextEditingController dateController = TextEditingController();
 
   context.read<DropdownProvider>().clearSelectedItem('period');
+  dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
   await showDialog(
     context: context,
@@ -93,6 +96,16 @@ Future<void> showAttendancePeriodDialog({
                     ],
                   ),
                   const SizedBox(height: 20),
+                  CustomDatePicker(
+                    label: "Date*",
+                    dateController: dateController,
+                    onDateSelected: (selectedDate) {
+                      dateController.text = DateFormat(
+                        'dd/MM/yyyy',
+                      ).format(selectedDate);
+                    },
+                  ),
+                  SizedBox(height: 10),
                   FutureBuilder<List<String>>(
                     future: loadPeriods(),
                     builder: (context, snapshot) {
@@ -160,7 +173,7 @@ Future<void> showAttendancePeriodDialog({
                         RouteConstants.attendanceTaking,
                         extra: AttendanceUploadModel(
                           classId: classId,
-                          date: DateFormat('yyyy-MM-dd').format(DateTime.now()),
+                          date: dateController.text,
                           className: className,
                           period: parsedPeriod,
                         ),

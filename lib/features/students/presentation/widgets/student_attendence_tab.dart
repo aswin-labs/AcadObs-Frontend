@@ -147,7 +147,6 @@ class _StudentAttendenceTabState extends State<StudentAttendenceTab> {
             },
           ),
         ],
-
         SizedBox(height: 20),
       ],
     );

@@ -158,7 +158,7 @@ class _MyClassScreenState extends State<MyClassScreen> {
                     Expanded(
                       child: StudentFeatureCard(
                         icon: Icons.check_circle_outline,
-                        title: 'Today Attendance',
+                        title: 'Class Attendance',
                         color: Colors.green,
                         onTap: () {
                           showAttendancePeriodDialog(
@@ -181,6 +181,37 @@ class _MyClassScreenState extends State<MyClassScreen> {
                             extra: widget.classGrade,
                           );
                         },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: StudentFeatureCard(
+                        title: 'Homeworks',
+                        icon: Icons.assignment_outlined,
+                        color: Colors.orange,
+                        onTap: () {
+                          context.pushNamed(
+                            RouteConstants.homeworks,
+                            extra: true,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: StudentFeatureCard(
+                        title: 'Time Table',
+                        icon: Icons.calendar_month_outlined,
+                        color: Colors.indigo,
+                        onTap: () {},
                       ),
                     ),
                     const SizedBox(width: 10),

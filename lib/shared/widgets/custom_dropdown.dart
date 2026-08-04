@@ -31,6 +31,7 @@ class CustomDropdown extends StatelessWidget {
 
         return DropdownButtonFormField<String>(
           initialValue: selectedValue,
+          isExpanded: true,
           decoration: InputDecoration(
             labelText: label,
             border: OutlineInputBorder(
@@ -47,7 +48,11 @@ class CustomDropdown extends StatelessWidget {
               items.map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value),
+                  child: Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
                 );
               }).toList(),
           onChanged: (String? newValue) {

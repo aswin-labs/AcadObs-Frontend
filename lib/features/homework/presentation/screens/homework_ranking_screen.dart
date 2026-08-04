@@ -1,10 +1,8 @@
 import 'dart:developer';
 
-import 'package:acadobs/core/extensions/context_extensions.dart';
-import 'package:acadobs/core/utils/button_loading.dart';
-import 'package:acadobs/features/homework/data/models/homework_model.dart';
 import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
 import 'package:acadobs/features/homework/presentation/widgets/ranking_card.dart';
+import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +10,8 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class HomeworkRankingScreen extends StatefulWidget {
-  final HomeworkModel homework;
-  const HomeworkRankingScreen({super.key, required this.homework});
+  final HomeworkRankScreenParameters homeworkParams;
+  const HomeworkRankingScreen({super.key, required this.homeworkParams});
 
   @override
   State<HomeworkRankingScreen> createState() => _HomeworkRankingScreenState();
@@ -24,10 +22,13 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      log("studentHomeworkStatus: ${widget.homework.studentHomeworkStatus}");
+      log(
+        "studentHomeworkStatus: ${widget.homeworkParams.homework.studentHomeworkStatus}",
+      );
 
       final provider = context.read<HomeworkProvider>();
-      for (var status in widget.homework.studentHomeworkStatus ?? []) {
+      for (var status
+          in widget.homeworkParams.homework.studentHomeworkStatus ?? []) {
         final id = status.student?.id;
         if (id != null) {
           if (status.points != null) {
@@ -40,24 +41,26 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    //button function
-    void buttonFunction(BuildContext context) async {
-      final provider = Provider.of<HomeworkProvider>(context, listen: false);
-      final studentPoints = provider.studentRankingsList;
+    final homework = widget.homeworkParams.homework;
+    final dueDate = homework.dueDate;
 
-      log("Submitting rankings: $studentPoints");
+    Future<void> submitRankings() async {
+      final provider = context.read<HomeworkProvider>();
+      final studentPoints = provider.studentRankingsList;
 
       if (studentPoints.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Please assign at least one point')),
+          const SnackBar(content: Text('Please assign at least one point')),
         );
         return;
       }
+
       await provider.homeworkRanking(
         context: context,
-        homeworkId: widget.homework.id ?? 0,
+        homeworkId: homework.id ?? 0,
         assignments: studentPoints,
       );
+
       if (!context.mounted) return;
 
       Navigator.pop(context);
@@ -65,365 +68,358 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
     }
 
     return Scaffold(
-      appBar: CommonAppBar(title: 'Homework Ranking', isBackButton: true),
-      body: Column(
-        children: [
-          // Header Section with Enhanced Design
-          Container(
-            width: double.infinity,
-            margin: EdgeInsets.all(16),
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0xFF6366F1).withAlpha(77),
-                  blurRadius: 15,
-                  offset: Offset(0, 8),
+      extendBody: true,
+      appBar: CommonAppBar(
+        title:
+            widget.homeworkParams.forClassTeacher
+                ? "Homework Details"
+                : 'Homework Ranking',
+        isBackButton: true,
+      ),
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          widget.homeworkParams.forClassTeacher
+              ? SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
                 ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(51),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Icon(
-                        Icons.calendar_today,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Text(
-                      'Due Date',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Text(
-                  DateFormat('dd MMM yyyy').format(widget.homework.dueDate!),
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Students Count Badge
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade300, width: 1),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.people_outline,
-                        size: 18,
-                        color: Color(0xFF6366F1),
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        '${widget.homework.studentHomeworkStatus?.length ?? 0} Students',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700,
+                sliver: SliverToBoxAdapter(
+                  child: Container(
+                    padding: const EdgeInsets.all(18),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(10),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _detailRow(
+                          Icons.title_rounded,
+                          "Title",
+                          homework.title ?? "No title",
+                        ),
+
+                        const SizedBox(height: 14),
+                        _detailRow(
+                          Icons.subject_outlined,
+                          "Subject",
+                          homework.subject?.subjectName ?? "Not Mentioned",
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        _detailRow(
+                          Icons.person_outline,
+                          "Recorded By",
+                          homework.user?.name ?? "Not Mentioned",
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        _detailRow(
+                          Icons.description_outlined,
+                          "Description",
+                          homework.description ?? "No description available",
+                          isDescription: true,
+                        ),
+                        const SizedBox(height: 14),
+
+                        _detailRow(
+                          Icons.calendar_month_outlined,
+                          "Due Date",
+                          dueDate != null
+                              ? DateFormat('dd MMM yyyy').format(dueDate)
+                              : "Not Mentioned",
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                Spacer(),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF6366F1).withAlpha(25),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.emoji_events_outlined,
-                        size: 18,
-                        color: Color(0xFF6366F1),
+              )
+              : SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 16,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 20,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      SizedBox(width: 6),
-                      Text(
-                        'Rank Students',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF6366F1).withAlpha(77),
+                          blurRadius: 15,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withAlpha(51),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.calendar_today,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Due Date',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          dueDate != null
+                              ? DateFormat('dd MMM yyyy').format(dueDate)
+                              : 'Due date not mentioned',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+          // Student count and ranking label
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverToBoxAdapter(
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.people_outline,
+                          size: 18,
                           color: Color(0xFF6366F1),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: 20),
-
-          // Students List
-          Expanded(
-            child: Padding(
-              padding: context.paddingHorizontal,
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                itemCount: widget.homework.studentHomeworkStatus?.length ?? 0,
-                itemBuilder: (context, index) {
-                  return Consumer<HomeworkProvider>(
-                    builder: (context, provider, _) {
-                      final studentStatus =
-                          provider
-                              .singleHomework
-                              ?.studentHomeworkStatus?[index];
-
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: RankingCard(
-                          studentId: studentStatus?.student?.id ?? 0,
-                          name: studentStatus?.student?.fullName ?? "",
-                          number:
-                              studentStatus?.student?.rollNumber?.toString() ??
-                              "",
-                          point: provider.getPoint(
-                            studentStatus?.student?.id ?? 0,
+                        const SizedBox(width: 8),
+                        Text(
+                          '${homework.studentHomeworkStatus?.length ?? 0} Students',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade700,
                           ),
-                          homeworkId: studentStatus?.id ?? 0,
-                          remark: studentStatus?.remark ?? "",
                         ),
-                      );
-                    },
-                  );
-                },
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6366F1).withAlpha(25),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.emoji_events_outlined,
+                          size: 18,
+                          color: Color(0xFF6366F1),
+                        ),
+                        SizedBox(width: 6),
+                        Text(
+                          widget.homeworkParams.forClassTeacher
+                              ? 'View Points'
+                              : 'Rank Students',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF6366F1),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
 
-          // Bottom padding for FAB
-          SizedBox(height: 80),
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+          // Students list
+          Consumer<HomeworkProvider>(
+            builder: (context, provider, _) {
+              final studentStatuses =
+                  provider.singleHomework?.studentHomeworkStatus ??
+                  homework.studentHomeworkStatus ??
+                  [];
+
+              if (studentStatuses.isEmpty) {
+                return const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(child: Text('No students found')),
+                );
+              }
+
+              return SliverPadding(
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  bottom: widget.homeworkParams.forClassTeacher ? 24 : 110,
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final studentStatus = studentStatuses[index];
+                    final studentId = studentStatus.student?.id ?? 0;
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: RankingCard(
+                        studentId: studentId,
+                        name: studentStatus.student?.fullName ?? '',
+                        number:
+                            studentStatus.student?.rollNumber?.toString() ?? '',
+                        point: provider.getPoint(studentId),
+                        homeworkId: studentStatus.id ?? 0,
+                        remark: studentStatus.remark ?? '',
+                        forViewing: !widget.homeworkParams.forClassTeacher,
+                      ),
+                    );
+                  }, childCount: studentStatuses.length),
+                ),
+              );
+            },
+          ),
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Consumer<HomeworkProvider>(
-        builder: (context, provider, _) {
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0xFF6366F1).withAlpha(77),
-                  blurRadius: 20,
-                  offset: Offset(0, 8),
+      floatingActionButton:
+          widget.homeworkParams.forClassTeacher
+              ? null
+              : SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Consumer<HomeworkProvider>(
+                    builder: (context, provider, _) {
+                      return CommonButton(
+                        onPressed:
+                            provider.isLoadingTwo ? null : submitRankings,
+                        widget:
+                            provider.isLoadingTwo
+                                ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                                : const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.check_circle_outline,
+                                      size: 20,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Submit Rankings',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                      );
+                    },
+                  ),
                 ),
-              ],
-            ),
-            child: CommonButton(
-              onPressed: () async {
-                buttonFunction(context);
-              },
-              widget:
-                  provider.isLoadingTwo
-                      ? ButtonLoading()
-                      : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.check_circle_outline,
-                            size: 20,
-                            color: Colors.white,
-                          ),
-                          SizedBox(width: 8),
-                          Text(
-                            "Submit Rankings",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-            ),
-          );
-        },
-      ),
+              ),
+    );
+  }
+
+  Widget _detailRow(
+    IconData icon,
+    String label,
+    String value, {
+    bool isDescription = false,
+  }) {
+    return Row(
+      crossAxisAlignment:
+          isDescription ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+      children: [
+        Icon(icon, size: 20, color: const Color(0xFF6366F1)),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
-
-// import 'dart:developer';
-
-// import 'package:acadobs/core/extensions/context_extensions.dart';
-// import 'package:acadobs/core/utils/button_loading.dart';
-// import 'package:acadobs/core/utils/responsive.dart';
-// import 'package:acadobs/features/homework/data/models/homework_model.dart';
-// import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
-// import 'package:acadobs/features/homework/presentation/widgets/ranking_card.dart';
-// import 'package:acadobs/shared/widgets/common_appbar.dart';
-// import 'package:acadobs/shared/widgets/common_button.dart';
-// import 'package:flutter/material.dart';
-// import 'package:intl/intl.dart';
-// import 'package:provider/provider.dart';
-
-// class HomeworkRankingScreen extends StatefulWidget {
-//   final HomeworkModel homework;
-//   const HomeworkRankingScreen({super.key, required this.homework});
-
-//   @override
-//   State<HomeworkRankingScreen> createState() => _HomeworkRankingScreenState();
-// }
-
-// class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     WidgetsBinding.instance.addPostFrameCallback((_) {
-//       log("studentHomeworkStatus: ${widget.homework.studentHomeworkStatus}");
-
-//       final provider = context.read<HomeworkProvider>();
-//       for (var status in widget.homework.studentHomeworkStatus ?? []) {
-//         final id = status.student?.id;
-//         if (id != null) {
-//           if (status.points != null) {
-//             provider.updatePoint(id, status.points!);
-//           }
-//           // if (status.remark != null) {
-//           //   provider.updateRemark(id, status.remark!);
-//           // }
-//         }
-//       }
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     //button function
-//     void buttonFunction(BuildContext context) async {
-//       final provider = Provider.of<HomeworkProvider>(context, listen: false);
-//       final studentPoints = provider.studentRankingsList;
-
-//       log("Submitting rankings: $studentPoints");
-
-//       if (studentPoints.isEmpty) {
-//         ScaffoldMessenger.of(context).showSnackBar(
-//           SnackBar(content: Text('Please assign at least one point')),
-//         );
-//         return;
-//       }
-//       await provider.homeworkRanking(
-//         context: context,
-//         homeworkId: widget.homework.id ?? 0,
-//         assignments: studentPoints,
-//       );
-//       if (!context.mounted) return;
-
-//       Navigator.pop(context);
-//       Navigator.pop(context);
-//     }
-
-//     return Scaffold(
-//       appBar: CommonAppBar(title: 'Homework', isBackButton: true),
-//       body: Padding(
-//         padding: context.paddingHorizontal.add(
-//           EdgeInsets.only(top: Responsive.height * 2),
-//         ),
-//         child: SingleChildScrollView(
-//           physics: const BouncingScrollPhysics(),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.center,
-//             children: [
-//               Text(
-//                 // '23/07/2025',
-//                 // widget.homework.dueDate.toString(),
-//                 DateFormat('dd MMM yyyy').format(widget.homework.dueDate!),
-//                 style: TextStyle(fontSize: 24, color: Color(0xFF6F6F6F)),
-//               ),
-//               SizedBox(height: 10),
-
-//               ListView.builder(
-//                 shrinkWrap: true,
-//                 physics: const BouncingScrollPhysics(),
-//                 itemCount: widget.homework.studentHomeworkStatus?.length ?? 0,
-//                 itemBuilder: (context, index) {
-//                   // final studentHomeworks =
-//                   //     widget.homework.studentHomeworkStatus?[index];
-//                   return Consumer<HomeworkProvider>(
-//                     builder: (context, provider, _) {
-//                       final studentStatus =
-//                           provider
-//                               .singleHomework
-//                               ?.studentHomeworkStatus?[index];
-
-//                       return RankingCard(
-//                         studentId: studentStatus?.student?.id ?? 0,
-//                         name: studentStatus?.student?.fullName ?? "",
-//                         number:
-//                             studentStatus?.student?.rollNumber?.toString() ??
-//                             "",
-//                         point: provider.getPoint(
-//                           studentStatus?.student?.id ?? 0,
-//                         ),
-//                         homeworkId: studentStatus?.id ?? 0,
-//                         remark:
-//                             studentStatus?.remark ??
-//                             "", // ✅ from provider not widget
-//                       );
-//                     },
-//                   );
-//                 },
-//               ),
-//               SizedBox(height: Responsive.height * 20),
-//             ],
-//           ),
-//         ),
-//       ),
-//       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-//       floatingActionButton: Consumer<HomeworkProvider>(
-//         builder: (context, provider, _) {
-//           return Padding(
-//             padding: const EdgeInsets.all(16),
-//             child: CommonButton(
-//               onPressed: () async {
-//                 buttonFunction(context);
-//               },
-//               widget: provider.isLoadingTwo ? ButtonLoading() : Text("Submit"),
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }

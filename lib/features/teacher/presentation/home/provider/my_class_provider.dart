@@ -44,7 +44,7 @@ class MyClassProvider extends ChangeNotifier {
     if (!loadMore && !forceRefresh && _isFetchedOnce) return;
 
     _isLoadingMarks = true;
-notifyListeners();
+    notifyListeners();
     try {
       if (loadMore) {
         _currentPage++;
@@ -91,7 +91,7 @@ notifyListeners();
     if (!loadMore && !forceRefresh && _isFetchedOnceInternal) return;
 
     _isLoadingInternalMarks = true;
-notifyListeners();
+    notifyListeners();
     try {
       if (loadMore) {
         _currentPageInternal++;

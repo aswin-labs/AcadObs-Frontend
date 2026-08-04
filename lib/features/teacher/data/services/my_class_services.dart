@@ -17,4 +17,10 @@ class MyClassServices {
     );
     return response;
   }
+
+  // fetch my class homeworks
+  Future<Response> fetchMyClassHomeworks({required int pageNo}) async {
+    final response = await ApiServices.get(ApiEndpoints.getMyClassHomeworks);
+    return response;
+  }
 }

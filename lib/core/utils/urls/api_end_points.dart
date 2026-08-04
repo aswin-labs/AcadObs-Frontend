@@ -36,6 +36,8 @@ class ApiEndpoints {
   static const String getMyClassMarks = "/teacher/getMyClassExamMark";
   static const String getMyClassInternalMarks =
       "/teacher/getMyClassInternalMark";
+      static const String getMyClassHomeworks =
+      "/teacher/getMyClassHomework";
 
   // duties
   static const String staffDuties = "/teacher/duties";

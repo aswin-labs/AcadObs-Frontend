@@ -10,6 +10,7 @@ class RankingCard extends StatefulWidget {
   final int point;
   final int homeworkId;
   final String remark;
+  final bool? forViewing;
   const RankingCard({
     super.key,
     required this.name,
@@ -18,6 +19,7 @@ class RankingCard extends StatefulWidget {
     required this.point,
     required this.homeworkId,
     required this.remark,
+    this.forViewing = false,
   });
 
   @override
@@ -57,17 +59,20 @@ class _RankingCardState extends State<RankingCard> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    widget.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                      color: Colors.black,
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text(
+                      widget.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Spacer(),
+
                 Expanded(
                   child: Text(
                     widget.remark,
@@ -82,41 +87,6 @@ class _RankingCardState extends State<RankingCard> {
             ),
           ),
 
-          // GestureDetector(
-          //   onTap: () {
-          //     context.pushNamed(
-          //       RouteConstants.homeworkDetails,
-          //       extra: HomeworkModel(id: widget.homeworkId),
-          //     );
-          //   },
-          //   child: Padding(
-          //     padding: const EdgeInsets.only(left: 12),
-          //     child: Row(
-          //       mainAxisAlignment: MainAxisAlignment.start,
-          //       children: [
-          //         Container(
-          //           padding: const EdgeInsets.symmetric(
-          //             horizontal: 12,
-          //             vertical: 2,
-          //           ),
-          //           decoration: BoxDecoration(
-          //             color: Colors.blue.shade50,
-          //             borderRadius: BorderRadius.circular(8),
-          //             border: Border.all(color: Colors.blueAccent),
-          //           ),
-          //           child: const Text(
-          //             "To Homeworkscreen",
-          //             style: TextStyle(
-          //               color: Colors.blueAccent,
-          //               fontWeight: FontWeight.w600,
-          //               fontSize: 14,
-          //             ),
-          //           ),
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ),
           // SizedBox(height: 10),
           const Divider(height: 1, color: Color(0xFFE0E0E0)),
 
@@ -142,12 +112,15 @@ class _RankingCardState extends State<RankingCard> {
                                   : Colors.grey.shade400,
                           size: 30,
                         ),
-                        onPressed: () {
-                          rankingProvider.updatePoint(
-                            widget.studentId,
-                            index + 1,
-                          );
-                        },
+                        onPressed:
+                            widget.forViewing == true
+                                ? () {
+                                  rankingProvider.updatePoint(
+                                    widget.studentId,
+                                    index + 1,
+                                  );
+                                }
+                                : null,
                       );
                     }),
                   ),
@@ -163,29 +136,31 @@ class _RankingCardState extends State<RankingCard> {
                 ),
 
                 // Chat Icon
-                GestureDetector(
-                  onTap:
-                      () => showDialog(
-                        context: context,
-                        builder:
-                            (context) => HomeworkRemark(
-                              name: widget.name,
-                              homeworkId: widget.homeworkId,
-                            ),
-                      ),
-                  child: Container(
-                    width: 48,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Color(0xFFCCCCCC),
-                      borderRadius: BorderRadius.only(
-                        bottomRight: Radius.circular(9),
-                      ),
-                    ),
+                widget.forViewing == true
+                    ? GestureDetector(
+                      onTap:
+                          () => showDialog(
+                            context: context,
+                            builder:
+                                (context) => HomeworkRemark(
+                                  name: widget.name,
+                                  homeworkId: widget.homeworkId,
+                                ),
+                          ),
+                      child: Container(
+                        width: 48,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Color(0xFFCCCCCC),
+                          borderRadius: BorderRadius.only(
+                            bottomRight: Radius.circular(9),
+                          ),
+                        ),
 
-                    child: const Icon(Icons.message_outlined, size: 20),
-                  ),
-                ),
+                        child: const Icon(Icons.message_outlined, size: 20),
+                      ),
+                    )
+                    : SizedBox.shrink(),
               ],
             ),
           ),
