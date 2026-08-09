@@ -62,13 +62,13 @@ class StudentProfileScreen extends StatelessWidget {
                   "Email",
                   student.user?.email,
                 ),
-                _buildInfoRow(
-                  Icons.home_outlined,
-                  "Address",
-                  student.address,
-                  isAddress: true,
-                  forStaff: forStaff,
-                ),
+                // _buildInfoRow(
+                //   Icons.home_outlined,
+                //   "Address",
+                //   student.address,
+                //   isAddress: true,
+                //   forStaff: forStaff,
+                // ),
               ],
             ),
 
@@ -95,33 +95,147 @@ class StudentProfileScreen extends StatelessWidget {
                   "Admission Number",
                   student.regNo,
                 ),
+                _buildInfoRow(
+                  Icons.calendar_month_outlined,
+                  "Admission Date",
+                  student.admissionDate != null
+                      ? DateFormat('dd MMM yyyy').format(student.admissionDate!)
+                      : null,
+                ),
+                _buildInfoRow(
+                  Icons.info_outline,
+                  "Status",
+                  student.status != null && student.status!.isNotEmpty
+                      ? student.status![0].toUpperCase() +
+                          student.status!.substring(1)
+                      : null,
+                ),
               ],
             ),
 
             const SizedBox(height: 16),
 
-            // Parent/Guardian Details Section
+            // Parent / Guardian Details
             _buildSection(
               icon: Icons.family_restroom,
               iconColor: Colors.green,
               title: "Parent/Guardian Details",
               children: [
                 _buildInfoRow(
-                  Icons.person,
+                  Icons.person_outline,
                   "Father's Name",
-                  student.user?.name,
+                  student.user?.guardian?.fatherName,
                 ),
+                _buildInfoRow(
+                  Icons.person_outline,
+                  "Mother's Name",
+                  student.user?.guardian?.motherName,
+                ),
+
+                // Primary Guardian
                 _buildInfoRow(
                   Icons.person,
-                  "Guardian's Name",
-                  student.user?.name,
+                  "Guardian Name",
+                  student.user?.guardian?.guardianName,
                 ),
                 _buildInfoRow(
-                  Icons.phone,
-                  "Contact Number",
-                  student.user?.phone,
+                  Icons.family_restroom,
+                  "Relation",
+                  student.user?.guardian?.guardianRelation,
                 ),
-                _buildInfoRow(Icons.email, "Email", student.user?.email),
+                _buildInfoRow(
+                  Icons.phone_outlined,
+                  "Guardian Contact",
+                  student.user?.guardian?.guardianContact,
+                ),
+                _buildInfoRow(
+                  Icons.email_outlined,
+                  "Guardian Email",
+                  student.user?.guardian?.guardianEmail,
+                ),
+                _buildInfoRow(
+                  Icons.work_outline,
+                  "Guardian Job",
+                  student.user?.guardian?.guardianJob,
+                ),
+
+                // Secondary Guardian
+                _buildInfoRow(
+                  Icons.person_outline,
+                  "Second Guardian Name",
+                  student.user?.guardian?.guardian2Name,
+                ),
+                _buildInfoRow(
+                  Icons.family_restroom,
+                  "Second Guardian Relation",
+                  student.user?.guardian?.guardian2Relation,
+                ),
+                _buildInfoRow(
+                  Icons.phone_outlined,
+                  "Second Guardian Contact",
+                  student.user?.guardian?.guardian2Contact,
+                ),
+                _buildInfoRow(
+                  Icons.work_outline,
+                  "Second Guardian Job",
+                  student.user?.guardian?.guardian2Job,
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            // Address Details
+            _buildSection(
+              icon: Icons.location_on_outlined,
+              iconColor: Colors.orange,
+              title: "Address Details",
+              children: [
+                _buildInfoRow(
+                  Icons.home_outlined,
+                  "House Name",
+                  student.user?.guardian?.houseName,
+                ),
+                _buildInfoRow(
+                  Icons.add_road_outlined,
+                  "Street",
+                  student.user?.guardian?.street,
+                ),
+                _buildInfoRow(
+                  Icons.location_city_outlined,
+                  "City",
+                  student.user?.guardian?.city,
+                ),
+                _buildInfoRow(
+                  Icons.place_outlined,
+                  "Landmark",
+                  student.user?.guardian?.landmark,
+                ),
+                _buildInfoRow(
+                  Icons.map_outlined,
+                  "District",
+                  student.user?.guardian?.district,
+                ),
+                _buildInfoRow(
+                  Icons.location_on_outlined,
+                  "State",
+                  student.user?.guardian?.state,
+                ),
+                _buildInfoRow(
+                  Icons.public,
+                  "Country",
+                  student.user?.guardian?.country,
+                ),
+                _buildInfoRow(
+                  Icons.local_post_office_outlined,
+                  "Post",
+                  student.user?.guardian?.post,
+                ),
+                _buildInfoRow(
+                  Icons.pin_drop_outlined,
+                  "Pincode",
+                  student.user?.guardian?.pincode,
+                ),
               ],
             ),
 

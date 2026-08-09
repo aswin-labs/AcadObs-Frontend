@@ -1,3 +1,5 @@
+import 'package:acadobs/features/profile/data/models/guardian_model.dart';
+
 class UserModel {
   int? id;
   String? name;
@@ -5,6 +7,7 @@ class UserModel {
   String? email;
   String? phone;
   String? dp;
+  GuardianModel? guardian;
 
   UserModel({
     this.id,
@@ -13,6 +16,7 @@ class UserModel {
     this.email,
     this.phone,
     this.dp,
+    this.guardian,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
@@ -22,5 +26,6 @@ class UserModel {
     email: json["email"],
     phone: json["phone"],
     dp: json["dp"],
+    guardian: json["Guardian"] != null ? GuardianModel.fromJson(json["Guardian"]) : null,
   );
 }

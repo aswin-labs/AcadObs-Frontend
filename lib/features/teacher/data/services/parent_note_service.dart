@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:acadobs/core/services/api_services.dart';
+import 'package:acadobs/core/utils/file_upload_utils.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:dio/dio.dart';
@@ -18,18 +19,16 @@ class ParentNoteService {
     final fileUpload = context.read<FilePickerProvider>().getFile(
       'parentNoteFile',
     );
-    final fileUploadPath = fileUpload?.path;
+
+    final multipartFile = await FileUploadUtils.toMultipartFile(fileUpload);
+
     log("studentIds JSON: ${jsonEncode(studentIds)}");
 
     final formData = {
       "note_title": title,
       "note_content": content,
       "studentIds": studentIds.map((e) => e["student_id"]).toList(),
-      if (fileUploadPath != null)
-        "file": await MultipartFile.fromFile(
-          fileUploadPath,
-          filename: fileUploadPath.split('/').last,
-        ),
+      if (multipartFile != null) "file": multipartFile,
     };
 
     log("ParentNote formData: $formData");

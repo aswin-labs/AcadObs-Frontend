@@ -1,6 +1,7 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
+import 'package:acadobs/core/utils/file_upload_utils.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:dio/dio.dart';
@@ -43,17 +44,15 @@ class DutyServices {
     final fileUpload = context.read<FilePickerProvider>().getFile(
       'solved_file',
     );
+
+    final multipartFile = await FileUploadUtils.toMultipartFile(fileUpload);
+
     final teacherId = await AuthStorageService().getUserId();
 
-    final fileUploadPath = fileUpload?.path;
     final formData = {
       "staff_id": teacherId,
       if (remarks.trim().isNotEmpty) "remarks": remarks,
-      if (fileUploadPath != null)
-        "solved_file": await MultipartFile.fromFile(
-          fileUploadPath,
-          filename: fileUploadPath.split('/').last,
-        ),
+      if (multipartFile != null) "solved_file": multipartFile,
     };
 
     final response = await ApiServices.put(

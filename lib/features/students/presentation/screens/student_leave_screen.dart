@@ -114,7 +114,7 @@ class _StudentLeaveScreenState extends State<StudentLeaveScreen> {
                       builder: (context, provider, _) {
                         return DropdownButtonFormField<String>(
                           isDense: true,
-                          value: provider.filterStatus,
+                          initialValue: provider.filterStatus,
                           decoration: InputDecoration(
                             labelText: "Filter by Status",
                             contentPadding: const EdgeInsets.symmetric(
@@ -163,10 +163,7 @@ class _StudentLeaveScreenState extends State<StudentLeaveScreen> {
                 Consumer<StudentLeaveRequestProvider>(
                   builder: (context, provider, _) {
                     if (provider.isLoading && provider.leaveRequests.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 300),
-                        child: commonShimmerList(itemCount: 10),
-                      );
+                      return commonShimmerList(itemCount: 10);
                     }
 
                     if (provider.leaveRequests.isEmpty) {

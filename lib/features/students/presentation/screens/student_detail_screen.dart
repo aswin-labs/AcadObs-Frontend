@@ -8,9 +8,10 @@ import 'package:acadobs/features/students/data/models/student_screen_args.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_attendence_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_feature_card.dart';
+import 'package:acadobs/features/timetables/data/models/timetable_type.dart';
+import 'package:acadobs/routes/modules/common_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/common_floating_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -38,10 +39,13 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   @override
   void initState() {
     studentProvider = context.read<StudentProvider>();
-    studentProvider.fetchStudentDetails(
-      studentId: widget.studentId,
-      forStaff: widget.forStaff,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      studentProvider.fetchStudentDetails(
+        studentId: widget.studentId,
+        forStaff: widget.forStaff,
+      );
+    });
+
     super.initState();
   }
 
@@ -361,6 +365,20 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               ),
 
               const SizedBox(height: 20),
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Attendance',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              StudentAttendenceTab(
+                studentId: widget.studentId,
+                date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
+                forStaff: widget.forStaff,
+              ),
               GridView.count(
                 padding: EdgeInsets.zero,
                 crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 3,
@@ -370,13 +388,29 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 mainAxisSpacing: 12,
                 childAspectRatio: 0.95,
                 children: [
+                  if (!widget.forStaff)
+                    StudentFeatureCard(
+                      icon: Icons.schedule,
+                      title: "Timetable",
+                      color: Colors.deepPurple,
+                      onTap: () {
+                        context.pushNamed(
+                          RouteConstants.todayTimetableScreen,
+                          extra: TodayTimetableParameters(
+                            timetableType: TimetableType.student,
+                            studentId: widget.studentId.toString(),
+                          ),
+                        );
+                      },
+                    ),
+
                   StudentFeatureCard(
-                    icon: Icons.assignment,
-                    color: Colors.brown,
-                    title: "Homework",
+                    icon: Icons.edit_note,
+                    title: "Exam",
+                    color: Colors.green,
                     onTap: () {
                       context.pushNamed(
-                        RouteConstants.studentHomeworkScreen,
+                        RouteConstants.studentExamScreen,
                         extra: StudentScreenArgs(
                           studentId: widget.studentId,
                           forStaff: widget.forStaff,
@@ -385,11 +419,12 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     },
                   ),
                   StudentFeatureCard(
-                    icon: Icons.edit_note,
-                    title: "Exam",
+                    icon: Icons.assignment,
+                    color: Colors.brown,
+                    title: "Homework",
                     onTap: () {
                       context.pushNamed(
-                        RouteConstants.studentExamScreen,
+                        RouteConstants.studentHomeworkScreen,
                         extra: StudentScreenArgs(
                           studentId: widget.studentId,
                           forStaff: widget.forStaff,
@@ -426,8 +461,9 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     },
                   ),
                   StudentFeatureCard(
-                    icon: Icons.request_page,
-                    title: "Leave Request",
+                    icon: Icons.description_outlined,
+                    color: Colors.redAccent,
+                    title: "Leaves",
                     onTap: () {
                       context.pushNamed(
                         RouteConstants.studentLeaveScreen,
@@ -459,86 +495,73 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Attendance',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ),
-              const SizedBox(height: 10),
-              StudentAttendenceTab(
-                studentId: widget.studentId,
-                date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
-                forStaff: widget.forStaff,
-              ),
+              const SizedBox(height: 100),
             ],
           ),
         ),
       ),
       floatingActionButton: CommonFloatingButton2(
         onPressed: () {
-          // context.pushNamed(RouteConstants.aiInsightsHome);
-          showDialog(
-            context: context,
-            builder: (context) {
-              return Dialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                insetPadding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 24,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Icon
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).primaryColor.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          LucideIcons.sparkles,
-                          size: 42,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
+          context.pushNamed(RouteConstants.aiInsightsHome);
+          // showDialog(
+          //   context: context,
+          //   builder: (context) {
+          //     return Dialog(
+          //       shape: RoundedRectangleBorder(
+          //         borderRadius: BorderRadius.circular(24),
+          //       ),
+          //       insetPadding: const EdgeInsets.symmetric(
+          //         horizontal: 24,
+          //         vertical: 24,
+          //       ),
+          //       child: Padding(
+          //         padding: const EdgeInsets.all(24),
+          //         child: Column(
+          //           mainAxisSize: MainAxisSize.min,
+          //           children: [
+          //             // Icon
+          //             Container(
+          //               width: 80,
+          //               height: 80,
+          //               decoration: BoxDecoration(
+          //                 color: Theme.of(
+          //                   context,
+          //                 ).primaryColor.withValues(alpha: 0.1),
+          //                 shape: BoxShape.circle,
+          //               ),
+          //               child: Icon(
+          //                 LucideIcons.sparkles,
+          //                 size: 42,
+          //                 color: Theme.of(context).primaryColor,
+          //               ),
+          //             ),
 
-                      const SizedBox(height: 20),
+          //             const SizedBox(height: 20),
 
-                      // Title
-                      const Text(
-                        "Coming Soon!",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+          //             // Title
+          //             const Text(
+          //               "AI Insights Coming Soon!",
+          //               style: TextStyle(
+          //                 fontSize: 16,
+          //                 fontWeight: FontWeight.bold,
+          //               ),
+          //             ),
 
-                      const SizedBox(height: 12),
+          //             const SizedBox(height: 12),
 
-                      // Button
-                      CommonButton(
-                        onPressed: () {
-                          context.pop();
-                        },
-                        widget: Text('OK'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
+          //             // Button
+          //             CommonButton(
+          //               onPressed: () {
+          //                 context.pop();
+          //               },
+          //               widget: Text('OK'),
+          //             ),
+          //           ],
+          //         ),
+          //       ),
+          //     );
+          //   },
+          // );
         },
         icon: LucideIcons.sparkles,
       ),

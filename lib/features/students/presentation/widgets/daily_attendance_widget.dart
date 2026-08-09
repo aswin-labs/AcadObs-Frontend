@@ -67,18 +67,26 @@ class _DailyAttendanceWidgetState extends State<DailyAttendanceWidget> {
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
             ),
             SizedBox(height: 10),
-            Row(
-              children: List.generate(
-                widget.totalAttendanceCount,
-                (index) => PeriodContainer(
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: MediaQuery.sizeOf(context).width > 600 ? 6 : 4,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 10,
+                mainAxisExtent: 62,
+              ),
+              itemCount: widget.totalAttendanceCount,
+              itemBuilder: (context, index) {
+                return PeriodContainer(
                   status:
                       (index < widget.statuses.length &&
                               widget.statuses[index].isNotEmpty)
                           ? widget.statuses[index]
                           : "",
                   periodNumber: index + 1,
-                ),
-              ),
+                );
+              },
             ),
           ],
         ),
@@ -179,24 +187,52 @@ class PeriodContainer extends StatelessWidget {
       }
     }
 
-    return Expanded(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(2.0),
-            child: Container(
-              height: 14,
-              decoration: BoxDecoration(
-                color: getStatusColor(status),
+    String getStatusLabel(String status) {
+      switch (status) {
+        case "present":
+          return "Present";
+        case "absent":
+          return "Absent";
+        case "late":
+          return "Late";
+        default:
+          return "N/A";
+      }
+    }
 
-                borderRadius: BorderRadius.circular(12),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 32,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: getStatusColor(status),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  child: Text(
+                    getStatusLabel(status),
+                    maxLines: 1,
+                    style: TextStyle(
+                      color: status.isEmpty ? Colors.black54 : Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          Text("P$periodNumber", style: const TextStyle(fontSize: 12)),
-        ],
-      ),
+        ),
+        const SizedBox(height: 4),
+        Text("P$periodNumber", style: const TextStyle(fontSize: 12)),
+      ],
     );
   }
 }

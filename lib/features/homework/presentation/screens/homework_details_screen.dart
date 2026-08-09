@@ -11,10 +11,8 @@ import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/download_file_card.dart';
-import 'package:acadobs/shared/widgets/item_detail_screen_container.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class HomeworkDetailsScreen extends StatefulWidget {
@@ -32,7 +30,10 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
   @override
   void initState() {
     homeworkProvider = context.read<HomeworkProvider>();
-    homeworkProvider.fetchSingleHomework(homeworkId: widget.homework.id ?? 0);
+    homeworkProvider.fetchSingleHomework(
+      homeworkId: widget.homework.id ?? 0,
+      forStaff: widget.homework.forStaff ?? false,
+    );
     super.initState();
   }
 
@@ -57,8 +58,8 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _iconHeader(),
-                      _gap(3),
+                      // _iconHeader(),
+                      _gap(2),
                       _title(widget.homework.title),
                       _gap(2),
                       _decorativeDivider(),
@@ -83,35 +84,43 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                         ],
                       ),
                       _gap(2),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _infoCard(
-                              icon: Icons.class_outlined,
-                              title: "Class",
-                              value:
-                                  widget.homework.classGrade?.classname ??
-                                  "Not Available",
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: Consumer<HomeworkProvider>(
-                              builder: (context, provider, _) {
-                                return _infoCard(
-                                  icon: Icons.upload_file,
-                                  title: "Type",
+                      widget.homework.forStudent == true
+                          ? _infoCard(
+                            icon: Icons.upload_file,
+                            title: "Type",
+                            value:
+                                provider.singleHomework?.type ??
+                                "Not Mentioned",
+                          )
+                          : Row(
+                            children: [
+                              Expanded(
+                                child: _infoCard(
+                                  icon: Icons.class_outlined,
+                                  title: "Class",
                                   value:
-                                      provider.singleHomework?.type ??
-                                      "Not Mentioned",
-                                );
-                              },
-                            ),
+                                      widget.homework.classGrade?.classname ??
+                                      "Not Available",
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Consumer<HomeworkProvider>(
+                                  builder: (context, provider, _) {
+                                    return _infoCard(
+                                      icon: Icons.upload_file,
+                                      title: "Type",
+                                      value:
+                                          provider.singleHomework?.type ??
+                                          "Not Mentioned",
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      _gap(2),
 
+                      // _gap(1),
                       if (widget.homework.forStudent == true) ...[
                         _gap(2),
                         _assignedBy(widget.homework.user?.name ?? ""),
@@ -204,23 +213,23 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
   // UI SECTION WIDGETS
   // ----------------------------------------------------------
 
-  Widget _iconHeader() => Container(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: [
-        BoxShadow(
-          color: const Color(0xFFFFCEDE).withAlpha(100),
-          blurRadius: 15,
-          offset: Offset(0, 8),
-        ),
-      ],
-    ),
-    child: ItemDetailScreenContainer(
-      iconColor: Color(0xFFB14F6F),
-      backgroundColor: Color(0xFFFFCEDE),
-      icon: LucideIcons.clipboardList,
-    ),
-  );
+  // Widget _iconHeader() => Container(
+  //   decoration: BoxDecoration(
+  //     borderRadius: BorderRadius.circular(20),
+  //     boxShadow: [
+  //       BoxShadow(
+  //         color: const Color(0xFFFFCEDE).withAlpha(100),
+  //         blurRadius: 15,
+  //         offset: Offset(0, 8),
+  //       ),
+  //     ],
+  //   ),
+  //   child: ItemDetailScreenContainer(
+  //     iconColor: Color(0xFFB14F6F),
+  //     backgroundColor: Color(0xFFFFCEDE),
+  //     icon: LucideIcons.clipboardList,
+  //   ),
+  // );
 
   Widget _title(String? title) => Text(
     capitalizeEachWord(title ?? ""),

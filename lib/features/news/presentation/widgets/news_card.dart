@@ -67,126 +67,158 @@ class NewsCard extends StatelessWidget {
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Image Section
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.grey.shade100,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withAlpha(25),
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: CachedNetworkImage(
-                        imageUrl: imageUrl ?? '',
-                        placeholder:
-                            (context, url) => Center(
-                              child: CircularProgressIndicator(
-                                color: Color(0xFF1E88E5),
-                              ),
-                            ),
-                        errorWidget:
-                            (context, url, error) => Icon(
-                              Icons.image_outlined,
-                              color: Colors.grey.withAlpha(38),
-                              size: 36,
-                            ),
-                        fit: BoxFit.cover,
+            padding: const EdgeInsets.all(10),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // News thumbnail
+                Stack(
+                  children: [
+                    Container(
+                      width: 105,
+                      height: 85,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.grey.shade100,
                       ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-
-                  // Content Section
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: Text(
-                                title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: Colors.black87,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: CachedNetworkImage(
+                          imageUrl: imageUrl ?? '',
+                          fit: BoxFit.cover,
+                          placeholder:
+                              (context, url) => const Center(
+                                child: SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              content,
-                              style: TextStyle(
-                                color: Colors.grey.shade600,
-                                fontSize: 13,
-                                height: 1.3,
+                          errorWidget:
+                              (context, url, error) => Icon(
+                                Icons.newspaper_outlined,
+                                color: Colors.grey.shade400,
+                                size: 32,
                               ),
-
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
                         ),
-                        // Date pill
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8, bottom: 4),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              color: const Color(0xFFE6F3FF),
-                              border: Border.all(
-                                color: const Color(0xFF1E88E5).withAlpha(77),
-                              ),
-                            ),
+                      ),
+                    ),
+
+                    // NEWS badge
+                    Positioned(
+                      left: 6,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E88E5),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: const Text(
+                          'NEWS',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          height: 1.25,
+                          color: Colors.black87,
+                        ),
+                      ),
+
+                      const SizedBox(height: 5),
+
+                      Text(
+                        content,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                          height: 1.3,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.calendar_today_outlined,
+                            size: 13,
+                            color: Colors.grey.shade500,
+                          ),
+                          const SizedBox(width: 4),
+                          Flexible(
                             child: Text(
                               date,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 11,
+                                color: Colors.grey.shade600,
                                 fontWeight: FontWeight.w500,
-                                color: const Color(0xFF1E88E5),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
 
-                  // Time Section
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8, top: 4),
-                    child: Text(
-                      time,
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                          const SizedBox(width: 10),
+
+                          Icon(
+                            Icons.access_time,
+                            size: 13,
+                            color: Colors.grey.shade500,
+                          ),
+                          const SizedBox(width: 4),
+
+                          Flexible(
+                            child: Text(
+                              time,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+
+                const SizedBox(width: 4),
+
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.grey.shade400,
+                  size: 22,
+                ),
+              ],
             ),
           ),
         ),

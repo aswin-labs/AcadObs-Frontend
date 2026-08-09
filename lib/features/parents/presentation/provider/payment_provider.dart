@@ -1,18 +1,24 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/parents/data/models/invoice_model.dart';
 import 'package:acadobs/features/parents/data/models/payment_model.dart';
 import 'package:acadobs/features/parents/data/services/payment_service.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class PaymentProvider extends ChangeNotifier {
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  bool _isLoadingForUpload = false;
+  bool get isLoadingForUpload => _isLoadingForUpload;
 
   bool _isLoadingForInvoice = false;
   bool get isLoadingForInvoice => _isLoadingForInvoice;
+
+  bool _isLoadingForEdit = false;
+  bool get isLoadingForEdit => _isLoadingForEdit;
+
+  bool _isLoadingForPayments = false;
+  bool get isLoadingForPayments => _isLoadingForPayments;
 
   int _currentPage = 1;
   int _totalPages = 1;
@@ -38,12 +44,12 @@ class PaymentProvider extends ChangeNotifier {
     bool forceRefresh = false,
     required int studentId,
   }) async {
-    if (_isLoading) return;
+    if (_isLoadingForPayments) return;
 
     // If not loading more, check if already fetched once.
     if (!loadMore && !forceRefresh && _isFetchedOnce) return;
 
-    _isLoading = true;
+    _isLoadingForPayments = true;
 
     try {
       if (loadMore) {
@@ -85,7 +91,7 @@ class PaymentProvider extends ChangeNotifier {
     } catch (e) {
       log(e.toString());
     } finally {
-      _isLoading = false;
+      _isLoadingForPayments = false;
       notifyListeners();
     }
   }
@@ -153,17 +159,17 @@ class PaymentProvider extends ChangeNotifier {
     required BuildContext context,
     required int studentId,
     required int invoiceStudentId,
-    required int amount,
+    required double amount,
     required String paymentDate,
     required String paymentType,
     required String transactionId,
     required String paymentMethod,
-    File? paymentAttachment,
   }) async {
-    _isLoading = true;
+    _isLoadingForUpload = true;
     notifyListeners();
     try {
       final response = await PaymentService().uploadPaymentDetails(
+        context: context,
         studentId: studentId,
         invoiceStudentId: invoiceStudentId,
         amount: amount,
@@ -171,23 +177,99 @@ class PaymentProvider extends ChangeNotifier {
         paymentType: paymentType,
         transactionId: transactionId,
         paymentMethod: paymentMethod,
-        paymentAttachment: paymentAttachment,
       );
       if (response.statusCode == 200 || response.statusCode == 201) {
-        log('uploaded successfull');
-        log(response.data.toString());
-        final message = response.data['message'];
+        await fetchPayments(studentId: studentId, forceRefresh: true);
+        await fetchInvoices(studentId: studentId, forceRefresh: true);
         if (!context.mounted) return;
+        final message = response.data['message'];
+
         CustomSnackbar.show(
           context,
           message: message,
           type: SnackbarType.success,
         );
+
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
       }
+    } on DioException catch (e) {
+      log('Status Code: ${e.response?.statusCode}');
+      log('Response Data: ${e.response?.data}');
+      log('Request Data: ${e.requestOptions.data}');
+
+      if (!context.mounted) return;
+
+      CustomSnackbar.show(
+        context,
+        message: e.response?.data?['error'] ?? 'Payment upload failed',
+        type: SnackbarType.failure,
+      );
     } catch (e) {
       log(e.toString());
     } finally {
-      _isLoading = false;
+      _isLoadingForUpload = false;
+      notifyListeners();
+    }
+  }
+
+  //update payment details
+  Future<void> editPaymentDetails({
+    required BuildContext context,
+    required int paymentId,
+    required int studentId,
+    required int invoiceStudentId,
+    required double amount,
+    required String paymentDate,
+    required String paymentType,
+    required String transactionId,
+    required String paymentMethod,
+  }) async {
+    _isLoadingForEdit = true;
+    notifyListeners();
+    try {
+      final response = await PaymentService().editPaymentDetails(
+        context: context,
+        paymentId: paymentId,
+        studentId: studentId,
+        invoiceStudentId: invoiceStudentId,
+        amount: amount,
+        paymentDate: paymentDate,
+        paymentType: paymentType,
+        transactionId: transactionId,
+        paymentMethod: paymentMethod,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await fetchPayments(studentId: studentId, forceRefresh: true);
+        await fetchInvoices(studentId: studentId, forceRefresh: true);
+        if (!context.mounted) return;
+        final message = response.data['message'];
+
+        CustomSnackbar.show(
+          context,
+          message: message,
+          type: SnackbarType.success,
+        );
+
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      }
+    } on DioException catch (e) {
+      log('Status Code: ${e.response?.statusCode}');
+      log('Response Data: ${e.response?.data}');
+      log('Request Data: ${e.requestOptions.data}');
+
+      if (!context.mounted) return;
+
+      CustomSnackbar.show(
+        context,
+        message: e.response?.data?['error'] ?? 'Payment upload failed',
+        type: SnackbarType.failure,
+      );
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoadingForEdit = false;
       notifyListeners();
     }
   }

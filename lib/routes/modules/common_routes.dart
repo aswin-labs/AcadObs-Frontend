@@ -2,19 +2,27 @@ import 'package:acadobs/features/ai_insights/presentation/screens/ai_insights_ho
 import 'package:acadobs/features/ai_insights/presentation/screens/career_insights_screen.dart';
 import 'package:acadobs/features/ai_insights/presentation/screens/subject_insights_screen.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
-import 'package:acadobs/features/authentication/presentation/screens/login_screen.dart';
 import 'package:acadobs/features/authentication/presentation/screens/auth_checker.dart';
+import 'package:acadobs/features/authentication/presentation/screens/login_screen.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/screens/chat_screen.dart';
+import 'package:acadobs/features/homeworks/data/models/homework_viewer_type.dart';
+import 'package:acadobs/features/homeworks/presentation/screens/homework_details_screen.dart';
+import 'package:acadobs/features/homeworks/presentation/screens/homeworks_listing_screen.dart';
 import 'package:acadobs/features/profile/presentation/screens/change_password_screen.dart';
 import 'package:acadobs/features/profile/presentation/screens/edit_credential.dart';
 import 'package:acadobs/features/profile/presentation/screens/profile_details_screen.dart';
 import 'package:acadobs/features/profile/presentation/screens/profile_screen.dart';
 import 'package:acadobs/features/profile/presentation/widgets/update_profile_photo_screen.dart';
+import 'package:acadobs/features/timetables/data/models/timetable_type.dart';
+import 'package:acadobs/features/timetables/presentation/provider/timetables_provider.dart';
+import 'package:acadobs/features/timetables/presentation/screens/all_day_timetable_screen.dart';
+import 'package:acadobs/features/timetables/presentation/screens/today_timetable_screen.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/bottom_nav/presentation/bottom_nav_screen.dart';
 import 'package:acadobs/shared/widgets/no_internet_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 final List<GoRoute> commonRoutes = [
   // auth checker
@@ -134,4 +142,85 @@ final List<GoRoute> commonRoutes = [
       return CareerInsightsScreen();
     },
   ),
+
+  // ********************Time table screens********************************
+
+  // Today Timetable
+  GoRoute(
+    path: '/todayTimetableScreen',
+    name: RouteConstants.todayTimetableScreen,
+    builder: (context, state) {
+      final args = state.extra as TodayTimetableParameters;
+      return ChangeNotifierProvider(
+        create: (_) => TimetablesProvider(),
+        child: TodayTimetableScreen(
+          timetableType: args.timetableType,
+          studentId: int.tryParse(args.studentId ?? ''),
+        ),
+      );
+    },
+  ),
+
+  // All days Timetable
+  GoRoute(
+    path: '/allDayTimetableScreen',
+    name: RouteConstants.allDayTimetableScreen,
+    builder: (context, state) {
+      final args = state.extra as TodayTimetableParameters;
+      return ChangeNotifierProvider(
+        create: (_) => TimetablesProvider(),
+        child: AllDayTimetableScreen(
+          timetableType: args.timetableType,
+          studentId:
+              args.studentId != null
+                  ? int.tryParse(args.studentId ?? "")
+                  : null,
+        ),
+      );
+    },
+  ),
+
+  // ***********************************************************
+
+  // ********************HOMEWORKS********************************
+  // homework listing screen
+  GoRoute(
+    path: '/homeworkLisitingScreen',
+    name: RouteConstants.homeworkLisitingScreen,
+    builder: (context, state) {
+      final homeworkParams = state.extra as HomeworkParameters;
+      return HomeworksListingScreen(homeworkParams: homeworkParams);
+    },
+  ),
+
+  // Homework details screen
+  GoRoute(
+    path: '/homeworkDetailsScreen',
+    name: RouteConstants.homeworkDetailsScreen,
+    builder: (context, state) {
+      final homeworkParams = state.extra as HomeworkParameters;
+      return HomeworkDetailsScreen(homeworkParams: homeworkParams);
+    },
+  ),
+
+  // ********************HOMEWORKS END********************************
 ];
+
+class TodayTimetableParameters {
+  final TimetableType timetableType;
+  final String? studentId;
+
+  TodayTimetableParameters({required this.timetableType, this.studentId});
+}
+
+class HomeworkParameters {
+  final HomeworkViewerType viewerType;
+  final int? homeworkId;
+  final int? studentId;
+
+  HomeworkParameters({
+    required this.viewerType,
+    this.homeworkId,
+    this.studentId,
+  });
+}

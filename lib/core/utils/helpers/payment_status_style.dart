@@ -6,44 +6,97 @@ class PaymentStatusStyle {
   final Color iconColor;
   final Color backgroundColor;
 
+  /// Human-readable label (underscores replaced with spaces, title-cased).
+  final String label;
+
   const PaymentStatusStyle({
     required this.icon,
     required this.iconColor,
     required this.backgroundColor,
+    required this.label,
   });
+}
+
+/// Returns a human-readable label for [status] by replacing underscores with
+/// spaces and title-casing each word (e.g. "partially_paid" → "Partially Paid").
+String getStatusLabel(String status) {
+  return status
+      .replaceAll('_', ' ')
+      .split(' ')
+      .map(
+        (w) =>
+            w.isEmpty
+                ? w
+                : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}',
+      )
+      .join(' ');
 }
 
 PaymentStatusStyle getPaymentStatusStyle(String status) {
   switch (status.toLowerCase()) {
     case 'pending':
-      return const PaymentStatusStyle(
+      return PaymentStatusStyle(
         icon: LucideIcons.clock,
-        iconColor: Colors.orange,
-        backgroundColor: Color(0xFFFFF3E0),
+        iconColor: const Color.fromARGB(255, 255, 162, 1), // amber
+        backgroundColor: const Color.fromARGB(255, 255, 236, 179),
+        label: getStatusLabel(status),
       );
-    case 'completed':
-      return const PaymentStatusStyle(
+    case 'partially_paid':
+      return PaymentStatusStyle(
+        icon: LucideIcons.splitSquareHorizontal,
+        iconColor: const Color(0xFFF97316), // orange
+        backgroundColor: const Color.fromARGB(255, 254, 221, 177),
+        label: getStatusLabel(status),
+      );
+    case 'paid':
+      return PaymentStatusStyle(
         icon: LucideIcons.checkCircle2,
-        iconColor: Colors.green,
-        backgroundColor: Color(0xFFE8F5E9),
+        iconColor: const Color(0xFF22C55E), // green
+        backgroundColor: const Color(0xFFDCFCE7),
+        label: getStatusLabel(status),
+      );
+    case 'overdue':
+      return PaymentStatusStyle(
+        icon: LucideIcons.alertCircle,
+        iconColor: const Color(0xFFEF4444), // red
+        backgroundColor: const Color(0xFFFEE2E2),
+        label: getStatusLabel(status),
+      );
+    case 'waiting_for_approval':
+      return PaymentStatusStyle(
+        icon: LucideIcons.hourglass,
+        iconColor: const Color(0xFF3B82F6), // blue
+        backgroundColor: const Color(0xFFDBEAFE),
+        label: getStatusLabel(status),
+      );
+    // Legacy statuses kept for backwards compatibility
+    case 'completed':
+      return PaymentStatusStyle(
+        icon: LucideIcons.checkCircle2,
+        iconColor: const Color(0xFF22C55E),
+        backgroundColor: const Color(0xFFDCFCE7),
+        label: getStatusLabel(status),
       );
     case 'partially_completed':
-      return const PaymentStatusStyle(
+      return PaymentStatusStyle(
         icon: LucideIcons.alertTriangle,
-        iconColor: Colors.yellow,
-        backgroundColor: Color(0xFFFFFDE7),
+        iconColor: const Color(0xFFF59E0B),
+        backgroundColor: const Color(0xFFFEF3C7),
+        label: getStatusLabel(status),
       );
     case 'failed':
-      return const PaymentStatusStyle(
+      return PaymentStatusStyle(
         icon: LucideIcons.xCircle,
-        iconColor: Colors.red,
-        backgroundColor: Color(0xFFFFEBEE),
+        iconColor: const Color(0xFFEF4444),
+        backgroundColor: const Color(0xFFFEE2E2),
+        label: getStatusLabel(status),
       );
     default:
-      return const PaymentStatusStyle(
+      return PaymentStatusStyle(
         icon: LucideIcons.helpCircle,
         iconColor: Colors.grey,
-        backgroundColor: Color(0xFFF5F5F5),
+        backgroundColor: const Color(0xFFF5F5F5),
+        label: getStatusLabel(status),
       );
   }
 }

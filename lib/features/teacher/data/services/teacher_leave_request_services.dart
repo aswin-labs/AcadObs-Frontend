@@ -1,5 +1,6 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
+import 'package:acadobs/core/utils/file_upload_utils.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,9 @@ class TeacherLeaveRequestServices {
     String? halfSection,
   }) async {
     final fileUpload = context.read<FilePickerProvider>().getFile('attachment');
-    final fileUploadPath = fileUpload?.path;
+
+    final multipartFile = await FileUploadUtils.toMultipartFile(fileUpload);
+
     final formData = {
       "from_date": fromDate,
       "to_date": toDate,
@@ -27,11 +30,7 @@ class TeacherLeaveRequestServices {
       "reason": reason,
       "leave_duration": leaveDuration,
       if (leaveDuration == 'half') "half_section": halfSection,
-      if (fileUploadPath != null)
-        "attachment": await MultipartFile.fromFile(
-          fileUploadPath,
-          filename: fileUploadPath.split('/').last,
-        ),
+      if (multipartFile != null) "attachment": multipartFile,
     };
     final response = await ApiServices.post(
       ApiEndpoints.staffLeaveRequest,

@@ -71,82 +71,98 @@ class _StudentHomeworkPageState extends State<StudentHomeworkScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: 'Homeworks', isBackButton: true),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            Consumer<HomeworkProvider>(
-              builder: (context, provider, _) {
-                if (provider.isLoading && provider.studentHomeworks.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: commonShimmerList(itemCount: 6),
-                  );
-                }
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await _homeworkProvider.fetchHomeworksByStudentId(
+            forStaff: widget.forStaff,
+            studentId: widget.studentId,
+          );
+        },
+        child: Consumer<HomeworkProvider>(
+          builder: (context, provider, _) {
+            return CustomScrollView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              slivers: [
+                const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
-                if (provider.studentHomeworks.isEmpty) {
-                  return emptyScreen(
-                    message: 'No Homeworks Found.',
-                    heightMultiplier: 22,
-                  );
-                }
+                if (provider.isLoading && provider.studentHomeworks.isEmpty)
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverToBoxAdapter(
+                      child: commonShimmerList(itemCount: 10),
+                    ),
+                  )
+                else if (provider.studentHomeworks.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: emptyScreen(
+                      message: 'No Homeworks Found.',
+                      heightMultiplier: 22,
+                    ),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          if (index < provider.studentHomeworks.length) {
+                            final homework = provider.studentHomeworks[index];
 
-                return Expanded(
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    padding: EdgeInsets.zero,
-                    physics: const BouncingScrollPhysics(),
-                    itemCount:
-                        provider.studentHomeworks.length +
-                        (provider.isLoading && provider.hasMoreForStudent
-                            ? 1
-                            : 0),
-                    itemBuilder: (context, index) {
-                      if (index < provider.studentHomeworks.length) {
-                        final homework = provider.studentHomeworks[index];
-                        return ItemCard(
-                          title: homework.homework?.title ?? "N/A",
-                          description: DateFormatter.formatDateTime(
-                            homework.homework?.dueDate ?? DateTime.now(),
-                          ),
-                          onTap: () {
-                            log((homework.homework?.subject).toString());
-                            final homeworkItem = HomeworkModel(
-                              forStudent: true,
+                            return ItemCard(
                               title: homework.homework?.title ?? "N/A",
-                              description:
-                                  homework.homework?.description ?? "N/A",
-                              dueDate: homework.homework?.dueDate,
-                              studentHomeworkId: homework.id,
-                              studentPoints: homework.points,
-                              forStaff: widget.forStaff,
-                              guardianIdForChat: widget.guardianIdForChat,
-                              guardianNameForChat: widget.guardianNameForChat,
-                              user: homework.homework?.user,
-                              subject: homework.homework?.subject,
+                              description: DateFormatter.formatDateTime(
+                                homework.homework?.dueDate ?? DateTime.now(),
+                              ),
+                              onTap: () {
+                                log((homework.homework?.subject).toString());
+
+                                final homeworkItem = HomeworkModel(
+                                  forStudent: true,
+                                  title: homework.homework?.title ?? "N/A",
+                                  description:
+                                      homework.homework?.description ?? "N/A",
+                                  dueDate: homework.homework?.dueDate,
+                                  studentHomeworkId: homework.id,
+                                  studentPoints: homework.points,
+                                  forStaff: widget.forStaff,
+                                  guardianIdForChat: widget.guardianIdForChat,
+                                  guardianNameForChat:
+                                      widget.guardianNameForChat,
+                                  user: homework.homework?.user,
+                                  subject: homework.homework?.subject,
+                                );
+
+                                context.pushNamed(
+                                  RouteConstants.homeworkDetails,
+                                  extra: homeworkItem,
+                                );
+                              },
+                              icon: LucideIcons.clipboardList,
+                              iconColor: const Color(0xFFB14F6F),
+                              backgroundColor: const Color(0xFFFFCEDE),
                             );
-                            context.pushNamed(
-                              RouteConstants.homeworkDetails,
-                              extra: homeworkItem,
-                            );
-                          },
-                          icon: LucideIcons.clipboardList,
-                          iconColor: const Color(0xFFB14F6F),
-                          backgroundColor: const Color(0xFFFFCEDE),
-                        );
-                      } else {
-                        return const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-                    },
+                          }
+
+                          return const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        },
+                        childCount:
+                            provider.studentHomeworks.length +
+                            (provider.isLoading && provider.hasMoreForStudent
+                                ? 1
+                                : 0),
+                      ),
+                    ),
                   ),
-                );
-              },
-            ),
-          ],
+              ],
+            );
+          },
         ),
       ),
     );

@@ -49,6 +49,9 @@ class ApiServices {
       endpoint,
       data: requestData,
       onSendProgress: onSendProgress,
+      // Let Dio auto-set multipart/form-data with the correct boundary;
+      // the global 'application/json' header would otherwise break file uploads.
+      options: isFormData ? Options(contentType: null) : null,
     );
   }
 
@@ -60,7 +63,11 @@ class ApiServices {
   }) async {
     final requestData = _formatData(data, isFormData);
 
-    return await dio.put(endpoint, data: requestData);
+    return await dio.put(
+      endpoint,
+      data: requestData,
+      options: isFormData ? Options(contentType: null) : null,
+    );
   }
 
   /// Generic DELETE request
@@ -76,7 +83,11 @@ class ApiServices {
   }) async {
     final requestData = _formatData(data, isFormData);
 
-    return await dio.patch(endpoint, data: requestData);
+    return await dio.patch(
+      endpoint,
+      data: requestData,
+      options: isFormData ? Options(contentType: null) : null,
+    );
   }
 
   /// Logout request
@@ -84,12 +95,13 @@ class ApiServices {
     return await dio.post(endpoint);
   }
 
-  /// Convert Map to FormData if needed
+  /// Convert Map to FormData if needed, or return as-is if already FormData.
   static dynamic _formatData(dynamic data, bool isFormData) {
-    if (isFormData && data is Map<String, dynamic>) {
-      return FormData.fromMap(data);
+    if (isFormData) {
+      // Already a FormData — don't double-wrap it.
+      if (data is FormData) return data;
+      if (data is Map<String, dynamic>) return FormData.fromMap(data);
     }
-
     return data;
   }
 

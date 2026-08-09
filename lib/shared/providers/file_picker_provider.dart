@@ -1,64 +1,67 @@
 import 'dart:developer';
-import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path_provider/path_provider.dart';
 
 class FilePickerProvider with ChangeNotifier {
-  static const int _maxSize = 5 * 1024 * 1024;
+  static const int _maxSize = 5 * 1024 * 1024; // 5 MB
+
   final Map<String, PlatformFile?> _files = {};
   final Map<String, String?> _errors = {};
 
   PlatformFile? getFile(String fieldName) => _files[fieldName];
+
   String? getError(String fieldName) => _errors[fieldName];
 
-  Future<void> pickFile(
-    String fieldName, {
-    bool imagesOnly = false,
-    
-  }) async {
-    if (imagesOnly) {
-      try {
-        final ImagePicker picker = ImagePicker();
-        final XFile? image = await picker.pickImage(
-          source: ImageSource.gallery,
-        );
+  Future<void> pickFile(String fieldName, {bool imagesOnly = false}) async {
+    try {
+      _errors.remove(fieldName);
 
-        if (image != null) {
-          File file = File(image.path);
+      final FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: imagesOnly ? FileType.image : FileType.any,
 
-          if (!_validateSize(file, fieldName)) return;
+        // Important for Web.
+        // It gives us Uint8List bytes instead of depending on file.path.
+        withData: true,
 
-          File? compressedFile = await _compressImage(file);
+        allowMultiple: false,
+      );
 
-          if (!_validateSize(compressedFile ?? file, fieldName)) return;
-
-          _storeFile(fieldName, compressedFile ?? file);
-          notifyListeners();
-        }
-      } catch (e) {
-        log("Error picking image: $e");
+      if (result == null || result.files.isEmpty) {
+        return;
       }
-    } else {
-      final result = await FilePicker.platform.pickFiles(type: FileType.any);
 
-      if (result != null && result.files.isNotEmpty) {
-        PlatformFile selectedFile = result.files.first;
-        File file = File(selectedFile.path!);
+      final PlatformFile selectedFile = result.files.first;
 
-        if (!_validateSize(file, fieldName)) return;
-
-        if (_isImage(file.path)) {
-          File? compressedFile = await _compressImage(file);
-          if (!_validateSize(compressedFile ?? file, fieldName)) return;
-          _storeFile(fieldName, compressedFile ?? file);
-        } else {
-          _storeFile(fieldName, file);
-        }
-        notifyListeners();
+      // Validate original file size
+      if (!_validateSize(selectedFile, fieldName)) {
+        return;
       }
+
+      PlatformFile finalFile = selectedFile;
+
+      // Compress images
+      if (_isImage(selectedFile.name)) {
+        final PlatformFile? compressedFile = await _compressImage(selectedFile);
+
+        if (compressedFile != null) {
+          if (!_validateSize(compressedFile, fieldName)) {
+            return;
+          }
+
+          finalFile = compressedFile;
+        }
+      }
+
+      _storeFile(fieldName, finalFile);
+
+      notifyListeners();
+    } catch (e, stackTrace) {
+      log('Error picking file', error: e, stackTrace: stackTrace);
+
+      _errors[fieldName] = 'Unable to select file';
+      notifyListeners();
     }
   }
 
@@ -74,46 +77,94 @@ class FilePickerProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  bool _validateSize(File file, String fieldName) {
-    final size = file.lengthSync();
-    if (size > _maxSize) {
+  bool _validateSize(PlatformFile file, String fieldName) {
+    if (file.size > _maxSize) {
       _files.remove(fieldName);
       _errors[fieldName] = 'File must be smaller than 5 MB';
       notifyListeners();
-     
+
       return false;
     }
+
     _errors.remove(fieldName);
+
     return true;
   }
 
-  void _storeFile(String fieldName, File file) {
-    _files[fieldName] = PlatformFile(
-      name: file.path.split('/').last,
-      path: file.path,
-      size: file.lengthSync(),
-    );
+  void _storeFile(String fieldName, PlatformFile file) {
+    _files[fieldName] = file;
     _errors.remove(fieldName);
   }
 
-  bool _isImage(String filePath) {
-    return filePath.endsWith('.jpg') ||
-        filePath.endsWith('.jpeg') ||
-        filePath.endsWith('.png') ||
-        filePath.endsWith('.gif');
+  bool _isImage(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+
+    return [
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'webp',
+      'bmp',
+      'heic',
+      'heif',
+    ].contains(extension);
   }
 
-  Future<File?> _compressImage(File file) async {
-    final dir = await getTemporaryDirectory();
-    String targetPath =
-        '${dir.path}/${file.path.split('/').last}_compressed.jpg';
+  Future<PlatformFile?> _compressImage(PlatformFile file) async {
+    try {
+      final Uint8List? bytes = file.bytes;
 
-    final compressedFile = await FlutterImageCompress.compressAndGetFile(
-      file.absolute.path,
-      targetPath,
-      quality: 85,
-    );
+      if (bytes == null || bytes.isEmpty) {
+        return file;
+      }
 
-    return compressedFile != null ? File(compressedFile.path) : null;
+      // GIF should normally not be compressed because
+      // compression removes animation.
+      if (file.name.toLowerCase().endsWith('.gif')) {
+        return file;
+      }
+
+      final Uint8List compressedBytes =
+          await FlutterImageCompress.compressWithList(
+            bytes,
+            quality: 85,
+            format: CompressFormat.jpeg,
+          );
+
+      // Don't use compressed file if compression makes it larger.
+      if (compressedBytes.length >= bytes.length) {
+        return file;
+      }
+
+      final String compressedName = _getCompressedFileName(file.name);
+
+      return PlatformFile(
+        name: compressedName,
+        size: compressedBytes.length,
+        bytes: compressedBytes,
+
+        // Keep original path for mobile if available.
+        // Web path will normally be null.
+        path: file.path,
+      );
+    } catch (e, stackTrace) {
+      log('Image compression failed', error: e, stackTrace: stackTrace);
+
+      // Use original image when compression fails.
+      return file;
+    }
+  }
+
+  String _getCompressedFileName(String fileName) {
+    final int dotIndex = fileName.lastIndexOf('.');
+
+    if (dotIndex == -1) {
+      return '${fileName}_compressed.jpg';
+    }
+
+    final String nameWithoutExtension = fileName.substring(0, dotIndex);
+
+    return '${nameWithoutExtension}_compressed.jpg';
   }
 }

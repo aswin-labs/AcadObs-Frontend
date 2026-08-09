@@ -74,7 +74,7 @@ class ItemCard extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withAlpha(15),
-                  blurRadius: 8,
+                  blurRadius: 2,
                   spreadRadius: 0,
                   offset: const Offset(0, 2),
                 ),

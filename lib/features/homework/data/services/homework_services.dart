@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
+import 'package:acadobs/core/utils/file_upload_utils.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 // import 'package:acadobs/features/teacher/data/models/homework/homework_model.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
@@ -25,7 +26,9 @@ class HomeworkServices {
     final fileUpload = context.read<FilePickerProvider>().getFile(
       'homeworkFile',
     );
-    final fileUploadPath = fileUpload?.path;
+
+    final multipartFile = await FileUploadUtils.toMultipartFile(fileUpload);
+
     final teacherId = await AuthStorageService().getUserId();
     final formData = {
       "teacher_id": teacherId,
@@ -36,11 +39,7 @@ class HomeworkServices {
       "title": title,
       "type": type,
       "assignments": studentIds,
-      if (fileUploadPath != null)
-        "file": await MultipartFile.fromFile(
-          fileUploadPath,
-          filename: fileUploadPath.split('/').last,
-        ),
+      if (multipartFile != null) "file": multipartFile,
     };
     log(formData.toString());
     final response = await ApiServices.post(
@@ -62,9 +61,14 @@ class HomeworkServices {
   }
 
   // fetch individual homework
-  Future<Response> fetchSingleHomework({required int homeworkId}) async {
+  Future<Response> fetchSingleHomework({
+    required int homeworkId,
+    required bool forStaff,
+  }) async {
     final response = await ApiServices.get(
-      "${ApiEndpoints.homeworks}/$homeworkId",
+      forStaff
+          ? "${ApiEndpoints.homeworks}/$homeworkId"
+          : "${ApiEndpoints.getHomeworkAssignmentsById}/$homeworkId",
     );
     return response;
   }

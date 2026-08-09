@@ -7,17 +7,6 @@ class RouteConstants {
   static const String noInternetScreen = 'noInternetScreen';
   static const String updateProfilePhoto = 'updateProfilePhoto';
 
-  //  SUPER ADMIN ROUTES
-  static const String addSchool = 'addSchool';
-  static const String editSchool = 'editSchool';
-  static const String addClass = 'addClass';
-  static const String editClass = 'editClass';
-  static const String addSubject = 'addSubject';
-  static const String editSubject = 'editSubject';
-
-  //  SCHOOL ADMIN ROUTES
-  static const String studentsHome = 'studentsHome';
-
   //  STAFF
   static const String dutyDetail = 'dutyDetail';
   static const String attendanceTaking = 'attendanceTaking';
@@ -49,8 +38,6 @@ class RouteConstants {
   static const String noteDetailScreen = "noteDetailScreen";
 
   static const String paymentDetailScreen = "paymentDetailScreen";
-  static const String timeTableDayTab = "timetabledaytab";
-  static const String timeTableDayTabStaff = "timetabledaytabStaff";
   static const String studentLeaveLetter = "studentLeaveLetter";
   static const String editProfileStaff = "editProfileStaff";
   static const String schoolAchievements = "schoolAchievements";
@@ -102,4 +89,22 @@ class RouteConstants {
 
   // payments screen
   static const String paymentsScreen = "paymentsScreen";
+
+  // ******************Time table screens********************************
+
+  // today timetable screen
+  static const String todayTimetableScreen = "todayTimetableScreen";
+  // all days timetable screen
+  static const String allDayTimetableScreen = "allDayTimetableScreen";
+
+  // *******************************************************************
+
+   // **************************HOMEWORKS*******************************
+
+  // homework listing screen
+  static const String homeworkLisitingScreen = "homeworkLisitingScreen";
+  // homework details screen
+  static const String homeworkDetailsScreen = "homeworkDetailsScreen";
+
+   // **************************HOMEWORKS*******************************
 }

@@ -75,4 +75,14 @@ class AppConstants {
 
   // term exams
   static List<String> termExamNames = ["PT", "Internal", "Term"];
+
+  // payment methods
+  static List<String> paymentMethods = [
+    "UPI",
+    'Cash',
+    "Bank Transfer",
+    "Credit Card",
+    "Debit Card",
+    "Wallet"
+  ];
 }

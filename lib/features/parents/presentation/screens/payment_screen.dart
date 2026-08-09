@@ -33,8 +33,14 @@ class _PaymentScreenState extends State<PaymentScreen>
 
     _tabController = TabController(length: 2, vsync: this);
 
-    _paymentProvider.fetchInvoices(studentId: widget.studentId);
-    _paymentProvider.fetchPayments(studentId: widget.studentId);
+    _paymentProvider.fetchInvoices(
+      studentId: widget.studentId,
+      forceRefresh: true,
+    );
+    _paymentProvider.fetchPayments(
+      studentId: widget.studentId,
+      forceRefresh: true,
+    );
 
     _invoiceScrollController.addListener(_invoiceScrollListener);
     _paymentScrollController.addListener(_paymentScrollListener);
@@ -61,7 +67,7 @@ class _PaymentScreenState extends State<PaymentScreen>
         _paymentScrollController.position.maxScrollExtent - 200;
 
     if (isNearBottom &&
-        !_paymentProvider.isLoading &&
+        !_paymentProvider.isLoadingForPayments &&
         _paymentProvider.hasMore) {
       _paymentProvider.fetchPayments(
         loadMore: true,
@@ -81,12 +87,14 @@ class _PaymentScreenState extends State<PaymentScreen>
   Future<void> _refreshInvoices() async {
     await context.read<PaymentProvider>().fetchInvoices(
       studentId: widget.studentId,
+      forceRefresh: true,
     );
   }
 
   Future<void> _refreshPayments() async {
     await context.read<PaymentProvider>().fetchPayments(
       studentId: widget.studentId,
+      forceRefresh: true,
     );
   }
 
@@ -208,12 +216,10 @@ class _InvoiceTab extends StatelessWidget {
 
                           return ItemCard(
                             icon: Icons.receipt_long,
-                            title: invoice.invoice?.category ?? "",
+                            title: invoice.invoice?.title ?? "",
                             description: "₹${invoice.invoice?.amount ?? ""}",
-                            status: invoice.status ?? "",
-                            backgroundColor: statusStyle.iconColor.withAlpha(
-                              30,
-                            ),
+                            status: statusStyle.label,
+                            backgroundColor: statusStyle.backgroundColor,
                             iconColor: statusStyle.iconColor,
                             onTap: () {
                               context.pushNamed(
@@ -275,7 +281,7 @@ class _PaymentTab extends StatelessWidget {
                 children: [
                   Consumer<PaymentProvider>(
                     builder: (context, provider, _) {
-                      if (provider.isLoading && provider.payments.isEmpty) {
+                      if (provider.isLoadingForPayments && provider.payments.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.only(top: 40),
                           child: commonShimmerList(),
@@ -304,10 +310,8 @@ class _PaymentTab extends StatelessWidget {
                             icon: Icons.payment,
                             title: payment.paymentType ?? "",
                             description: "₹${payment.amount}",
-                            status: payment.paymentStatus ?? "",
-                            backgroundColor: statusStyle.iconColor.withAlpha(
-                              30,
-                            ),
+                            status: statusStyle.label,
+                            backgroundColor: statusStyle.backgroundColor,
                             iconColor: statusStyle.iconColor,
                             onTap: () {
                               context.pushNamed(
@@ -322,7 +326,7 @@ class _PaymentTab extends StatelessWidget {
                   ),
                   Consumer<PaymentProvider>(
                     builder: (context, provider, _) {
-                      return provider.isLoading && provider.hasMore
+                      return provider.isLoadingForPayments && provider.hasMore
                           ? const Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Center(child: CircularProgressIndicator()),

@@ -167,11 +167,12 @@ class HomeworkProvider extends ChangeNotifier {
   }
 
   // Get Single homework
-  Future<void> fetchSingleHomework({required int homeworkId}) async {
+  Future<void> fetchSingleHomework({required int homeworkId, required bool forStaff}) async {
     _isLoading = true;
     try {
       final response = await HomeworkServices().fetchSingleHomework(
         homeworkId: homeworkId,
+        forStaff: forStaff,
       );
       if (response.statusCode == 200) {
         final data = response.data;
@@ -282,7 +283,7 @@ class HomeworkProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         await fetchHomeworks(forceRefresh: true);
         log("Homework ranking submitted: ${response.data}");
-        await fetchSingleHomework(homeworkId: homeworkId);
+        await fetchSingleHomework(homeworkId: homeworkId, forStaff: true);
         if (!context.mounted) return;
         CustomSnackbar.show(
           context,

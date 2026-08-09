@@ -47,20 +47,12 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
       context.read<EventProvider>().fetchLatestEvents(
         limit: 3,
         forStaff: false,
-        // forceRefresh: forceRefresh,
       ),
-      context.read<NewsProvider>().fetchLatestNews(
-        limit: 3,
-        forStaff: false,
-        // forceRefresh: forceRefresh,
-      ),
+      context.read<NewsProvider>().fetchLatestNews(limit: 3, forStaff: false),
       context.read<AchievementProvider>().fetchLatestSchoolAchievements(
         forStaff: false,
-        // forceRefresh: forceRefresh,
       ),
-      context.read<StudentRouteProvider>().getStudentRoutes(
-        // forceRefresh: forceRefresh,
-      ),
+      context.read<StudentRouteProvider>().getStudentRoutes(),
       parentProvider.fetchSchoolDetailsForParent(),
     ]);
   }
@@ -171,8 +163,8 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                                                     stackTrace,
                                                   ) {
                                                     return const Icon(
-                                                      Icons.error,
-                                                      color: Colors.red,
+                                                      Icons.business_outlined,
+                                                      color: Colors.grey,
                                                     );
                                                   },
                                                 ),

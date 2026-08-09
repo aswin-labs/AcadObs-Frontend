@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:acadobs/features/parents/data/models/invoice_model.dart';
+
 Payment paymentFromJson(String str) => Payment.fromJson(json.decode(str));
 
 String paymentToJson(Payment data) => json.encode(data.toJson());
@@ -19,11 +21,13 @@ class Payment {
   String? paymentStatus;
   String? transactionId;
   String? paymentMethod;
+  String? paymentAttachment;
   int? recordedBy;
   dynamic remarks;
   bool? trash;
   DateTime? createdAt;
   DateTime? updatedAt;
+  InvoiceModel? invoiceStudent;
 
   Payment({
     this.id,
@@ -36,11 +40,13 @@ class Payment {
     this.paymentStatus,
     this.transactionId,
     this.paymentMethod,
+    this.paymentAttachment,
     this.recordedBy,
     this.remarks,
     this.trash,
     this.createdAt,
     this.updatedAt,
+    this.invoiceStudent,
   });
 
   factory Payment.fromJson(Map<String, dynamic> json) => Payment(
@@ -57,8 +63,13 @@ class Payment {
     paymentStatus: json["payment_status"],
     transactionId: json["transaction_id"],
     paymentMethod: json["payment_method"],
+    paymentAttachment: json["payment_attachment"],
     recordedBy: json["recorded_by"],
     remarks: json["remarks"],
+    invoiceStudent:
+        json['InvoiceStudent'] == null
+            ? null
+            : InvoiceModel.fromJson(json["InvoiceStudent"]),
     trash: json["trash"],
     createdAt:
         json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),

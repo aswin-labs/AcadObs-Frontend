@@ -37,7 +37,6 @@ import 'package:acadobs/features/students/presentation/screens/student_notice_sc
 import 'package:acadobs/features/students/presentation/screens/student_profile_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_progress_card_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/students_listing_screen.dart';
-import 'package:acadobs/features/students/presentation/widgets/time_table_day_tab.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_model.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
@@ -55,7 +54,6 @@ import 'package:acadobs/features/teacher/presentation/leave_request/screens/stud
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/teacher_leave_request_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_listing_screen.dart';
-import 'package:acadobs/features/timetable/presentation/time_table_day_tab_staff.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
@@ -332,25 +330,6 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       final Payment payment = state.extra as Payment;
       return PaymentDetailScreen(payment: payment);
-    },
-  ),
-
-  //time table day tab
-  GoRoute(
-    path: '/timetabledaytab',
-    name: RouteConstants.timeTableDayTab,
-    builder: (context, state) {
-      final studentId = state.extra as int;
-      return TimeTableDayTab(studentId: studentId);
-    },
-  ),
-
-  GoRoute(
-    path: '/timetabledaytabStaff',
-    name: RouteConstants.timeTableDayTabStaff,
-    builder: (context, state) {
-      final forStaff = state.extra as bool;
-      return TimeTableDayTabStaff(forStaff: forStaff);
     },
   ),
 

@@ -1,22 +1,13 @@
-import 'dart:io';
-
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
+import 'package:acadobs/core/utils/helpers/payment_status_style.dart';
 import 'package:acadobs/features/parents/data/models/invoice_model.dart';
-import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
-import 'package:acadobs/shared/providers/file_picker_provider.dart';
+import 'package:acadobs/features/parents/presentation/widgets/create_payment_bottomsheet.dart';
+import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
-import 'package:acadobs/shared/widgets/common_floating_button.dart';
-import 'package:acadobs/shared/widgets/custom_datepicker.dart';
-import 'package:acadobs/shared/widgets/custom_dropdown.dart';
-import 'package:acadobs/shared/widgets/custom_filepicker.dart';
-import 'package:acadobs/shared/widgets/custom_textfield.dart';
-
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class InvoiceDetailScreen extends StatefulWidget {
@@ -48,6 +39,9 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
               : "",
     );
     transactionController = TextEditingController();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<DropdownProvider>().setSelectedItem("paymentMethod", "upi");
+    });
   }
 
   @override
@@ -58,10 +52,18 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
     super.dispose();
   }
 
+  bool _showFab() {
+    const actionableStatuses = {'pending', 'partially_paid', 'overdue'};
+    return actionableStatuses.contains(widget.invoice.status);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final statusStyle = getPaymentStatusStyle(
+      widget.invoice.status ?? "pending",
+    );
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FA),
       appBar: CommonAppBar(title: "Invoice Details", isBackButton: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -69,56 +71,48 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
           children: [
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
               decoration: BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.circular(20),
+                color: statusStyle.backgroundColor,
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 children: [
-                  Container(
-                    height: 86,
-                    width: 86,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(180),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.payment, color: Colors.green, size: 42),
-                  ),
-                  const SizedBox(height: 18),
                   Text(
-                    widget.invoice.invoice?.amount ?? "",
-                    style: TextStyle(
-                      fontSize: 30,
+                    "₹ ${widget.invoice.invoice?.amount ?? ""}",
+                    style: const TextStyle(
+                      fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Text(
-                    capitalizeEachWord(widget.invoice.invoice?.category ?? ""),
+                    capitalizeEachWord(widget.invoice.invoice?.title ?? ""),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 7,
+                      horizontal: 12,
+                      vertical: 5,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.white.withAlpha(190),
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      widget.invoice.status ?? "",
+                      statusStyle.label,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Colors.green,
+                        color: statusStyle.iconColor,
                       ),
                     ),
                   ),
@@ -146,10 +140,55 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
               child: Column(
                 children: [
                   _buildInfoRow(
+                    icon: Icons.receipt_long_outlined,
+                    title: "Invoice",
+                    value: widget.invoice.invoice?.title ?? "N/A",
+                  ),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Divider(height: 1),
+                  ),
+
+                  _buildInfoRow(
+                    icon: Icons.category_outlined,
+                    title: "Category",
+                    value: widget.invoice.invoice?.category ?? "N/A",
+                  ),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Divider(height: 1),
+                  ),
+
+                  _buildInfoRow(
+                    icon: Icons.currency_rupee,
+                    title: "Amount",
+                    value: "₹${widget.invoice.invoice?.amount ?? "0.00"}",
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Divider(height: 1),
+                  ),
+                  _buildInfoRow(
+                    icon: Icons.notes_outlined,
+                    title: "Description",
+                    value:
+                        widget.invoice.invoice?.description ??
+                        "No description available",
+                    maxLines: 4,
+                  ),
+
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Divider(height: 1),
+                  ),
+
+                  _buildInfoRow(
                     icon: Icons.calendar_today_outlined,
-                    title: "Payment Date",
+                    title: "Due Date",
                     value: DateFormatter.formatDateTime(
-                      widget.invoice.invoice?.createdAt ?? DateTime.now(),
+                      widget.invoice.invoice?.dueDate ?? DateTime.now(),
                     ),
                   ),
 
@@ -159,178 +198,39 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
                   ),
 
                   _buildInfoRow(
-                    icon: Icons.tag_outlined,
-                    title: "Transaction ID",
-                    value: widget.invoice.invoiceId.toString(),
+                    icon: Icons.info_outline,
+                    title: "Payment Status",
+                    value: statusStyle.label,
                   ),
 
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Divider(height: 1),
-                  ),
-
-                  _buildInfoRow(
-                    icon: Icons.notes_outlined,
-                    title: "Description",
-                    value:
-                        (widget.invoice.invoice?.description
-                                    ?.trim()
-                                    .isNotEmpty ??
-                                false)
-                            ? widget.invoice.invoice!.description!
-                            : "No description avaliable",
-                    maxLines: 4,
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(height: 24),
+            const SizedBox(height: 100),
           ],
         ),
       ),
-      floatingActionButton: CommonFloatingButton(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            enableDrag: true,
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            builder: (context) {
-              return Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton:
+          _showFab()
+              ? Padding(
+                padding: const EdgeInsets.all(16),
+                child: CommonButton(
+                  onPressed: () {
+                    showCreatePaymentBottomSheet(
+                      context: context,
+                      invoice: widget.invoice,
+                    );
+                  },
+                  widget: const Text("Upload File"),
                 ),
-                child: SingleChildScrollView(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 50,
-                          height: 5,
-                          margin: const EdgeInsets.only(bottom: 15),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade400,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-
-                        const Text(
-                          "Add Payment",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-
-                        const SizedBox(height: 15),
-
-                        CustomTextfield(
-                          iconData: const Icon(Icons.attach_money),
-                          hintText: 'Amount',
-                          controller: amountController,
-                          borderRadius: 8,
-                        ),
-                        const SizedBox(height: 10),
-
-                        CustomDatePicker(
-                          label: "Payment Date",
-                          dateController: paymentDateController,
-                          onDateSelected: (selectedDate) {
-                            paymentDateController.text = DateFormat(
-                              'yyyy-MM-dd',
-                            ).format(selectedDate);
-                          },
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        CustomTextfield(
-                          iconData: const Icon(Icons.receipt_long),
-                          hintText: 'Transaction ID',
-                          controller: transactionController,
-                          borderRadius: 8,
-                        ),
-
-                        const SizedBox(height: 20),
-                        CustomDropdown(
-                          dropdownKey: 'paymentMethod',
-                          label: 'Select method',
-                          icon: LucideIcons.creditCard,
-                          items: const [
-                            "cash",
-                            "bank_transfer",
-                            "upi",
-                            "credit_card",
-                            "debit_card",
-                            "wallet",
-                          ],
-                          onChanged: (String? value) {
-                            setState(() {
-                              selectedMethod = value;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        CustomFilePicker(
-                          label: "Upload File (Max 5 mb):",
-                          fieldName: "solved_file",
-                        ),
-                        const SizedBox(height: 20),
-
-                        SizedBox(
-                          width: double.infinity,
-                          child: CommonButton(
-                            onPressed: () {
-                              final fileProvider =
-                                  context.read<FilePickerProvider>();
-                              final platformFile = fileProvider.getFile(
-                                "solved_file",
-                              );
-                              final File? selectedFile =
-                                  platformFile != null
-                                      ? File(platformFile.path!)
-                                      : null;
-                              final amount =
-                                  double.parse(
-                                    amountController.text.trim(),
-                                  ).toInt();
-
-                              context
-                                  .read<PaymentProvider>()
-                                  .uploadPaymentDetails(
-                                    context: context,
-                                    studentId: widget.invoice.studentId ?? 0,
-                                    invoiceStudentId: widget.invoice.id ?? 0,
-                                    amount: amount,
-                                    paymentDate:
-                                        paymentDateController.text.trim(),
-                                    paymentType:
-                                        widget.invoice.invoice?.category ?? "",
-                                    transactionId:
-                                        transactionController.text.trim(),
-                                    paymentMethod: selectedMethod ?? "",
-                                    paymentAttachment: selectedFile,
-                                  );
-                              fileProvider.clearFile("solved_file");
-                              context.pop();
-                            },
-                            widget: const Text('Upload'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
+              )
+              : null,
     );
   }
 
@@ -346,10 +246,20 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.green.shade50,
+            color:
+                getPaymentStatusStyle(
+                  widget.invoice.status ?? "pending",
+                ).backgroundColor,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: Colors.green, size: 20),
+          child: Icon(
+            icon,
+            color:
+                getPaymentStatusStyle(
+                  widget.invoice.status ?? "pending",
+                ).iconColor,
+            size: 20,
+          ),
         ),
         const SizedBox(width: 14),
 

@@ -3,6 +3,8 @@ import 'package:acadobs/features/parents/presentation/provider/leave_request_stu
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_feature_card.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/show_attendance_dialog_class_teacher.dart';
+import 'package:acadobs/features/timetables/data/models/timetable_type.dart';
+import 'package:acadobs/routes/modules/common_routes.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
@@ -211,7 +213,14 @@ class _MyClassScreenState extends State<MyClassScreen> {
                         title: 'Time Table',
                         icon: Icons.calendar_month_outlined,
                         color: Colors.indigo,
-                        onTap: () {},
+                        onTap: () {
+                          context.pushNamed(
+                            RouteConstants.todayTimetableScreen,
+                            extra: TodayTimetableParameters(
+                              timetableType: TimetableType.myClass,
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(width: 10),

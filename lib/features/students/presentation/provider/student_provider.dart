@@ -125,9 +125,6 @@ class StudentProvider extends ChangeNotifier {
     }
   }
 
-  //get student attendace by date
-  // int _totalPeriod = 0;
-  // int get totalPeriod => _totalPeriod;
   int _attendanceCount = 0;
   int get attendanceCount => _attendanceCount;
 

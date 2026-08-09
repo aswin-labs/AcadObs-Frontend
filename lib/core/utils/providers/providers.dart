@@ -4,6 +4,7 @@ import 'package:acadobs/features/authentication/presentation/provider/auth_provi
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
+import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
@@ -20,7 +21,7 @@ import 'package:acadobs/features/teacher/presentation/home/provider/my_class_pro
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
 import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
-import 'package:acadobs/features/timetable/presentation/provider/time_table_provider.dart';
+import 'package:acadobs/features/timetables/presentation/provider/timetables_provider.dart';
 import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
@@ -78,7 +79,7 @@ getProviders() {
     ChangeNotifierProvider(create: (_) => PaymentProvider()),
 
     //**************time table ****************//
-    ChangeNotifierProvider(create: (_) => TimeTableProvider()),
+    ChangeNotifierProvider(create: (_) => TimetablesProvider()),
 
     //**************network provider ****************//
     ChangeNotifierProvider(create: (_) => NetworkProvider()),
@@ -91,5 +92,8 @@ getProviders() {
 
     //**************my class provider ****************//
     ChangeNotifierProvider(create: (_) => MyClassProvider()),
+
+    // *************homeworks provider*****************
+     ChangeNotifierProvider(create: (_) => HomeworksProvider()),
   ];
 }

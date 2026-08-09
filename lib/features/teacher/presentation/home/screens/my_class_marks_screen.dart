@@ -200,20 +200,28 @@ class _TermMarksTab extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final mark = provider.marks[index];
 
-                          final title = capitali(
+                          final isSpecial = mark.classGrade?.special;
+                          final className = mark.classGrade?.classname ?? "";
+                          final title =
+                              isSpecial == true
+                                  ? className
+                                  : capitalizeEachWord(
+                                    mark.subject?.subjectName ?? "",
+                                  );
+
+                          final description = capitali(
                             "${mark.termExam?.examName ?? ''} - ${mark.internalName} (${mark.termExam?.educationYear ?? ''}) ",
                           );
-                          final subjectName = mark.subject?.subjectName ?? "";
-                          // final className = mark.classGrade?.classname ?? "";
-                          
 
                           return ItemCard(
                             title:
-                                subjectName.isNotEmpty
-                                    ? subjectName
+                                title.isNotEmpty
+                                    ? title
                                     : "Subject Not Specified",
                             description:
-                                title.isNotEmpty ? title : "Not Specified",
+                                description.isNotEmpty
+                                    ? description
+                                    : "Not Specified",
 
                             iconColor: Colors.green,
                             backgroundColor: const Color(0xFFE8F5E9),

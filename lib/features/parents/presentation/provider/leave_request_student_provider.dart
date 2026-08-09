@@ -194,7 +194,7 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
         await fetchAllStudentLeaveRequests(
           forceRefresh: true,
           studentId: studentId,
-          forStaff: false
+          forStaff: false,
         );
         if (!context.mounted) return;
         PopupLoader.hide(context);
@@ -221,8 +221,26 @@ class StudentLeaveRequestProvider extends ChangeNotifier {
       _uploadProgress = 0.0;
       log("Error creating leave request: $e");
 
+      if (!context.mounted) return;
+
+      PopupLoader.hide(context);
+
       if (e is DioException) {
         log("Backend response: ${e.response?.data}");
+
+        CustomSnackbar.show(
+          context,
+          message:
+              e.response?.data?["error"]?.toString() ??
+              "Failed to submit leave request",
+          type: SnackbarType.failure,
+        );
+      } else {
+        CustomSnackbar.show(
+          context,
+          message: "Something went wrong",
+          type: SnackbarType.failure,
+        );
       }
     } finally {
       _isLoadingTwo = false;
