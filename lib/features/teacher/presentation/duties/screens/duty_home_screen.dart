@@ -59,47 +59,41 @@ class _DutyHomeScreenState extends State<DutyHomeScreen> {
       appBar: CommonAppBar(title: "Duties", isBackButton: false),
       body: RefreshIndicator(
         onRefresh: refreshData,
-        child: Column(
-          children: [
-            SizedBox(
-              height: Responsive.height * 80,
-              child: Consumer<DutyProvider>(
-                builder: (context, provider, _) {
-                  if (_dutyProvider.isLoading &&
-                      _dutyProvider.staffDuties.isEmpty) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: commonShimmerList(),
-                    );
-                  }
-
-                  if (_dutyProvider.staffDuties.isEmpty) {
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.8,
-                      child: emptyScreen(message: 'No Duties Found.'),
-                    );
-                  }
-
-                  return ListView.builder(
-                    controller: _scrollController,
+        child: Consumer<DutyProvider>(
+          builder: (context, provider, _) {
+            if (_dutyProvider.isLoading && _dutyProvider.staffDuties.isEmpty) {
+              return CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount:
-                        _dutyProvider.staffDuties.length +
-                        (_dutyProvider.hasMore ? 2 : 1),
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return SizedBox(height: Responsive.height * 3);
-                      }
+                    sliver: SliverToBoxAdapter(child: commonShimmerList()),
+                  ),
+                ],
+              );
+            }
 
-                      if (index == _dutyProvider.staffDuties.length + 1) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
+            if (_dutyProvider.staffDuties.isEmpty) {
+              return CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: emptyScreen(message: 'No Duties Found.'),
+                  ),
+                ],
+              );
+            }
 
-                      final grouped = _dutyProvider.staffDuties[index - 1];
+            return CustomScrollView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final grouped = _dutyProvider.staffDuties[index];
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,6 +112,7 @@ class _DutyHomeScreenState extends State<DutyHomeScreen> {
                             final dutyStatusStyle = getDutyStatusStyle(
                               d.status ?? "",
                             );
+
                             return ItemCard(
                               title: d.duty?.title ?? "",
                               description: d.duty?.description ?? "",
@@ -139,12 +134,20 @@ class _DutyHomeScreenState extends State<DutyHomeScreen> {
                           SizedBox(height: Responsive.height * 2),
                         ],
                       );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
+                    }, childCount: _dutyProvider.staffDuties.length),
+                  ),
+                ),
+
+                if (_dutyProvider.hasMore)
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  ),
+              ],
+            );
+          },
         ),
       ),
     );

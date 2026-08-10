@@ -201,11 +201,13 @@ class _MyClassScreenState extends State<MyClassScreen> {
                         icon: Icons.assignment_outlined,
                         color: Colors.orange,
                         onTap: () {
+                          final params = HomeworkParameters(
+                            viewerType: HomeworkViewerType.myClassView,
+                          );
                           context.pushNamed(
                             RouteConstants.homeworkLisitingScreen,
-                            extra: HomeworkParameters(
-                              viewerType: HomeworkViewerType.myClassView,
-                            ),
+                            extra: params,
+                            queryParameters: params.toQueryParameters(),
                           );
                         },
                       ),

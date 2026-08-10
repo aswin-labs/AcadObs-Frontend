@@ -51,6 +51,7 @@ import 'package:acadobs/features/teacher/presentation/leave_request/screens/stud
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/teacher_leave_request_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/notes/screens/note_listing_screen.dart';
+import 'package:acadobs/routes/route_extra_guard.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/models/detail_screen_args.dart';
@@ -62,6 +63,7 @@ List<GoRoute> staffRoutes = [
     path: '/dutyDetail',
     name: RouteConstants.dutyDetail,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final Request staffDuty = state.extra as Request;
       return DutyDetailScreen(staffDuty: staffDuty);
     },
@@ -72,6 +74,7 @@ List<GoRoute> staffRoutes = [
     path: '/attendanceTaking',
     name: RouteConstants.attendanceTaking,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final AttendanceUploadModel attendance =
           state.extra as AttendanceUploadModel;
       return AttendanceTakingScreen(attendance: attendance);
@@ -81,6 +84,7 @@ List<GoRoute> staffRoutes = [
     path: '/attendanceDetails',
     name: RouteConstants.attendanceDetails,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final attendance = state.extra as AttendanceModel;
       return AttendanceDetailsScreen(attendance: attendance);
     },
@@ -89,6 +93,7 @@ List<GoRoute> staffRoutes = [
     path: '/editAttendance',
     name: RouteConstants.editAttendance,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final attendance = state.extra as AttendanceModel;
       return EditAttendanceScreen(attendance: attendance);
     },
@@ -104,7 +109,10 @@ List<GoRoute> staffRoutes = [
     path: '/studentDetails',
     name: RouteConstants.studentDetails,
     builder: (context, state) {
-      final studentDetailParams = state.extra as StudentDetailParameters;
+      final studentDetailParams = state.extra as StudentDetailParameters? ??
+          StudentDetailParameters.fromQueryParameters(
+            state.uri.queryParameters,
+          );
 
       return StudentDetailScreen(
         studentId: studentDetailParams.studentId,
@@ -123,6 +131,7 @@ List<GoRoute> staffRoutes = [
     path: '/staffLeaveRequestDetails',
     name: RouteConstants.staffLeaveRequestDetails,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       LeaveModel leave = state.extra as LeaveModel;
       return LeaveRequestDetailScreen(leave: leave);
     },
@@ -133,6 +142,7 @@ List<GoRoute> staffRoutes = [
     path: '/noticedetails',
     name: RouteConstants.noticedetails,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final NoticeModel noticedetail = state.extra as NoticeModel;
       return NoticeDetailsScreen(notices: noticedetail);
     },
@@ -153,6 +163,7 @@ List<GoRoute> staffRoutes = [
     path: '/eventdetails',
     name: RouteConstants.eventlistdetails,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final EventModel eventdetail = state.extra as EventModel;
       return EventDetailScreen(events: eventdetail);
     },
@@ -162,7 +173,8 @@ List<GoRoute> staffRoutes = [
     path: '/eventListscreen',
     name: RouteConstants.eventListscreen,
     builder: (context, state) {
-      final forStaff = state.extra as bool;
+      final forStaff = state.extra as bool? ??
+          (state.uri.queryParameters['forStaff'] == 'true');
       return EventListingScreen(forStaff: forStaff);
     },
   ),
@@ -172,6 +184,7 @@ List<GoRoute> staffRoutes = [
     path: '/addStudentMarks',
     name: RouteConstants.addStudentMarks,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final MarksUploadModel marks = state.extra as MarksUploadModel;
       return AddStudentMarksScreen(marks: marks);
     },
@@ -182,7 +195,8 @@ List<GoRoute> staffRoutes = [
     path: '/newsdetailscreen',
     name: RouteConstants.newsDetailsScreen,
     builder: (context, state) {
-      final forStaff = state.extra as bool;
+      final forStaff = state.extra as bool? ??
+          (state.uri.queryParameters['forStaff'] == 'true');
       return NewsListingScreen(forStaff: forStaff);
     },
   ),
@@ -191,6 +205,7 @@ List<GoRoute> staffRoutes = [
     path: '/newsScreen',
     name: RouteConstants.newsScreen,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final News news = state.extra as News;
       return NewsScreenDetails(news: news);
     },
@@ -200,7 +215,7 @@ List<GoRoute> staffRoutes = [
     path: '/marksDetails',
     name: RouteConstants.marksDetails,
     builder: (context, state) {
-      // final MarksModel marks = state.extra as MarksModel;
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final MarkDetailParameters args = state.extra as MarkDetailParameters;
       return MarksDetailScreen(marksParams: args);
     },
@@ -211,6 +226,7 @@ List<GoRoute> staffRoutes = [
     path: '/marksEdit',
     name: RouteConstants.marksEdit,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final MarksModel marks = state.extra as MarksModel;
       return EditMarksScreen(marks: marks);
     },
@@ -256,6 +272,7 @@ List<GoRoute> staffRoutes = [
     path: '/noteDetailScreen',
     name: RouteConstants.noteDetailScreen,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final Note noteModel = state.extra as Note;
       return NoteDetailsScreen(note: noteModel);
     },
@@ -266,7 +283,10 @@ List<GoRoute> staffRoutes = [
     path: '/achievementdetatilscreen',
     name: RouteConstants.achievementDetailsScreen,
     builder: (context, state) {
-      final args = state.extra as DetailScreenArgs;
+      final args = state.extra as DetailScreenArgs? ??
+          DetailScreenArgs.fromQueryParameters(
+            state.uri.queryParameters,
+          );
       return AchievementDetailsScreen(
         achievementId: args.id,
         forStaff: args.forStaff,
@@ -279,6 +299,7 @@ List<GoRoute> staffRoutes = [
     path: '/achievementEditScreen',
     name: RouteConstants.editAchievement,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final AchievementModel achievementModel = state.extra as AchievementModel;
       return AchievementEditScreen(achievement: achievementModel);
     },
@@ -289,6 +310,7 @@ List<GoRoute> staffRoutes = [
     path: '/paymentdetailScreen',
     name: RouteConstants.paymentDetailScreen,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final Payment payment = state.extra as Payment;
       return PaymentDetailScreen(payment: payment);
     },
@@ -317,7 +339,8 @@ List<GoRoute> staffRoutes = [
     path: '/schoolAchievements',
     name: RouteConstants.schoolAchievements,
     builder: (context, state) {
-      final forStaff = state.extra as bool;
+      final forStaff = state.extra as bool? ??
+          (state.uri.queryParameters['forStaff'] == 'true');
       return SchoolAchievementListing(forStaff: forStaff);
     },
   ),
@@ -326,7 +349,10 @@ List<GoRoute> staffRoutes = [
     path: '/studentExamScreen',
     name: RouteConstants.studentExamScreen,
     builder: (context, state) {
-      final args = state.extra as StudentScreenArgs;
+      final args = state.extra as StudentScreenArgs? ??
+          StudentScreenArgs.fromQueryParameters(
+            state.uri.queryParameters,
+          );
       return StudentExamScreen(
         studentId: args.studentId,
         forStaff: args.forStaff,
@@ -338,7 +364,10 @@ List<GoRoute> staffRoutes = [
     path: '/studentAchievementScreen',
     name: RouteConstants.studentAchievementScreen,
     builder: (context, state) {
-      final args = state.extra as StudentScreenArgs;
+      final args = state.extra as StudentScreenArgs? ??
+          StudentScreenArgs.fromQueryParameters(
+            state.uri.queryParameters,
+          );
       return StudentAchievementScreen(
         studentId: args.studentId,
         forStaff: args.forStaff,
@@ -351,7 +380,10 @@ List<GoRoute> staffRoutes = [
     path: '/studentNoticeScreen',
     name: RouteConstants.studentNoticeScreen,
     builder: (context, state) {
-      final args = state.extra as StudentScreenArgs;
+      final args = state.extra as StudentScreenArgs? ??
+          StudentScreenArgs.fromQueryParameters(
+            state.uri.queryParameters,
+          );
       return StudentNoticeScreen(
         studentId: args.studentId,
         forStaff: args.forStaff,
@@ -362,7 +394,10 @@ List<GoRoute> staffRoutes = [
     path: '/studentLeaveScreen',
     name: RouteConstants.studentLeaveScreen,
     builder: (context, state) {
-      final args = state.extra as StudentScreenArgs;
+      final args = state.extra as StudentScreenArgs? ??
+          StudentScreenArgs.fromQueryParameters(
+            state.uri.queryParameters,
+          );
       return StudentLeaveScreen(
         studentId: args.studentId,
         forStaff: args.forStaff,
@@ -374,6 +409,7 @@ List<GoRoute> staffRoutes = [
     path: '/studentProfileScreen',
     name: RouteConstants.studentProfileScreen,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final args = state.extra as StudentProfileArgs;
       return StudentProfileScreen(
         student: args.student,
@@ -393,6 +429,7 @@ List<GoRoute> staffRoutes = [
     path: '/myClassesScreen',
     name: RouteConstants.myClassesScreen,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final ClassGradeModel classGrade = state.extra as ClassGradeModel;
       return MyClassScreen(classGrade: classGrade);
     },
@@ -402,6 +439,7 @@ List<GoRoute> staffRoutes = [
     path: '/myClassMarksScreen',
     name: RouteConstants.myClassMarksScreen,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final ClassGradeModel classGrade = state.extra as ClassGradeModel;
       return MyClassMarksScreen(classGrade: classGrade);
     },
@@ -412,6 +450,7 @@ List<GoRoute> staffRoutes = [
     path: '/homeworkRankingScreen',
     name: RouteConstants.homeworkRankingScreen,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       HomeworkModel homework = state.extra as HomeworkModel;
       return HomeworkRankingScreen(homework: homework);
     },
@@ -420,6 +459,7 @@ List<GoRoute> staffRoutes = [
     path: '/edithomework',
     name: RouteConstants.editHomeWork,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       HomeworkModel homework = state.extra as HomeworkModel;
       return EditHomeWorkScreen(homework: homework);
     },
@@ -430,6 +470,20 @@ class StudentDetailParameters {
   final int studentId;
   final bool forStaff;
   StudentDetailParameters({required this.forStaff, required this.studentId});
+
+  Map<String, String> toQueryParameters() => {
+    'studentId': studentId.toString(),
+    'forStaff': forStaff.toString(),
+  };
+
+  factory StudentDetailParameters.fromQueryParameters(
+    Map<String, String> params,
+  ) {
+    return StudentDetailParameters(
+      studentId: int.tryParse(params['studentId'] ?? '') ?? 0,
+      forStaff: params['forStaff'] == 'true',
+    );
+  }
 }
 
 class MarkDetailParameters {

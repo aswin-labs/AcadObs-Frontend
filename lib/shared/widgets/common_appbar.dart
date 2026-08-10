@@ -1,5 +1,6 @@
 import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -24,7 +25,11 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading:
           isBackButton
               ? GestureDetector(
-                onTap: () => Navigator.pop(context),
+                onTap: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  }
+                },
                 child: Padding(
                   padding: const EdgeInsets.only(
                     left: 16,

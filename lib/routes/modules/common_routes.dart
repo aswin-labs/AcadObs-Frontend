@@ -18,6 +18,7 @@ import 'package:acadobs/features/timetables/data/models/timetable_type.dart';
 import 'package:acadobs/features/timetables/presentation/provider/timetables_provider.dart';
 import 'package:acadobs/features/timetables/presentation/screens/all_day_timetable_screen.dart';
 import 'package:acadobs/features/timetables/presentation/screens/today_timetable_screen.dart';
+import 'package:acadobs/routes/route_extra_guard.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/bottom_nav/presentation/bottom_nav_screen.dart';
 import 'package:acadobs/shared/widgets/no_internet_screen.dart';
@@ -54,6 +55,7 @@ final List<GoRoute> commonRoutes = [
     path: '/chatScreen',
     name: RouteConstants.chatScreen,
     builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
       final chat = state.extra as ChatModel;
       return ChatScreen(chatModel: chat);
     },
@@ -72,7 +74,8 @@ final List<GoRoute> commonRoutes = [
     path: '/profilescreen',
     name: RouteConstants.profileScreen,
     builder: (context, state) {
-      final forStaff = state.extra as bool;
+      final forStaff = state.extra as bool? ??
+          (state.uri.queryParameters['forStaff'] == 'true');
       return ProfileScreen(forStaff: forStaff);
     },
   ),
@@ -91,7 +94,8 @@ final List<GoRoute> commonRoutes = [
     path: '/updateProfilePhoto',
     name: RouteConstants.updateProfilePhoto,
     builder: (context, state) {
-      final bool forStaff = state.extra as bool;
+      final bool forStaff = state.extra as bool? ??
+          (state.uri.queryParameters['forStaff'] == 'true');
       return UpdateProfilePhotoScreen(forStaff: forStaff);
     },
   ),
@@ -101,7 +105,8 @@ final List<GoRoute> commonRoutes = [
     path: '/changePassword',
     name: RouteConstants.changePassword,
     builder: (context, state) {
-      final bool forStaff = state.extra as bool;
+      final bool forStaff = state.extra as bool? ??
+          (state.uri.queryParameters['forStaff'] == 'true');
       return ChangePasswordScreen(forStaff: forStaff);
     },
   ),
@@ -150,7 +155,10 @@ final List<GoRoute> commonRoutes = [
     path: '/todayTimetableScreen',
     name: RouteConstants.todayTimetableScreen,
     builder: (context, state) {
-      final args = state.extra as TodayTimetableParameters;
+      final args = state.extra as TodayTimetableParameters? ??
+          TodayTimetableParameters.fromQueryParameters(
+            state.uri.queryParameters,
+          );
       return ChangeNotifierProvider(
         create: (_) => TimetablesProvider(),
         child: TodayTimetableScreen(
@@ -166,7 +174,10 @@ final List<GoRoute> commonRoutes = [
     path: '/allDayTimetableScreen',
     name: RouteConstants.allDayTimetableScreen,
     builder: (context, state) {
-      final args = state.extra as TodayTimetableParameters;
+      final args = state.extra as TodayTimetableParameters? ??
+          TodayTimetableParameters.fromQueryParameters(
+            state.uri.queryParameters,
+          );
       return ChangeNotifierProvider(
         create: (_) => TimetablesProvider(),
         child: AllDayTimetableScreen(
@@ -188,7 +199,10 @@ final List<GoRoute> commonRoutes = [
     path: '/homeworkLisitingScreen',
     name: RouteConstants.homeworkLisitingScreen,
     builder: (context, state) {
-      final homeworkParams = state.extra as HomeworkParameters;
+      final homeworkParams = state.extra as HomeworkParameters? ??
+          HomeworkParameters.fromQueryParameters(
+            state.uri.queryParameters,
+          );
       return HomeworksListingScreen(homeworkParams: homeworkParams);
     },
   ),
@@ -198,7 +212,10 @@ final List<GoRoute> commonRoutes = [
     path: '/homeworkDetailsScreen',
     name: RouteConstants.homeworkDetailsScreen,
     builder: (context, state) {
-      final homeworkParams = state.extra as HomeworkParameters;
+      final homeworkParams = state.extra as HomeworkParameters? ??
+          HomeworkParameters.fromQueryParameters(
+            state.uri.queryParameters,
+          );
       return HomeworkDetailsScreen(homeworkParams: homeworkParams);
     },
   ),
@@ -211,6 +228,23 @@ class TodayTimetableParameters {
   final String? studentId;
 
   TodayTimetableParameters({required this.timetableType, this.studentId});
+
+  Map<String, String> toQueryParameters() => {
+    'timetableType': timetableType.name,
+    if (studentId != null) 'studentId': studentId!,
+  };
+
+  factory TodayTimetableParameters.fromQueryParameters(
+    Map<String, String> params,
+  ) {
+    return TodayTimetableParameters(
+      timetableType: TimetableType.values.firstWhere(
+        (e) => e.name == params['timetableType'],
+        orElse: () => TimetableType.values.first,
+      ),
+      studentId: params['studentId'],
+    );
+  }
 }
 
 class HomeworkParameters {
@@ -223,4 +257,23 @@ class HomeworkParameters {
     this.homeworkId,
     this.studentId,
   });
+
+  Map<String, String> toQueryParameters() => {
+    'viewerType': viewerType.name,
+    if (homeworkId != null) 'homeworkId': homeworkId.toString(),
+    if (studentId != null) 'studentId': studentId.toString(),
+  };
+
+  factory HomeworkParameters.fromQueryParameters(
+    Map<String, String> params,
+  ) {
+    return HomeworkParameters(
+      viewerType: HomeworkViewerType.values.firstWhere(
+        (e) => e.name == params['viewerType'],
+        orElse: () => HomeworkViewerType.teacherView,
+      ),
+      homeworkId: int.tryParse(params['homeworkId'] ?? ''),
+      studentId: int.tryParse(params['studentId'] ?? ''),
+    );
+  }
 }

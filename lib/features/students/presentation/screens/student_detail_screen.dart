@@ -413,12 +413,14 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                         color: Colors.brown,
                         title: "Homework",
                         onTap: () {
+                          final params = HomeworkParameters(
+                            viewerType: HomeworkViewerType.teacherStudentView,
+                            studentId: widget.studentId,
+                          );
                           context.pushNamed(
                             RouteConstants.homeworkLisitingScreen,
-                            extra: HomeworkParameters(
-                              viewerType: HomeworkViewerType.teacherStudentView,
-                              studentId: widget.studentId,
-                            ),
+                            extra: params,
+                            queryParameters: params.toQueryParameters(),
                           );
                         },
                       )
@@ -427,13 +429,14 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                         color: Colors.brown,
                         title: "Homework",
                         onTap: () {
+                          final params = HomeworkParameters(
+                            viewerType: HomeworkViewerType.guardianStudentView,
+                            studentId: widget.studentId,
+                          );
                           context.pushNamed(
                             RouteConstants.homeworkLisitingScreen,
-                            extra: HomeworkParameters(
-                              viewerType:
-                                  HomeworkViewerType.guardianStudentView,
-                              studentId: widget.studentId,
-                            ),
+                            extra: params,
+                            queryParameters: params.toQueryParameters(),
                           );
                         },
                       ),

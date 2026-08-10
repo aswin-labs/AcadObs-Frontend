@@ -18,13 +18,16 @@ Widget buildQuickActions(BuildContext context) {
               gradient: const LinearGradient(
                 colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
               ),
-              onTap:
-                  () => context.pushNamed(
-                    RouteConstants.homeworkLisitingScreen,
-                    extra: HomeworkParameters(
-                      viewerType: HomeworkViewerType.teacherView,
-                    ),
-                  ),
+              onTap: () {
+                final params = HomeworkParameters(
+                  viewerType: HomeworkViewerType.teacherView,
+                );
+                context.pushNamed(
+                  RouteConstants.homeworkLisitingScreen,
+                  extra: params,
+                  queryParameters: params.toQueryParameters(),
+                );
+              },
             ),
           ),
           Expanded(

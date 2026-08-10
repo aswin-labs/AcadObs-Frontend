@@ -133,11 +133,14 @@ class _HomeworksListingScreenState extends State<HomeworksListingScreen> {
                         onTap: () {
                           context.pushNamed(
                             RouteConstants.homeworkDetailsScreen,
-                            extra: HomeworkParameters(
-                              viewerType: widget.homeworkParams.viewerType,
-                              homeworkId: hw.id,
-                              studentId: widget.homeworkParams.studentId,
-                            ),
+                            queryParameters: {
+                              'viewerType':
+                                  widget.homeworkParams.viewerType.name,
+                              'homeworkId': hw.id.toString(),
+                              if (widget.homeworkParams.studentId != null)
+                                'studentId':
+                                    widget.homeworkParams.studentId.toString(),
+                            },
                           );
                         },
                       ),

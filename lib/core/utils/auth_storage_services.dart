@@ -32,11 +32,9 @@ class AuthStorageService {
   /// Save token and user data
   Future<void> saveUserCredentials({
     required String token,
-    // required String refreshToken,
     required Map<String, dynamic> userData,
   }) async {
     await _storage.write(key: _kToken, value: token);
-    // await _storage.write(key: _kRefreshToken, value: refreshToken);
     await _storage.write(key: _kUser, value: jsonEncode(userData));
   }
 
