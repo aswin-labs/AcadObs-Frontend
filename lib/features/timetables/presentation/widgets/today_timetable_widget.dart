@@ -6,16 +6,22 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class TeacherTodayTimetableWidget extends StatefulWidget {
-  const TeacherTodayTimetableWidget({super.key});
+class TodayTimetableWidget extends StatefulWidget {
+  final TimetableType type;
+  final int? studentId;
+  final bool forStudent;
+  const TodayTimetableWidget({
+    super.key,
+    required this.type,
+    this.studentId,
+    this.forStudent = false,
+  });
 
   @override
-  State<TeacherTodayTimetableWidget> createState() =>
-      _TeacherTodayTimetableWidgetState();
+  State<TodayTimetableWidget> createState() => _TodayTimetableWidgetState();
 }
 
-class _TeacherTodayTimetableWidgetState
-    extends State<TeacherTodayTimetableWidget> {
+class _TodayTimetableWidgetState extends State<TodayTimetableWidget> {
   @override
   void initState() {
     super.initState();
@@ -24,14 +30,16 @@ class _TeacherTodayTimetableWidgetState
       if (!mounted) return;
 
       context.read<TimetablesProvider>().fetchTodayTimetable(
-        type: TimetableType.teacher,
+        type: widget.type,
+        studentId: widget.studentId,
       );
     });
   }
 
   Future<void> _refresh() {
     return context.read<TimetablesProvider>().fetchTodayTimetable(
-      type: TimetableType.teacher,
+      type: widget.type,
+      studentId: widget.studentId,
       forceRefresh: true,
     );
   }
@@ -47,23 +55,31 @@ class _TeacherTodayTimetableWidgetState
             children: [
               Row(
                 children: [
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      "Today's Timetable",
+                      "Today's \nTimetable",
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: widget.forStudent ? 16 : 20,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                   TextButton(
                     onPressed: () {
-                      context.pushNamed(
-                        RouteConstants.allDayTimetableScreen,
-                        extra: TodayTimetableParameters(
-                          timetableType: TimetableType.teacher,
-                        ),
-                      );
+                      widget.forStudent
+                          ? context.pushNamed(
+                            RouteConstants.allDayTimetableScreen,
+                            extra: TodayTimetableParameters(
+                              timetableType: TimetableType.student,
+                              studentId: widget.studentId?.toString(),
+                            ),
+                          )
+                          : context.pushNamed(
+                            RouteConstants.allDayTimetableScreen,
+                            extra: TodayTimetableParameters(
+                              timetableType: TimetableType.teacher,
+                            ),
+                          );
                     },
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.black,
@@ -151,11 +167,16 @@ class _TeacherTodayTimetableWidgetState
                             return _SmallTimetableBox(
                               periodNumber: item.timetable?.periodNumber ?? 0,
                               title:
-                                  item.timetable?.classGrade?.classname ??
-                                  'Class not assigned',
+                                  widget.forStudent
+                                      ? item.subject?.subjectName ??
+                                          'Subject not assigned'
+                                      : item.timetable?.classGrade?.classname ??
+                                          'Class not assigned',
                               description:
-                                  item.subject?.subjectName ??
-                                  'Subject not assigned',
+                                  widget.forStudent
+                                      ? item.user?.name ?? 'N/A'
+                                      : item.subject?.subjectName ??
+                                          'Subject not assigned',
                               isSubstitution: true,
                             );
                           },
@@ -165,9 +186,6 @@ class _TeacherTodayTimetableWidgetState
 
                     if (provider.todaySubstitutions.isNotEmpty &&
                         provider.todayTimetable.isNotEmpty)
-                      const SizedBox(height: 16),
-
-                    if (provider.todayTimetable.isNotEmpty) ...[
                       const Text(
                         'Timetable',
                         style: TextStyle(
@@ -176,6 +194,8 @@ class _TeacherTodayTimetableWidgetState
                           color: Color.fromARGB(221, 74, 73, 73),
                         ),
                       ),
+
+                    if (provider.todayTimetable.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       SizedBox(
                         height: 112,
@@ -191,11 +211,16 @@ class _TeacherTodayTimetableWidgetState
                             return _SmallTimetableBox(
                               periodNumber: item.periodNumber ?? 0,
                               title:
-                                  item.classGrade?.classname ??
-                                  'Class not assigned',
+                                  widget.forStudent
+                                      ? item.subject?.subjectName ??
+                                          'Subject not assigned'
+                                      : item.classGrade?.classname ??
+                                          'Class not assigned',
                               description:
-                                  item.subject?.subjectName ??
-                                  'Subject not assigned',
+                                  widget.forStudent
+                                      ? item.user?.name ?? 'N/A'
+                                      : item.subject?.subjectName ??
+                                          'Subject not assigned',
                             );
                           },
                         ),

@@ -10,6 +10,7 @@ import 'package:acadobs/features/students/presentation/provider/student_provider
 import 'package:acadobs/features/students/presentation/widgets/student_attendence_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_feature_card.dart';
 import 'package:acadobs/features/timetables/data/models/timetable_type.dart';
+import 'package:acadobs/features/timetables/presentation/widgets/today_timetable_widget.dart';
 import 'package:acadobs/routes/modules/common_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
@@ -366,11 +367,12 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               ),
 
               const SizedBox(height: 20),
+
               const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Attendance',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(height: 10),
@@ -380,6 +382,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
                 forStaff: widget.forStaff,
               ),
+
+              const SizedBox(height: 10),
               GridView.count(
                 padding: EdgeInsets.zero,
                 crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 3,
@@ -389,22 +393,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 mainAxisSpacing: 12,
                 childAspectRatio: 0.95,
                 children: [
-                  if (!widget.forStaff)
-                    StudentFeatureCard(
-                      icon: Icons.schedule,
-                      title: "Timetable",
-                      color: Colors.deepPurple,
-                      onTap: () {
-                        context.pushNamed(
-                          RouteConstants.todayTimetableScreen,
-                          extra: TodayTimetableParameters(
-                            timetableType: TimetableType.student,
-                            studentId: widget.studentId.toString(),
-                          ),
-                        );
-                      },
-                    ),
-
                   StudentFeatureCard(
                     icon: Icons.edit_note,
                     title: "Exam",
@@ -512,6 +500,15 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                   ),
                 ],
               ),
+              const SizedBox(height: 20),
+              widget.forStaff
+                  ? SizedBox.shrink()
+                  : TodayTimetableWidget(
+                    type: TimetableType.student,
+                    studentId: widget.studentId,
+                    forStudent: true,
+                  ),
+
               const SizedBox(height: 100),
             ],
           ),

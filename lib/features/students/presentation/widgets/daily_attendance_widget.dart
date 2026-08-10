@@ -37,18 +37,25 @@ class _DailyAttendanceWidgetState extends State<DailyAttendanceWidget> {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
-                Spacer(),
-                Text("Date"),
+                Expanded(
+                  child: Text(
+                    DateFormat('EEEE').format(_selectedDate),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17,
+                    ),
+                  ),
+                ),
+                const Text("Date:", style: TextStyle(fontSize: 13)),
                 DateWidget(
                   initialDate: _selectedDate,
-
                   onDateChanged: (newDate) {
                     setState(() {
                       _selectedDate = DateTime.parse(newDate);
@@ -57,24 +64,22 @@ class _DailyAttendanceWidgetState extends State<DailyAttendanceWidget> {
                     final formattedDate = DateFormat(
                       "yyyy-MM-dd",
                     ).format(_selectedDate);
+
                     widget.onDateChanged(formattedDate);
                   },
                 ),
               ],
             ),
-            Text(
-              DateFormat('EEEE').format(_selectedDate),
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
-            ),
-            SizedBox(height: 10),
+
+            const SizedBox(height: 8),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: MediaQuery.sizeOf(context).width > 600 ? 6 : 4,
                 crossAxisSpacing: 8,
-                mainAxisSpacing: 10,
-                mainAxisExtent: 62,
+                mainAxisSpacing: 6,
+                mainAxisExtent: 56,
               ),
               itemCount: widget.totalAttendanceCount,
               itemBuilder: (context, index) {
@@ -205,7 +210,7 @@ class PeriodContainer extends StatelessWidget {
       children: [
         SizedBox(
           width: double.infinity,
-          height: 32,
+          height: 29,
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: getStatusColor(status),

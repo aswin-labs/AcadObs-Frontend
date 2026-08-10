@@ -4,7 +4,6 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -53,7 +52,11 @@ class _NewsListingScreenState extends State<NewsListingScreen> {
     return Scaffold(
       appBar: CommonAppBar(title: 'News', isBackButton: widget.forStaff),
       body: RefreshIndicator(
-        onRefresh: () => _provider.fetchLatestNews(forStaff: widget.forStaff),
+        onRefresh:
+            () => _provider.fetchNews(
+              forStaff: widget.forStaff,
+              forceRefresh: true,
+            ),
         child: Consumer<NewsProvider>(
           builder: (context, provider, _) {
             if (provider.isLoading && provider.newsAll.isEmpty) {

@@ -33,7 +33,8 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   DateTime? lastPressed;
   UserType? _userType;
   bool _isLoading = false;
-  List<Widget> _pages = [];
+  List<Widget Function()> _pages = [];
+  final Map<int, Widget> _pageCache = {};
 
   @override
   void initState() {
@@ -83,32 +84,31 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   }
 
   // Define pages for each user type
-  List<Widget> _getPages(UserType userType) {
+  List<Widget Function()> _getPages(UserType userType) {
     if (userType == UserType.teacher) {
       return [
-        TeacherHomeScreen(userType: userType),
-        AttendanceHomeScreen(),
-        MarksHomeScreen(),
-        DutyHomeScreen(),
-        // ChatsHomeScreen(),
+        () => TeacherHomeScreen(userType: userType),
+        () => AttendanceHomeScreen(),
+        () => MarksHomeScreen(),
+        () => DutyHomeScreen(),
       ];
     } else if (userType == UserType.parent) {
       return [
-        ParentHomeScreen(),
-        EventListingScreen(forStaff: false),
-        NewsListingScreen(forStaff: false),
-        PaymentsHomeScreen(),
-        TeachersListingScreen(),
+        () => ParentHomeScreen(),
+        () => EventListingScreen(forStaff: false),
+        () => NewsListingScreen(forStaff: false),
+        () => PaymentsHomeScreen(),
+        () => TeachersListingScreen(),
       ];
     } else if (userType == UserType.nonTeachingStaff) {
       return [
-        TeacherHomeScreen(userType: userType),
-        DutyHomeScreen(),
-        TeacherLeaveRequestHomeScreen(),
+        () => TeacherHomeScreen(userType: userType),
+        () => DutyHomeScreen(),
+        () => TeacherLeaveRequestHomeScreen(),
       ];
-    } else {
-      return [];
     }
+
+    return [];
   }
 
   // Define BottomNavigationBarItems for each user type
@@ -165,11 +165,16 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     return Scaffold(
       body: IndexedStack(
         index: currentIndex,
-        children: List.generate(
-          pages.length,
-          (index) =>
-              HeroMode(enabled: index == currentIndex, child: pages[index]),
-        ),
+        children: List.generate(pages.length, (index) {
+          if (index == currentIndex || _pageCache.containsKey(index)) {
+            return HeroMode(
+              enabled: index == currentIndex,
+              child: _getPage(index),
+            );
+          }
+
+          return const SizedBox.shrink();
+        }),
       ),
       bottomNavigationBar: SizedBox(
         height: Responsive.height * 8,
@@ -203,5 +208,9 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       activeIcon: Icon(icon, size: 26),
       label: label,
     );
+  }
+
+  Widget _getPage(int index) {
+    return _pageCache.putIfAbsent(index, () => _pages[index]());
   }
 }

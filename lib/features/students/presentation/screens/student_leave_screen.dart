@@ -8,7 +8,7 @@ import 'package:acadobs/features/parents/presentation/provider/leave_request_stu
 import 'package:acadobs/features/teacher/presentation/leave_request/widgets/create_leave_request_bottomsheet.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/common_floating_button.dart';
+import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -70,17 +70,6 @@ class _StudentLeaveScreenState extends State<StudentLeaveScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton:
-          widget.forStaff
-              ? const SizedBox.shrink()
-              : CommonFloatingButton(
-                onPressed:
-                    () => showCreateLeaveRequesBottomSheet(
-                      context,
-                      fromTeacherScreen: false,
-                      studentId: widget.studentId,
-                    ),
-              ),
       appBar: CommonAppBar(title: 'Leave Requests', isBackButton: true),
 
       body: RefreshIndicator(
@@ -219,6 +208,22 @@ class _StudentLeaveScreenState extends State<StudentLeaveScreen> {
           ),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton:
+          widget.forStaff
+              ? const SizedBox.shrink()
+              : Padding(
+                padding: const EdgeInsets.all(16),
+                child: CommonButton(
+                  onPressed:
+                      () => showCreateLeaveRequesBottomSheet(
+                        context,
+                        fromTeacherScreen: false,
+                        studentId: widget.studentId,
+                      ),
+                  widget: Text("Apply For Leave"),
+                ),
+              ),
     );
   }
 }

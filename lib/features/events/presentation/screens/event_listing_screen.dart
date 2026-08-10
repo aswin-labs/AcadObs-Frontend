@@ -50,7 +50,11 @@ class _EventListingScreenState extends State<EventListingScreen> {
     return Scaffold(
       appBar: CommonAppBar(title: 'Events', isBackButton: widget.forStaff),
       body: RefreshIndicator(
-        onRefresh: () => _provider.fetchEvents(forStaff: widget.forStaff),
+        onRefresh:
+            () => _provider.fetchEvents(
+              forStaff: widget.forStaff,
+              forceRefresh: true,
+            ),
         child: Consumer<EventProvider>(
           builder: (context, provider, _) {
             if (provider.isLoading && provider.eventsAll.isEmpty) {

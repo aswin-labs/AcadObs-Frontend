@@ -20,7 +20,8 @@ import 'package:acadobs/features/teacher/presentation/home/widgets/fab_option_di
 import 'package:acadobs/features/teacher/presentation/home/widgets/news_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/notice_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_card.dart';
-import 'package:acadobs/features/timetables/presentation/widgets/teacher_today_timetable_widget.dart';
+import 'package:acadobs/features/timetables/data/models/timetable_type.dart';
+import 'package:acadobs/features/timetables/presentation/widgets/today_timetable_widget.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
@@ -466,12 +467,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                     },
                                   ),
                                   const SizedBox(height: 24),
-
-                                  TeacherTodayTimetableWidget(),
-
-                                  // Today's Schedule Section
-                                  // buildTimeTableSection(context),
-                                  // buildSubstitutionSection(context),
+                                  // timetable section
+                                  TodayTimetableWidget(
+                                    type: TimetableType.teacher,
+                                  ),
                                   const SizedBox(height: 24),
                                 ],
                               )
