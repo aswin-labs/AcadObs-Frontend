@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:acadobs/core/utils/common_shimmer_tile.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
+import 'package:acadobs/features/homeworks/data/models/homework_viewer_type.dart';
 import 'package:acadobs/features/students/data/models/student_profile_args.dart';
 import 'package:acadobs/features/students/data/models/student_screen_args.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
@@ -418,20 +419,36 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       );
                     },
                   ),
-                  StudentFeatureCard(
-                    icon: Icons.assignment,
-                    color: Colors.brown,
-                    title: "Homework",
-                    onTap: () {
-                      context.pushNamed(
-                        RouteConstants.studentHomeworkScreen,
-                        extra: StudentScreenArgs(
-                          studentId: widget.studentId,
-                          forStaff: widget.forStaff,
-                        ),
-                      );
-                    },
-                  ),
+                  widget.forStaff
+                      ? StudentFeatureCard(
+                        icon: Icons.assignment,
+                        color: Colors.brown,
+                        title: "Homework",
+                        onTap: () {
+                          context.pushNamed(
+                            RouteConstants.homeworkLisitingScreen,
+                            extra: HomeworkParameters(
+                              viewerType: HomeworkViewerType.teacherStudentView,
+                              studentId: widget.studentId,
+                            ),
+                          );
+                        },
+                      )
+                      : StudentFeatureCard(
+                        icon: Icons.assignment,
+                        color: Colors.brown,
+                        title: "Homework",
+                        onTap: () {
+                          context.pushNamed(
+                            RouteConstants.homeworkLisitingScreen,
+                            extra: HomeworkParameters(
+                              viewerType:
+                                  HomeworkViewerType.guardianStudentView,
+                              studentId: widget.studentId,
+                            ),
+                          );
+                        },
+                      ),
                   StudentFeatureCard(
                     icon: Icons.emoji_events,
                     color: Colors.amber,

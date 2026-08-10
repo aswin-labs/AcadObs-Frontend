@@ -402,7 +402,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                   const SizedBox(height: 12),
                                   buildQuickActions(context),
 
-                                  // my class
+                                  // my class details section
                                   Consumer2<
                                     AuthProvider,
                                     StudentLeaveRequestProvider

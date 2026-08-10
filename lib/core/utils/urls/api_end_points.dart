@@ -172,7 +172,7 @@ class ApiEndpoints {
       "/teacher/bulkUpdateHomeworkAssignments/";
   static const String fetchHomeworksByStudentIdForStaff =
       "/teacher/getHomeworkByStudentId";
-  static const String sendRemarks = "/teacher/updateHomeworkAssignment";
+  static const String sendHomeworkRemarks = "/teacher/updateHomeworkAssignment";
   static const String myClassHomeworks = "/teacher/getMyClassHomework";
 
   static const String homeworksByStudentIdForGuardian =
@@ -183,6 +183,8 @@ class ApiEndpoints {
       "/guardian/getHomeworkByIdAndStudentId";
   static const String singleHomeworkByStudentIdForTeacher =
       "/teacher/getHomeworkByIdAndStudentId";
+  static const String uploadHomeworkFileAndRemarksByGuardian =
+      "/guardian/updateHomeworkAssignment";
 
   // ************************* HOMEWORKS END*****************************
 }

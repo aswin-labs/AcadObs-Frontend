@@ -3,8 +3,15 @@ import 'package:flutter/material.dart';
 
 class DownloadFileCard extends StatefulWidget {
   final String fileName;
+  final bool small;
+  final bool iconOnly;
 
-  const DownloadFileCard({super.key, required this.fileName});
+  const DownloadFileCard({
+    super.key,
+    required this.fileName,
+    this.small = false,
+    this.iconOnly = false
+  });
 
   @override
   State<DownloadFileCard> createState() => _DownloadFileCardState();
@@ -53,12 +60,39 @@ class _DownloadFileCardState extends State<DownloadFileCard> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.iconOnly) {
+    return InkWell(
+      onTap: _isDownloading ? null : _downloadFile,
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.all(6),
+        child: _isDownloading
+            ? SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  value: _progress,
+                  strokeWidth: 2.5,
+                ),
+              )
+            : const Icon(
+                Icons.download_rounded,
+                size: 24,
+                color: Colors.black,
+              ),
+      ),
+    );
+  }
+
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.all(16),
+      constraints: BoxConstraints(
+        maxWidth: widget.small ? 220 : double.infinity,
+      ),
+      margin: EdgeInsets.symmetric(vertical: widget.small ? 4 : 8),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(widget.small ? 10 : 16),
         boxShadow: const [
           BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4)),
         ],
@@ -67,27 +101,27 @@ class _DownloadFileCardState extends State<DownloadFileCard> {
         ),
       ),
       child: Row(
+        mainAxisSize: widget.small ? MainAxisSize.min : MainAxisSize.max,
         children: [
-          // File Icon
           Container(
-            width: 60,
-            height: 60,
+            width: widget.small ? 32 : 60,
+            height: widget.small ? 32 : 60,
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary.withAlpha(30),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(widget.small ? 7 : 12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.insert_drive_file_rounded,
-              size: 36,
+              size: widget.small ? 20 : 36,
               color: Colors.red,
             ),
           ),
 
-          const SizedBox(width: 16),
+          SizedBox(width: widget.small ? 8 : 16),
 
-          // File name + progress
-          Expanded(
+          Flexible(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -97,38 +131,39 @@ class _DownloadFileCardState extends State<DownloadFileCard> {
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
+                    fontSize: widget.small ? 12 : null,
                   ),
                 ),
-                const SizedBox(height: 6),
-                if (_isDownloading)
+                if (_isDownloading) ...[
+                  SizedBox(height: widget.small ? 3 : 6),
                   LinearProgressIndicator(
                     value: _progress,
                     backgroundColor: Colors.grey.shade300,
-                    minHeight: 5,
+                    minHeight: widget.small ? 3 : 5,
                     borderRadius: BorderRadius.circular(4),
                   ),
+                ],
               ],
             ),
           ),
 
-          const SizedBox(width: 12),
+          SizedBox(width: widget.small ? 8 : 12),
 
-          // Download icon or spinner
           GestureDetector(
             onTap: _isDownloading ? null : _downloadFile,
             child:
                 _isDownloading
-                    ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
+                    ? SizedBox(
+                      width: widget.small ? 18 : 24,
+                      height: widget.small ? 18 : 24,
+                      child: const CircularProgressIndicator(
                         strokeWidth: 2.5,
                         color: Colors.blue,
                       ),
                     )
-                    : const Icon(
+                    : Icon(
                       Icons.download_rounded,
-                      size: 30,
+                      size: widget.small ? 20 : 30,
                       color: Colors.black,
                     ),
           ),

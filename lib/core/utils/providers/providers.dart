@@ -3,7 +3,6 @@ import 'package:acadobs/features/achievements/presentaion/provider/achievement_p
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
-import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
 import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
@@ -45,7 +44,6 @@ getProviders() {
     ChangeNotifierProvider(create: (_) => SubjectProvider()),
     ChangeNotifierProvider(create: (_) => StudentProvider()),
     ChangeNotifierProvider(create: (_) => TeacherLeaveRequestProvider()),
-    ChangeNotifierProvider(create: (_) => HomeworkProvider()),
     ChangeNotifierProvider(create: (_) => SubjectProvider()),
     ChangeNotifierProvider(create: (_) => TeacherLeaveRequestProvider()),
     ChangeNotifierProvider(create: (_) => MarksProvider()),
@@ -94,6 +92,6 @@ getProviders() {
     ChangeNotifierProvider(create: (_) => MyClassProvider()),
 
     // *************homeworks provider*****************
-     ChangeNotifierProvider(create: (_) => HomeworksProvider()),
+    ChangeNotifierProvider(create: (_) => HomeworksProvider()),
   ];
 }

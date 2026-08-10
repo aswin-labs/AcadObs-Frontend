@@ -1,13 +1,20 @@
+import 'dart:developer';
+
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/homeworks/data/models/homework_viewer_type.dart';
 import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
+import 'package:acadobs/features/homeworks/presentation/widgets/create_homework_bottomsheet.dart';
 import 'package:acadobs/routes/modules/common_routes.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +31,7 @@ class _HomeworksListingScreenState extends State<HomeworksListingScreen> {
   late HomeworksProvider _provider;
   @override
   void initState() {
+    log("Studentid------------ ${widget.homeworkParams.studentId}");
     super.initState();
     _provider = context.read<HomeworksProvider>();
     _provider.fetchHomeworks(
@@ -114,26 +122,24 @@ class _HomeworksListingScreenState extends State<HomeworksListingScreen> {
                       (hw) => ItemCard(
                         title: hw.title ?? "",
                         description:
-                            "${hw.subject?.subjectName ?? "Subject Not Mentioned"} - ${hw.user?.name ?? " "}",
+                            widget.homeworkParams.viewerType ==
+                                    HomeworkViewerType.teacherView
+                                ? "Class: ${hw.classGrade?.classname ?? " "}"
+                                : "${hw.subject?.subjectName ?? "Subject Not Mentioned"} - ${hw.user?.name ?? " "}",
                         iconColor: const Color(0xFFB14F6F),
-                        status:
-                            "Due: ${DateFormatter.formatDateTime(hw.dueDate ?? DateTime.now())}",
                         backgroundColor: const Color(0xFFFFCEDE),
                         icon: LucideIcons.clipboardList,
 
-                        onTap: () {},
-                        // widget.forClassTeacher
-                        //     ? context.pushNamed(
-                        //       RouteConstants.homeworkRankingScreen,
-                        //       extra: HomeworkRankScreenParameters(
-                        //         homework: hw,
-                        //         forClassTeacher: widget.forClassTeacher,
-                        //       ),
-                        //     )
-                        //     : context.pushNamed(
-                        //       RouteConstants.homeworkDetails,
-                        //       extra: hw,
-                        //     ),
+                        onTap: () {
+                          context.pushNamed(
+                            RouteConstants.homeworkDetailsScreen,
+                            extra: HomeworkParameters(
+                              viewerType: widget.homeworkParams.viewerType,
+                              homeworkId: hw.id,
+                              studentId: widget.homeworkParams.studentId,
+                            ),
+                          );
+                        },
                       ),
                     ),
                     SizedBox(height: Responsive.height * 2),
@@ -144,16 +150,16 @@ class _HomeworksListingScreenState extends State<HomeworksListingScreen> {
           },
         ),
       ),
-      floatingActionButton: null,
-      // widget.forClassTeacher
-      //     ? null
-      //     : Padding(
-      //       padding: const EdgeInsets.all(16),
-      //       child: CommonFloatingButton(
-      //         onPressed:
-      //             () => showCreateHomeworkBottomSheet(context: context),
-      //       ),
-      //     ),
+      floatingActionButton:
+          widget.homeworkParams.viewerType == HomeworkViewerType.teacherView
+              ? Padding(
+                padding: const EdgeInsets.all(16),
+                child: CommonFloatingButton(
+                  onPressed:
+                      () => showCreateHomeworkBottomSheet(context: context),
+                ),
+              )
+              : null,
     );
   }
 }

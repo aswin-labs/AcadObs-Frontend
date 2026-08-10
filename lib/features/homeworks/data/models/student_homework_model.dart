@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:acadobs/features/homework/data/models/homework_model.dart';
+import 'package:acadobs/features/homeworks/data/models/homework_model.dart';
 
 StudentHomeworkModel studentHomeworkModelFromJson(String str) => StudentHomeworkModel.fromJson(json.decode(str));
 

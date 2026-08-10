@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:acadobs/features/homework/data/models/student_homework_status.dart';
+import 'package:acadobs/features/homeworks/data/models/student_homework_status.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/models/subject_model.dart';
 import 'package:acadobs/shared/models/user_model.dart';
@@ -9,13 +9,6 @@ HomeworkModel homeworkModelFromJson(String str) =>
     HomeworkModel.fromJson(json.decode(str));
 
 class HomeworkModel {
-  bool? forStudent;
-  bool? forStaff;
-  int? studentHomeworkId;
-  int? guardianIdForChat;
-  String? guardianNameForChat;
-  String? studentStatus;
-  int? studentPoints;
   int? id;
   int? schoolId;
   int? teacherId;
@@ -35,13 +28,6 @@ class HomeworkModel {
   ClassGradeModel? classGrade;
 
   HomeworkModel({
-    this.forStudent = false,
-    this.forStaff = false,
-    this.studentHomeworkId = 0,
-    this.guardianIdForChat = 0,
-    this.guardianNameForChat = "",
-    this.studentStatus = "N/A",
-    this.studentPoints = 0,
     this.id,
     this.schoolId,
     this.teacherId,

@@ -1,4 +1,5 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
+import 'package:acadobs/features/homeworks/data/models/homework_viewer_type.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_feature_card.dart';
@@ -201,8 +202,10 @@ class _MyClassScreenState extends State<MyClassScreen> {
                         color: Colors.orange,
                         onTap: () {
                           context.pushNamed(
-                            RouteConstants.homeworks,
-                            extra: true,
+                            RouteConstants.homeworkLisitingScreen,
+                            extra: HomeworkParameters(
+                              viewerType: HomeworkViewerType.myClassView,
+                            ),
                           );
                         },
                       ),

@@ -93,7 +93,10 @@ class _TeacherTodayTimetableWidgetState
                 const SizedBox(
                   height: 90,
                   child: Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.grey,
+                    ),
                   ),
                 )
               else if (provider.todayError != null)

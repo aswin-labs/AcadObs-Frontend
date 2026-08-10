@@ -1,5 +1,7 @@
+import 'package:acadobs/features/homeworks/data/models/homework_viewer_type.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/widgets/attendance_bottomsheet.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_card.dart';
+import 'package:acadobs/routes/modules/common_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -17,8 +19,12 @@ Widget buildQuickActions(BuildContext context) {
                 colors: [Color(0xFF4CAF50), Color(0xFF388E3C)],
               ),
               onTap:
-                  () =>
-                      context.pushNamed(RouteConstants.homeworks, extra: false),
+                  () => context.pushNamed(
+                    RouteConstants.homeworkLisitingScreen,
+                    extra: HomeworkParameters(
+                      viewerType: HomeworkViewerType.teacherView,
+                    ),
+                  ),
             ),
           ),
           Expanded(

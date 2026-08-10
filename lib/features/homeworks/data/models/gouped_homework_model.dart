@@ -1,4 +1,4 @@
-import 'package:acadobs/features/homework/data/models/homework_model.dart';
+import 'package:acadobs/features/homeworks/data/models/homework_model.dart';
 
 class GroupedHomework {
   DateTime? date;

@@ -1,5 +1,5 @@
-import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
-import 'package:acadobs/features/homework/presentation/widgets/homework_remark.dart';
+import 'package:acadobs/features/homeworks/presentation/widgets/homework_remark.dart';
+import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,7 +10,6 @@ class RankingCard extends StatefulWidget {
   final int point;
   final int homeworkId;
   final String remark;
-  final bool? forViewing;
   const RankingCard({
     super.key,
     required this.name,
@@ -19,7 +18,6 @@ class RankingCard extends StatefulWidget {
     required this.point,
     required this.homeworkId,
     required this.remark,
-    this.forViewing = false,
   });
 
   @override
@@ -29,7 +27,7 @@ class RankingCard extends StatefulWidget {
 class _RankingCardState extends State<RankingCard> {
   @override
   Widget build(BuildContext context) {
-    final rankingProvider = Provider.of<HomeworkProvider>(context);
+    final rankingProvider = Provider.of<HomeworksProvider>(context);
     final currentPoint = rankingProvider.getPoint(widget.studentId);
     return Container(
       margin: const EdgeInsets.only(bottom: 2),
@@ -113,14 +111,12 @@ class _RankingCardState extends State<RankingCard> {
                           size: 30,
                         ),
                         onPressed:
-                            widget.forViewing == true
-                                ? () {
+                            () {
                                   rankingProvider.updatePoint(
                                     widget.studentId,
                                     index + 1,
                                   );
                                 }
-                                : null,
                       );
                     }),
                   ),
@@ -136,8 +132,7 @@ class _RankingCardState extends State<RankingCard> {
                 ),
 
                 // Chat Icon
-                widget.forViewing == true
-                    ? GestureDetector(
+               GestureDetector(
                       onTap:
                           () => showDialog(
                             context: context,
@@ -160,7 +155,6 @@ class _RankingCardState extends State<RankingCard> {
                         child: const Icon(Icons.message_outlined, size: 20),
                       ),
                     )
-                    : SizedBox.shrink(),
               ],
             ),
           ),

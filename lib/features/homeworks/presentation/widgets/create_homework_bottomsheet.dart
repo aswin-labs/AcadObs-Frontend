@@ -1,23 +1,21 @@
-import 'dart:developer';
-
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
-import 'package:acadobs/features/homework/presentation/provider/homework_provider.dart';
+import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
+import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
-import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_datepicker.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
 import 'package:acadobs/shared/widgets/custom_filepicker.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:acadobs/shared/widgets/students_picker.dart';
-import 'package:acadobs/features/subjects/presentation/widgets/subject_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
@@ -206,7 +204,7 @@ void showCreateHomeworkBottomSheet({required BuildContext context}) {
                   },
                 ),
                 SizedBox(height: Responsive.height * 4),
-                Consumer<HomeworkProvider>(
+                Consumer<HomeworksProvider>(
                   builder: (context, provider, _) {
                     final classId = context.watch<SharedProvider>().classId;
                     final subject =
@@ -217,8 +215,7 @@ void showCreateHomeworkBottomSheet({required BuildContext context}) {
                           final homeworkType = context
                               .read<DropdownProvider>()
                               .getSelectedItem('homeworkType');
-                          log(homeworkType);
-                          context.read<HomeworkProvider>().createHomework(
+                          context.read<HomeworksProvider>().createHomework(
                             context: context,
                             classId: classId ?? 0,
                             title: titleController.text,
@@ -230,9 +227,9 @@ void showCreateHomeworkBottomSheet({required BuildContext context}) {
                         }
                       },
                       widget:
-                          provider.isLoadingTwo
+                          provider.isLoading
                               ? ButtonLoading()
-                              : const Text('Save'),
+                              : const Text('Submit'),
                     );
                   },
                 ),

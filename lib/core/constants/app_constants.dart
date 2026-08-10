@@ -83,6 +83,6 @@ class AppConstants {
     "Bank Transfer",
     "Credit Card",
     "Debit Card",
-    "Wallet"
+    "Wallet",
   ];
 }

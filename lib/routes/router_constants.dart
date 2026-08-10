@@ -17,8 +17,6 @@ class RouteConstants {
   static const String editHomeWork = "edithomework";
   static const String editAchievement = "editAchievement";
 
-  static const String homeworks = 'homeworks';
-  static const String homeworkDetails = 'homeworkDetails';
 
   static const String noticeListscreen = 'noticedetaillistscreen';
   static const String eventListscreen = 'eventListscreen';
@@ -41,7 +39,6 @@ class RouteConstants {
   static const String studentLeaveLetter = "studentLeaveLetter";
   static const String editProfileStaff = "editProfileStaff";
   static const String schoolAchievements = "schoolAchievements";
-  static const String studentHomeworkScreen = "studentHomeworkScreen";
   static const String studentExamScreen = "studentExamScreen";
   static const String studentAchievementScreen = "studentAchievementScreen";
   static const String studentNoticeScreen = "studentNoticeScreen";
@@ -55,7 +52,6 @@ class RouteConstants {
   static const String noticedetails = 'noticedetails';
   static const String eventlistdetails = 'eventlistdetails';
   static const String profileScreen = 'profilescreen';
-  static const String homeworkRankingScreen = 'homeworkRankingScreen';
   static const String studentLeaveLetterScreen = 'studentleaveletterscreen';
   static const String addTeacherNoteSection = "addteachernotesection";
   static const String schoolSelectionScreen = "schoolSelectionScreen";
@@ -105,6 +101,8 @@ class RouteConstants {
   static const String homeworkLisitingScreen = "homeworkLisitingScreen";
   // homework details screen
   static const String homeworkDetailsScreen = "homeworkDetailsScreen";
+  // homework ranking screen
+  static const String homeworkRankingScreen = 'homeworkRankingScreen';
 
    // **************************HOMEWORKS*******************************
 }

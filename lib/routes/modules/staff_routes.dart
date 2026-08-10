@@ -8,11 +8,9 @@ import 'package:acadobs/features/chats/presentation/screens/add_teacher_note_scr
 import 'package:acadobs/features/events/data/models/event_model.dart';
 import 'package:acadobs/features/events/presentation/screens/event_detail_screen.dart';
 import 'package:acadobs/features/events/presentation/screens/event_listing_screen.dart';
-import 'package:acadobs/features/homework/data/models/homework_model.dart';
-import 'package:acadobs/features/homework/presentation/screens/edit_home_work_screen.dart';
-import 'package:acadobs/features/homework/presentation/screens/homework_details_screen.dart';
-import 'package:acadobs/features/homework/presentation/screens/homework_ranking_screen.dart';
-import 'package:acadobs/features/homework/presentation/screens/homeworks_home_screen.dart';
+import 'package:acadobs/features/homeworks/data/models/homework_model.dart';
+import 'package:acadobs/features/homeworks/presentation/screens/edit_home_work_screen.dart';
+import 'package:acadobs/features/homeworks/presentation/screens/homework_ranking_screen.dart';
 import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/data/models/marks_upload_model.dart';
 import 'package:acadobs/features/marks/presentation/screens/add_student_marks_screen.dart';
@@ -31,7 +29,6 @@ import 'package:acadobs/features/students/data/models/student_screen_args.dart';
 import 'package:acadobs/features/students/presentation/screens/student_achievement_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_detail_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_exam_screen.dart';
-import 'package:acadobs/features/students/presentation/screens/student_homework_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_leave_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_notice_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_profile_screen.dart';
@@ -128,42 +125,6 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       LeaveModel leave = state.extra as LeaveModel;
       return LeaveRequestDetailScreen(leave: leave);
-    },
-  ),
-
-  // Homeworks
-  GoRoute(
-    path: '/homeworks',
-    name: RouteConstants.homeworks,
-    builder: (context, state) {
-      bool forClassTeacher = state.extra as bool;
-      return HomeworksHomeScreen(forClassTeacher: forClassTeacher);
-    },
-  ),
-  GoRoute(
-    path: '/homeworkDetails',
-    name: RouteConstants.homeworkDetails,
-    builder: (context, state) {
-      HomeworkModel homework = state.extra as HomeworkModel;
-      return HomeworkDetailsScreen(homework: homework);
-    },
-  ),
-  GoRoute(
-    path: '/edithomework',
-    name: RouteConstants.editHomeWork,
-    builder: (context, state) {
-      HomeworkModel homework = state.extra as HomeworkModel;
-      return EditHomeWorkScreen(homework: homework);
-    },
-  ),
-
-  GoRoute(
-    path: '/homeworkRankingScreen',
-    name: RouteConstants.homeworkRankingScreen,
-    builder: (context, state) {
-      HomeworkRankScreenParameters params =
-          state.extra as HomeworkRankScreenParameters;
-      return HomeworkRankingScreen(homeworkParams: params);
     },
   ),
 
@@ -360,17 +321,6 @@ List<GoRoute> staffRoutes = [
       return SchoolAchievementListing(forStaff: forStaff);
     },
   ),
-  GoRoute(
-    path: '/studentHomeworkScreen',
-    name: RouteConstants.studentHomeworkScreen,
-    builder: (context, state) {
-      final args = state.extra as StudentScreenArgs;
-      return StudentHomeworkScreen(
-        studentId: args.studentId,
-        forStaff: args.forStaff,
-      );
-    },
-  ),
   //student exam screen
   GoRoute(
     path: '/studentExamScreen',
@@ -456,6 +406,24 @@ List<GoRoute> staffRoutes = [
       return MyClassMarksScreen(classGrade: classGrade);
     },
   ),
+
+  // homework ranking
+  GoRoute(
+    path: '/homeworkRankingScreen',
+    name: RouteConstants.homeworkRankingScreen,
+    builder: (context, state) {
+      HomeworkModel homework = state.extra as HomeworkModel;
+      return HomeworkRankingScreen(homework: homework);
+    },
+  ),
+  GoRoute(
+    path: '/edithomework',
+    name: RouteConstants.editHomeWork,
+    builder: (context, state) {
+      HomeworkModel homework = state.extra as HomeworkModel;
+      return EditHomeWorkScreen(homework: homework);
+    },
+  ),
 ];
 
 class StudentDetailParameters {
@@ -470,11 +438,11 @@ class MarkDetailParameters {
   MarkDetailParameters({required this.mark, required this.isEditNeeded});
 }
 
-class HomeworkRankScreenParameters {
-  final HomeworkModel homework;
-  final bool forClassTeacher;
-  HomeworkRankScreenParameters({
-    required this.homework,
-    required this.forClassTeacher,
-  });
-}
+// class HomeworkRankScreenParameters {
+//   final HomeworkModel homework;
+//   final bool forClassTeacher;
+//   HomeworkRankScreenParameters({
+//     required this.homework,
+//     required this.forClassTeacher,
+//   });
+// }
