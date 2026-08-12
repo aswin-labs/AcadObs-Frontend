@@ -4,9 +4,7 @@ import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
-import 'package:acadobs/features/events/presentation/screens/event_listing_screen.dart';
 import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
-import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/parent_home_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/payments_home_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/teachers_listing_screen.dart';
@@ -95,8 +93,6 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     } else if (userType == UserType.parent) {
       return [
         () => ParentHomeScreen(),
-        () => EventListingScreen(forStaff: false),
-        () => NewsListingScreen(forStaff: false),
         () => PaymentsHomeScreen(),
         () => TeachersListingScreen(),
       ];
@@ -124,8 +120,6 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
     } else if (userType == UserType.parent) {
       return [
         _bottomNavItem(icon: LucideIcons.home, label: 'Home'),
-        _bottomNavItem(icon: LucideIcons.calendarDays, label: 'Events'),
-        _bottomNavItem(icon: LucideIcons.bell, label: 'News'),
         _bottomNavItem(icon: LucideIcons.creditCard, label: 'Payments'),
         _bottomNavItem(icon: LucideIcons.users, label: 'Teachers'),
       ];

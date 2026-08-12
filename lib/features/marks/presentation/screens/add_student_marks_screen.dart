@@ -31,15 +31,27 @@ class _AddStudentMarksScreenState extends State<AddStudentMarksScreen> {
   void initState() {
     super.initState();
     studentProvider = context.read<StudentProvider>();
-    studentProvider
-        .fetchStudentsByClassId(context: context, classId: widget.marks.classId)
-        .then((_) {
-          final students = studentProvider.students;
-          for (var i = 0; i < students.length; i++) {
-            _marksControllers[i] = TextEditingController();
-          }
-          setState(() {});
-        });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadStudents();
+    });
+  }
+
+  Future<void> _loadStudents() async {
+    await studentProvider.fetchStudentsByClassId(
+      context: context,
+      classId: widget.marks.classId,
+    );
+
+    if (!mounted) return;
+
+    final students = studentProvider.students;
+
+    for (var i = 0; i < students.length; i++) {
+      _marksControllers[i] = TextEditingController();
+    }
+
+    setState(() {});
   }
 
   // submit button

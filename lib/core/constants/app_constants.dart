@@ -44,7 +44,7 @@ class AppConstants {
   ];
 
   // homework types
-  static List<String> homeworkTypes = ["online", "offline"];
+  static List<String> homeworkTypes = ["offline", "online"];
 
   // achievement categories
   static List<String> achievementCategories = [

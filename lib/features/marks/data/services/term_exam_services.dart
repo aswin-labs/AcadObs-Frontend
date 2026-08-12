@@ -22,12 +22,6 @@ class TermExamServices {
     return response;
   }
 
-  // fetch single marks
-  Future<Response> fetchSingleTermExamMarks({required int marksId}) async {
-    final response = await ApiServices.get("${ApiEndpoints.marks}/$marksId");
-    return response;
-  }
-
   // add student marks
   Future<Response> addStudentTermExamMarks({
     required int classId,
@@ -66,7 +60,7 @@ class TermExamServices {
     return response;
   }
 
-   // fetch student term exam marks
+  // fetch student term exam marks
   Future<Response> fetchStudentTermMarks({
     required int pageNo,
     required int studentId,
@@ -83,6 +77,46 @@ class TermExamServices {
   // delete marks
   Future<Response> deleteTermExamMarks({required int marksId}) async {
     final response = await ApiServices.delete("${ApiEndpoints.marks}/$marksId");
-    return response;  
+    return response;
+  }
+
+  // fetch all multi teacher subject marks
+  Future<Response> fetchMultiTeacherSubjectMarks({required int pageNo}) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.myMultiTeacherSubjectInternalMarks}?page=$pageNo&limit=${AppConstants.paginationLimit}",
+    );
+    return response;
+  }
+
+  // fetch single mark for Multi teacher subject
+  Future<Response> fetchSingleMultiTeacherSubjectMarks({
+    required int marksId,
+    required int subjectId,
+  }) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.getInternalMarksByIdWithSubject}/$marksId?subject_id=$subjectId",
+    );
+    return response;
+  }
+
+  // check mark already exists
+  Future<Response> checkExistingTermMarks({
+    required int classId,
+    required String title,
+    required String date,
+    required int subjectId,
+    required int termExamId,
+  }) async {
+    final teacherId = await AuthStorageService().getUserId();
+    final response =
+        await ApiServices.post(ApiEndpoints.checkExistingInternal, {
+          "class_id": classId,
+          "subject_id": subjectId,
+          "internal_name": title,
+          "date": date,
+          "recorded_by": teacherId,
+          "exam_id": termExamId,
+        });
+    return response;
   }
 }

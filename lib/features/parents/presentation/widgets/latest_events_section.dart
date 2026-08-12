@@ -4,7 +4,6 @@ import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -20,8 +19,6 @@ class LatestEventsSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(CupertinoIcons.calendar, color: Color(0xFF00AEF0), size: 24),
-              SizedBox(width: 8),
               Text(
                 "Latest Events",
                 style: TextStyle(
@@ -29,6 +26,16 @@ class LatestEventsSection extends StatelessWidget {
                   fontSize: 20,
                   color: Colors.black87,
                 ),
+              ),
+              Spacer(),
+              TextButton(
+                onPressed: () {
+                  context.pushNamed(
+                    RouteConstants.eventListscreen,
+                    extra: false,
+                  );
+                },
+                child: Text("View", style: TextStyle(color: Colors.black)),
               ),
             ],
           ),
@@ -41,7 +48,10 @@ class LatestEventsSection extends StatelessWidget {
               }
 
               if (events.isEmpty) {
-                return emptyScreen(message: "No Events Available", heightMultiplier: 5,);
+                return emptyScreen(
+                  message: "No Events Available",
+                  heightMultiplier: 5,
+                );
               }
 
               return ListView.separated(

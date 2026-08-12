@@ -50,7 +50,7 @@ class _NewsListingScreenState extends State<NewsListingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'News', isBackButton: widget.forStaff),
+      appBar: CommonAppBar(title: 'News', isBackButton: true),
       body: RefreshIndicator(
         onRefresh:
             () => _provider.fetchNews(

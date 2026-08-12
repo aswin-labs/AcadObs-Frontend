@@ -91,4 +91,47 @@ class MarksServices {
     );
     return response;
   }
+
+  // check mark already exists
+  Future<Response> checkExistingInternalMarks({
+    required int classId,
+    required String title,
+    required String date,
+    required int subjectId,
+  }) async {
+    final teacherId = await AuthStorageService().getUserId();
+    final response =
+        await ApiServices.post(ApiEndpoints.checkExistingInternal, {
+          "class_id": classId,
+          "subject_id": subjectId,
+          "internal_name": title,
+          "date": date,
+          "recorded_by": teacherId,
+        });
+    return response;
+  }
+
+  // fetch missing students
+  Future<Response> fetchMissingStudents({
+    required int classId,
+    required List<int> studentIds,
+  }) async {
+    return await ApiServices.post(
+      '${ApiEndpoints.getMissingStudentsListfromClassId}/$classId',
+      {"studentIds": studentIds},
+    );
+  }
+
+  // add missing student marks
+  Future<Response> createNewMarksByInternalId({
+    required int internalId,
+    required List<Map<String, dynamic>> studentMarks,
+  }) async {
+    final response = await ApiServices.post(
+      "${ApiEndpoints.createNewMarksByInternalId}/$internalId",
+      studentMarks,
+    );
+
+    return response;
+  }
 }

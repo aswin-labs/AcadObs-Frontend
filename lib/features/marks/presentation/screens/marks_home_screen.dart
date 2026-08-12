@@ -95,7 +95,35 @@ class _MarksHomeScreenState extends State<MarksHomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Marks"),
+      appBar: CommonAppBar(
+        title: "Marks",
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) {
+                if (value == 'multi_teacher_marks') {
+                  context.pushNamed(RouteConstants.multiTeacherSubjectMarks);
+                }
+              },
+              itemBuilder:
+                  (context) => const [
+                    PopupMenuItem<String>(
+                      value: 'multi_teacher_marks',
+                      child: Row(
+                        children: [
+                          Icon(Icons.visibility_outlined, size: 20),
+                          SizedBox(width: 10),
+                          Text("Multi Teacher Subjects"),
+                        ],
+                      ),
+                    ),
+                  ],
+            ),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           SizedBox(height: 16),

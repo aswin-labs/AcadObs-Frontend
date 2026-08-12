@@ -190,10 +190,7 @@ class _InvoiceTab extends StatelessWidget {
                     builder: (context, provider, _) {
                       if (provider.isLoadingForInvoice &&
                           provider.invoices.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 40),
-                          child: commonShimmerList(),
-                        );
+                        return commonShimmerList();
                       }
 
                       if (provider.invoices.isEmpty) {
@@ -281,11 +278,9 @@ class _PaymentTab extends StatelessWidget {
                 children: [
                   Consumer<PaymentProvider>(
                     builder: (context, provider, _) {
-                      if (provider.isLoadingForPayments && provider.payments.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 40),
-                          child: commonShimmerList(),
-                        );
+                      if (provider.isLoadingForPayments &&
+                          provider.payments.isEmpty) {
+                        return commonShimmerList();
                       }
 
                       if (provider.payments.isEmpty) {
@@ -308,7 +303,11 @@ class _PaymentTab extends StatelessWidget {
 
                           return ItemCard(
                             icon: Icons.payment,
-                            title: payment.paymentType ?? "",
+                            title:
+                                payment.invoiceStudent?.invoice?.title == null
+                                    ? payment.paymentCategory ?? ""
+                                    : payment.invoiceStudent?.invoice?.title ??
+                                        "",
                             description: "₹${payment.amount}",
                             status: statusStyle.label,
                             backgroundColor: statusStyle.backgroundColor,

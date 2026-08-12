@@ -13,9 +13,12 @@ import 'package:acadobs/features/homeworks/presentation/screens/edit_home_work_s
 import 'package:acadobs/features/homeworks/presentation/screens/homework_ranking_screen.dart';
 import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/data/models/marks_upload_model.dart';
+import 'package:acadobs/features/marks/presentation/screens/add_missing_students_marks_screen.dart';
 import 'package:acadobs/features/marks/presentation/screens/add_student_marks_screen.dart';
 import 'package:acadobs/features/marks/presentation/screens/edit_marks_screen.dart';
 import 'package:acadobs/features/marks/presentation/screens/marks_detail_screen.dart';
+import 'package:acadobs/features/marks/presentation/screens/multi_teacher_subject_detail_screen.dart';
+import 'package:acadobs/features/marks/presentation/screens/multi_teacher_subject_marks_screen.dart';
 import 'package:acadobs/features/news/data/models/news_model.dart';
 import 'package:acadobs/features/news/presentation/screens/news_full_screen.dart';
 import 'package:acadobs/features/news/presentation/screens/news_screen_details.dart';
@@ -109,7 +112,8 @@ List<GoRoute> staffRoutes = [
     path: '/studentDetails',
     name: RouteConstants.studentDetails,
     builder: (context, state) {
-      final studentDetailParams = state.extra as StudentDetailParameters? ??
+      final studentDetailParams =
+          state.extra as StudentDetailParameters? ??
           StudentDetailParameters.fromQueryParameters(
             state.uri.queryParameters,
           );
@@ -173,7 +177,8 @@ List<GoRoute> staffRoutes = [
     path: '/eventListscreen',
     name: RouteConstants.eventListscreen,
     builder: (context, state) {
-      final forStaff = state.extra as bool? ??
+      final forStaff =
+          state.extra as bool? ??
           (state.uri.queryParameters['forStaff'] == 'true');
       return EventListingScreen(forStaff: forStaff);
     },
@@ -195,7 +200,8 @@ List<GoRoute> staffRoutes = [
     path: '/newsdetailscreen',
     name: RouteConstants.newsDetailsScreen,
     builder: (context, state) {
-      final forStaff = state.extra as bool? ??
+      final forStaff =
+          state.extra as bool? ??
           (state.uri.queryParameters['forStaff'] == 'true');
       return NewsListingScreen(forStaff: forStaff);
     },
@@ -283,10 +289,9 @@ List<GoRoute> staffRoutes = [
     path: '/achievementdetatilscreen',
     name: RouteConstants.achievementDetailsScreen,
     builder: (context, state) {
-      final args = state.extra as DetailScreenArgs? ??
-          DetailScreenArgs.fromQueryParameters(
-            state.uri.queryParameters,
-          );
+      final args =
+          state.extra as DetailScreenArgs? ??
+          DetailScreenArgs.fromQueryParameters(state.uri.queryParameters);
       return AchievementDetailsScreen(
         achievementId: args.id,
         forStaff: args.forStaff,
@@ -339,7 +344,8 @@ List<GoRoute> staffRoutes = [
     path: '/schoolAchievements',
     name: RouteConstants.schoolAchievements,
     builder: (context, state) {
-      final forStaff = state.extra as bool? ??
+      final forStaff =
+          state.extra as bool? ??
           (state.uri.queryParameters['forStaff'] == 'true');
       return SchoolAchievementListing(forStaff: forStaff);
     },
@@ -349,10 +355,9 @@ List<GoRoute> staffRoutes = [
     path: '/studentExamScreen',
     name: RouteConstants.studentExamScreen,
     builder: (context, state) {
-      final args = state.extra as StudentScreenArgs? ??
-          StudentScreenArgs.fromQueryParameters(
-            state.uri.queryParameters,
-          );
+      final args =
+          state.extra as StudentScreenArgs? ??
+          StudentScreenArgs.fromQueryParameters(state.uri.queryParameters);
       return StudentExamScreen(
         studentId: args.studentId,
         forStaff: args.forStaff,
@@ -364,10 +369,9 @@ List<GoRoute> staffRoutes = [
     path: '/studentAchievementScreen',
     name: RouteConstants.studentAchievementScreen,
     builder: (context, state) {
-      final args = state.extra as StudentScreenArgs? ??
-          StudentScreenArgs.fromQueryParameters(
-            state.uri.queryParameters,
-          );
+      final args =
+          state.extra as StudentScreenArgs? ??
+          StudentScreenArgs.fromQueryParameters(state.uri.queryParameters);
       return StudentAchievementScreen(
         studentId: args.studentId,
         forStaff: args.forStaff,
@@ -380,10 +384,9 @@ List<GoRoute> staffRoutes = [
     path: '/studentNoticeScreen',
     name: RouteConstants.studentNoticeScreen,
     builder: (context, state) {
-      final args = state.extra as StudentScreenArgs? ??
-          StudentScreenArgs.fromQueryParameters(
-            state.uri.queryParameters,
-          );
+      final args =
+          state.extra as StudentScreenArgs? ??
+          StudentScreenArgs.fromQueryParameters(state.uri.queryParameters);
       return StudentNoticeScreen(
         studentId: args.studentId,
         forStaff: args.forStaff,
@@ -394,10 +397,9 @@ List<GoRoute> staffRoutes = [
     path: '/studentLeaveScreen',
     name: RouteConstants.studentLeaveScreen,
     builder: (context, state) {
-      final args = state.extra as StudentScreenArgs? ??
-          StudentScreenArgs.fromQueryParameters(
-            state.uri.queryParameters,
-          );
+      final args =
+          state.extra as StudentScreenArgs? ??
+          StudentScreenArgs.fromQueryParameters(state.uri.queryParameters);
       return StudentLeaveScreen(
         studentId: args.studentId,
         forStaff: args.forStaff,
@@ -445,7 +447,7 @@ List<GoRoute> staffRoutes = [
     },
   ),
 
-  // homework ranking
+  // homework ranking screen
   GoRoute(
     path: '/homeworkRankingScreen',
     name: RouteConstants.homeworkRankingScreen,
@@ -455,6 +457,7 @@ List<GoRoute> staffRoutes = [
       return HomeworkRankingScreen(homework: homework);
     },
   ),
+  // homwork edit screen
   GoRoute(
     path: '/edithomework',
     name: RouteConstants.editHomeWork,
@@ -464,6 +467,47 @@ List<GoRoute> staffRoutes = [
       return EditHomeWorkScreen(homework: homework);
     },
   ),
+
+  // multiTeacherSubjectMarks screen
+  GoRoute(
+    path: '/multiTeacherSubjectMarks',
+    name: RouteConstants.multiTeacherSubjectMarks,
+    builder: (context, state) {
+      return MultiTeacherSubjectMarksScreen();
+    },
+  ),
+
+  // multiTeacherSubjectMarks details screen
+  GoRoute(
+    path: '/multiTeacherSubjectMarksDetails',
+    name: RouteConstants.multiTeacherSubjectMarksDetails,
+    builder: (context, state) {
+      final marksId = int.parse(state.uri.queryParameters['marksId'] ?? '0');
+
+      final subjectId = int.parse(
+        state.uri.queryParameters['subjectId'] ?? '0',
+      );
+
+      return MultiTeacherSubjectMarksDetailsScreen(
+        marksId: marksId,
+        subjectId: subjectId,
+      );
+    },
+  ),
+  
+  // add missing students screen
+  GoRoute(
+  path: '/addMissingStudentMarks',
+  name: RouteConstants.addMissingStudentMarks,
+  builder: (context, state) {
+    final params = state.extra as MissingStudentMarksParams;
+
+    return AddMissingStudentMarksScreen(
+      params: params,
+    );
+  },
+),
+
 ];
 
 class StudentDetailParameters {
@@ -492,11 +536,16 @@ class MarkDetailParameters {
   MarkDetailParameters({required this.mark, required this.isEditNeeded});
 }
 
-// class HomeworkRankScreenParameters {
-//   final HomeworkModel homework;
-//   final bool forClassTeacher;
-//   HomeworkRankScreenParameters({
-//     required this.homework,
-//     required this.forClassTeacher,
-//   });
-// }
+class MissingStudentMarksParams {
+  final int internalId;
+  final int classId;
+  final double totalMarks;
+  final List<int> studentIds;
+
+  const MissingStudentMarksParams({
+    required this.internalId,
+    required this.classId,
+    required this.totalMarks,
+    required this.studentIds,
+  });
+}

@@ -17,6 +17,7 @@ import 'package:acadobs/shared/widgets/custom_filepicker.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:acadobs/shared/widgets/students_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +32,7 @@ void showCreateHomeworkBottomSheet({required BuildContext context}) {
   context.read<DropdownProvider>().clearSelectedItem('homeworkType');
   context.read<DropdownProvider>().clearSelectedItem('standard');
   context.read<DropdownProvider>().clearSelectedItem('className');
+  context.read<DropdownProvider>().setSelectedItem('homeworkType', "offline");
   context.read<FilePickerProvider>().clearFile('homeworkFile');
   context.read<SubjectProvider>().clearSelection();
   context.read<StudentProvider>().deselectAllStudents();
@@ -55,13 +57,74 @@ void showCreateHomeworkBottomSheet({required BuildContext context}) {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  "Add Homework",
-                  style: context.textTheme.titleLarge!.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "Add Homework",
+                      style: context.textTheme.titleLarge!.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      icon: Icon(Icons.close),
+                    ),
+                  ],
                 ),
-                SizedBox(height: Responsive.height * 3),
+                SizedBox(height: Responsive.height * 2),
+                SubjectPicker(),
+                SizedBox(height: Responsive.height * 1),
+                CustomTextfield(
+                  iconData: Icon(LucideIcons.fileText),
+                  controller: titleController,
+                  hintText: 'Homework Title*',
+                  validator: (value) {
+                    return FormValidator.validateNotEmpty(value);
+                  },
+                ),
+                SizedBox(height: Responsive.height * 1),
+                CustomTextfield(
+                  iconData: Icon(LucideIcons.fileText),
+                  maxLines: 2,
+                  controller: descriptionController,
+                  hintText: 'Description*',
+                  validator: (value) {
+                    return FormValidator.validateNotEmpty(value);
+                  },
+                ),
+                SizedBox(height: Responsive.height * 1),
+                CustomDatePicker(
+                  label: "Due Date*",
+                  dateController: dueDateController,
+                  onDateSelected: (selectedDate) {
+                    dueDateController.text = DateFormat(
+                      'dd/MM/yyyy',
+                    ).format(selectedDate);
+                  },
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime(2100),
+                  initialDate: DateTime.now(),
+                  validator: (value) {
+                    return FormValidator.validateNotEmpty(value);
+                  },
+                ),
+
+                SizedBox(height: Responsive.height * 1),
+                CustomDropdown(
+                  dropdownKey: "homeworkType",
+                  label: "Homework Type*",
+                  icon: LucideIcons.clipboardList,
+                  items: AppConstants.homeworkTypes,
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? 'Please select type'
+                              : null,
+                ),
+                SizedBox(height: Responsive.height * 1),
                 CustomDropdown(
                   dropdownKey: 'standard',
                   label: 'Select Standard*',
@@ -136,55 +199,6 @@ void showCreateHomeworkBottomSheet({required BuildContext context}) {
                           );
                     }
                   },
-                ),
-                SizedBox(height: Responsive.height * 1),
-                SubjectPicker(),
-                SizedBox(height: Responsive.height * 1),
-                CustomTextfield(
-                  iconData: Icon(LucideIcons.fileText),
-                  controller: titleController,
-                  hintText: 'Homework Title*',
-                  validator: (value) {
-                    return FormValidator.validateNotEmpty(value);
-                  },
-                ),
-                SizedBox(height: Responsive.height * 1),
-                CustomTextfield(
-                  iconData: Icon(LucideIcons.fileText),
-                  controller: descriptionController,
-                  hintText: 'Description*',
-                  validator: (value) {
-                    return FormValidator.validateNotEmpty(value);
-                  },
-                ),
-                SizedBox(height: Responsive.height * 1),
-                CustomDatePicker(
-                  label: "Due Date*",
-                  dateController: dueDateController,
-                  onDateSelected: (selectedDate) {
-                    dueDateController.text = DateFormat(
-                      'dd/MM/yyyy',
-                    ).format(selectedDate);
-                  },
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime(2100),
-                  initialDate: DateTime.now(),
-                  validator: (value) {
-                    return FormValidator.validateNotEmpty(value);
-                  },
-                ),
-
-                SizedBox(height: Responsive.height * 1),
-                CustomDropdown(
-                  dropdownKey: "homeworkType",
-                  label: "Homework Type*",
-                  icon: LucideIcons.clipboardList,
-                  items: AppConstants.homeworkTypes,
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? 'Please select type'
-                              : null,
                 ),
                 SizedBox(height: Responsive.height * 1),
                 Consumer2<StudentProvider, SharedProvider>(

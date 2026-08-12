@@ -1,6 +1,6 @@
 import 'package:acadobs/features/authentication/presentation/screens/school_selection_screen.dart';
 import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
-import 'package:acadobs/features/parents/data/models/invoice_model.dart';
+import 'package:acadobs/features/parents/data/models/invoice_student_model.dart';
 import 'package:acadobs/features/parents/presentation/screens/invoice_detail_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/prediction.dart';
@@ -51,7 +51,8 @@ List<GoRoute> parentRoutes = [
     path: '/routeProgress',
     name: RouteConstants.routeProgress,
     pageBuilder: (context, state) {
-      final int? routeId = state.extra as int? ??
+      final int? routeId =
+          state.extra as int? ??
           int.tryParse(state.uri.queryParameters['routeId'] ?? '');
       if (routeId == null) {
         return CustomTransitionPage(
@@ -77,7 +78,8 @@ List<GoRoute> parentRoutes = [
     path: '/paymentsScreen',
     name: RouteConstants.paymentsScreen,
     builder: (context, state) {
-      final int? studentId = state.extra as int? ??
+      final int? studentId =
+          state.extra as int? ??
           int.tryParse(state.uri.queryParameters['studentId'] ?? '');
       if (studentId == null) return buildRouteExtraFallback(context);
       return PaymentScreen(studentId: studentId);
@@ -89,7 +91,7 @@ List<GoRoute> parentRoutes = [
     name: RouteConstants.invoiceDetailScreen,
     builder: (context, state) {
       if (state.extra == null) return buildRouteExtraFallback(context);
-      final invoice = state.extra as InvoiceModel;
+      final invoice = state.extra as InvoiceStudent;
       return InvoiceDetailScreen(invoice: invoice);
     },
   ),

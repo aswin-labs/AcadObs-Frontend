@@ -5,7 +5,7 @@ import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
-import 'package:acadobs/features/parents/data/models/invoice_model.dart';
+import 'package:acadobs/features/parents/data/models/invoice_student_model.dart';
 import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
@@ -21,7 +21,7 @@ import 'package:provider/provider.dart';
 
 void showCreatePaymentBottomSheet({
   required BuildContext context,
-  required InvoiceModel invoice,
+  required InvoiceStudent invoice,
   int? paymentId,
   String? transactionId,
   bool forEdit = false,
@@ -163,7 +163,7 @@ void showCreatePaymentBottomSheet({
                                     invoiceStudentId: invoice.id ?? 0,
                                     amount: amount,
                                     paymentDate: dateController.text,
-                                    paymentType:
+                                    paymentCategory:
                                         invoice.invoice?.category ?? "other",
                                     transactionId:
                                         transactionIdController.text.isEmpty
@@ -179,7 +179,7 @@ void showCreatePaymentBottomSheet({
                                     invoiceStudentId: invoice.id ?? 0,
                                     amount: amount,
                                     paymentDate: dateController.text,
-                                    paymentType:
+                                    paymentCategory:
                                         invoice.invoice?.category ?? "other",
                                     transactionId:
                                         transactionIdController.text.isEmpty

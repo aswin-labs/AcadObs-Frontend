@@ -1,6 +1,7 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
+import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/marks/data/models/marks_upload_model.dart';
@@ -274,47 +275,70 @@ Future<void> showAddTermMarksBottomSheet({
                             context.watch<SubjectProvider>().selectedSubject;
 
                         return CommonButton(
-                          onPressed: () {
-                            if (!formKey.currentState!.validate()) return;
+                          onPressed:
+                              provider.isCheckingInternal
+                                  ? null
+                                  : () async {
+                                    if (!formKey.currentState!.validate()) return;
 
-                            if (selectedTermExamId == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Please select a term exam'),
-                                ),
-                              );
-                              return;
-                            }
+                                    if (selectedTermExamId == null) {
+                                      CustomSnackbar.show(
+                                        context,
+                                        message: 'Please select a term exam',
+                                        type: SnackbarType.failure,
+                                      );
+                                      return;
+                                    }
 
-                            final className = context
-                                .read<DropdownProvider>()
-                                .getSelectedItem('className');
+                                    final className = context
+                                        .read<DropdownProvider>()
+                                        .getSelectedItem('className');
 
-                            final termExamName = context
-                                .read<DropdownProvider>()
-                                .getSelectedItem('termExamName');
+                                    final termExamName = context
+                                        .read<DropdownProvider>()
+                                        .getSelectedItem('termExamName');
 
-                            context.pushNamed(
-                              RouteConstants.addStudentMarks,
-                              extra: MarksUploadModel(
-                                isTermExam: true,
-                                term: selectedTermExamName ?? '',
-                                termExamId: selectedTermExamId!,
-                                classId: classId!,
-                                className: className,
-                                subjectId: subject!.id,
-                                title: termExamName,
-                                totalMarks: int.parse(
-                                  totalMarksController.text.trim(),
-                                ),
-                                date: dateController.text,
-                              ),
-                            );
+                                    final markExists = await provider
+                                        .checkExistingTermMarks(
+                                          classId: classId!,
+                                          subjectId: subject!.id,
+                                          title: termExamName,
+                                          date: dateController.text,
+                                          termExamId: selectedTermExamId!,
+                                        );
 
-                            Navigator.pop(context);
-                          },
+                                    if (!context.mounted) return;
+
+                                    if (markExists) {
+                                      CustomSnackbar.show(
+                                        context,
+                                        message: 'Mark already exists',
+                                        type: SnackbarType.failure,
+                                      );
+                                      return;
+                                    }
+
+                                    Navigator.pop(context);
+
+                                    context.pushNamed(
+                                      RouteConstants.addStudentMarks,
+                                      extra: MarksUploadModel(
+                                        isTermExam: true,
+                                        term: selectedTermExamName ?? '',
+                                        termExamId: selectedTermExamId!,
+                                        classId: classId,
+                                        className: className,
+                                        subjectId: subject.id,
+                                        title: termExamName,
+                                        totalMarks: int.parse(
+                                          totalMarksController.text.trim(),
+                                        ),
+                                        date: dateController.text,
+                                      ),
+                                    );
+                                  },
                           widget:
-                              provider.isLoadingTwo
+                              provider.isCheckingInternal
                                   ? ButtonLoading()
                                   : const Text('Save'),
                         );

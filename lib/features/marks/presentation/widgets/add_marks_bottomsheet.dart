@@ -1,6 +1,7 @@
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
+import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/marks/data/models/marks_upload_model.dart';
@@ -180,27 +181,53 @@ void showAddMarksBottomSheet({required BuildContext context}) {
                         context.watch<SubjectProvider>().selectedSubject;
 
                     return CommonButton(
-                      onPressed: () {
-                        if (formKey.currentState!.validate()) {
-                          final className = context
-                              .read<DropdownProvider>()
-                              .getSelectedItem('className');
-                          context.pushNamed(
-                            RouteConstants.addStudentMarks,
-                            extra: MarksUploadModel(
-                              classId: classId ?? 0,
-                              className: className,
-                              subjectId: subject?.id ?? 0,
-                              title: titleController.text,
-                              totalMarks: int.parse(totalMarksController.text),
-                              date: dateController.text,
-                            ),
-                          );
-                          Navigator.pop(context);
-                        }
-                      },
+                      onPressed:
+                          provider.isCheckingInternal
+                              ? null
+                              : () async {
+                                if (!formKey.currentState!.validate()) return;
+
+                                final className = context
+                                    .read<DropdownProvider>()
+                                    .getSelectedItem('className');
+
+                                final markExists = await provider
+                                    .checkExistingTermMarks(
+                                      classId: classId ?? 0,
+                                      subjectId: subject?.id ?? 0,
+                                      title: titleController.text.trim(),
+                                      date: dateController.text,
+                                    );
+
+                                if (!context.mounted) return;
+
+                                if (markExists) {
+                                  CustomSnackbar.show(
+                                    context,
+                                    message: 'Mark already exists',
+                                    type: SnackbarType.failure,
+                                  );
+                                  return;
+                                }
+
+                                Navigator.pop(context);
+
+                                context.pushNamed(
+                                  RouteConstants.addStudentMarks,
+                                  extra: MarksUploadModel(
+                                    classId: classId ?? 0,
+                                    className: className,
+                                    subjectId: subject?.id ?? 0,
+                                    title: titleController.text.trim(),
+                                    totalMarks: int.parse(
+                                      totalMarksController.text.trim(),
+                                    ),
+                                    date: dateController.text,
+                                  ),
+                                );
+                              },
                       widget:
-                          provider.isLoadingTwo
+                          provider.isCheckingInternal
                               ? ButtonLoading()
                               : const Text('Save'),
                     );

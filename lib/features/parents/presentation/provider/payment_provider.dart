@@ -1,7 +1,7 @@
 import 'dart:developer';
 
 import 'package:acadobs/core/utils/custom_snackbar.dart';
-import 'package:acadobs/features/parents/data/models/invoice_model.dart';
+import 'package:acadobs/features/parents/data/models/invoice_student_model.dart';
 import 'package:acadobs/features/parents/data/models/payment_model.dart';
 import 'package:acadobs/features/parents/data/services/payment_service.dart';
 import 'package:dio/dio.dart';
@@ -35,8 +35,8 @@ class PaymentProvider extends ChangeNotifier {
   final List<Payment> _payments = [];
   List<Payment> get payments => _payments;
 
-  final List<InvoiceModel> _invoices = [];
-  List<InvoiceModel> get invoices => _invoices;
+  final List<InvoiceStudent> _invoices = [];
+  List<InvoiceStudent> get invoices => _invoices;
 
   //  fetch payments
   Future<void> fetchPayments({
@@ -119,6 +119,7 @@ class PaymentProvider extends ChangeNotifier {
       }
       final response = await PaymentService().fetchInvoices(
         studentId: studentId,
+        pageNo: _currentInvoicePage,
       );
       log(
         "API Response invoices: ${response.data.toString()}, Status: ${response.statusCode}",
@@ -130,9 +131,9 @@ class PaymentProvider extends ChangeNotifier {
 
         final List leavesJson = data['invoices'];
 
-        final List<InvoiceModel> fetchedInvoices =
+        final List<InvoiceStudent> fetchedInvoices =
             leavesJson
-                .map((jsonItem) => InvoiceModel.fromJson(jsonItem))
+                .map((jsonItem) => InvoiceStudent.fromJson(jsonItem))
                 .toList();
 
         //avoids the duplication
@@ -161,7 +162,7 @@ class PaymentProvider extends ChangeNotifier {
     required int invoiceStudentId,
     required double amount,
     required String paymentDate,
-    required String paymentType,
+    required String paymentCategory,
     required String transactionId,
     required String paymentMethod,
   }) async {
@@ -174,7 +175,7 @@ class PaymentProvider extends ChangeNotifier {
         invoiceStudentId: invoiceStudentId,
         amount: amount,
         paymentDate: paymentDate,
-        paymentType: paymentType,
+        paymentCategory: paymentCategory,
         transactionId: transactionId,
         paymentMethod: paymentMethod,
       );
@@ -221,7 +222,7 @@ class PaymentProvider extends ChangeNotifier {
     required int invoiceStudentId,
     required double amount,
     required String paymentDate,
-    required String paymentType,
+    required String paymentCategory,
     required String transactionId,
     required String paymentMethod,
   }) async {
@@ -235,7 +236,7 @@ class PaymentProvider extends ChangeNotifier {
         invoiceStudentId: invoiceStudentId,
         amount: amount,
         paymentDate: paymentDate,
-        paymentType: paymentType,
+        paymentCategory: paymentCategory,
         transactionId: transactionId,
         paymentMethod: paymentMethod,
       );

@@ -24,8 +24,6 @@ class LatestNewsSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(CupertinoIcons.news, color: Color(0xFF00AEF0), size: 24),
-              SizedBox(width: 8),
               Text(
                 'Latest News',
                 style: TextStyle(
@@ -34,6 +32,16 @@ class LatestNewsSection extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
+               Spacer(),
+            TextButton(
+              onPressed: () {
+                context.pushNamed(
+                  RouteConstants.newsDetailsScreen,
+                  extra: false,
+                );
+              },
+              child: Text("View", style: TextStyle(color: Colors.black)),
+            ),
             ],
           ),
           SizedBox(height: 16),

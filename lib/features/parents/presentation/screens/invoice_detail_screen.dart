@@ -1,7 +1,7 @@
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/payment_status_style.dart';
-import 'package:acadobs/features/parents/data/models/invoice_model.dart';
+import 'package:acadobs/features/parents/data/models/invoice_student_model.dart';
 import 'package:acadobs/features/parents/presentation/widgets/create_payment_bottomsheet.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
@@ -11,7 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class InvoiceDetailScreen extends StatefulWidget {
-  final InvoiceModel invoice;
+  final InvoiceStudent invoice;
   const InvoiceDetailScreen({super.key, required this.invoice});
 
   @override

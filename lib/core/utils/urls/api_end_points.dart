@@ -59,6 +59,7 @@ class ApiEndpoints {
 
   //notices
   static const String fetchLatestNotices = "/teacher/getLatestNotices";
+  static const String fetchLatestNoticesGuardian = "/guardian/getLatestNotices";
 
   //events
   static const String fetchLatestEventsStaff = "/teacher/getLatestEvents";
@@ -68,6 +69,7 @@ class ApiEndpoints {
 
   // marks
   static const String marks = "/teacher/internalmarks";
+  static const String checkExistingInternal = "/teacher/checkExistingInternal";
   static const String marksAddedByTeacher =
       "/teacher/getInternalMarkByRecordedBy";
   static const String termExamAddedByTeacher =
@@ -76,6 +78,12 @@ class ApiEndpoints {
   static const String studentMarks = "/teacher/getInternalMarkByStudentId";
   static const String studentExamMarks = "/teacher/getExamMarkByStudentId";
   static const String termExams = "/teacher/getExams";
+  static const String myMultiTeacherSubjectInternalMarks = "/teacher/myMultiTeacherSubjectInternalMarks";
+  static const String getInternalMarksByIdWithSubject = "/teacher/getInternalMarksByIdWithSubject";
+  static const String getClassWaiseTermMarksPdf = "/teacher/getClassWaiseTermMarksPdf";
+  static const String getMissingStudentsListfromClassId = "/teacher/getMissingStudentsListfromClassId";
+  static const String createNewMarksByInternalId = "/teacher/createNewMarksByInternalId";
+  static const String deleteMarkById = "/teacher/deleteMarkById";
 
   //Achievement
   static const String getAllAchievement = "/teacher/allAchievements";

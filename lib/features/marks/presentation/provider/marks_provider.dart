@@ -6,6 +6,8 @@ import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/data/models/student_mark_model.dart';
 import 'package:acadobs/features/marks/data/services/marks_services.dart';
 import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
+import 'package:acadobs/features/students/data/models/student_model.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,6 +23,9 @@ class MarksProvider extends ChangeNotifier {
 
   bool _isLoadingForEditDetails = false;
   bool get isLoadingForEditDetails => _isLoadingForEditDetails;
+
+  bool _isCheckingInternal = false;
+  bool get isCheckingInternal => _isCheckingInternal;
 
   final List<MarksModel> _marks = [];
   List<MarksModel> get marks => _marks;
@@ -92,7 +97,7 @@ class MarksProvider extends ChangeNotifier {
     }
   }
 
-  // Get Single homework
+  // Get Single mark
   Future<void> fetchSingleMarks({required int marksId}) async {
     _isLoadingForSingleMarks = true;
     try {
@@ -275,6 +280,139 @@ class MarksProvider extends ChangeNotifier {
       log(e.toString());
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  //  // fetch existing internal marks
+  Future<bool> checkExistingTermMarks({
+    required int classId,
+    required String title,
+    required String date,
+    required int subjectId,
+  }) async {
+    _isCheckingInternal = true;
+    notifyListeners();
+
+    try {
+      final response = await MarksServices().checkExistingInternalMarks(
+        classId: classId,
+        title: title,
+        date: date,
+        subjectId: subjectId,
+      );
+
+      if (response.statusCode == 200) {
+        return response.data['success'] == true;
+      }
+
+      return false;
+    } catch (e) {
+      log(e.toString());
+      return false;
+    } finally {
+      _isCheckingInternal = false;
+      notifyListeners();
+    }
+  }
+
+  bool _isLoadingMissingStudents = false;
+  bool get isLoadingMissingStudents => _isLoadingMissingStudents;
+
+  bool _isAddingMissingStudentMarks = false;
+  bool get isAddingMissingStudentMarks => _isAddingMissingStudentMarks;
+
+  List<StudentModel> _missingStudents = [];
+  List<StudentModel> get missingStudents => _missingStudents;
+
+  Future<void> fetchMissingStudents({
+    required int classId,
+    required List<int> studentIds,
+  }) async {
+    _isLoadingMissingStudents = true;
+    _missingStudents.clear();
+    notifyListeners();
+
+    try {
+      final response = await MarksServices().fetchMissingStudents(
+        classId: classId,
+        studentIds: studentIds,
+      );
+
+      if (response.statusCode == 200) {
+        final List studentsJson = response.data['missingStudents'] ?? [];
+
+        _missingStudents =
+            studentsJson
+                .map((student) => StudentModel.fromJson(student))
+                .toList();
+      }
+    } catch (e) {
+      log('Fetch missing students error: $e');
+    } finally {
+      _isLoadingMissingStudents = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> createNewMarksByInternalId({
+    required BuildContext context,
+    required int internalId,
+    required List<Map<String, dynamic>> studentMarks,
+  }) async {
+    _isAddingMissingStudentMarks = true;
+    notifyListeners();
+
+    try {
+      final response = await MarksServices().createNewMarksByInternalId(
+        internalId: internalId,
+        studentMarks: studentMarks,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await fetchSingleMarks(marksId: internalId);
+        if (!context.mounted) return false;
+        CustomSnackbar.show(
+          context,
+          message: response.data['message'] ?? 'Marks added successfully',
+          type: SnackbarType.success,
+        );
+
+        return true;
+      }
+
+      return false;
+    } on DioException catch (e) {
+      log('Status Code: ${e.response?.statusCode}');
+      log('Response Data: ${e.response?.data}');
+      log('Request Data: ${e.requestOptions.data}');
+
+      if (!context.mounted) return false;
+
+      CustomSnackbar.show(
+        context,
+        message:
+            e.response?.data?['message'] ??
+            e.response?.data?['error'] ??
+            'Failed to add marks',
+        type: SnackbarType.failure,
+      );
+
+      return false;
+    } catch (e) {
+      log('Add missing student marks error: $e');
+
+      if (!context.mounted) return false;
+
+      CustomSnackbar.show(
+        context,
+        message: 'Something went wrong while adding marks',
+        type: SnackbarType.failure,
+      );
+
+      return false;
+    } finally {
+      _isAddingMissingStudentMarks = false;
       notifyListeners();
     }
   }

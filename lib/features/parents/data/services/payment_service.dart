@@ -20,9 +20,12 @@ class PaymentService {
   }
 
   // fetch invoices
-  Future<Response> fetchInvoices({required int studentId}) async {
+  Future<Response> fetchInvoices({
+    required int studentId,
+    required int pageNo,
+  }) async {
     final response = await ApiServices.get(
-      "${ApiEndpoints.studentInvoices}/$studentId",
+      "${ApiEndpoints.studentInvoices}/$studentId?pageNo=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return response;
   }
@@ -34,7 +37,7 @@ class PaymentService {
     required int invoiceStudentId,
     required double amount,
     required String paymentDate,
-    required String paymentType,
+    required String paymentCategory,
     required String transactionId,
     required String paymentMethod,
   }) async {
@@ -49,7 +52,7 @@ class PaymentService {
       "invoice_student_id": invoiceStudentId,
       "amount": amount,
       "payment_date": paymentDate,
-      "payment_type": paymentType,
+      "payment_category": paymentCategory,
       "transaction_id": transactionId,
       "payment_method": paymentMethod,
       if (multipartFile != null) "payment_attachment": multipartFile,
@@ -71,7 +74,7 @@ class PaymentService {
     required int invoiceStudentId,
     required double amount,
     required String paymentDate,
-    required String paymentType,
+    required String paymentCategory,
     required String transactionId,
     required String paymentMethod,
   }) async {
@@ -86,7 +89,7 @@ class PaymentService {
       "invoice_student_id": invoiceStudentId,
       "amount": amount,
       "payment_date": paymentDate,
-      "payment_type": paymentType,
+      "payment_category": paymentCategory,
       "transaction_id": transactionId,
       "payment_method": paymentMethod,
       if (multipartFile != null) "payment_attachment": multipartFile,

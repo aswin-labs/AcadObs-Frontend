@@ -58,6 +58,7 @@ class MyClassProvider extends ChangeNotifier {
       );
       if (response.statusCode == 200) {
         final data = response.data;
+        log(data.toString());
 
         _totalPages = data['totalPages'];
         _currentPage = data['currentPage'];

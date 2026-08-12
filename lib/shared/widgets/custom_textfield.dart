@@ -16,6 +16,7 @@ class CustomTextfield extends StatelessWidget {
   final FormFieldValidator<String>? validator;
   final bool enabled;
   final double borderRadius;
+  final int maxLines;
 
   CustomTextfield({
     this.controller,
@@ -33,6 +34,7 @@ class CustomTextfield extends StatelessWidget {
     this.validator,
     this.enabled = true,
     this.borderRadius = 8.0,
+    this.maxLines = 1,
   }) : isObscure = ValueNotifier<bool>(isPasswordField);
 
   @override
@@ -57,12 +59,13 @@ class CustomTextfield extends StatelessWidget {
             obscureText: isPasswordField ? isObscure.value : false,
             keyboardType: keyBoardtype,
             onChanged: onChanged,
+            maxLines: maxLines,
             validator: validator,
             readOnly: onTap != null,
             enabled: enabled,
             decoration: InputDecoration(
               contentPadding: EdgeInsets.symmetric(
-                vertical: 16.0,
+                vertical: 10.0,
                 horizontal: 15.0,
               ),
               isDense: true,

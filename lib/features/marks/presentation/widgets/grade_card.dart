@@ -153,11 +153,12 @@ class GradeCard extends StatelessWidget {
                 width: 40,
                 height: 60,
                 alignment: Alignment.center,
-                color: isAbsent ? Colors.red : Colors.grey[200],
+                color: isAbsent ? Colors.red.shade100 : Colors.green.shade100,
                 child: Text(
-                  "A",
-                  style: const TextStyle(
-                    color: Colors.black54,
+                  isAbsent ? 'A' : 'P',
+                  style: TextStyle(
+                    color:
+                        isAbsent ? Colors.red.shade700 : Colors.green.shade700,
                     fontWeight: FontWeight.bold,
                   ),
                 ),

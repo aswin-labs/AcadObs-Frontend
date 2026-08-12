@@ -9,6 +9,7 @@ import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
+import 'package:acadobs/features/marks/presentation/widgets/viewing_grade_card.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
@@ -118,6 +119,7 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
                         );
                       },
                     ),
+
                     SizedBox(height: Responsive.height * 2),
                     Consumer<MarksProvider>(
                       builder: (context, provider, _) {
@@ -144,7 +146,7 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
                           itemBuilder: (context, index) {
                             final studentMark = studentMarks[index];
 
-                            return _gradeCard(
+                            return ViewingGradeCard(
                               name: studentMark.student?.fullName ?? "",
                               rollNumber: studentMark.student?.rollNumber ?? 0,
                               isAbsent: studentMark.status == "absent",
@@ -154,96 +156,45 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
                         );
                       },
                     ),
+                    SizedBox(height: Responsive.height * 2),
+                    widget.marksParams.isEditNeeded
+                        ? Consumer<MarksProvider>(
+                          builder: (context, provider, _) {
+                            final mark = provider.singleMarks;
+                            return SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton.icon(
+                                onPressed: () async {
+                                  final alreadyAddedStudentIds =
+                                      mark?.studentMarks
+                                          ?.map((item) => item.student?.id)
+                                          .whereType<int>()
+                                          .toList() ??
+                                      [];
+
+                                  await context.pushNamed(
+                                    RouteConstants.addMissingStudentMarks,
+                                    extra: MissingStudentMarksParams(
+                                      internalId: mark?.id ?? 0,
+                                      classId: mark?.classGrade?.id ?? 0,
+                                      totalMarks:
+                                          double.tryParse(
+                                            mark?.maxMarks ?? '0',
+                                          ) ??
+                                          0.0,
+                                      studentIds: alreadyAddedStudentIds,
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.add),
+                                label: const Text("Add More Students"),
+                              ),
+                            );
+                          },
+                        )
+                        : SizedBox.shrink(),
                     SizedBox(height: Responsive.height * 6),
                   ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _gradeCard({
-    required int rollNumber,
-    required String name,
-    required String mark,
-    required bool isAbsent,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 1),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
-          boxShadow: [
-            BoxShadow(
-              offset: const Offset(0, 2),
-              blurRadius: 1,
-              color: Colors.grey.withAlpha(80),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 50,
-              height: 60,
-              alignment: Alignment.center,
-              child: CircleAvatar(
-                radius: 18,
-                backgroundColor: const Color(0xFFF4F4F4),
-                child: Text(
-                  rollNumber.toString(),
-                  style: const TextStyle(
-                    color: Color(0xFF7C7C7C),
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-
-            Expanded(
-              flex: 3,
-              child: Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                color: Colors.white,
-                height: 60,
-                child: Text(
-                  capitalizeEachWord(name),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-            Container(color: Colors.grey[200], width: 2, height: 60),
-
-            // --- Marks TextField ---
-            Container(
-              width: 60,
-              height: 60,
-              color: Colors.white,
-              alignment: Alignment.center,
-              child: Text(mark.toString()),
-            ),
-
-            // --- Attendance Toggle ---
-            Container(
-              width: 40,
-              height: 60,
-              alignment: Alignment.center,
-              color: isAbsent ? Colors.red : Colors.grey[200],
-              child: Text(
-                isAbsent ? "A" : "P",
-                style: const TextStyle(
-                  color: Colors.black54,
-                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

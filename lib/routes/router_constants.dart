@@ -17,13 +17,8 @@ class RouteConstants {
   static const String editHomeWork = "edithomework";
   static const String editAchievement = "editAchievement";
 
-
   static const String noticeListscreen = 'noticedetaillistscreen';
   static const String eventListscreen = 'eventListscreen';
-
-  static const String addStudentMarks = 'addStudentMarks';
-  static const String marksDetails = 'marksDetails';
-  static const String marksEdit = 'marksEdit';
 
   static const String newsDetailsScreen = "newsdetailscreen";
   static const String newsScreen = "newsScreen";
@@ -86,16 +81,15 @@ class RouteConstants {
   // payments screen
   static const String paymentsScreen = "paymentsScreen";
 
-  // ******************Time table screens********************************
-
+  // ******************Time table screens******************************
   // today timetable screen
   static const String todayTimetableScreen = "todayTimetableScreen";
   // all days timetable screen
   static const String allDayTimetableScreen = "allDayTimetableScreen";
 
-  // *******************************************************************
+  // ******************************************************************
 
-   // **************************HOMEWORKS*******************************
+  // **************************HOMEWORKS*******************************
 
   // homework listing screen
   static const String homeworkLisitingScreen = "homeworkLisitingScreen";
@@ -104,5 +98,14 @@ class RouteConstants {
   // homework ranking screen
   static const String homeworkRankingScreen = 'homeworkRankingScreen';
 
-   // **************************HOMEWORKS*******************************
+  // **************************HOMEWORKS END****************************
+
+  // ******************************MARKS**********************************
+  static const String addStudentMarks = 'addStudentMarks';
+  static const String marksDetails = 'marksDetails';
+  static const String marksEdit = 'marksEdit';
+  static const String multiTeacherSubjectMarks = 'multiTeacherSubjectMarks';
+  static const String multiTeacherSubjectMarksDetails = 'multiTeacherSubjectMarksDetails';
+  static const addMissingStudentMarks = 'addMissingStudentMarks';
+  // ******************************MARKS END*******************************
 }
