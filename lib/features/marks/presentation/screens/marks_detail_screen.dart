@@ -27,6 +27,8 @@ class MarksDetailScreen extends StatefulWidget {
 
 class _MarksDetailScreenState extends State<MarksDetailScreen> {
   late MarksProvider marksProvider;
+  bool _isRemoveModeEnabled = false;
+
   @override
   void initState() {
     super.initState();
@@ -119,7 +121,6 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
                         );
                       },
                     ),
-
                     SizedBox(height: Responsive.height * 2),
                     Consumer<MarksProvider>(
                       builder: (context, provider, _) {
@@ -151,48 +152,96 @@ class _MarksDetailScreenState extends State<MarksDetailScreen> {
                               rollNumber: studentMark.student?.rollNumber ?? 0,
                               isAbsent: studentMark.status == "absent",
                               mark: studentMark.marksObtained ?? "0",
+                              showRemoveButton: _isRemoveModeEnabled,
+                              onRemove: () {
+                                showConfirmationDialog(
+                                  context: context,
+                                  title: 'Delete Student Mark',
+                                  content:
+                                      'Are you sure you want to delete mark entry for ${capitalizeEachWord(studentMark.student?.fullName ?? "this student")}?',
+                                  action: 'Delete',
+                                  onConfirm: () {
+                                    provider.deleteMarkById(
+                                      context: context,
+                                      markId: studentMark.id ?? 0,
+                                      internalId: provider.singleMarks?.id ?? 0,
+                                    );
+                                  },
+                                );
+                              },
                             );
                           },
                         );
                       },
                     ),
                     SizedBox(height: Responsive.height * 2),
-                    widget.marksParams.isEditNeeded
-                        ? Consumer<MarksProvider>(
-                          builder: (context, provider, _) {
-                            final mark = provider.singleMarks;
-                            return SizedBox(
-                              width: double.infinity,
-                              child: OutlinedButton.icon(
-                                onPressed: () async {
-                                  final alreadyAddedStudentIds =
-                                      mark?.studentMarks
-                                          ?.map((item) => item.student?.id)
-                                          .whereType<int>()
-                                          .toList() ??
-                                      [];
+                    if (widget.marksParams.isEditNeeded) ...[
+                      Consumer<MarksProvider>(
+                        builder: (context, provider, _) {
+                          final mark = provider.singleMarks;
 
-                                  await context.pushNamed(
-                                    RouteConstants.addMissingStudentMarks,
-                                    extra: MissingStudentMarksParams(
-                                      internalId: mark?.id ?? 0,
-                                      classId: mark?.classGrade?.id ?? 0,
-                                      totalMarks:
-                                          double.tryParse(
-                                            mark?.maxMarks ?? '0',
-                                          ) ??
-                                          0.0,
-                                      studentIds: alreadyAddedStudentIds,
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.add),
-                                label: const Text("Add More Students"),
-                              ),
-                            );
+                          return SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () async {
+                                final alreadyAddedStudentIds =
+                                    mark?.studentMarks
+                                        ?.map((item) => item.student?.id)
+                                        .whereType<int>()
+                                        .toList() ??
+                                    [];
+
+                                await context.pushNamed(
+                                  RouteConstants.addMissingStudentMarks,
+                                  extra: MissingStudentMarksParams(
+                                    internalId: mark?.id ?? 0,
+                                    classId: mark?.classGrade?.id ?? 0,
+                                    totalMarks:
+                                        double.tryParse(
+                                          mark?.maxMarks ?? '0',
+                                        ) ??
+                                        0.0,
+                                    studentIds: alreadyAddedStudentIds,
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.add),
+                              label: const Text("Add More Students"),
+                            ),
+                          );
+                        },
+                      ),
+
+                      SizedBox(height: Responsive.height * 1),
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _isRemoveModeEnabled = !_isRemoveModeEnabled;
+                            });
                           },
-                        )
-                        : SizedBox.shrink(),
+                          icon: Icon(
+                            _isRemoveModeEnabled
+                                ? Icons.close
+                                : Icons.delete_outline,
+                            color: Colors.red,
+                          ),
+                          label: Text(
+                            _isRemoveModeEnabled
+                                ? "Cancel Remove"
+                                : "Remove Option",
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.red),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: Responsive.height * 2),
+                    ],
                     SizedBox(height: Responsive.height * 6),
                   ],
                 ),

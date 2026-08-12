@@ -6,6 +6,8 @@ class ViewingGradeCard extends StatelessWidget {
   final String name;
   final String mark;
   final bool isAbsent;
+  final bool showRemoveButton;
+  final VoidCallback? onRemove;
 
   const ViewingGradeCard({
     super.key,
@@ -13,6 +15,8 @@ class ViewingGradeCard extends StatelessWidget {
     required this.name,
     required this.mark,
     required this.isAbsent,
+    this.showRemoveButton = false,
+    this.onRemove,
   });
 
   @override
@@ -104,6 +108,13 @@ class ViewingGradeCard extends StatelessWidget {
                 ),
               ),
             ),
+            if (showRemoveButton) ...[
+              IconButton(
+                icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+                onPressed: onRemove,
+                tooltip: 'Remove',
+              ),
+            ],
           ],
         ),
       ),

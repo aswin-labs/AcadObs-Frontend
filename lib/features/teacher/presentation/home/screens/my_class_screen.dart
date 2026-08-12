@@ -4,6 +4,7 @@ import 'package:acadobs/features/parents/presentation/provider/leave_request_stu
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_feature_card.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/show_attendance_dialog_class_teacher.dart';
+import 'package:acadobs/features/teacher/presentation/home/widgets/show_marks_report_dialog.dart';
 import 'package:acadobs/features/timetables/data/models/timetable_type.dart';
 import 'package:acadobs/routes/modules/common_routes.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
@@ -182,6 +183,21 @@ class _MyClassScreenState extends State<MyClassScreen> {
                           context.pushNamed(
                             RouteConstants.myClassMarksScreen,
                             extra: widget.classGrade,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: StudentFeatureCard(
+                        icon: Icons.picture_as_pdf_outlined,
+                        title: 'Marks Report',
+                        color: Colors.teal,
+                        onTap: () {
+                          showMarksReportDialog(
+                            context: context,
+                            classId: widget.classGrade.id,
+                            className: widget.classGrade.classname,
                           );
                         },
                       ),

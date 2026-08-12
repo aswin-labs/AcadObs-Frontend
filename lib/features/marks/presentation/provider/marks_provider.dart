@@ -416,4 +416,43 @@ class MarksProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  // Delete mark by markId
+  Future<void> deleteMarkById({
+    required BuildContext context,
+    required int markId,
+    required int internalId,
+  }) async {
+    PopupLoader.show(context, message: "Deleting...");
+    try {
+      final response = await MarksServices().deleteMarkById(markId: markId);
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await fetchSingleMarks(marksId: internalId);
+        if (!context.mounted) return;
+        PopupLoader.hide(context);
+        CustomSnackbar.show(
+          context,
+          message: response.data['message'] ?? "Mark deleted successfully",
+          type: SnackbarType.success,
+        );
+      } else {
+        if (!context.mounted) return;
+        PopupLoader.hide(context);
+        CustomSnackbar.show(
+          context,
+          message: "Failed to delete mark",
+          type: SnackbarType.failure,
+        );
+      }
+    } catch (e) {
+      log('Delete mark error: $e');
+      if (!context.mounted) return;
+      PopupLoader.hide(context);
+      CustomSnackbar.show(
+        context,
+        message: "Something went wrong while deleting mark",
+        type: SnackbarType.failure,
+      );
+    }
+  }
 }

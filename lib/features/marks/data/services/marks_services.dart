@@ -134,4 +134,12 @@ class MarksServices {
 
     return response;
   }
+
+  // delete student mark by id
+  Future<Response> deleteMarkById({required int markId}) async {
+    final response = await ApiServices.delete(
+      "${ApiEndpoints.deleteMarkById}/$markId",
+    );
+    return response;
+  }
 }

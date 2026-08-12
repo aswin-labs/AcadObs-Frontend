@@ -28,4 +28,24 @@ class MyClassServices {
     );
     return response;
   }
+
+  // Get class-wise term marks PDF bytes
+  Future<Response> getClassWiseTermMarksPdf({
+    required int examId,
+    required String internalName,
+    required int classId,
+  }) async {
+    final response = await ApiServices.dio.get(
+      ApiEndpoints.getClassWaiseTermMarksPdf,
+      queryParameters: {
+        'exam_id': examId,
+        'internal_name': internalName,
+        'class_id': classId,
+      },
+      options: Options(
+        responseType: ResponseType.bytes,
+      ),
+    );
+    return response;
+  }
 }
