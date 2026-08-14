@@ -9,6 +9,7 @@ import 'package:acadobs/features/homeworks/data/models/homework_viewer_type.dart
 import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
 import 'package:acadobs/features/homeworks/presentation/widgets/homework_points_view_card.dart';
 import 'package:acadobs/features/homeworks/presentation/widgets/homework_submission_dialog.dart';
+import 'package:acadobs/features/homeworks/presentation/widgets/remove_student_homework_dialog.dart';
 import 'package:acadobs/routes/modules/common_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
@@ -166,8 +167,7 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                               fileName:
                                   homework
                                       ?.studentHomeworkStatus?[0]
-                                      .solvedFile ??
-                                  "",
+                                      .solvedFile,
                             )
                           else
                             Column(
@@ -177,9 +177,9 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                                 _gap(2),
                                 ListView.builder(
                                   shrinkWrap: true,
-                                  physics: BouncingScrollPhysics(),
+                                  physics: const BouncingScrollPhysics(),
                                   itemCount:
-                                      homework?.studentHomeworkStatus?.length,
+                                      homework?.studentHomeworkStatus?.length ?? 0,
                                   itemBuilder: (context, index) {
                                     final studentHomework =
                                         homework?.studentHomeworkStatus?[index];
@@ -197,6 +197,53 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                                     );
                                   },
                                 ),
+                                if (widget.homeworkParams.viewerType ==
+                                    HomeworkViewerType.teacherView) ...[
+                                  _gap(2),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton.icon(
+                                      onPressed: () {
+                                        context.pushNamed(
+                                          RouteConstants
+                                              .addMissingHomeworkStudentRanking,
+                                          queryParameters: {
+                                            'homeworkId':
+                                                (homework?.id ?? 0).toString(),
+                                          },
+                                        );
+                                      },
+                                      icon: const Icon(Icons.add),
+                                      label: const Text("Add More Students"),
+                                    ),
+                                  ),
+                                  _gap(1),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: OutlinedButton.icon(
+                                      onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (_) =>
+                                              RemoveStudentHomeworkDialog(
+                                            homeworkId: homework?.id ?? 0,
+                                          ),
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.delete_outline,
+                                        color: Colors.red,
+                                      ),
+                                      label: const Text(
+                                        "Remove Option",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(color: Colors.red),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ],
                             ),
                           _gap(2),

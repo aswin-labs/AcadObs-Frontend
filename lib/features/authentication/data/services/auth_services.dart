@@ -38,6 +38,15 @@ class AuthServices {
     return response;
   }
 
+  Future<Response> fetchSchoolDetailsForGuardianBySchoolId({
+    required int schoolId,
+  }) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.schoolDetailsForGuardianBySchoolId}/$schoolId",
+    );
+    return response;
+  }
+
   // send fcm token
   Future<Response> sendFcmToken() async {
     final token = await FirebaseMessaging.instance.getToken();

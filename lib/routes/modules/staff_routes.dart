@@ -9,6 +9,7 @@ import 'package:acadobs/features/events/data/models/event_model.dart';
 import 'package:acadobs/features/events/presentation/screens/event_detail_screen.dart';
 import 'package:acadobs/features/events/presentation/screens/event_listing_screen.dart';
 import 'package:acadobs/features/homeworks/data/models/homework_model.dart';
+import 'package:acadobs/features/homeworks/presentation/screens/add_missing_homework_student_ranking_screen.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/edit_home_work_screen.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/homework_ranking_screen.dart';
 import 'package:acadobs/features/marks/data/models/marks_model.dart';
@@ -455,6 +456,17 @@ List<GoRoute> staffRoutes = [
       if (state.extra == null) return buildRouteExtraFallback(context);
       HomeworkModel homework = state.extra as HomeworkModel;
       return HomeworkRankingScreen(homework: homework);
+    },
+  ),
+  // add missing homework student ranking screen
+  GoRoute(
+    path: '/addMissingHomeworkStudentRanking',
+    name: RouteConstants.addMissingHomeworkStudentRanking,
+    builder: (context, state) {
+      final homeworkId = int.parse(
+        state.uri.queryParameters['homeworkId'] ?? '0',
+      );
+      return AddMissingHomeworkStudentRankingScreen(homeworkId: homeworkId);
     },
   ),
   // homwork edit screen

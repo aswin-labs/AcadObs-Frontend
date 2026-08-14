@@ -21,8 +21,13 @@ class ParentProvider extends ChangeNotifier {
   Map<String, dynamic>? get schoolDetails => _schoolDetails;
 
   // fetch school details for parent
-  Future<void> fetchSchoolDetailsForParent() async {
+  Future<void> fetchSchoolDetailsForParent({Map<String, dynamic>? freshDetails}) async {
     try {
+      if (freshDetails != null) {
+        _schoolDetails = freshDetails;
+        notifyListeners();
+        return;
+      }
       final schoolDetails = await _authStorage.getSchoolDetailsForParent();
       if (schoolDetails != null) {
         _schoolDetails = schoolDetails;

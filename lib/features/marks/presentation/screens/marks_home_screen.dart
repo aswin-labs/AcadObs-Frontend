@@ -234,15 +234,16 @@ class _TermMarksTab extends StatelessWidget {
                           final className = mark.classGrade?.classname ?? '';
                           final subjectName = mark.subject?.subjectName ?? "";
 
-                          final title =
-                              "$className${subjectName.isNotEmpty ? ' - $subjectName' : ''}";
+                          final title = capitali(
+                            "$className${subjectName.isNotEmpty ? ' - $subjectName' : ''}",
+                          );
 
                           final description = capitali(
                             "${mark.termExam?.examName ?? ''} - ${mark.internalName} (${mark.termExam?.educationYear ?? ''}) ",
                           );
 
                           return ItemCard(
-                            title: capitalizeEachWord(title),
+                            title: title,
                             description: description,
                             iconColor: Colors.green,
                             backgroundColor: const Color(0xFFE8F5E9),
@@ -335,7 +336,7 @@ class _OtherMarksTab extends StatelessWidget {
                           final className = mark.classGrade?.classname ?? '';
 
                           return ItemCard(
-                            title: mark.internalName,
+                            title: capitali(mark.internalName),
                             description: "Class: $className - $subjectName",
                             iconColor: Color(0xFFB14F6F),
                             backgroundColor: Color(0xFFFFCEDE),

@@ -2,6 +2,7 @@ import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/netwok/screens/offline_banner.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
+import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
@@ -29,11 +30,13 @@ class ParentHomeScreen extends StatefulWidget {
 class _ParentHomeScreenState extends State<ParentHomeScreen> {
   late ParentProvider parentProvider;
   late AchievementProvider achievementProvider;
+  late AuthProvider authProvider;
 
   @override
   void initState() {
     super.initState();
     parentProvider = context.read<ParentProvider>();
+    authProvider = context.read<AuthProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       refreshAllData();
     });
@@ -41,6 +44,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
 
   Future<void> refreshAllData({bool forceRefresh = false}) async {
     await Future.wait([
+      authProvider.fetchSchoolDetailsForGuardianBySchoolId(),
       parentProvider.fetchStudentsUnderParentBySchoolId(
         forceRefresh: forceRefresh,
       ),
@@ -93,10 +97,12 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                       background: Stack(
                         fit: StackFit.expand,
                         children: [
-                          Consumer<ParentProvider>(
-                            builder: (context, parentProvider, _) {
-                              final bgImage =
-                                  parentProvider.schoolDetails?['bg_image'];
+                          Consumer2<AuthProvider, ParentProvider>(
+                            builder: (context, authProv, parentProv, _) {
+                              final schoolDetails =
+                                  authProv.schoolDetails ??
+                                  parentProv.schoolDetails;
+                              final bgImage = schoolDetails?['bg_image'];
 
                               if (bgImage == null ||
                                   bgImage.toString().trim().isEmpty) {
@@ -141,19 +147,25 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  Consumer<ParentProvider>(
-                                    builder: (context, provider, _) {
+                                  Consumer2<AuthProvider, ParentProvider>(
+                                    builder: (
+                                      context,
+                                      authProv,
+                                      parentProv,
+                                      _,
+                                    ) {
+                                      final schoolDetails =
+                                          authProv.schoolDetails ??
+                                          parentProv.schoolDetails;
                                       return Row(
                                         children: [
-                                          if (provider.schoolDetails?['logo'] !=
-                                              null)
+                                          if (schoolDetails?['logo'] != null)
                                             CircleAvatar(
                                               radius: 16,
                                               backgroundColor: Colors.white,
                                               child: ClipOval(
                                                 child: Image.network(
-                                                  provider
-                                                      .schoolDetails!['logo'],
+                                                  schoolDetails!['logo'],
                                                   width: 32,
                                                   height: 32,
                                                   fit: BoxFit.cover,
@@ -170,11 +182,10 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                                                 ),
                                               ),
                                             ),
-                                          SizedBox(width: 8),
+                                          const SizedBox(width: 8),
                                           Text(
                                             capitalizeEachWord(
-                                              provider.schoolDetails?['name'] ??
-                                                  '',
+                                              schoolDetails?['name'] ?? '',
                                             ),
                                             style: const TextStyle(
                                               fontSize: 16,

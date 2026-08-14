@@ -204,8 +204,8 @@ class _TermMarksTab extends StatelessWidget {
                           final className = mark.classGrade?.classname ?? "";
                           final title =
                               isSpecial == true
-                                  ? className
-                                  : capitalizeEachWord(
+                                  ? capitali(className)
+                                  : capitali(
                                     mark.subject?.subjectName ?? "",
                                   );
 
@@ -306,7 +306,7 @@ class _OtherMarksTab extends StatelessWidget {
                         itemCount: provider.internalMarks.length,
                         itemBuilder: (context, index) {
                           final mark = provider.internalMarks[index];
-                          final subjectName = mark.subject?.subjectName ?? "";
+                          final subjectName = capitali(mark.subject?.subjectName ?? "");
                           return ItemCard(
                             title:
                                 subjectName.isNotEmpty

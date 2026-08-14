@@ -62,7 +62,7 @@ class _StudentLeavesScreenState extends State<StudentLeavesScreen> {
             }
 
             if (provider.studentLeaves.isEmpty) {
-              return emptyScreen(message: 'No Homeworks Found.');
+              return emptyScreen(message: 'No Leave Requests Found.');
             }
 
             return ListView.builder(

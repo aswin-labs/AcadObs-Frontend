@@ -78,11 +78,16 @@ class ApiEndpoints {
   static const String studentMarks = "/teacher/getInternalMarkByStudentId";
   static const String studentExamMarks = "/teacher/getExamMarkByStudentId";
   static const String termExams = "/teacher/getExams";
-  static const String myMultiTeacherSubjectInternalMarks = "/teacher/myMultiTeacherSubjectInternalMarks";
-  static const String getInternalMarksByIdWithSubject = "/teacher/getInternalMarksByIdWithSubject";
-  static const String getClassWaiseTermMarksPdf = "/teacher/getClassWaiseTermMarksPdf";
-  static const String getMissingStudentsListfromClassId = "/teacher/getMissingStudentsListfromClassId";
-  static const String createNewMarksByInternalId = "/teacher/createNewMarksByInternalId";
+  static const String myMultiTeacherSubjectInternalMarks =
+      "/teacher/myMultiTeacherSubjectInternalMarks";
+  static const String getInternalMarksByIdWithSubject =
+      "/teacher/getInternalMarksByIdWithSubject";
+  static const String getClassWaiseTermMarksPdf =
+      "/teacher/getClassWaiseTermMarksPdf";
+  static const String getMissingStudentsListfromClassId =
+      "/teacher/getMissingStudentsListfromClassId";
+  static const String createNewMarksByInternalId =
+      "/teacher/createNewMarksByInternalId";
   static const String deleteMarkById = "/teacher/deleteMarkById";
 
   //Achievement
@@ -156,6 +161,9 @@ class ApiEndpoints {
   // guardian homework details
   static const String getHomeworkAssignmentsById =
       "/guardian/getHomeworkAssignmentsById";
+  // get school details for parent
+  static const String schoolDetailsForGuardianBySchoolId =
+      "/guardian/getSchoolById";
 
   // *************************TIME TABLE******************************
   static const String getTodayTimetableForStaff =
@@ -182,6 +190,12 @@ class ApiEndpoints {
       "/teacher/getHomeworkByStudentId";
   static const String sendHomeworkRemarks = "/teacher/updateHomeworkAssignment";
   static const String myClassHomeworks = "/teacher/getMyClassHomework";
+  static const String getMissingStudentsfromClassByHomeworkId =
+      "/teacher/getMissingStudentsfromClassByHomeworkId";
+  static const String createNewHomeworkAssignment =
+      "/teacher/createNewHomeworkAssignment";
+  static const String deleteHomeworkAssignment =
+      "/teacher/deleteHomeworkAssignment";
 
   static const String homeworksByStudentIdForGuardian =
       "/guardian/getHomeworkByStudentId";

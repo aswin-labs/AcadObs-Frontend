@@ -135,7 +135,7 @@ class HomeworksServices {
     required String title,
     String? description,
     required String duedate,
-    String? type
+    String? type,
   }) async {
     final fileUpload = context.read<FilePickerProvider>().getFile(
       'homeworkFile',
@@ -147,7 +147,7 @@ class HomeworksServices {
       "title": title,
       "description": description,
       "due_date": duedate,
-      "type":type,
+      "type": type,
       if (multipartFile != null) "file": multipartFile,
     };
 
@@ -190,6 +190,37 @@ class HomeworksServices {
   Future<Response> deleteHomeWork({required int homeworkId}) async {
     final response = await ApiServices.delete(
       "${ApiEndpoints.homeworks}/$homeworkId",
+    );
+    return response;
+  }
+
+  // fetch missing students in class by homework id
+  Future<Response> fetchMissingStudentsByHomeworkId({
+    required int homeworkId,
+  }) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.getMissingStudentsfromClassByHomeworkId}/$homeworkId",
+    );
+    return response;
+  }
+
+  // add new student homework assignments
+  Future<Response> newStudentsHomeworkRanking({
+    required int homeworkId,
+    required List<Map<String, dynamic>> assignments,
+  }) async {
+    final response = await ApiServices.post(
+      "${ApiEndpoints.createNewHomeworkAssignment}/$homeworkId",
+      assignments,
+    );
+    log("response: ${response.data}");
+    return response;
+  }
+
+   //delete student homework
+  Future<Response> deleteHomeWorkStudent({required int studentHomeworkId}) async {
+    final response = await ApiServices.delete(
+      "${ApiEndpoints.deleteHomeworkAssignment}/$studentHomeworkId",
     );
     return response;
   }

@@ -97,6 +97,8 @@ class RouteConstants {
   static const String homeworkDetailsScreen = "homeworkDetailsScreen";
   // homework ranking screen
   static const String homeworkRankingScreen = 'homeworkRankingScreen';
+  // add missing homework student ranking
+  static const String addMissingHomeworkStudentRanking = 'addMissingHomeworkStudentRanking';
 
   // **************************HOMEWORKS END****************************
 

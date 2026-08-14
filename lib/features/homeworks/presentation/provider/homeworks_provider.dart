@@ -2,10 +2,12 @@ import 'dart:developer';
 
 import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
+import 'package:acadobs/core/utils/popup_loader.dart';
 import 'package:acadobs/features/homeworks/data/models/gouped_homework_model.dart';
 import 'package:acadobs/features/homeworks/data/models/homework_model.dart';
 import 'package:acadobs/features/homeworks/data/models/homework_viewer_type.dart';
 import 'package:acadobs/features/homeworks/data/services/homeworks_services.dart';
+import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
@@ -178,6 +180,89 @@ class HomeworksProvider extends ChangeNotifier {
       log(e.toString());
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  bool _isLoadingMissingStudents = false;
+  bool get isLoadingMissingStudents => _isLoadingMissingStudents;
+
+  bool _isLoadingNewRanking = false;
+  bool get isLoadingNewRanking => _isLoadingNewRanking;
+
+  List<StudentModel> _missingStudents = [];
+  List<StudentModel> get missingStudents => _missingStudents;
+
+  // Fetch missing students by homework ID
+  Future<void> fetchMissingStudentsByHomeworkId({
+    required int homeworkId,
+  }) async {
+    _isLoadingMissingStudents = true;
+    _missingStudents = [];
+    notifyListeners();
+    try {
+      final response = await HomeworksServices()
+          .fetchMissingStudentsByHomeworkId(homeworkId: homeworkId);
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        if (data != null && data['students'] != null) {
+          final List studentsJson = data['students'];
+          _missingStudents =
+              studentsJson.map((json) => StudentModel.fromJson(json)).toList();
+        }
+      }
+    } catch (e) {
+      log('Error fetching missing students: $e');
+    } finally {
+      _isLoadingMissingStudents = false;
+      notifyListeners();
+    }
+  }
+
+  // Submit ranking for newly added missing students
+  Future<void> newStudentsHomeworkRanking({
+    required BuildContext context,
+    required int homeworkId,
+    required List<Map<String, dynamic>> assignments,
+  }) async {
+    _isLoadingNewRanking = true;
+    notifyListeners();
+    try {
+      final response = await HomeworksServices().newStudentsHomeworkRanking(
+        homeworkId: homeworkId,
+        assignments: assignments,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await fetchSingleHomework(
+          homeworkId: homeworkId,
+          viewerType: HomeworkViewerType.teacherView,
+        );
+        if (!context.mounted) return;
+        Navigator.pop(context);
+        if (!context.mounted) return;
+        CustomSnackbar.show(
+          context,
+          message: "New students homework ranking added successfully",
+          type: SnackbarType.success,
+        );
+      } else {
+        log("New homework ranking failed: ${response.statusCode}");
+        if (!context.mounted) return;
+        CustomErrorDialog.show(
+          context,
+          response.data?["message"] ??
+              "Failed to add new students homework ranking",
+        );
+      }
+    } catch (e) {
+      log('Error submitting new homework ranking: $e');
+      if (context.mounted) {
+        CustomErrorDialog.show(context, "An error occurred. Please try again.");
+      }
+    } finally {
+      _isLoadingNewRanking = false;
       notifyListeners();
     }
   }
@@ -429,6 +514,50 @@ class HomeworksProvider extends ChangeNotifier {
       }
     } catch (e) {
       log('error in the deleting the homework $e');
+    }
+  }
+
+  //delete student from homework assignment
+  Future<void> deleteHomeWorkStudent({
+    required BuildContext context,
+    required int studentHomeworkId,
+    required int homeworkId,
+  }) async {
+    PopupLoader.show(context, message: "Deleting student...");
+    try {
+      final response = await HomeworksServices().deleteHomeWorkStudent(
+        studentHomeworkId: studentHomeworkId,
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        await fetchSingleHomework(
+          homeworkId: homeworkId,
+          viewerType: HomeworkViewerType.teacherView,
+        );
+        if (!context.mounted) return;
+        PopupLoader.hide(context);
+        CustomSnackbar.show(
+          context,
+          message: response.data['message'] ?? "Student removed successfully",
+          type: SnackbarType.success,
+        );
+      } else {
+        if (!context.mounted) return;
+        PopupLoader.hide(context);
+        CustomSnackbar.show(
+          context,
+          message: "Failed to remove student",
+          type: SnackbarType.failure,
+        );
+      }
+    } catch (e) {
+      log('Delete homework student error: $e');
+      if (!context.mounted) return;
+      PopupLoader.hide(context);
+      CustomSnackbar.show(
+        context,
+        message: "Something went wrong while removing student",
+        type: SnackbarType.failure,
+      );
     }
   }
 }

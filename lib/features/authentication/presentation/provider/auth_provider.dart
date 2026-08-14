@@ -215,22 +215,40 @@ class AuthProvider with ChangeNotifier {
 
   /// Save schoolId in secure storage
   Future<void> saveSchoolIdAndContinue() async {
-    if (_selectedSchool?.schoolId != null &&
-        _selectedSchool?.school?.name != null) {
+    if (_selectedSchool?.schoolId != null) {
       await _storageService.saveSchoolIdForParent(
         schoolId: _selectedSchool!.schoolId.toString(),
       );
-      await _storageService.saveSchoolDetailsForParent(
-        schoolData: {
-          "id": _selectedSchool!.school?.id,
-          "name": _selectedSchool!.school?.name,
-          "address": _selectedSchool!.school?.address,
-          "phone": _selectedSchool!.school?.phone,
-          "email": _selectedSchool!.school?.email,
-          "logo": _selectedSchool!.school?.logo,
-          "bg_image": _selectedSchool!.school?.bgImage,
-        },
-      );
+    }
+  }
+
+  // fetch school details for guardian by school id
+  Future<void> fetchSchoolDetailsForGuardianBySchoolId() async {
+    _isLoading = true;
+    try {
+      final schoolIdStr = await _storageService.getSchoolIdForParent();
+      final schoolId = int.tryParse(schoolIdStr ?? '');
+      if (schoolId != null) {
+        final response = await AuthServices()
+            .fetchSchoolDetailsForGuardianBySchoolId(schoolId: schoolId);
+        if (response.statusCode == 200) {
+          log("Guardian School Details Fetched Successfully: ${response.data}");
+          final rawData = response.data;
+          final schoolData = (rawData != null && rawData['school'] != null)
+              ? Map<String, dynamic>.from(rawData['school'])
+              : Map<String, dynamic>.from(rawData ?? {});
+          _schoolDetails = schoolData;
+          await _storageService.saveSchoolDetailsForParent(
+            schoolData: _schoolDetails!,
+          );
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      log("Error in fetchSchoolDetailsForGuardianBySchoolId: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 

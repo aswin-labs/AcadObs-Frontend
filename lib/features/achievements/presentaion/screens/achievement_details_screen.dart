@@ -2,16 +2,13 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_popup_menu.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
-
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:provider/provider.dart';
 
 class AchievementDetailsScreen extends StatefulWidget {
@@ -111,429 +108,20 @@ class _AchievementDetailsScreenState extends State<AchievementDetailsScreen> {
           }
 
           if (achievement == null) {
-            return Center(
-              child: Container(
-                margin: const EdgeInsets.all(20),
-                padding: const EdgeInsets.all(40),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.emoji_events_outlined,
-                      size: 64,
-                      color: Colors.grey[300],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No Details Found',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[800],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
+            return const Center(child: Text("No achievement details found"));
           }
 
-          final studentCount = achievement.studentAchievements?.length ?? 0;
-
           return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Hero Section with Trophy Icon
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      gradient: LinearGradient(
-                        colors: [Colors.blue.shade50, Colors.blue.shade300],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 32),
-                        Container(
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
+                _achievementHeader(achievement),
+                const SizedBox(height: 14),
 
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(45),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.emoji_events,
-                            size: 80,
-                            color: Colors.blue.shade300,
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                      ],
-                    ),
-                  ),
-                ),
+                _detailsCard(achievement),
+                const SizedBox(height: 14),
 
-                // Content Section
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Title Card
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withAlpha(9),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.amber.withAlpha(23),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(
-                                    Icons.title,
-                                    size: 20,
-                                    color: Colors.amber,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                const Text(
-                                  "Achievement Title",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.grey,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              capitalizeEachWord(achievement.title ?? ""),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 24,
-                                color: Colors.black87,
-                                height: 1.3,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 16),
-
-                      // Description Card
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withAlpha(9),
-                              blurRadius: 10,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.blue.withAlpha(23),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Icon(
-                                    Icons.description_outlined,
-                                    size: 20,
-                                    color: Colors.blue,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                const Text(
-                                  "Description",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.grey,
-                                    letterSpacing: 0.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              capitalizeEachWord(
-                                achievement.description ??
-                                    "No description available",
-                              ),
-                              style: TextStyle(
-                                fontSize: 15,
-                                color: Colors.grey[700],
-                                height: 1.6,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Winners Section Header
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.green.withAlpha(23),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Icon(
-                              Icons.workspace_premium,
-                              size: 20,
-                              color: Colors.green,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            "Award Winners",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const Spacer(),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.green.withAlpha(23),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              "$studentCount Winner${studentCount != 1 ? 's' : ''}",
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.green,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Winners List
-                      if (studentCount == 0)
-                        Column(
-                          children: [
-                            Icon(
-                              Icons.people_outline,
-                              size: 48,
-                              color: Colors.grey[300],
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              "No winners yet",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        )
-                      else
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(9),
-                                blurRadius: 10,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            padding: const EdgeInsets.all(8),
-                            itemCount: studentCount,
-                            separatorBuilder:
-                                (_, __) => const SizedBox(height: 5),
-                            itemBuilder: (context, index) {
-                              final studentAchievement =
-                                  achievement.studentAchievements?[index];
-                              final studentName =
-                                  studentAchievement?.student?.fullName ??
-                                  "Unknown";
-                              final status = studentAchievement?.status ?? "";
-                              final className =
-                                  studentAchievement
-                                      ?.student
-                                      ?.classGrade
-                                      ?.classname ??
-                                  "";
-
-                              return Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                child: Row(
-                                  children: [
-                                    // Position Badge
-                                    Container(
-                                      width: 40,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: _getPositionColors(index),
-                                        ),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          "${index + 1}",
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    // Student Info
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            studentName,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 15,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 2),
-                                          Row(
-                                            children: [
-                                              if (className.isNotEmpty) ...[
-                                                Icon(
-                                                  Icons.class_,
-                                                  size: 14,
-                                                  color: Colors.grey[600],
-                                                ),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  className,
-                                                  style: TextStyle(
-                                                    fontSize: 13,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                ),
-                                              ],
-                                              if (status.isNotEmpty) ...[
-                                                if (className.isNotEmpty)
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 8,
-                                                        ),
-                                                    child: Text(
-                                                      "•",
-                                                      style: TextStyle(
-                                                        color: Colors.grey[400],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                Container(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 8,
-                                                        vertical: 2,
-                                                      ),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.amber
-                                                        .withAlpha(45),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          8,
-                                                        ),
-                                                  ),
-                                                  child: Text(
-                                                    status,
-                                                    style: const TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Colors.amber,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-
-                      const SizedBox(height: 20),
-                    ],
-                  ),
-                ),
+                _studentsCard(achievement.studentAchievements ?? []),
               ],
             ),
           );
@@ -542,214 +130,250 @@ class _AchievementDetailsScreenState extends State<AchievementDetailsScreen> {
     );
   }
 
-  List<Color> _getPositionColors(int index) {
-    switch (index) {
-      case 0:
-        return [Colors.amber.shade400, Colors.amber.shade600]; // Gold
-      case 1:
-        return [Colors.grey.shade400, Colors.grey.shade600]; // Silver
-      case 2:
-        return [Colors.brown.shade300, Colors.brown.shade500]; // Bronze
-      default:
-        return [Colors.blue.shade400, Colors.blue.shade600]; // Default
-    }
-  }
+  // List<Color> _getPositionColors(int index) {
+  //   switch (index) {
+  //     case 0:
+  //       return [Colors.amber.shade400, Colors.amber.shade600]; // Gold
+  //     case 1:
+  //       return [Colors.grey.shade400, Colors.grey.shade600]; // Silver
+  //     case 2:
+  //       return [Colors.brown.shade300, Colors.brown.shade500]; // Bronze
+  //     default:
+  //       return [Colors.blue.shade400, Colors.blue.shade600]; // Default
+  //   }
 }
 
-// import 'package:acadobs/core/extensions/context_extensions.dart';
-// import 'package:acadobs/core/utils/common_shimmer_list.dart';
-// import 'package:acadobs/core/utils/custom_error_dialog.dart';
-// import 'package:acadobs/core/utils/custom_popup_menu.dart';
-// import 'package:acadobs/core/utils/custom_snackbar.dart';
-// import 'package:acadobs/core/utils/empty_screen.dart';
-// import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
-// import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
-// import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
-// import 'package:acadobs/routes/router_constants.dart';
-// import 'package:acadobs/shared/widgets/common_appbar.dart';
-// import 'package:acadobs/shared/widgets/profile_tile.dart';
-// import 'package:flutter/material.dart';
-// import 'package:go_router/go_router.dart';
-// import 'package:lucide_icons/lucide_icons.dart';
-// import 'package:provider/provider.dart';
+Widget _achievementHeader(dynamic achievement) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.blue.shade50,
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Row(
+      children: [
+        Container(
+          width: 56,
+          height: 56,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.emoji_events,
+            color: Colors.amber.shade700,
+            size: 30,
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                capitalizeEachWord(achievement.title ?? ""),
+                style: const TextStyle(
+                  fontSize: 21,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                achievement.description ?? "No description",
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
-// class AchievementDetailsScreen extends StatefulWidget {
-//   final int achievementId;
-//   final bool forStaff;
-//   const AchievementDetailsScreen({
-//     super.key,
-//     required this.achievementId,
-//     required this.forStaff,
-//   });
+Widget _detailsCard(dynamic achievement) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(color: Colors.grey.shade200),
+    ),
+    child: Column(
+      children: [
+        _detailRow(
+          Icons.category_outlined,
+          "Category",
+          capitalizeEachWord(achievement.category ?? "-"),
+        ),
+        _detailRow(
+          Icons.military_tech_outlined,
+          "Level",
+          capitalizeEachWord(achievement.level ?? "-"),
+        ),
+        // _detailRow(
+        //   Icons.calendar_today_outlined,
+        //   "Date",
+        //   achievement.date ?? "-",
+        // ),
+        // _detailRow(
+        //   Icons.person_outline,
+        //   "Recorded by",
+        //   achievement.user?.name ?? "-",
+        //   showDivider: false,
+        // ),
+      ],
+    ),
+  );
+}
 
-//   @override
-//   State<AchievementDetailsScreen> createState() =>
-//       _AchievementDetailsScreenState();
-// }
+Widget _detailRow(
+  IconData icon,
+  String label,
+  String value, {
+  bool showDivider = true,
+}) {
+  return Column(
+    children: [
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: Colors.grey.shade600),
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+            ),
+            const Spacer(),
+            Flexible(
+              child: Text(
+                value,
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      if (showDivider) Divider(height: 1, color: Colors.grey.shade200),
+    ],
+  );
+}
 
-// class _AchievementDetailsScreenState extends State<AchievementDetailsScreen> {
-//   late AchievementProvider _provider;
-//   @override
-//   void initState() {
-//     super.initState();
-//     _provider = context.read<AchievementProvider>();
-//     WidgetsBinding.instance.addPostFrameCallback((_) {
-//       _provider.fetchSingleAchievement(
-//         achievementId: widget.achievementId,
-//         forStaff: widget.forStaff,
-//       );
-//     });
-//   }
+Widget _studentsCard(List<dynamic> students) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(color: Colors.grey.shade200),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.workspace_premium_outlined, size: 21),
+            const SizedBox(width: 8),
+            const Text(
+              "Students",
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+            ),
+            const Spacer(),
+            Text(
+              "${students.length}",
+              style: TextStyle(
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: CommonAppBar(
-//         title: "Achievement",
-//         isBackButton: true,
-//         actions: [
-//           widget.forStaff
-//               ? Consumer<AchievementProvider>(
-//                 builder: (context, provider, _) {
-//                   return Consumer<AchievementProvider>(
-//                     builder: (context, provider, _) {
-//                       return CustomPopupMenu(
-//                         // showEdit: false,
-//                         onEdit: () {
-//                           context.pushNamed(
-//                             RouteConstants.editAchievement,
-//                             extra: provider.singleAchievement,
-//                           );
-//                         },
-//                         onDelete: () {
-//                           showConfirmationDialog(
-//                             context: context,
-//                             title: 'Delete achievement',
-//                             content: 'Do you want to delete the achievement?',
-//                             onConfirm: () async {
-//                               Navigator.of(context).pop();
+        const SizedBox(height: 12),
 
-//                               final ok = await context
-//                                   .read<AchievementProvider>()
-//                                   .deleteAchievement(
-//                                     provider.singleAchievement?.id ?? 0,
-//                                   );
+        if (students.isEmpty)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: Text("No students added")),
+          )
+        else
+          ...students.map((item) {
+            final student = item.student;
 
-//                               if (ok) {
-//                                 if (!context.mounted) return;
-//                                 CustomSnackbar.show(
-//                                   context,
-//                                   message: "Achievement deleted",
-//                                   type: SnackbarType.success,
-//                                 );
-//                                 Navigator.pop(context);
-//                               } else {
-//                                 if (!context.mounted) return;
-//                                 CustomErrorDialog.show(
-//                                   context,
-//                                   "Failed to delete achievement",
-//                                 );
-//                               }
-//                             },
-//                           );
-//                         },
-//                       );
-//                     },
-//                   );
-//                 },
-//               )
-//               : SizedBox.shrink(),
-//         ],
-//       ),
-//       body: Consumer<AchievementProvider>(
-//         builder: (context, provider, _) {
-//           final achievement = provider.singleAchievement;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    child: Text(
+                      (student?.fullName?.isNotEmpty ?? false)
+                          ? student!.fullName![0].toUpperCase()
+                          : "?",
+                    ),
+                  ),
+                  const SizedBox(width: 12),
 
-//           if (provider.isLoading && achievement == null) {
-//             return Padding(
-//               padding: const EdgeInsets.symmetric(horizontal: 16),
-//               child: commonShimmerList(),
-//             );
-//           }
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          student?.fullName ?? "Unknown Student",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          [student?.classGrade?.classname, student?.regNo]
+                              .where(
+                                (value) =>
+                                    value != null &&
+                                    value.toString().isNotEmpty,
+                              )
+                              .join(" • "),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
 
-//           if (achievement == null) {
-//             return emptyScreen(message: 'No Details Found.');
-//           }
-
-//           return Padding(
-//             padding: const EdgeInsets.all(16.0),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Container(
-//                   width: double.infinity,
-//                   height: 226,
-//                   decoration: BoxDecoration(
-//                     color: const Color(0xFFCEFFD3),
-//                     borderRadius: BorderRadius.circular(16),
-//                   ),
-//                   child: const Center(
-//                     child: Icon(
-//                       LucideIcons.filePlus2,
-//                       color: Color(0xFF5DD168),
-//                       size: 150,
-//                     ),
-//                   ),
-//                 ),
-
-//                 const SizedBox(height: 20),
-
-//                 // Title
-//                 Text(
-//                   capitalizeEachWord(achievement.title ?? ""),
-//                   style: const TextStyle(
-//                     fontWeight: FontWeight.bold,
-//                     fontSize: 20,
-//                   ),
-//                 ),
-
-//                 const SizedBox(height: 8),
-
-//                 // Description
-//                 Text(
-//                   capitalizeEachWord(achievement.description ?? ""),
-//                   style: const TextStyle(color: Color(0xFF949494)),
-//                 ),
-
-//                 const SizedBox(height: 20),
-//                 Text(
-//                   "Prizes: ",
-//                   style: context.textTheme.bodyMedium!.copyWith(
-//                     fontWeight: FontWeight.w600,
-//                   ),
-//                 ),
-//                 const SizedBox(height: 10),
-//                 // Students list
-//                 Expanded(
-//                   child: ListView.builder(
-//                     itemCount: achievement.studentAchievements?.length ?? 0,
-//                     itemBuilder: (context, index) {
-//                       final studentAchievement =
-//                           achievement.studentAchievements?[index];
-//                       return ProfileTile(
-//                         name:
-//                             "${studentAchievement?.student?.fullName ?? ""} - ${studentAchievement?.status ?? ""}",
-//                         description:
-//                             studentAchievement
-//                                 ?.student
-//                                 ?.classGrade
-//                                 ?.classname ??
-//                             "",
-//                         suffixText: "",
-//                       );
-//                     },
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-// }
+                  if ((item.status ?? "").isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.shade50,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        item.status!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.amber.shade900,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          }),
+      ],
+    ),
+  );
+}
