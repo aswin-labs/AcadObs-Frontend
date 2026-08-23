@@ -1,5 +1,7 @@
 import 'package:acadobs/core/services/location_services.dart';
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
+import 'package:acadobs/core/utils/custom_snackbar.dart';
+import 'package:acadobs/core/utils/popup_loader.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -108,29 +110,52 @@ class CheckInWidget extends StatelessWidget {
                         title: '$action Confirmation',
                         message: message,
                         onConfirm: () async {
-                          final position = await getCurrentLocation();
-                          if (position != null) {
-                            if (isNotMarked) {
-                              if (!context.mounted) return;
-                              await context
-                                  .read<TeacherAttendanceProvider>()
-                                  .checkInAttendance(
-                                    context: context,
-                                    latitude: position.latitude.toString(),
-                                    longitude: position.longitude.toString(),
-                                  );
-                            } else if (isCheckedIn) {
-                              if (!context.mounted) return;
-                              await context
-                                  .read<TeacherAttendanceProvider>()
-                                  .checkOutAttendance(
-                                    context: context,
-                                    latitude: position.latitude.toString(),
-                                    longitude: position.longitude.toString(),
-                                  );
-                            }
-                          }
-                        },
+  if (!context.mounted) return;
+
+  PopupLoader.show(context, message: "Getting location...");
+
+  // Allow loader to render before starting location work
+  await Future.delayed(const Duration(milliseconds: 50));
+
+  try {
+    final position = await getCurrentLocation();
+
+    if (!context.mounted) return;
+
+    if (position == null) {
+      CustomSnackbar.show(
+        context,
+        message: "Unable to get your current location",
+        type: SnackbarType.failure,
+      );
+      return;
+    }
+
+    if (isNotMarked) {
+      await context
+          .read<TeacherAttendanceProvider>()
+          .checkInAttendance(
+            context: context,
+            latitude: position.latitude.toString(),
+            longitude: position.longitude.toString(),
+            showLoader: false,
+          );
+    } else if (isCheckedIn) {
+      await context
+          .read<TeacherAttendanceProvider>()
+          .checkOutAttendance(
+            context: context,
+            latitude: position.latitude.toString(),
+            longitude: position.longitude.toString(),
+            showLoader: false,
+          );
+    }
+  } finally {
+    if (context.mounted) {
+      PopupLoader.hide(context);
+    }
+  }
+},
                       );
                     },
             child: Text(

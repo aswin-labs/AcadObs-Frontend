@@ -20,14 +20,20 @@ class _AuthCheckerState extends State<AuthChecker> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FlutterNativeSplash.remove();
+    });
     _checkLogin();
   }
 
   Future<void> _checkLogin() async {
-    final token = await _authStorage.getToken();
-    final userRole = await _authStorage.getUserRole();
+    final results = await Future.wait([
+      _authStorage.getToken(),
+      _authStorage.getUserRole(),
+    ]);
+    final token = results[0];
+    final userRole = results[1];
     if (!mounted) return;
-    FlutterNativeSplash.remove();
     if (token != null && token.isNotEmpty) {
       if (userRole == 'guardian') {
         context.pushReplacementNamed(

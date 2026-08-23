@@ -58,4 +58,14 @@ class TeacherLeaveRequestServices {
     );
     return response;
   }
+
+  // fetch leave types
+  Future<Response> fetchLeaveTypes({required bool forStaff}) async {
+    final response = await ApiServices.get(
+      forStaff
+          ? ApiEndpoints.getLeaveTypesForTeacher
+          : ApiEndpoints.getLeaveTypesForGuardian,
+    );
+    return response;
+  }
 }

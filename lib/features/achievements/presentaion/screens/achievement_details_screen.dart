@@ -3,6 +3,7 @@ import 'package:acadobs/core/utils/custom_error_dialog.dart';
 import 'package:acadobs/core/utils/custom_popup_menu.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
+import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/show_confirmation_dialog.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -129,18 +130,6 @@ class _AchievementDetailsScreenState extends State<AchievementDetailsScreen> {
       ),
     );
   }
-
-  // List<Color> _getPositionColors(int index) {
-  //   switch (index) {
-  //     case 0:
-  //       return [Colors.amber.shade400, Colors.amber.shade600]; // Gold
-  //     case 1:
-  //       return [Colors.grey.shade400, Colors.grey.shade600]; // Silver
-  //     case 2:
-  //       return [Colors.brown.shade300, Colors.brown.shade500]; // Bronze
-  //     default:
-  //       return [Colors.blue.shade400, Colors.blue.shade600]; // Default
-  //   }
 }
 
 Widget _achievementHeader(dynamic achievement) {
@@ -212,17 +201,17 @@ Widget _detailsCard(dynamic achievement) {
           "Level",
           capitalizeEachWord(achievement.level ?? "-"),
         ),
-        // _detailRow(
-        //   Icons.calendar_today_outlined,
-        //   "Date",
-        //   achievement.date ?? "-",
-        // ),
-        // _detailRow(
-        //   Icons.person_outline,
-        //   "Recorded by",
-        //   achievement.user?.name ?? "-",
-        //   showDivider: false,
-        // ),
+        _detailRow(
+          Icons.calendar_today_outlined,
+          "Date",
+          DateFormatter.formatDateTime(achievement.date ?? DateTime.now()),
+        ),
+        _detailRow(
+          Icons.person_outline,
+          "Recorded by",
+          achievement.user?.name ?? "-",
+          showDivider: false,
+        ),
       ],
     ),
   );
@@ -247,15 +236,10 @@ Widget _detailRow(
               style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
             ),
             const Spacer(),
-            Flexible(
-              child: Text(
-                value,
-                textAlign: TextAlign.right,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+            Text(
+              value,
+              textAlign: TextAlign.right,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ],
         ),

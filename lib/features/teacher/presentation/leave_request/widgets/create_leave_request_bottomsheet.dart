@@ -1,4 +1,3 @@
-import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/extensions/context_extensions.dart';
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
@@ -22,6 +21,9 @@ void showCreateLeaveRequesBottomSheet(
   bool fromTeacherScreen = true,
   int studentId = 0,
 }) {
+  final leaveProvider = context.read<TeacherLeaveRequestProvider>();
+
+  if (!context.mounted) return;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final TextEditingController fromDateController = TextEditingController();
@@ -34,10 +36,11 @@ void showCreateLeaveRequesBottomSheet(
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
-    builder: (context) {
+    builder: (bottomSheetContext) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        leaveProvider.fetchLeaveTypes(forStaff: fromTeacherScreen);
+      });
+
       return SingleChildScrollView(
         child: Form(
           key: formKey,
@@ -74,7 +77,7 @@ void showCreateLeaveRequesBottomSheet(
                       'dd/MM/yyyy',
                     ).format(selectedDate);
                   },
-                  firstDate: DateTime.now(),
+                  // firstDate: DateTime.now(),
                   lastDate: DateTime(
                     DateTime.now().year,
                     DateTime.now().month + 1,
@@ -115,7 +118,7 @@ void showCreateLeaveRequesBottomSheet(
                                   'dd/MM/yyyy',
                                 ).format(selectedDate);
                               },
-                              firstDate: DateTime.now(),
+                              // firstDate: DateTime.now(),
                               lastDate: DateTime(
                                 DateTime.now().year,
                                 DateTime.now().month + 1,
@@ -165,16 +168,34 @@ void showCreateLeaveRequesBottomSheet(
                   },
                 ),
                 SizedBox(height: Responsive.height * 1),
-                CustomDropdown(
-                  dropdownKey: "leavetype",
-                  label: "Leave Type*",
-                  icon: LucideIcons.clipboardList,
-                  items: AppConstants.leaveTypes,
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty
-                              ? 'Please select leave type'
-                              : null,
+                Consumer<TeacherLeaveRequestProvider>(
+                  builder: (context, provider, _) {
+                    if (provider.isLoadingForLeaveTypes) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+
+                    if (provider.leaveTypes.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 12),
+                        child: Text("No leave types available"),
+                      );
+                    }
+
+                    return CustomDropdown(
+                      dropdownKey: "leavetype",
+                      label: "Leave Type*",
+                      icon: LucideIcons.clipboardList,
+                      items: provider.leaveTypes,
+                      validator:
+                          (value) =>
+                              value == null || value.isEmpty
+                                  ? 'Please select leave type'
+                                  : null,
+                    );
+                  },
                 ),
                 SizedBox(height: Responsive.height * 2),
                 CustomFilePicker(

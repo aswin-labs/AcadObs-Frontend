@@ -48,15 +48,6 @@ class ApiEndpoints {
   static const String attendanceByDateForStaff =
       "/teacher/getStudentAttendanceByDate/";
 
-  // leave request
-  static const String staffLeaveRequest = "/teacher/leaveRequest";
-  static const String studentLeaveLetter =
-      "/teacher/getStudentLeaveRequestsForClassTeacher";
-  static const String studentLeavePermission =
-      "/teacher/leaveRequestpermission";
-  static const String leaveRequestNotification =
-      "/teacher/getNavigationBarCounts";
-
   //notices
   static const String fetchLatestNotices = "/teacher/getLatestNotices";
   static const String fetchLatestNoticesGuardian = "/guardian/getLatestNotices";
@@ -120,9 +111,6 @@ class ApiEndpoints {
       "/guardian/getInternalMarkByStudentId";
   static const String studentExamMarksForParent =
       "/guardian/getExamMarkByStudentId";
-  static const String createStudentLeaveRequest = "/guardian/leaveRequest";
-  static const String getStudentLeaveRequest =
-      "/guardian/getLeaveRequestByStudentId";
   static const String achievementByGuardian =
       "/guardian/achievementByStudentId";
   static const String schoolsByGuardian = "/guardian/getSchoolsByUser";
@@ -209,4 +197,21 @@ class ApiEndpoints {
       "/guardian/updateHomeworkAssignment";
 
   // ************************* HOMEWORKS END*****************************
+
+  // ************************* LEAVE REQUESTS ***************************
+  static const String staffLeaveRequest = "/teacher/leaveRequest";
+  static const String studentLeaveLetter =
+      "/teacher/getStudentLeaveRequestsForClassTeacher";
+  static const String studentLeavePermission =
+      "/teacher/leaveRequestpermission";
+  static const String leaveRequestNotification =
+      "/teacher/getNavigationBarCounts";
+  static const String createStudentLeaveRequest = "/guardian/leaveRequest";
+  static const String getStudentLeaveRequest =
+      "/guardian/getLeaveRequestByStudentId";
+   static const String getLeaveTypesForTeacher =
+      "/teacher/getLeaveTypes";
+   static const String getLeaveTypesForGuardian =
+      "/guardian/getLeaveTypes";
+  // ************************* LEAVE REQUESTS END************************
 }

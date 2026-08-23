@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:acadobs/features/achievements/models/student_achievement_model.dart';
+import 'package:acadobs/shared/models/user_model.dart';
 
 AchievementModel achievementModelFromJson(String str) =>
     AchievementModel.fromJson(json.decode(str));
@@ -19,6 +20,7 @@ class AchievementModel {
   DateTime? createdAt;
   DateTime? updatedAt;
   List<StudentAchievementModel>? studentAchievements;
+  UserModel? user;
 
   AchievementModel({
     this.id,
@@ -34,6 +36,7 @@ class AchievementModel {
     this.createdAt,
     this.updatedAt,
     this.studentAchievements,
+    this.user,
   });
 
   factory AchievementModel.fromJson(
@@ -61,5 +64,6 @@ class AchievementModel {
                 (x) => StudentAchievementModel.fromJson(x),
               ),
             ),
+    user: json["User"] == null ? null : UserModel.fromJson(json["User"]),
   );
 }

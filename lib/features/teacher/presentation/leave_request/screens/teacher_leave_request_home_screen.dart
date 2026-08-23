@@ -15,7 +15,11 @@ import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class TeacherLeaveRequestHomeScreen extends StatefulWidget {
-  const TeacherLeaveRequestHomeScreen({super.key});
+  final bool forNonTeachingStaff;
+  const TeacherLeaveRequestHomeScreen({
+    super.key,
+    this.forNonTeachingStaff = false,
+  });
 
   @override
   State<TeacherLeaveRequestHomeScreen> createState() =>
@@ -56,7 +60,10 @@ class _TeacherLeaveRequestHomeScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "My Leave Requests", isBackButton: true),
+      appBar: CommonAppBar(
+        title: "My Leave Requests",
+        isBackButton: widget.forNonTeachingStaff == false,
+      ),
       body: RefreshIndicator(
         onRefresh: () async {
           await context

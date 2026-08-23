@@ -100,7 +100,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       return [
         () => TeacherHomeScreen(userType: userType),
         () => DutyHomeScreen(),
-        () => TeacherLeaveRequestHomeScreen(),
+        () => TeacherLeaveRequestHomeScreen(forNonTeachingStaff: true),
       ];
     }
 

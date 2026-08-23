@@ -15,6 +15,9 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
   bool _isLoadingTwo = false;
   bool get isLoadingTwo => _isLoadingTwo;
 
+  bool _isLoadingForLeaveTypes = false;
+  bool get isLoadingForLeaveTypes => _isLoadingForLeaveTypes;
+
   final List<LeaveModel> _leaveRequests = [];
   List<LeaveModel> get leaveRequests => _leaveRequests;
 
@@ -24,6 +27,31 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
   bool get hasMore => _currentPage < _totalPages;
 
   bool _isFetchedOnce = false;
+
+  List<String> _leaveTypes = [];
+  List<String> get leaveTypes => _leaveTypes;
+
+  bool _isFetchedOnceLeaveTypes = false;
+
+  // fetch leave types
+  Future<void> fetchLeaveTypes({required bool forStaff}) async {
+    if (_isFetchedOnceLeaveTypes) return;
+    _isLoadingForLeaveTypes = true;
+    try {
+      final response = await TeacherLeaveRequestServices().fetchLeaveTypes(
+        forStaff: forStaff,
+      );
+      if (response.statusCode == 200) {
+        _leaveTypes = List<String>.from(response.data ?? []);
+      }
+      _isFetchedOnceLeaveTypes = true;
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoadingForLeaveTypes = false;
+      notifyListeners();
+    }
+  }
 
   // Fetch Staff Duties
   Future<void> fetchAllLeaveRequests({
@@ -119,7 +147,6 @@ class TeacherLeaveRequestProvider extends ChangeNotifier {
         );
       }
     } catch (e) {
-      log(e.toString());
       notifyListeners();
     } finally {
       _isLoadingTwo = false;

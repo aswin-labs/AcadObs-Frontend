@@ -16,7 +16,6 @@ class TeacherAttendanceProvider extends ChangeNotifier {
   String _todayAttendanceStatus = '';
   String get todayAttendanceStatus => _todayAttendanceStatus;
 
-
   // get today attendance status
   Future<void> getTodayAttendanceStatus() async {
     _isLoading = true;
@@ -26,6 +25,7 @@ class TeacherAttendanceProvider extends ChangeNotifier {
     try {
       final response =
           await TeacherAttendanceServices().getTodayAttendanceStatus();
+      log("attendance status==========${response.data.toString()}");
 
       if (response.statusCode == 200) {
         _todayAttendanceStatus = response.data['status'] ?? 'Not Marked';
@@ -44,10 +44,13 @@ class TeacherAttendanceProvider extends ChangeNotifier {
     required BuildContext context,
     required String latitude,
     required String longitude,
+    bool showLoader = true,
   }) async {
     _isLoadingForChangeStatus = true;
 
-    PopupLoader.show(context, message: "Updating status...");
+    if (showLoader) {
+      PopupLoader.show(context, message: "Updating status...");
+    }
 
     notifyListeners();
 
@@ -118,7 +121,7 @@ class TeacherAttendanceProvider extends ChangeNotifier {
 
       log("Error sending location: $e");
     } finally {
-      if (context.mounted) {
+      if (showLoader && context.mounted) {
         PopupLoader.hide(context);
       }
 
@@ -132,10 +135,13 @@ class TeacherAttendanceProvider extends ChangeNotifier {
     required BuildContext context,
     required String latitude,
     required String longitude,
+    bool showLoader = true,
   }) async {
     _isLoadingForChangeStatus = true;
 
-    PopupLoader.show(context, message: "Updating status...");
+    if (showLoader) {
+      PopupLoader.show(context, message: "Updating status...");
+    }
 
     notifyListeners();
 
@@ -206,7 +212,7 @@ class TeacherAttendanceProvider extends ChangeNotifier {
 
       log("Error checking out attendance: $e");
     } finally {
-      if (context.mounted) {
+      if (showLoader && context.mounted) {
         PopupLoader.hide(context);
       }
 
