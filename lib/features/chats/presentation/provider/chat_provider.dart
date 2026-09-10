@@ -401,6 +401,7 @@ class ChatProvider with ChangeNotifier {
   bool _isFetchedOnce = false;
   bool _isLoadingStaffs = false;
   bool get isLoadingStaffs => _isLoadingStaffs;
+  String? _currentStaffQuery;
 
   Future<void> fetchStaffsUnderSchool({
     bool loadMore = false,
@@ -409,35 +410,43 @@ class ChatProvider with ChangeNotifier {
   }) async {
     if (_isLoadingStaffs) return;
 
+    if (loadMore && !hasMoreStaffs) return;
+
     if (!loadMore && !forceRefresh && _isFetchedOnce && query == null) return;
 
+    if (query != null) {
+      _currentStaffQuery = query;
+    } else if (!loadMore) {
+      _currentStaffQuery = null;
+    }
+
     _isLoadingStaffs = true;
+    notifyListeners();
 
     try {
-      if (loadMore) {
-        _currentPage++;
-      } else {
-        _currentPage = 1;
-        _staffs.clear();
-        _isFetchedOnce = false;
-      }
+      final targetPage = loadMore ? _currentPage + 1 : 1;
 
       final response = await ChatService().fetchStaffsUnderSchool(
-        pageNo: _currentPage,
-        query: query,
+        pageNo: targetPage,
+        query: _currentStaffQuery,
       );
 
       if (response.statusCode == 200) {
         final data = response.data;
-        _totalPages = data['totalPages'];
-        _currentPage = data['currentPage'];
-        final List staffsJson = data['staffs'];
+        _totalPages = data['totalPages'] ?? 1;
+        _currentPage = data['currentPage'] ?? targetPage;
+        final List staffsJson = data['staffs'] ?? [];
         final List<StaffModel> fetchedStaffs =
             staffsJson
                 .map((jsonItem) => StaffModel.fromJson(jsonItem))
                 .toList();
 
-        _staffs.addAll(fetchedStaffs);
+        if (loadMore) {
+          _staffs.addAll(fetchedStaffs);
+        } else {
+          _staffs.clear();
+          _staffs.addAll(fetchedStaffs);
+        }
         _isFetchedOnce = true;
       } else {
         throw Exception('Failed to fetch staff: ${response.statusCode}');

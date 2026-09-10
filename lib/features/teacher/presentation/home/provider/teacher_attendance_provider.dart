@@ -197,10 +197,6 @@ class TeacherAttendanceProvider extends ChangeNotifier {
           type: SnackbarType.failure,
         );
       }
-
-      log("Dio Error: ${e.message}");
-      log("Status Code: ${response?.statusCode}");
-      log("Response Data: ${response?.data}");
     } catch (e) {
       if (!context.mounted) return;
 

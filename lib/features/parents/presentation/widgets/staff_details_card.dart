@@ -1,4 +1,5 @@
 import 'package:acadobs/core/extensions/context_extensions.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 
@@ -47,10 +48,40 @@ class StaffDetailsCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: width * 0.1,
-            backgroundColor: Colors.blueGrey,
-            child: Icon(LucideIcons.user, size: 40, color: Colors.white),
+          Container(
+            width: width * 0.2,
+            height: width * 0.2,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.blueGrey,
+            ),
+            child: ClipOval(
+              child: profileImageUrl.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: profileImageUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => const Center(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => const Icon(
+                        LucideIcons.user,
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(
+                      LucideIcons.user,
+                      size: 40,
+                      color: Colors.white,
+                    ),
+            ),
           ),
           const SizedBox(height: 12),
           Text(

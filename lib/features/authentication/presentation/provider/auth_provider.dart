@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
+import 'package:acadobs/core/utils/popup_loader.dart';
 import 'package:acadobs/features/authentication/data/models/parent_school_model.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/data/services/auth_services.dart';
@@ -138,39 +139,61 @@ class AuthProvider with ChangeNotifier {
   // Logout
 
   Future<void> logout(BuildContext context) async {
+    _isLoading = true;
+    notifyListeners();
+
+    if (context.mounted) {
+      PopupLoader.show(context, message: "Logging out...");
+    }
+
+    await Future.delayed(const Duration(milliseconds: 100));
+
     try {
       final refreshToken = await _storageService.getRefreshToken();
+
       log("Logging out with refresh token: $refreshToken");
+
       if (refreshToken != null) {
         final response = await AuthServices().logout(
           refreshToken: refreshToken,
         );
+
         log("Logout Response: ${response.data}");
+
         if (response.statusCode == 200) {
           log("Logout successful");
+
           if (!context.mounted) return;
+
           CustomSnackbar.show(
             context,
             message: "Logout successful",
             type: SnackbarType.success,
           );
+
           context.read<TeacherAttendanceProvider>().resetAttendance();
-          context.pushReplacementNamed(RouteConstants.loginScreen);
-          notifyListeners();
+          context.goNamed(RouteConstants.loginScreen);
         } else {
           if (!context.mounted) return;
+
           CustomSnackbar.show(
             context,
             message: "Logout failed. Please try again later.",
             type: SnackbarType.failure,
           );
+
           log("Logout failed with status code: ${response.statusCode}");
         }
       }
     } catch (e) {
       log("Logout error: $e");
     } finally {
-      await clearSession();
+      if (context.mounted) {
+        PopupLoader.hide(context);
+      }
+
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -234,9 +257,10 @@ class AuthProvider with ChangeNotifier {
         if (response.statusCode == 200) {
           log("Guardian School Details Fetched Successfully: ${response.data}");
           final rawData = response.data;
-          final schoolData = (rawData != null && rawData['school'] != null)
-              ? Map<String, dynamic>.from(rawData['school'])
-              : Map<String, dynamic>.from(rawData ?? {});
+          final schoolData =
+              (rawData != null && rawData['school'] != null)
+                  ? Map<String, dynamic>.from(rawData['school'])
+                  : Map<String, dynamic>.from(rawData ?? {});
           _schoolDetails = schoolData;
           await _storageService.saveSchoolDetailsForParent(
             schoolData: _schoolDetails!,

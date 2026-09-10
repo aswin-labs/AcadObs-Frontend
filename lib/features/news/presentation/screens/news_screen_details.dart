@@ -5,6 +5,7 @@ import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/news/data/models/news_model.dart';
+import 'package:acadobs/features/news/presentation/widgets/news_image_viewer.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -97,6 +98,29 @@ class _NewsScreenDetailsState extends State<NewsScreenDetails> {
       );
     }
 
+    // 🔹 Build all image URLs once
+    final imageUrls =
+        images
+            .map(
+              (img) =>
+                  BaseUrls.media +
+                  MediaEndpoints.newsImages +
+                  (img.imageUrl ?? ''),
+            )
+            .toList();
+
+    void openViewer(int startIndex) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder:
+              (_) => NewsImageViewer(
+                imageUrls: imageUrls,
+                initialIndex: startIndex,
+              ),
+        ),
+      );
+    }
+
     // 🔹 Images available → show slider
     return SizedBox(
       height: 280,
@@ -109,25 +133,48 @@ class _NewsScreenDetailsState extends State<NewsScreenDetails> {
               setState(() => _currentIndex = index);
             },
             itemBuilder: (context, index) {
-              final imageUrl =
-                  BaseUrls.media +
-                  MediaEndpoints.newsImages +
-                  (images[index].imageUrl ?? '');
-              log("Image URL: $imageUrl"); // Log the image URL for debugging
+              final imageUrl = imageUrls[index];
+              log("Image URL: $imageUrl");
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    fit: BoxFit.cover,
-                    placeholder:
-                        (_, __) =>
-                            const Center(child: CircularProgressIndicator()),
-                    errorWidget:
-                        (_, __, ___) =>
-                            const Icon(Icons.broken_image, size: 50),
+                child: GestureDetector(
+                  onTap: () => openViewer(index),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.contain,
+                          placeholder:
+                              (_, __) => const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                          errorWidget:
+                              (_, __, ___) =>
+                                  const Icon(Icons.broken_image, size: 50),
+                        ),
+                        // Subtle tap hint icon in the top-right corner
+                        Positioned(
+                          top: 10,
+                          right: 10,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              color: Colors.black45,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.fullscreen,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -137,7 +184,7 @@ class _NewsScreenDetailsState extends State<NewsScreenDetails> {
           // 🔹 Dots only if >1 image
           if (images.length > 1)
             Positioned(
-              bottom: 20,
+              bottom: 12,
               left: 0,
               right: 0,
               child: Row(
@@ -215,7 +262,6 @@ class _NewsScreenDetailsState extends State<NewsScreenDetails> {
           ),
         ),
         SizedBox(height: 16),
-        
       ],
     );
   }

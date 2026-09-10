@@ -133,7 +133,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       context.read<AuthProvider>().logout(
                                         context,
                                       );
-                                      // context.go('/login');
                                     },
                                   ),
 

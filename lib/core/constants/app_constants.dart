@@ -22,8 +22,6 @@ class AppConstants {
     '12',
   ];
 
-  // periods
-  // static const List<String> periods = ['1', '2','3','4'];
 
   // attendance remarks
   static List<String> attendanceRemarks = [
@@ -31,16 +29,6 @@ class AppConstants {
     'Personal',
     'Official',
     'Other',
-  ];
-
-  // leave types
-  static List<String> leaveTypes = [
-    "Sick",
-    "Casual",
-    "Emergency",
-    "Vacation",
-    "Onduty",
-    "Other",
   ];
 
   // homework types

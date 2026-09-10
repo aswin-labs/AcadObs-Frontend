@@ -2,6 +2,7 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/events/data/models/event_model.dart';
+import 'package:acadobs/features/news/presentation/widgets/news_image_viewer.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -39,83 +40,113 @@ class EventDetailScreen extends StatelessWidget {
             // Enhanced Image Container with Gradient Overlay
             Stack(
               children: [
-                Container(
-                  width: double.infinity,
-                  height: 280,
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFFFFDFCE)..withAlpha(102),
-                        blurRadius: 20,
-                        spreadRadius: 0,
-                        offset: const Offset(0, 10),
+                GestureDetector(
+                  onTap: () {
+                    final imageUrl =
+                        BaseUrls.media +
+                        MediaEndpoints.eventImages +
+                        events.file.toString();
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => NewsImageViewer(imageUrls: [imageUrl]),
                       ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        CachedNetworkImage(
-                          imageUrl:
-                              BaseUrls.media +
-                              MediaEndpoints.eventImages +
-                              events.file.toString(),
-                          placeholder:
-                              (context, url) => Container(
-                                color: const Color(0xFFFFDFCE),
-                                child: const Center(
-                                  child: CircularProgressIndicator(
-                                    color: Color(0xFFC56F41),
-                                  ),
-                                ),
-                              ),
-                          errorWidget:
-                              (context, url, error) => Container(
-                                decoration: const BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Color(0xFFFFDFCE),
-                                      Color(0xFFFFCEB8),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                ),
-                                child: Center(
-                                  child: Container(
-                                    padding: const EdgeInsets.all(24),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withAlpha(77),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: const Icon(
-                                      Icons.event_outlined,
-                                      size: 70,
+                    );
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 280,
+                    margin: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFFFFDFCE)..withAlpha(102),
+                          blurRadius: 20,
+                          spreadRadius: 0,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          CachedNetworkImage(
+                            imageUrl:
+                                BaseUrls.media +
+                                MediaEndpoints.eventImages +
+                                events.file.toString(),
+                            placeholder:
+                                (context, url) => Container(
+                                  color: const Color(0xFFFFDFCE),
+                                  child: const Center(
+                                    child: CircularProgressIndicator(
                                       color: Color(0xFFC56F41),
                                     ),
                                   ),
                                 ),
+                            errorWidget:
+                                (context, url, error) => Container(
+                                  decoration: const BoxDecoration(
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Color(0xFFFFDFCE),
+                                        Color(0xFFFFCEB8),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Container(
+                                      padding: const EdgeInsets.all(24),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withAlpha(77),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.event_outlined,
+                                        size: 70,
+                                        color: Color(0xFFC56F41),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            fit: BoxFit.contain,
+                          ),
+                          // Subtle gradient overlay
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withAlpha(25),
+                                ],
                               ),
-                          fit: BoxFit.cover,
-                        ),
-                        // Subtle gradient overlay for better text readability
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withAlpha(25),
-                              ],
                             ),
                           ),
-                        ),
-                      ],
+                          // Fullscreen hint icon
+                          // Positioned(
+                          //   top: 10,
+                          //   right: 10,
+                          //   child: Container(
+                          //     padding: const EdgeInsets.all(5),
+                          //     decoration: BoxDecoration(
+                          //       color: Colors.black45,
+                          //       borderRadius: BorderRadius.circular(8),
+                          //     ),
+                          //     child: const Icon(
+                          //       Icons.fullscreen,
+                          //       color: Colors.white,
+                          //       size: 18,
+                          //     ),
+                          //   ),
+                          // ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
