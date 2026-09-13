@@ -1,5 +1,6 @@
 import 'package:acadobs/features/achievements/models/achievement_model.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/achievement_details_screen.dart';
+import 'package:acadobs/features/achievements/presentaion/screens/school_achievement_details_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/achievement_edit_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/achievement_listing_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/add_achievements_screen.dart';
@@ -294,6 +295,21 @@ List<GoRoute> staffRoutes = [
           state.extra as DetailScreenArgs? ??
           DetailScreenArgs.fromQueryParameters(state.uri.queryParameters);
       return AchievementDetailsScreen(
+        achievementId: args.id,
+        forStaff: args.forStaff,
+      );
+    },
+  ),
+
+  // school achievement detail screen (view-only, no edit/delete)
+  GoRoute(
+    path: '/schoolAchievementDetailsScreen',
+    name: RouteConstants.schoolAchievementDetailsScreen,
+    builder: (context, state) {
+      final args =
+          state.extra as DetailScreenArgs? ??
+          DetailScreenArgs.fromQueryParameters(state.uri.queryParameters);
+      return SchoolAchievementDetailsScreen(
         achievementId: args.id,
         forStaff: args.forStaff,
       );

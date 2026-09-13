@@ -84,22 +84,8 @@ class _StudentExamDetailScreenState extends State<StudentExamDetailScreen> {
                   itemCount: provider.studentMarks.length,
                   itemBuilder: (context, index) {
                     final studentMark = provider.studentMarks[index];
-                    return MarkCard(
-                      examtitle:
-                          studentMark.internalExam?.internalName ?? "N/A",
-                      subject:
-                          studentMark.internalExam?.subject?.subjectName ??
-                          "N/A",
-                      mark:
-                          studentMark.marksObtained != null &&
-                                  studentMark.marksObtained!.isNotEmpty
-                              ? double.parse(studentMark.marksObtained!)
-                              : 0.0,
-                      total:
-                          studentMark.internalExam?.maxMarks != null &&
-                                  studentMark.internalExam!.maxMarks.isNotEmpty
-                              ? double.parse(studentMark.internalExam!.maxMarks)
-                              : 0.0,
+                    return MarkCard.fromStudentMark(
+                      studentMark: studentMark,
                     );
                   },
                 );

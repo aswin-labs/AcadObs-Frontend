@@ -6,6 +6,9 @@ class StudentFeatureCard extends StatelessWidget {
   final VoidCallback? onTap;
   final Color? color;
   final int? notificationCount;
+  final double? height;
+  final double? width;
+
   const StudentFeatureCard({
     super.key,
     required this.icon,
@@ -13,6 +16,8 @@ class StudentFeatureCard extends StatelessWidget {
     this.onTap,
     this.color = Colors.black,
     this.notificationCount,
+    this.height,
+    this.width,
   });
 
   @override
@@ -20,25 +25,25 @@ class StudentFeatureCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 100,
-        height: 120,
-        padding: const EdgeInsets.all(12),
+        width: width,
+        height: height ?? 115,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-
           border: Border.all(color: Colors.grey.shade200),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Stack(
               clipBehavior: Clip.none,
               children: [
                 CircleAvatar(
-                  radius: 24,
+                  radius: 22,
                   backgroundColor: Colors.blue.withValues(alpha: 0.1),
-                  child: Icon(icon, color: color, size: 24),
+                  child: Icon(icon, color: color, size: 22),
                 ),
                 if ((notificationCount ?? 0) > 0)
                   Positioned(
@@ -70,17 +75,15 @@ class StudentFeatureCard extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 10),
-            Expanded(
-              child: Text(
-                title,
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],

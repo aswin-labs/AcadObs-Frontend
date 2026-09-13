@@ -51,10 +51,21 @@ List<GoRoute> parentRoutes = [
     path: '/routeProgress',
     name: RouteConstants.routeProgress,
     pageBuilder: (context, state) {
-      final int? routeId =
-          state.extra as int? ??
-          int.tryParse(state.uri.queryParameters['routeId'] ?? '');
-      if (routeId == null) {
+      int? routeId;
+      int? studentId;
+
+      if (state.extra is int) {
+        routeId = state.extra as int;
+      } else if (state.extra is Map) {
+        final map = state.extra as Map;
+        routeId = map['routeId'] as int?;
+        studentId = map['studentId'] as int?;
+      }
+
+      routeId ??= int.tryParse(state.uri.queryParameters['routeId'] ?? '');
+      studentId ??= int.tryParse(state.uri.queryParameters['studentId'] ?? '');
+
+      if (routeId == null && studentId == null) {
         return CustomTransitionPage(
           key: state.pageKey,
           child: buildRouteExtraFallback(context),
@@ -65,7 +76,7 @@ List<GoRoute> parentRoutes = [
       }
       return CustomTransitionPage(
         key: state.pageKey,
-        child: RouteProgressScreen(routeId: routeId),
+        child: RouteProgressScreen(routeId: routeId, studentId: studentId),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },

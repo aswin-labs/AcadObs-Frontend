@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
@@ -18,7 +16,7 @@ class AchievementService {
     required String awardingBody,
     required List<Map<String, dynamic>> students,
   }) async {
-    final formData = {
+    final data = {
       "title": title,
       "description": description,
       "category": category,
@@ -29,11 +27,9 @@ class AchievementService {
     };
 
     try {
-      log("FormData sent: $formData");
       final response = await ApiServices.post(
         ApiEndpoints.createAcheivement,
-        formData,
-        isFormData: true,
+        data,
       );
       return response;
     } catch (e) {
@@ -58,7 +54,7 @@ class AchievementService {
   //fetching achievements added by teacher
   Future<Response> fetchAchievementsAddedByTeacher({
     required int pageNo,
-     int? limit,
+    int? limit,
   }) async {
     final response = await ApiServices.get(
       '${ApiEndpoints.getAllAchievement}?page=$pageNo&limit=${AppConstants.paginationLimit}',

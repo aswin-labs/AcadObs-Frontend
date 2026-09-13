@@ -6,6 +6,7 @@ import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.
 import 'package:acadobs/features/students/presentation/widgets/mark_card.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class StudentExamScreen extends StatefulWidget {
@@ -88,8 +89,15 @@ class _StudentExamScreenState extends State<StudentExamScreen>
     super.dispose();
   }
 
-  Future<void> _refreshMarks() async {
+  Future<void> _refreshOtherMarks() async {
     await context.read<MarksProvider>().fetchStudentMarks(
+      studentId: widget.studentId,
+      forStaff: widget.forStaff,
+    );
+  }
+
+  Future<void> _refreshTermMarks() async {
+    await context.read<TermExamProvider>().fetchStudentTermExamMarks(
       studentId: widget.studentId,
       forStaff: widget.forStaff,
     );
@@ -107,7 +115,7 @@ class _StudentExamScreenState extends State<StudentExamScreen>
             child: Container(
               height: 48,
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 211, 206, 206),
+                color: const Color(0xFFE2E8F0),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: TabBar(
@@ -119,18 +127,39 @@ class _StudentExamScreenState extends State<StudentExamScreen>
                   borderRadius: BorderRadius.circular(10),
                 ),
                 labelColor: Colors.white,
-                unselectedLabelColor: Colors.black87,
+                unselectedLabelColor: const Color(0xFF475569),
                 labelStyle: const TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 15,
+                  fontSize: 14,
                 ),
                 unselectedLabelStyle: const TextStyle(
                   fontWeight: FontWeight.w500,
-                  fontSize: 15,
+                  fontSize: 14,
                 ),
-                overlayColor: WidgetStatePropertyAll(Colors.transparent),
+                overlayColor: const WidgetStatePropertyAll(Colors.transparent),
                 splashFactory: NoSplash.splashFactory,
-                tabs: const [Tab(text: 'Term Exams'), Tab(text: 'Other Marks')],
+                tabs: const [
+                  Tab(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(LucideIcons.award, size: 16),
+                        SizedBox(width: 7),
+                        Text('Term Exams'),
+                      ],
+                    ),
+                  ),
+                  Tab(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(LucideIcons.fileText, size: 16),
+                        SizedBox(width: 7),
+                        Text('Internal Marks'),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -140,11 +169,11 @@ class _StudentExamScreenState extends State<StudentExamScreen>
               children: [
                 _TermMarksTab(
                   scrollController: _termMarksScrollController,
-                  onRefresh: _refreshMarks,
+                  onRefresh: _refreshTermMarks,
                 ),
                 _OtherMarksTab(
                   scrollController: _otherMarksScrollController,
-                  onRefresh: _refreshMarks,
+                  onRefresh: _refreshOtherMarks,
                 ),
               ],
             ),
@@ -178,76 +207,50 @@ class _TermMarksTab extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Column(
                 children: [
-                  emptyScreen(
-                    message: 'Progress Card Coming Soon',
-                    heightMultiplier: 25,
+                  Consumer<TermExamProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.isLoadingStudentMarks &&
+                          provider.studentMarks.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: commonShimmerList(itemCount: 10),
+                        );
+                      }
+
+                      if (provider.studentMarks.isEmpty) {
+                        return emptyScreen(
+                          message: 'No Marks Found.',
+                          heightMultiplier: 25,
+                        );
+                      }
+                      return ListView.builder(
+                        padding: EdgeInsets.zero,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: provider.studentMarks.length,
+                        itemBuilder: (context, index) {
+                          final studentMark = provider.studentMarks[index];
+                          return MarkCard.fromStudentMark(
+                            studentMark: studentMark,
+                            isTermExam: true,
+                          );
+                        },
+                      );
+                    },
                   ),
-                  // Consumer<TermExamProvider>(
-                  //   builder: (context, provider, _) {
-                  //     if (provider.isLoadingStudentMarks &&
-                  //         provider.studentMarks.isEmpty) {
-                  //       return Padding(
-                  //         padding: const EdgeInsets.only(top: 16),
-                  //         child: commonShimmerList(itemCount: 10),
-                  //       );
-                  //     }
 
-                  //     if (provider.studentMarks.isEmpty) {
-                  //       return emptyScreen(
-                  //         message: 'No Marks Found.',
-                  //         heightMultiplier: 25,
-                  //       );
-                  //     }
-                  //     return ListView.builder(
-                  //       padding: EdgeInsets.zero,
-                  //       shrinkWrap: true,
-                  //       physics: NeverScrollableScrollPhysics(),
-                  //       itemCount: provider.studentMarks.length,
-                  //       itemBuilder: (context, index) {
-                  //         final studentMark = provider.studentMarks[index];
-                  //         final title =
-                  //             "${studentMark.internalExam?.termExam?.examName ?? ''} - ${studentMark.internalExam?.internalName} (${studentMark.internalExam?.termExam?.educationYear ?? ''}) ";
-                  //         return MarkCard(
-                  //           examtitle: title,
-                  //           subject:
-                  //               studentMark
-                  //                   .internalExam
-                  //                   ?.subject
-                  //                   ?.subjectName ??
-                  //               "N/A",
-                  //           mark:
-                  //               studentMark.marksObtained != null &&
-                  //                       studentMark.marksObtained!.isNotEmpty
-                  //                   ? double.parse(studentMark.marksObtained!)
-                  //                   : 0.0,
-                  //           total:
-                  //               studentMark.internalExam?.maxMarks != null &&
-                  //                       studentMark
-                  //                           .internalExam!
-                  //                           .maxMarks
-                  //                           .isNotEmpty
-                  //                   ? double.parse(
-                  //                     studentMark.internalExam!.maxMarks,
-                  //                   )
-                  //                   : 0.0,
-                  //         );
-                  //       },
-                  //     );
-                  //   },
-                  // ),
-
-                  // Consumer<TermExamProvider>(
-                  //   builder: (context, provider, _) {
-                  //     return provider.isLoadingStudentMarks &&
-                  //             provider.hasMoreStudentMarks
-                  //         ? const Padding(
-                  //           padding: EdgeInsets.symmetric(vertical: 16),
-                  //           child: Center(child: CircularProgressIndicator()),
-                  //         )
-                  //         : const SizedBox();
-                  //   },
-                  // ),
-                  // SizedBox(height: Responsive.height * 4),
+                  Consumer<TermExamProvider>(
+                    builder: (context, provider, _) {
+                      return provider.isLoadingStudentMarks &&
+                              provider.hasMoreStudentMarks
+                          ? const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                          : const SizedBox();
+                    },
+                  ),
+                  SizedBox(height: Responsive.height * 4),
                 ],
               ),
             ),
@@ -299,34 +302,13 @@ class _OtherMarksTab extends StatelessWidget {
                       return ListView.builder(
                         padding: EdgeInsets.zero,
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: provider.studentMarks.length,
                         itemBuilder: (context, index) {
                           final studentMark = provider.studentMarks[index];
-                          return MarkCard(
-                            examtitle:
-                                studentMark.internalExam?.internalName ?? "N/A",
-                            subject:
-                                studentMark
-                                    .internalExam
-                                    ?.subject
-                                    ?.subjectName ??
-                                "N/A",
-                            mark:
-                                studentMark.marksObtained != null &&
-                                        studentMark.marksObtained!.isNotEmpty
-                                    ? double.parse(studentMark.marksObtained!)
-                                    : 0.0,
-                            total:
-                                studentMark.internalExam?.maxMarks != null &&
-                                        studentMark
-                                            .internalExam!
-                                            .maxMarks
-                                            .isNotEmpty
-                                    ? double.parse(
-                                      studentMark.internalExam!.maxMarks,
-                                    )
-                                    : 0.0,
+                          return MarkCard.fromStudentMark(
+                            studentMark: studentMark,
+                            isTermExam: false,
                           );
                         },
                       );

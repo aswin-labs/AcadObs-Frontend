@@ -1,423 +1,441 @@
 import 'package:acadobs/core/utils/empty_screen.dart';
+import 'package:acadobs/features/tracking/data/models/today_transportation_model.dart';
 import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
+import 'package:acadobs/features/tracking/presentation/widgets/route_timeline_tile.dart';
+import 'package:acadobs/features/tracking/presentation/widgets/route_top_card.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class RouteProgressScreen extends StatefulWidget {
-  final int routeId;
-  const RouteProgressScreen({super.key, required this.routeId});
+  final int? routeId;
+  final int? studentId;
+
+  const RouteProgressScreen({super.key, this.routeId, this.studentId});
 
   @override
   State<RouteProgressScreen> createState() => _RouteProgressScreenState();
 }
 
 class _RouteProgressScreenState extends State<RouteProgressScreen> {
-  static const _gradientStart = Color(0xFF2563EB);
-  static const _gradientEnd = Color(0xFF1D4ED8);
-  static const _accentDone = Color(0xFF10B981);
+  int? _activeStudentId;
+
+  static const _navyPrimary = Color(0xFF1E3A8A);
+  static const _navyLight = Color(0xFF2563EB);
+  static const _slateText = Color(0xFF0F172A);
+  static const _slateMuted = Color(0xFF64748B);
 
   @override
   void initState() {
     super.initState();
+    _activeStudentId = widget.studentId;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      refreshData();
+      _initAndFetch();
     });
   }
 
+  Future<void> _initAndFetch() async {
+    final provider = context.read<StudentRouteProvider>();
+
+    if (_activeStudentId == null) {
+      if (provider.studentRoutes.isEmpty) {
+        await provider.getStudentRoutes();
+      }
+
+      if (widget.routeId != null) {
+        final match = provider.studentRoutes.where(
+          (s) => s.routes?.id == widget.routeId,
+        );
+        if (match.isNotEmpty) {
+          _activeStudentId = match.first.id;
+        }
+      }
+
+      if (_activeStudentId == null && provider.studentRoutes.isNotEmpty) {
+        _activeStudentId = provider.studentRoutes.first.id;
+      }
+    }
+
+    if (_activeStudentId != null) {
+      await provider.getTodayTransportationByStudentId(
+        studentId: _activeStudentId!,
+      );
+    }
+  }
+
   Future<void> refreshData() async {
-    await Future.wait([
-      context.read<StudentRouteProvider>().getStopsForParent(
-        routeId: widget.routeId,
-      ),
-    ]);
+    if (_activeStudentId != null) {
+      await context
+          .read<StudentRouteProvider>()
+          .getTodayTransportationByStudentId(studentId: _activeStudentId!);
+    } else {
+      await _initAndFetch();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F6FB),
-      appBar: CommonAppBar(
-        title: "Route In Progress",
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: const CommonAppBar(
+        title: "Live Route Tracker",
         isBackButton: true,
-        backgroundColor: _gradientStart,
+        backgroundColor: _navyPrimary,
         titleColor: Colors.white,
       ),
-      body: Column(
-        children: [
-          _buildTopCard(),
-          Expanded(
-            child: Consumer<StudentRouteProvider>(
-              builder: (context, provider, _) {
-                if (provider.isLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: _gradientEnd),
-                  );
-                }
-                if (provider.guardianStops.isEmpty) {
-                  return Center(
-                    child: emptyScreen(message: "No Stops Available"),
-                  );
-                }
-                final stops = provider.guardianStops;
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  itemCount: stops.length,
-                  itemBuilder: (context, index) {
-                    final stop = stops[index];
-                    return _buildStopTile(
-                      name: stop.stopName!,
-                      status: stop.arrived!,
-                      index: index,
-                      priority: stop.priority!,
-                      isLast: index == stops.length - 1,
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: CommonFloatingButton(
-        onPressed: refreshData,
-        icon: Icons.refresh,
-      ),
-    );
-  }
+      body: Consumer<StudentRouteProvider>(
+        builder: (context, provider, _) {
+          if (provider.isTransportationLoading &&
+              provider.todayTransportation == null) {
+            return const Center(
+              child: CircularProgressIndicator(color: _navyLight),
+            );
+          }
 
-  // ── Top Card ─────────────────────────────────────────────────────
-  Widget _buildTopCard() {
-    return Consumer<StudentRouteProvider>(
-      builder: (context, provider, _) {
-        final total = provider.guardianStops.length;
-        final arrived =
-            provider.guardianStops.where((s) => s.arrived == true).length;
+          if (provider.isRouteInactive &&
+              provider.todayTransportation == null) {
+            return _buildInactiveRouteState(
+              provider.transportationError ??
+                  "The transportation route is not active right now.",
+            );
+          }
 
-        return Container(
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [_gradientStart, _gradientEnd],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(28),
-              bottomRight: Radius.circular(28),
-            ),
-          ),
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // ── Driver Row ──
-              Row(
+          if (provider.transportationError != null &&
+              provider.todayTransportation == null) {
+            return _buildErrorState(provider.transportationError!);
+          }
+
+          final transportation = provider.todayTransportation;
+          if (transportation == null || transportation.stops.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    width: 52,
-                    height: 52,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(30),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withAlpha(60),
-                        width: 2,
+                  emptyScreen(message: "No route information available today"),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: refreshData,
+                    icon: const Icon(Icons.refresh, size: 18),
+                    label: const Text("Retry"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _navyPrimary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    child: const Icon(
-                      Icons.person_rounded,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Alex Johnson",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Live badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(25),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withAlpha(60)),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.circle, color: Color(0xFF4ADE80), size: 7),
-                        SizedBox(width: 5),
-                        Text(
-                          "LIVE",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+            );
+          }
 
-              // ── Stats Row ──
-              Row(
-                children: [
-                  _buildStatChip(
-                    icon: Icons.place_rounded,
-                    label: "$arrived/$total Stops",
+          final sortedStops = transportation.sortedStops;
+          final currentStudent = transportation.student;
+
+          // Latest arrived stop (current vehicle position)
+          TransportationStop? latestArrivedStop;
+          for (final stop in sortedStops) {
+            if (transportation.isStopArrived(stop.id)) {
+              latestArrivedStop = stop;
+            }
+          }
+
+          return Column(
+            children: [
+              // Subtle top progress bar when background refresh is active
+              if (provider.isTransportationLoading)
+                const LinearProgressIndicator(
+                  minHeight: 3,
+                  backgroundColor: Colors.transparent,
+                  valueColor: AlwaysStoppedAnimation<Color>(_navyLight),
+                ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: refreshData,
+                  color: _navyLight,
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+                    children: [
+                      // Top Route Summary Card
+                      RouteTopCard(
+                        transportation: transportation,
+                        latestArrivedStop: latestArrivedStop,
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Timeline Section Header
+                      _buildTimelineHeader(sortedStops.length),
+                      const SizedBox(height: 12),
+
+                      // "Where Is My Train" Style Continuous Track
+                      _buildTimeline(
+                        sortedStops: sortedStops,
+                        transportation: transportation,
+                        currentStudent: currentStudent,
+                        latestArrivedStop: latestArrivedStop,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  _buildStatChip(
-                    icon: Icons.directions_bus_rounded,
-                    label: "On Route",
-                  ),
-                ],
+                ),
               ),
-              const SizedBox(height: 16),
             ],
-          ),
-        );
-      },
+          );
+        },
+      ),
+      floatingActionButton: Consumer<StudentRouteProvider>(
+        builder: (context, provider, _) {
+          final isRefreshing = provider.isTransportationLoading;
+          return FloatingActionButton(
+            backgroundColor: Colors.black,
+            shape: const CircleBorder(),
+            elevation: 4,
+            onPressed: isRefreshing ? null : refreshData,
+            tooltip: isRefreshing ? "Refreshing..." : "Refresh Route",
+            child:
+                isRefreshing
+                    ? const SizedBox(
+                      width: 22,
+                      height: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                    : const Icon(
+                      Icons.refresh_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+          );
+        },
+      ),
     );
   }
 
-  Widget _buildStatChip({required IconData icon, required String label}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withAlpha(20),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withAlpha(40)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.white70, size: 14),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
+  Widget _buildTimelineHeader(int stopCount) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            const Icon(LucideIcons.route, size: 18, color: _navyPrimary),
+            const SizedBox(width: 8),
+            Text(
+              "Route Stops Timeline ($stopCount)",
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: _slateText,
+              ),
+            ),
+          ],
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEEF2F6),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Text(
+            "Priority Order",
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: _slateMuted,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  // ── Stop Tile ─────────────────────────────────────────────────────
-  Widget _buildStopTile({
-    required String name,
-    required int priority,
-    required bool status,
-    required int index,
-    required bool isLast,
+  Widget _buildTimeline({
+    required List<TransportationStop> sortedStops,
+    required TodayTransportationModel transportation,
+    required StudentTransportationInfo? currentStudent,
+    required TransportationStop? latestArrivedStop,
   }) {
-    final isDone = status;
-    final isCurrent =
-        !status &&
-        index ==
-            context.read<StudentRouteProvider>().guardianStops.indexWhere(
-              (s) => s.arrived == false,
-            );
+    return Column(
+      children: List.generate(sortedStops.length, (index) {
+        final stop = sortedStops[index];
+        final isArrived = transportation.isStopArrived(stop.id);
+        final isStudentStop = (currentStudent?.stopId == stop.id);
+        final isCurrentBusLocation = (latestArrivedStop?.id == stop.id);
+        final isFirst = (index == 0);
+        final isLast = (index == sortedStops.length - 1);
 
-    // Timeline dot color
-    final dotColor =
-        isDone
-            ? _accentDone
-            : isCurrent
-            ? _gradientEnd
-            : const Color(0xFFCBD5E1);
+        final prevArrived =
+            index > 0 &&
+            transportation.isStopArrived(sortedStops[index - 1].id);
+        final nextArrived =
+            !isLast && transportation.isStopArrived(sortedStops[index + 1].id);
 
-    // Timeline line color
-    final lineColor =
-        isDone ? _accentDone.withAlpha(120) : const Color(0xFFE2E8F0);
+        return RouteTimelineTile(
+          stop: stop,
+          index: index,
+          isArrived: isArrived,
+          isStudentStop: isStudentStop,
+          isCurrentBusLocation: isCurrentBusLocation,
+          isFirst: isFirst,
+          isLast: isLast,
+          prevArrived: prevArrived,
+          nextArrived: nextArrived,
+          transportation: transportation,
+          currentStudent: currentStudent,
+        );
+      }),
+    );
+  }
 
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+  Widget _buildInactiveRouteState(String message) {
+    return RefreshIndicator(
+      onRefresh: refreshData,
+      color: _navyLight,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
         children: [
-          // ── Timeline ──
-          SizedBox(
-            width: 32,
+          Center(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  width: 2,
-                  height: 16,
-                  color: index == 0 ? Colors.transparent : lineColor,
-                ),
-                Container(
-                  width: 14,
-                  height: 14,
+                  width: 76,
+                  height: 76,
                   decoration: BoxDecoration(
-                    color: dotColor,
+                    color: const Color(0xFFEEF2FF),
                     shape: BoxShape.circle,
-                    border:
-                        (!isDone && !isCurrent)
-                            ? Border.all(
-                              color: const Color(0xFFCBD5E1),
-                              width: 1.5,
-                            )
-                            : null,
-                    boxShadow:
-                        isCurrent
-                            ? [
-                              BoxShadow(
-                                color: _gradientEnd.withAlpha(100),
-                                blurRadius: 8,
-                                spreadRadius: 1,
-                              ),
-                            ]
-                            : [],
+                    border: Border.all(
+                      color: const Color(0xFFC7D2FE),
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF4F46E5).withAlpha(20),
+                        blurRadius: 16,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  child:
-                      isDone
-                          ? const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 9,
-                          )
-                          : null,
+                  child: const Icon(
+                    LucideIcons.bus,
+                    color: _navyPrimary,
+                    size: 36,
+                  ),
                 ),
-                if (!isLast)
-                  Expanded(child: Container(width: 2, color: lineColor)),
+                const SizedBox(height: 20),
+                const Text(
+                  "Route is Not Active Right Now",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: _slateText,
+                    letterSpacing: -0.3,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    color: _slateMuted,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: refreshData,
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: const Text(
+                    "Check Again",
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _navyPrimary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(width: 12),
+        ],
+      ),
+    );
+  }
 
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              decoration: BoxDecoration(
-                gradient:
-                    isCurrent
-                        ? const LinearGradient(
-                          colors: [_gradientStart, _gradientEnd],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
-                        : null,
-                color:
-                    isCurrent
-                        ? null
-                        : isDone
-                        ? const Color(0xFFF0FDF4)
-                        : Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color:
-                      isCurrent
-                          ? Colors.transparent
-                          : isDone
-                          ? const Color(0xFFBBF7D0)
-                          : const Color(0xFFE9EEF4),
+  Widget _buildErrorState(String message) {
+    return RefreshIndicator(
+      onRefresh: refreshData,
+      color: _navyLight,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
+        children: [
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEE2E2),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFFCA5A5)),
+                  ),
+                  child: const Icon(
+                    Icons.error_outline_rounded,
+                    color: Color(0xFFDC2626),
+                    size: 32,
+                  ),
                 ),
-                boxShadow:
-                    isCurrent
-                        ? [
-                          BoxShadow(
-                            color: _gradientEnd.withAlpha(60),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          ),
-                        ]
-                        : [],
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      name,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color:
-                            isCurrent
-                                ? Colors.white
-                                : isDone
-                                ? const Color(0xFF166534)
-                                : const Color(0xFFADB5C2),
-                      ),
-                    ),
+                const SizedBox(height: 16),
+                const Text(
+                  "Unable to Load Route",
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: _slateText,
                   ),
-                  if (isCurrent)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(30),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        "HERE",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 13, color: _slateMuted),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton.icon(
+                  onPressed: refreshData,
+                  icon: const Icon(Icons.refresh_rounded, size: 18),
+                  label: const Text("Retry"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _navyPrimary,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
                     ),
-                  const SizedBox(width: 8),
-                  Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color:
-                          isCurrent
-                              ? Colors.white.withAlpha(25)
-                              : isDone
-                              ? _accentDone.withAlpha(30)
-                              : const Color(0xFFF1F5F9),
-                      shape: BoxShape.circle,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Center(
-                      child: Text(
-                        "$priority",
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.bold,
-                          color:
-                              isCurrent
-                                  ? Colors.white
-                                  : isDone
-                                  ? _accentDone
-                                  : const Color(0xFFADB5C2),
-                        ),
-                      ),
-                    ),
+                    elevation: 0,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],

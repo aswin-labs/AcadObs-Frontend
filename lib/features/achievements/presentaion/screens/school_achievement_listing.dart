@@ -67,7 +67,7 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
         onRefresh: refreshAllData,
         child: Consumer<AchievementProvider>(
           builder: (context, provider, _) {
-            if (provider.isLoadingSchoolAll &&
+            if (provider.isLoadingSchoolAll ||
                 provider.schoolAchievementsAll.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -117,7 +117,7 @@ class _SchoolAchievementListingState extends State<SchoolAchievementListing> {
 
                   onTap: () {
                     context.pushNamed(
-                      RouteConstants.achievementDetailsScreen,
+                      RouteConstants.schoolAchievementDetailsScreen,
                       extra: DetailScreenArgs(
                         id: achievement.id ?? 0,
                         forStaff: widget.forStaff,
