@@ -54,22 +54,8 @@ class TermExamServices {
   }) async {
     final response = await ApiServices.get(
       forStaff
-          ? "${ApiEndpoints.studentMarks}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}"
-          : "${ApiEndpoints.studentMarksForParent}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}",
-    );
-    return response;
-  }
-
-  // fetch student term exam marks
-  Future<Response> fetchStudentTermMarks({
-    required int pageNo,
-    required int studentId,
-    required bool forStaff,
-  }) async {
-    final response = await ApiServices.get(
-      forStaff
-          ? "${ApiEndpoints.studentExamMarks}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}"
-          : "${ApiEndpoints.studentExamMarksForParent}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}",
+          ? "${ApiEndpoints.studentTermExamMarksForTeacher}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}"
+          : "${ApiEndpoints.studentTermExamMarksForGuardian}/$studentId?page=$pageNo&limit=${AppConstants.paginationLimit}",
     );
     return response;
   }

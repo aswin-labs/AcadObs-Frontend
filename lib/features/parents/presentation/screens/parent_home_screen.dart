@@ -10,6 +10,7 @@ import 'package:acadobs/features/parents/presentation/widgets/latest_award_secti
 import 'package:acadobs/features/parents/presentation/widgets/latest_events_section.dart';
 import 'package:acadobs/features/parents/presentation/widgets/latest_news_section.dart';
 import 'package:acadobs/features/parents/presentation/widgets/my_children_section.dart';
+import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/features/tracking/presentation/widgets/bus_route_section.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -19,6 +20,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ParentHomeScreen extends StatefulWidget {
   const ParentHomeScreen({super.key});
@@ -31,18 +33,20 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
   late ParentProvider parentProvider;
   late AchievementProvider achievementProvider;
   late AuthProvider authProvider;
+  late ProfileProvider profileProvider;
 
   @override
   void initState() {
     super.initState();
     parentProvider = context.read<ParentProvider>();
     authProvider = context.read<AuthProvider>();
+    profileProvider = context.read<ProfileProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       refreshAllData();
     });
   }
 
-  Future<void> refreshAllData({bool forceRefresh = false}) async {
+  Future<void> refreshAllData({bool forceRefresh = true}) async {
     await Future.wait([
       authProvider.fetchSchoolDetailsForGuardianBySchoolId(),
       parentProvider.fetchStudentsUnderParentBySchoolId(
@@ -58,6 +62,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
       ),
       context.read<StudentRouteProvider>().getStudentRoutes(),
       parentProvider.fetchSchoolDetailsForParent(),
+      profileProvider.fetchProfileGuardian(),
     ]);
   }
 
@@ -200,14 +205,46 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
 
                                   const SizedBox(height: 8),
 
-                                  Text(
-                                    "Hi, Parent",
-                                    style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
+                                  Consumer<ProfileProvider>(
+                                    builder: (context, provider, _) {
+                                      if (provider.isLoading) {
+                                        return Shimmer.fromColors(
+                                          baseColor: Colors.white.withAlpha(
+                                            120,
+                                          ),
+                                          highlightColor: Colors.white
+                                              .withAlpha(220),
+                                          child: Container(
+                                            height: 32,
+                                            width: 160,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                          ),
+                                        );
+                                      }
+
+                                      final name =
+                                          provider
+                                              .guardianProfile
+                                              ?.user
+                                              ?.name ??
+                                          '';
+
+                                      return Text(
+                                        name.isNotEmpty
+                                            ? "Hi, \n$name"
+                                            : "Hi, Parent",
+                                        style: const TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ],
                               ),
@@ -229,9 +266,7 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                           builder: (context, provider, _) {
                             final studentRoutes = provider.studentRoutes;
 
-                            bool hasRoutes =
-                                studentRoutes.isNotEmpty &&
-                                (studentRoutes[0].routes?.isNotEmpty ?? false);
+                            bool hasRoutes = studentRoutes.isNotEmpty;
 
                             if (provider.isLoading) {
                               return BusRouteSection();

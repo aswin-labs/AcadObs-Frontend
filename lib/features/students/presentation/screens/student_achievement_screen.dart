@@ -43,7 +43,11 @@ class _StudentAchievementScreenState extends State<StudentAchievementScreen> {
               _scrollController.position.maxScrollExtent - 200 &&
           !_provider.isLoadingStudent &&
           _provider.hasMoreStudent) {
-        refreshData();
+        _provider.fetchAchievementsByStudentId(
+          studentId: widget.studentId,
+          forStaff: widget.forStaff,
+          loadMore: true,
+        );
       }
     });
   }
@@ -66,83 +70,70 @@ class _StudentAchievementScreenState extends State<StudentAchievementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: 'Achievements', isBackButton: true),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              const SizedBox(height: 20),
-              Consumer<AchievementProvider>(
-                builder: (context, provider, _) {
-                  if (provider.isLoadingStudent &&
-                      provider.studentAchievements.isEmpty) {
-                    return commonShimmerList(itemCount: 10);
-                  }
+      body: RefreshIndicator(
+        onRefresh: refreshData,
+        child: Consumer<AchievementProvider>(
+          builder: (context, provider, _) {
+            if (provider.isLoadingStudent &&
+                provider.studentAchievements.isEmpty) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: commonShimmerList(itemCount: 10),
+              );
+            }
 
-                  if (provider.studentAchievements.isEmpty) {
-                    return emptyScreen(message: 'No Achievements Found.');
-                  }
+            if (provider.studentAchievements.isEmpty) {
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                children: [
+                  emptyScreen(message: 'No Achievements Found.'),
+                ],
+              );
+            }
 
-                  return RefreshIndicator(
-                    onRefresh: refreshData,
-                    child: Column(
-                      children: [
-                        SizedBox(height: 30),
-                        Expanded(
-                          child: ListView.builder(
-                            controller: _scrollController,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 55,
-                            ),
-                            physics: const AlwaysScrollableScrollPhysics(
-                              parent: BouncingScrollPhysics(),
-                            ),
-                            itemCount:
-                                provider.studentAchievements.length +
-                                (provider.hasMoreStudent ? 1 : 0),
-
-                            itemBuilder: (context, index) {
-                              if (index ==
-                                  provider.studentAchievements.length) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                );
-                              }
-
-                              final achievement =
-                                  provider.studentAchievements[index];
-
-                              return ItemCard(
-                                title:
-                                    achievement.achievement?.title ??
-                                    "Untitled",
-                                description:
-                                    achievement.achievement?.description ??
-                                    "No description",
-                                onTap: () {
-                                  context.pushNamed(
-                                    RouteConstants.achievementDetailsScreen,
-                                    extra: DetailScreenArgs(
-                                      id: achievement.achievement?.id ?? 0,
-                                      forStaff: widget.forStaff,
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+            return ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 20,
+              ),
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              itemCount:
+                  provider.studentAchievements.length +
+                  (provider.hasMoreStudent ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == provider.studentAchievements.length) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(
+                      child: CircularProgressIndicator(),
                     ),
                   );
-                },
-              ),
-            ],
-          ),
+                }
+
+                final achievement = provider.studentAchievements[index];
+
+                return ItemCard(
+                  title: achievement.achievement?.title ?? "Untitled",
+                  description:
+                      achievement.achievement?.description ?? "No description",
+                  onTap: () {
+                    context.pushNamed(
+                      RouteConstants.achievementDetailsScreen,
+                      extra: DetailScreenArgs(
+                        id: achievement.achievement?.id ?? 0,
+                        forStaff: widget.forStaff,
+                      ),
+                    );
+                  },
+                );
+              },
+            );
+          },
         ),
       ),
     );

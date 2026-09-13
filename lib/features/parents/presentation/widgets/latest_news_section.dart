@@ -7,7 +7,6 @@ import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/news/presentation/widgets/news_card.dart';
 import 'package:acadobs/routes/router_constants.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -32,19 +31,19 @@ class LatestNewsSection extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
-               Spacer(),
-            TextButton(
-              onPressed: () {
-                context.pushNamed(
-                  RouteConstants.newsDetailsScreen,
-                  extra: false,
-                );
-              },
-              child: Text("View", style: TextStyle(color: Colors.black)),
-            ),
+              Spacer(),
+              TextButton(
+                onPressed: () {
+                  context.pushNamed(
+                    RouteConstants.newsDetailsScreen,
+                    extra: false,
+                  );
+                },
+                child: Text("View", style: TextStyle(color: Colors.black)),
+              ),
             ],
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 6),
           Consumer<NewsProvider>(
             builder: (context, provider, _) {
               final news = provider.newsLatest;

@@ -118,18 +118,42 @@ class _HomeworksListingScreenState extends State<HomeworksListingScreen> {
                       ),
                     ),
                     SizedBox(height: Responsive.height * 1),
-                    ...grouped.homeworks!.map(
-                      (hw) => ItemCard(
+                    ...grouped.homeworks!.map((hw) {
+                      final isOnline = hw.type?.toLowerCase() == 'online';
+                      final isOffline = hw.type?.toLowerCase() == 'offline';
+
+                      final Color iconCol =
+                          isOnline
+                              ? const Color(0xFF1E8A44)
+                              : isOffline
+                              ? const Color(0xFFB06000)
+                              : const Color(0xFFB14F6F);
+
+                      final Color bgCol =
+                          isOnline
+                              ? const Color(0xFFCCF4DC)
+                              : isOffline
+                              ? const Color(0xFFFFE8C0)
+                              : const Color(0xFFFFCEDE);
+
+                      final String typeLabel =
+                          isOnline
+                              ? 'Online'
+                              : isOffline
+                              ? 'Offline'
+                              : '';
+
+                      return ItemCard(
                         title: hw.title ?? "",
                         description:
                             widget.homeworkParams.viewerType ==
                                     HomeworkViewerType.teacherView
                                 ? "Class: ${hw.classGrade?.classname ?? " "}"
                                 : "${hw.subject?.subjectName ?? "Subject Not Mentioned"} - ${hw.user?.name ?? " "}",
-                        iconColor: const Color(0xFFB14F6F),
-                        backgroundColor: const Color(0xFFFFCEDE),
+                        iconColor: iconCol,
+                        backgroundColor: bgCol,
                         icon: LucideIcons.clipboardList,
-
+                        status: typeLabel,
                         onTap: () {
                           context.pushNamed(
                             RouteConstants.homeworkDetailsScreen,
@@ -143,8 +167,8 @@ class _HomeworksListingScreenState extends State<HomeworksListingScreen> {
                             },
                           );
                         },
-                      ),
-                    ),
+                      );
+                    }),
                     SizedBox(height: Responsive.height * 2),
                   ],
                 );

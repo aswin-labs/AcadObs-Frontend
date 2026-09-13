@@ -67,7 +67,7 @@ class ApiEndpoints {
       "/teacher/getExamMarkByRecordedBy";
   static const String marksBulkUpdate = "/teacher/bulkUpdateMarks";
   static const String studentMarks = "/teacher/getInternalMarkByStudentId";
-  static const String studentExamMarks = "/teacher/getExamMarkByStudentId";
+  static const String studentTermExamMarksForTeacher = "/teacher/getTermExamByStudentId";
   static const String termExams = "/teacher/getExams";
   static const String myMultiTeacherSubjectInternalMarks =
       "/teacher/myMultiTeacherSubjectInternalMarks";
@@ -109,8 +109,7 @@ class ApiEndpoints {
       "/guardian/getHomeworkByStudentId";
   static const String studentMarksForParent =
       "/guardian/getInternalMarkByStudentId";
-  static const String studentExamMarksForParent =
-      "/guardian/getExamMarkByStudentId";
+static const String studentTermExamMarksForGuardian = "/guardian/getTermExamByStudentId";
   static const String achievementByGuardian =
       "/guardian/achievementByStudentId";
   static const String schoolsByGuardian = "/guardian/getSchoolsByUser";
@@ -145,6 +144,8 @@ class ApiEndpoints {
   static const String getRouteCount = "/guardian/getGuardianRouteCount";
   static const String routeInactive = "/guardian/routeInactive";
   static const String getStopsForParent = "/guardian/getStopsForParent";
+  static const String getTodayTransportationByStudentId =
+      "/guardian/getTodayTransportationByStudentId";
 
   // guardian homework details
   static const String getHomeworkAssignmentsById =

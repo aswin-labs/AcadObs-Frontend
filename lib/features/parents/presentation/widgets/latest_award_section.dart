@@ -73,7 +73,7 @@ class LatestAwardSection extends StatelessWidget {
                     ),
                     onTap: () {
                       context.pushNamed(
-                        RouteConstants.achievementDetailsScreen,
+                        RouteConstants.schoolAchievementDetailsScreen,
                         extra: DetailScreenArgs(
                           id: achievement.id ?? 0,
                           forStaff: false,

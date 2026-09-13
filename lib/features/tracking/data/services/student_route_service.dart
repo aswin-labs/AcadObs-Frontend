@@ -8,16 +8,25 @@ class StudentRouteService {
     return response;
   }
 
-  Future<Response> getRouteCount() async {
-    final response = await ApiServices.get(ApiEndpoints.getRouteCount);
-    return response;
-  }
-
-  //guardians sees arrived stops in routes
-  Future<Response> getStopsForParent({required int routeId}) async {
+  Future<Response> getTodayTransportationByStudentId({
+    required int studentId,
+  }) async {
     final response = await ApiServices.get(
-      '${ApiEndpoints.getStopsForParent}/$routeId',
+      '${ApiEndpoints.getTodayTransportationByStudentId}/$studentId',
     );
     return response;
   }
+
+  // Future<Response> getRouteCount() async {
+  //   final response = await ApiServices.get(ApiEndpoints.getRouteCount);
+  //   return response;
+  // }
+
+  // //guardians sees arrived stops in routes
+  // Future<Response> getStopsForParent({required int routeId}) async {
+  //   final response = await ApiServices.get(
+  //     '${ApiEndpoints.getStopsForParent}/$routeId',
+  //   );
+  //   return response;
+  // }
 }

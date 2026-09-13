@@ -21,6 +21,17 @@ class MarksModel {
   TermExam? termExam;
   bool? forStaff;
   UserModel? user;
+  int? examId;
+  int? schoolId;
+  int? classId;
+  int? subjectId;
+  int? recordedBy;
+  bool? trash;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+
+  bool get isTermExam => examId != null || termExam != null;
+  bool get isInternalExam => !isTermExam;
 
   MarksModel({
     required this.id,
@@ -34,13 +45,22 @@ class MarksModel {
     this.subject,
     this.termExam,
     this.user,
+    this.examId,
+    this.schoolId,
+    this.classId,
+    this.subjectId,
+    this.recordedBy,
+    this.trash,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory MarksModel.fromJson(Map<String, dynamic> json) => MarksModel(
-    id: json["id"],
-    internalName: json["internal_name"],
-    maxMarks: json["max_marks"],
-    date: json["date"] == null ? null : DateTime.parse(json["date"]),
+    id: json["id"] ?? 0,
+    internalName: json["internal_name"] ?? "",
+    term: json["term"],
+    maxMarks: json["max_marks"]?.toString() ?? "0",
+    date: json["date"] == null ? null : DateTime.tryParse(json["date"].toString()),
     studentMarks:
         json["Marks"] == null
             ? []
@@ -54,6 +74,20 @@ class MarksModel {
         json["Subject"] == null ? null : SubjectModel.fromJson(json["Subject"]),
     termExam: json["exam"] == null ? null : TermExam.fromJson(json["exam"]),
     user: json["User"] == null ? null : UserModel.fromJson(json["User"]),
+    examId: json["exam_id"],
+    schoolId: json["school_id"],
+    classId: json["class_id"],
+    subjectId: json["subject_id"],
+    recordedBy: json["recorded_by"],
+    trash: json["trash"],
+    createdAt:
+        json["createdAt"] == null
+            ? null
+            : DateTime.tryParse(json["createdAt"].toString()),
+    updatedAt:
+        json["updatedAt"] == null
+            ? null
+            : DateTime.tryParse(json["updatedAt"].toString()),
   );
 }
 

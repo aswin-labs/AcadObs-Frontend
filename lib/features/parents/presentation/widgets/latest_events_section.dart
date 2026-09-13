@@ -39,7 +39,7 @@ class LatestEventsSection extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 16),
+          SizedBox(height: 6),
           Consumer<EventProvider>(
             builder: (context, provider, _) {
               final events = provider.eventsLatest;

@@ -2,7 +2,7 @@ class StudentRouteModel {
   int? id;
   String? fullName;
   String? regNo;
-  List<Route>? routes;
+  RouteInfo? routes;
 
   StudentRouteModel({this.id, this.fullName, this.regNo, this.routes});
 
@@ -12,37 +12,50 @@ class StudentRouteModel {
         fullName: json["full_name"],
         regNo: json["reg_no"],
         routes:
-            json["routes"] == null
-                ? []
-                : List<Route>.from(
-                  json["routes"]!.map((x) => Route.fromJson(x)),
-                ),
+            json["routes"] == null ? null : RouteInfo.fromJson(json["routes"]),
       );
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "full_name": fullName,
-    "reg_no": regNo,
-    "routes":
-        routes == null
-            ? []
-            : List<dynamic>.from(routes!.map((x) => x.toJson())),
-  };
 }
 
-class Route {
+class RouteInfo {
   int? id;
   String? routeName;
-  String? type;
+  Vehicle? vehicle;
+  Driver? driver;
 
-  Route({this.id, this.routeName, this.type});
+  RouteInfo({this.id, this.routeName, this.vehicle, this.driver});
 
-  factory Route.fromJson(Map<String, dynamic> json) =>
-      Route(id: json["id"], routeName: json["route_name"], type: json["type"]);
-
-  Map<String, dynamic> toJson() => {
-    "id": id,
-    "route_name": routeName,
-    "type": type,
-  };
+  factory RouteInfo.fromJson(Map<String, dynamic> json) => RouteInfo(
+    id: json["id"],
+    routeName: json["route_name"],
+    vehicle:
+        json["vehicle"] == null ? null : Vehicle.fromJson(json["vehicle"]),
+    driver: json["driver"] == null ? null : Driver.fromJson(json["driver"]),
+  );
 }
+
+class Vehicle {
+  int? id;
+  String? vehicleNumber;
+  String? type;
+  String? photo;
+
+  Vehicle({this.id, this.vehicleNumber, this.type, this.photo});
+
+  factory Vehicle.fromJson(Map<String, dynamic> json) => Vehicle(
+    id: json["id"],
+    vehicleNumber: json["vehicle_number"],
+    type: json["type"],
+    photo: json["photo"],
+  );
+}
+
+class Driver {
+  int? id;
+  String? name;
+
+  Driver({this.id, this.name});
+
+  factory Driver.fromJson(Map<String, dynamic> json) =>
+      Driver(id: json["id"], name: json["name"]);
+}
+

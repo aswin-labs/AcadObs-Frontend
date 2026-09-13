@@ -1,181 +1,262 @@
-import 'package:acadobs/core/extensions/context_extensions.dart';
-import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class BusRouteCard extends StatefulWidget {
-  final String? studentName;
+class BusRouteCard extends StatelessWidget {
+  /// Names of all students sharing this route (1 or more).
+  final List<String> studentNames;
   final String routeName;
-  final String type;
+  final String vehicleType;
+  final String vehicleNumber;
+  final String driverName;
+
+  /// Remote URL for the vehicle photo. Falls back to a vehicle icon if null/empty.
+  final String? vehiclePhoto;
   final VoidCallback onTap;
-  final bool isLive;
 
   const BusRouteCard({
     super.key,
-    this.studentName,
+    required this.studentNames,
     required this.routeName,
-    required this.type,
     required this.onTap,
-    this.isLive = false,
+    this.vehicleType = '',
+    this.vehicleNumber = '',
+    this.driverName = '',
+    this.vehiclePhoto,
   });
 
-  @override
-  State<BusRouteCard> createState() => _BusRouteCardState();
-}
-
-class _BusRouteCardState extends State<BusRouteCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+  String _cleanDriverName(String name) {
+    if (name.trim().isEmpty) return '';
+    final stripped = name.trim().replaceFirst(
+      RegExp(r'^(driver|driver\s*name)\s*[:\-]?\s*', caseSensitive: false),
+      '',
     );
+    return capitalizeEachWord(stripped);
   }
 
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
+  String _formattedStudentNames(List<String> names) {
+    if (names.isEmpty) return '';
+    return names.map((n) => capitalizeEachWord(n.trim())).join(', ');
   }
-
-  bool get _isPickup => widget.type == "PICKUP";
-
-  // Pickup = green accent, Drop = indigo accent
-  Color get _accentColor =>
-      _isPickup
-          ? const Color.fromARGB(255, 34, 168, 83)
-          : const Color(0xFF4F46E5);
-
-  Color get _accentSoft =>
-      _isPickup ? const Color(0xFFDCFCE7) : const Color(0xFFEEF2FF);
 
   @override
   Widget build(BuildContext context) {
+    const accent = Color(0xFF00AEF0);
+    const borderSlate = Color(0xFFE2E8F0);
+    final cleanDriver = _cleanDriverName(driverName);
+    final formattedStudents = _formattedStudentNames(studentNames);
+
     return Padding(
-      padding: EdgeInsets.only(bottom: Responsive.height * 1.5),
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.withAlpha(31), width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(31),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              const SizedBox(width: 14),
-
-              // Bus icon
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: _accentSoft,
-                  borderRadius: BorderRadius.circular(12),
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: borderSlate, width: 1.2),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF0F172A).withAlpha(12),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-                child: Icon(
-                  Icons.directions_bus_rounded,
-                  color: _accentColor,
-                  size: 22,
-                ),
-              ),
-
-              const SizedBox(width: 12),
-
-              // Text info
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: Responsive.height * 1.6,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Student name or route as title
-                      Text(
-                        widget.studentName ?? widget.routeName,
-                        style: context.textTheme.titleSmall!.copyWith(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          letterSpacing: -0.2,
+              ],
+            ),
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // -- Header: Vehicle photo/icon, route name, vehicle badges, and track CTA --
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Vehicle photo / avatar
+                    Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFFE0F7FF), Color(0xFFBAE6FD)],
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFB9E6FE),
+                          width: 1,
+                        ),
                       ),
+                      clipBehavior: Clip.antiAlias,
+                      child:
+                          (vehiclePhoto != null &&
+                                  vehiclePhoto!.trim().isNotEmpty)
+                              ? Image.network(
+                                vehiclePhoto!,
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (_, __, ___) => const _VehicleAvatarIcon(),
+                              )
+                              : const _VehicleAvatarIcon(),
+                    ),
 
-                      const SizedBox(height: 4),
+                    const SizedBox(width: 12),
 
-                      // Route row
-                      Row(
+                    // Route Name & Vehicle tags
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.route_rounded,
-                            size: 12,
-                            color: Colors.grey.shade400,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              widget.studentName != null
-                                  ? widget.routeName
-                                  : widget.type,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade500,
-                                fontWeight: FontWeight.w400,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                          Text(
+                            routeName.trim().isNotEmpty
+                                ? routeName.trim()
+                                : "School Route",
+                            style: GoogleFonts.poppins(
+                              fontSize: 15.5,
+                              fontWeight: FontWeight.w600,
+                              color: const Color(0xFF0F172A),
+                              letterSpacing: -0.2,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 5),
+                          // Badges: Vehicle Type + Vehicle Registration Number
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              if (vehicleType.trim().isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 7,
+                                    vertical: 2.5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE0F2FE),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.directions_bus_rounded,
+                                        size: 11,
+                                        color: Color(0xFF0284C7),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        vehicleType.trim().toUpperCase(),
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 10.5,
+                                          fontWeight: FontWeight.w600,
+                                          color: const Color(0xFF0284C7),
+                                          letterSpacing: 0.4,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              if (vehicleNumber.trim().isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 7,
+                                    vertical: 2.5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF1F5F9),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(
+                                      color: const Color(0xFFE2E8F0),
+                                      width: 0.8,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    vehicleNumber.trim().toUpperCase(),
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: const Color(0xFF334155),
+                                      letterSpacing: 0.3,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Right side: live badge + type badge + chevron
-              Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (widget.isLive) ...[
-                      _LiveBadge(animation: _pulseAnimation),
-                      const SizedBox(width: 8),
-                    ],
-                    _TypeChip(
-                      isPickup: _isPickup,
-                      color: _accentColor,
-                      bg: _accentSoft,
                     ),
-                    const SizedBox(width: 6),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      size: 18,
-                      color: Colors.grey.shade300,
+
+                    const SizedBox(width: 8),
+
+                    // "Track" pill CTA
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: accent.withAlpha(20),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Track",
+                            style: GoogleFonts.poppins(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: accent,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 10,
+                            color: accent,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
+
+                // -- Subtle Divider -----------------------------------------
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Container(height: 1, color: const Color(0xFFF1F5F9)),
+                ),
+
+                // -- Recognizable Info: Driver & Student ---------------------
+                if (cleanDriver.isNotEmpty) ...[
+                  _EntityRow(
+                    badgeColor: const Color(0xFFFEF3C7),
+                    iconColor: const Color(0xFFD97706),
+                    icon: Icons.person_rounded,
+                    label: "Driver Name",
+                    value: cleanDriver,
+                  ),
+                ],
+
+                if (cleanDriver.isNotEmpty && formattedStudents.isNotEmpty)
+                  const SizedBox(height: 7),
+
+                if (formattedStudents.isNotEmpty) ...[
+                  _EntityRow(
+                    badgeColor: const Color(0xFFEEF2FF),
+                    iconColor: const Color(0xFF4F46E5),
+                    icon: Icons.school_rounded,
+                    label: studentNames.length > 1 ? "Students" : "Student",
+                    value: formattedStudents,
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),
@@ -183,104 +264,79 @@ class _BusRouteCardState extends State<BusRouteCard>
   }
 }
 
-// ─── Live Badge ────────────────────────────────────────────────────────────────
+// --- Private helper widgets --------------------------------------------------
 
-class _LiveBadge extends StatelessWidget {
-  final Animation<double> animation;
-  const _LiveBadge({required this.animation});
-
-  static const _green = Color(0xFF16A34A);
+class _VehicleAvatarIcon extends StatelessWidget {
+  const _VehicleAvatarIcon();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFDCFCE7),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Pulse dot
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: 14,
-                height: 14,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _green.withAlpha(31),
-                ),
-              ),
-              Container(
-                width: 7,
-                height: 7,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: _green,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 4),
-          const Text(
-            'Live',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: _green,
-              letterSpacing: 0.2,
-            ),
-          ),
-        ],
-      ),
+    return const Icon(
+      Icons.directions_bus_rounded,
+      color: Color(0xFF00AEF0),
+      size: 26,
     );
   }
 }
 
-// ─── Type Chip ─────────────────────────────────────────────────────────────────
+class _EntityRow extends StatelessWidget {
+  final Color badgeColor;
+  final Color iconColor;
+  final IconData icon;
+  final String label;
+  final String value;
 
-class _TypeChip extends StatelessWidget {
-  final bool isPickup;
-  final Color color;
-  final Color bg;
-
-  const _TypeChip({
-    required this.isPickup,
-    required this.color,
-    required this.bg,
+  const _EntityRow({
+    required this.badgeColor,
+    required this.iconColor,
+    required this.icon,
+    required this.label,
+    required this.value,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            isPickup ? Icons.south_rounded : Icons.north_rounded,
-            size: 11,
-            color: color,
+    return Row(
+      children: [
+        // Colored icon avatar badge
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: badgeColor,
+            borderRadius: BorderRadius.circular(6),
           ),
-          const SizedBox(width: 3),
-          Text(
-            isPickup ? 'Pickup' : 'Drop',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: color,
-              letterSpacing: 0.2,
+          child: Icon(icon, size: 13, color: iconColor),
+        ),
+        const SizedBox(width: 8),
+        // Distinct label & bold value using Text.rich with GoogleFonts.poppins
+        Expanded(
+          child: Text.rich(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: "$label: ",
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: const Color(0xFF64748B),
+                  ),
+                ),
+                TextSpan(
+                  text: value,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1E293B),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

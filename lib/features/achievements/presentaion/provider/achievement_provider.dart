@@ -281,6 +281,7 @@ class AchievementProvider extends ChangeNotifier {
     required bool forStaff,
   }) async {
     _isLoading = true;
+    singleAchievement = null; // clear stale cache before fetching
     notifyListeners();
 
     try {

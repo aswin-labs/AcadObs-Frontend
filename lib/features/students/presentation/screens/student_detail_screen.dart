@@ -39,8 +39,10 @@ class StudentDetailScreen extends StatefulWidget {
 
 class _StudentDetailScreenState extends State<StudentDetailScreen> {
   late StudentProvider studentProvider;
+
   @override
   void initState() {
+    super.initState();
     studentProvider = context.read<StudentProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       studentProvider.fetchStudentDetails(
@@ -48,8 +50,6 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         forStaff: widget.forStaff,
       );
     });
-
-    super.initState();
   }
 
   File? _selectedImage;
@@ -177,11 +177,10 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       builder: (context, provider, _) {
                         final student = provider.individualStudent;
 
-                        if (provider.isLoading) {
-                          return const Padding(
-                            padding: EdgeInsets.all(20),
-                            child: CommonShimmerTile(),
-                          );
+                        if (provider.isLoading ||
+                            student == null ||
+                            student.id != widget.studentId) {
+                          return CommonShimmerTile(height: 100);
                         }
 
                         return Container(
@@ -226,10 +225,10 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                                       ],
                                     ),
                                     child:
-                                        student?.image?.isNotEmpty == true
+                                        student.image?.isNotEmpty == true
                                             ? ClipOval(
                                               child: Image.network(
-                                                "${BaseUrls.media}${MediaEndpoints.studentDp}${student!.image}",
+                                                "${BaseUrls.media}${MediaEndpoints.studentDp}${student.image}",
                                                 fit: BoxFit.cover,
                                                 errorBuilder: (
                                                   context,
@@ -258,9 +257,9 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                                             )
                                             : Center(
                                               child: Text(
-                                                student?.fullName.isNotEmpty ==
+                                                student.fullName.isNotEmpty ==
                                                         true
-                                                    ? student!.fullName[0]
+                                                    ? student.fullName[0]
                                                         .toUpperCase()
                                                     : "S",
                                                 style: const TextStyle(
@@ -316,7 +315,9 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                                   children: [
                                     // Student Name
                                     Text(
-                                      student?.fullName ?? "Student Name",
+                                      student.fullName.isNotEmpty
+                                          ? student.fullName
+                                          : "Student Name",
                                       overflow: TextOverflow.ellipsis,
                                       maxLines: 3,
                                       style: const TextStyle(
@@ -329,7 +330,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                                     const SizedBox(height: 8),
 
                                     // Class Badge
-                                    if (student?.classGrade?.classname != null)
+                                    if (student.classGrade?.classname != null)
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 16,
@@ -347,7 +348,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                                           ),
                                         ),
                                         child: Text(
-                                          student!.classGrade!.classname,
+                                          student.classGrade!.classname,
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 13,
@@ -408,39 +409,25 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       );
                     },
                   ),
-                  widget.forStaff
-                      ? StudentFeatureCard(
-                        icon: Icons.assignment,
-                        color: Colors.brown,
-                        title: "Homework",
-                        onTap: () {
-                          final params = HomeworkParameters(
-                            viewerType: HomeworkViewerType.teacherStudentView,
-                            studentId: widget.studentId,
-                          );
-                          context.pushNamed(
-                            RouteConstants.homeworkLisitingScreen,
-                            extra: params,
-                            queryParameters: params.toQueryParameters(),
-                          );
-                        },
-                      )
-                      : StudentFeatureCard(
-                        icon: Icons.assignment,
-                        color: Colors.brown,
-                        title: "Homework",
-                        onTap: () {
-                          final params = HomeworkParameters(
-                            viewerType: HomeworkViewerType.guardianStudentView,
-                            studentId: widget.studentId,
-                          );
-                          context.pushNamed(
-                            RouteConstants.homeworkLisitingScreen,
-                            extra: params,
-                            queryParameters: params.toQueryParameters(),
-                          );
-                        },
-                      ),
+                  StudentFeatureCard(
+                    icon: Icons.assignment,
+                    color: Colors.brown,
+                    title: "Homework",
+                    onTap: () {
+                      final params = HomeworkParameters(
+                        viewerType:
+                            widget.forStaff
+                                ? HomeworkViewerType.teacherStudentView
+                                : HomeworkViewerType.guardianStudentView,
+                        studentId: widget.studentId,
+                      );
+                      context.pushNamed(
+                        RouteConstants.homeworkLisitingScreen,
+                        extra: params,
+                        queryParameters: params.toQueryParameters(),
+                      );
+                    },
+                  ),
                   StudentFeatureCard(
                     icon: Icons.emoji_events,
                     color: Colors.amber,
@@ -455,20 +442,21 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       );
                     },
                   ),
-                  StudentFeatureCard(
-                    icon: Icons.notifications,
-                    title: "Notice",
-                    color: Colors.amberAccent,
-                    onTap: () {
-                      context.pushNamed(
-                        RouteConstants.studentNoticeScreen,
-                        extra: StudentScreenArgs(
-                          studentId: widget.studentId,
-                          forStaff: widget.forStaff,
-                        ),
-                      );
-                    },
-                  ),
+                  if (!widget.forStaff)
+                    StudentFeatureCard(
+                      icon: Icons.notifications,
+                      title: "Notice",
+                      color: Colors.amberAccent,
+                      onTap: () {
+                        context.pushNamed(
+                          RouteConstants.studentNoticeScreen,
+                          extra: StudentScreenArgs(
+                            studentId: widget.studentId,
+                            forStaff: widget.forStaff,
+                          ),
+                        );
+                      },
+                    ),
                   StudentFeatureCard(
                     icon: Icons.description_outlined,
                     color: Colors.redAccent,
@@ -491,10 +479,14 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                         color: Colors.blueGrey,
                         title: "Profile",
                         onTap: () {
+                          if (student == null ||
+                              student.id != widget.studentId) {
+                            return;
+                          }
                           context.pushNamed(
                             RouteConstants.studentProfileScreen,
                             extra: StudentProfileArgs(
-                              student: student!,
+                              student: student,
                               forStaff: widget.forStaff,
                             ),
                           );

@@ -106,7 +106,11 @@ class StudentProvider extends ChangeNotifier {
     required int studentId,
     required bool forStaff,
   }) async {
+    if (_individualStudent?.id != studentId) {
+      _individualStudent = null;
+    }
     _isLoading = true;
+    notifyListeners();
 
     try {
       final response = await StudentServices().fetchStudentDetails(

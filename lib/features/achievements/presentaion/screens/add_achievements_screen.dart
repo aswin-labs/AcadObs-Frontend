@@ -85,9 +85,12 @@ class _AddAchievementsScreenState extends State<AddAchievementsScreen> {
       controller.dispose();
     }
 
-    // 👇 reset providers here
-    dropdownProvider.clearAllDropdowns(); // we'll define this method
-    studentProvider.deselectAllStudents();
+    // Defer provider resets to avoid calling notifyListeners() while the
+    // widget tree is locked (e.g. during Navigator.pop).
+    Future.microtask(() {
+      dropdownProvider.clearAllDropdowns();
+      studentProvider.deselectAllStudents();
+    });
 
     super.dispose();
   }
