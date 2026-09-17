@@ -100,7 +100,9 @@ class SelectableRankingCard extends StatelessWidget {
                       size: 28,
                     ),
                     onPressed: () {
-                      rankingProvider.updatePoint(studentId, index + 1);
+                      final newPoint =
+                          currentPoint == index + 1 ? 0 : index + 1;
+                      rankingProvider.updatePoint(studentId, newPoint);
                     },
                   );
                 }),

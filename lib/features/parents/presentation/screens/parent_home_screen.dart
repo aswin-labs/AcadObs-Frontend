@@ -279,14 +279,13 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                           },
                         ),
                         // Latest Events Section
-                        LatestEventsSection(),
+                        const LatestEventsSection(),
 
                         // Latest News Section
-                        LatestNewsSection(),
+                        const LatestNewsSection(),
 
-                        SizedBox(height: 15),
                         // latest Award section
-                        LatestAwardSection(),
+                        const LatestAwardSection(),
                       ],
                     ),
                   ),

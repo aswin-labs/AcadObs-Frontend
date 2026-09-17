@@ -22,6 +22,7 @@ import 'package:acadobs/features/teacher/presentation/home/widgets/notice_sectio
 import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_card.dart';
 import 'package:acadobs/features/timetables/data/models/timetable_type.dart';
 import 'package:acadobs/features/timetables/presentation/widgets/today_timetable_widget.dart';
+import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
@@ -418,6 +419,10 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                           authProvider.schoolDetails?["Class"];
                                       final leaveNotificationCount =
                                           leaveProvider.leaveNotificationCount;
+                                      final isCbse =
+                                          (authProvider
+                                                  .schoolDetails?["Syllabus"]["name"] ==
+                                              "CBSE");
 
                                       if (classData is! Map) {
                                         return const SizedBox.shrink();
@@ -427,6 +432,16 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                       final className =
                                           classData["classname"]?.toString() ??
                                           '';
+                                      final classYear = classData["year"];
+
+                                      final classGrade = ClassGradeModel(
+                                        id:
+                                            classId is int
+                                                ? classId
+                                                : int.parse(classId.toString()),
+                                        classname: className,
+                                        year: classYear,
+                                      );
 
                                       if (classId == null ||
                                           className.isEmpty) {
@@ -450,15 +465,19 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                             onTap: () {
                                               context.pushNamed(
                                                 RouteConstants.myClassesScreen,
-                                                extra: ClassGradeModel(
-                                                  id:
-                                                      classId is int
-                                                          ? classId
-                                                          : int.parse(
-                                                            classId.toString(),
-                                                          ),
-                                                  classname: className,
+                                                extra: MyClassesRouteArgs(
+                                                  classGrade: classGrade,
+                                                  isCbse: isCbse,
                                                 ),
+                                                //  ClassGradeModel(
+                                                // id:
+                                                //     classId is int
+                                                //         ? classId
+                                                //         : int.parse(
+                                                //           classId.toString(),
+                                                //         ),
+                                                // classname: className,
+                                                // ),
                                               );
                                             },
                                           ),
@@ -477,16 +496,42 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                               : SizedBox.shrink(),
 
                           // Updates Section
-                          _buildSectionHeader("Updates", null),
+                          Consumer3<
+                            NoticeProvider,
+                            EventProvider,
+                            NewsProvider
+                          >(
+                            builder: (
+                              context,
+                              noticeProv,
+                              eventProv,
+                              newsProv,
+                              _,
+                            ) {
+                              final hasNotices =
+                                  noticeProv.isLatestLoading ||
+                                  noticeProv.noticesLatest.isNotEmpty;
+                              final hasEvents =
+                                  eventProv.isLatestLoading ||
+                                  eventProv.eventsLatest.isNotEmpty;
+                              final hasNews =
+                                  newsProv.isLatestLoading ||
+                                  newsProv.newsLatest.isNotEmpty;
+
+                              if (!hasNotices && !hasEvents && !hasNews) {
+                                return const SizedBox.shrink();
+                              }
+                              return _buildSectionHeader("Updates", null);
+                            },
+                          ),
                           // Latest Notices
-                          NoticeSection(),
+                          const NoticeSection(),
                           // Latest Events
-                          EventSection(),
+                          const EventSection(),
                           // Latest News
-                          NewsSection(),
-                          const SizedBox(height: 20),
+                          const NewsSection(),
                           // Awards and Accomplishments
-                          AwardSection(),
+                          const AwardSection(),
                         ],
                       ),
                     ),

@@ -1,5 +1,4 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
-import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
@@ -14,61 +13,61 @@ class NoticeSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
+    return Consumer<NoticeProvider>(
+      builder: (context, provider, _) {
+        final notices = provider.noticesLatest;
+        final isLoading = provider.isLatestLoading && notices.isEmpty;
+
+        if (!provider.isLatestLoading && notices.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
           children: [
-            Text(
-              "Notices",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+            Row(
+              children: [
+                const Text(
+                  "Notices",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () {
+                    context.pushNamed(RouteConstants.noticeListscreen);
+                  },
+                  child: const Text("View", style: TextStyle(color: Colors.black)),
+                ),
+              ],
+            ),
+            if (isLoading)
+              commonShimmerList(itemCount: 3)
+            else
+              Column(
+                children:
+                    notices.map((notice) {
+                      final date =
+                          "${notice.createdAt.day.toString().padLeft(2, '0')}-${notice.createdAt.month.toString().padLeft(2, '0')}-${notice.createdAt.year}";
+                      return NoticeCard(
+                        title: capitalizeEachWord(notice.title ?? "N/A"),
+                        date: date,
+                        icon: Icons.notifications,
+                        time: TimeFormatter.formatTime(notice.createdAt),
+                        onTap: () {
+                          context.pushNamed(
+                            RouteConstants.noticedetails,
+                            extra: notice,
+                          );
+                        },
+                      );
+                    }).toList(),
               ),
-            ),
-            Spacer(),
-            TextButton(
-              onPressed: () {
-                context.pushNamed(RouteConstants.noticeListscreen);
-              },
-              child: Text("View", style: TextStyle(color: Colors.black)),
-            ),
+            const SizedBox(height: 20),
           ],
-        ),
-        Consumer<NoticeProvider>(
-          builder: (context, provider, _) {
-            final notices = provider.noticesLatest;
-            if (provider.isLatestLoading && notices.isEmpty) {
-              return commonShimmerList(itemCount: 3);
-            }
-            if (notices.isEmpty) {
-              return emptyScreen(
-                message: "No Notices Avaliable",
-                heightMultiplier: 5,
-              );
-            }
-            return Column(
-              children:
-                  notices.map((notice) {
-                    final date =
-                        "${notice.createdAt.day.toString().padLeft(2, '0')}-${notice.createdAt.month.toString().padLeft(2, '0')}-${notice.createdAt.year}";
-                    return NoticeCard(
-                      title: capitalizeEachWord(notice.title ?? "N/A"),
-                      date: date,
-                      icon: Icons.notifications,
-                      time: TimeFormatter.formatTime(notice.createdAt),
-                      onTap: () {
-                        context.pushNamed(
-                          RouteConstants.noticedetails,
-                          extra: notice,
-                        );
-                      },
-                    );
-                  }).toList(),
-            );
-          },
-        ),
-        const SizedBox(height: 20),
-      ],
+        );
+      },
     );
   }
 }

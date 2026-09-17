@@ -1,5 +1,4 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
-import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
@@ -15,78 +14,78 @@ class LatestAwardSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Column(
-        children: [
-          Row(
+    return Consumer<AchievementProvider>(
+      builder: (context, provider, _) {
+        final achievements = provider.schoolAchievementsLatest;
+        final isLoading = provider.isLatestLoading && achievements.isEmpty;
+
+        if (!provider.isLatestLoading && achievements.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Container(
+          margin: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Column(
             children: [
-              Icon(Icons.emoji_events, color: Color(0xFF00AEF0), size: 24),
-              SizedBox(width: 8),
-              Text(
-                "Awards",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.black87,
-                ),
-              ),
-              Spacer(),
-              TextButton(
-                onPressed: () {
-                  context.pushNamed(
-                    RouteConstants.schoolAchievements,
-                    extra: false,
-                  );
-                },
-                child: Text('View'),
-              ),
-            ],
-          ),
-
-          Consumer<AchievementProvider>(
-            builder: (context, provider, _) {
-              final achievements = provider.schoolAchievementsLatest;
-              if (provider.isLatestLoading) {
-                return commonShimmerList(itemCount: 3);
-              } else if (achievements.isEmpty) {
-                return emptyScreen(
-                  message: "No Awards Available",
-                  heightMultiplier: 5,
-                );
-              }
-
-              return ListView.builder(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                itemCount: achievements.length,
-                itemBuilder: (context, index) {
-                  final achievement = achievements[index];
-                  return NoticeCard(
-                    title: achievement.title ?? "",
-                    date: DateFormatter.formatDateTime(
-                      achievement.date ?? DateTime.now(),
+              Row(
+                children: [
+                  const Icon(Icons.emoji_events, color: Color(0xFF00AEF0), size: 24),
+                  const SizedBox(width: 8),
+                  const Text(
+                    "Awards",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.black87,
                     ),
-                    icon: Icons.workspace_premium,
-                    time: TimeFormatter.formatTime(
-                      achievement.createdAt ?? DateTime.now(),
-                    ),
-                    onTap: () {
+                  ),
+                  const Spacer(),
+                  TextButton(
+                    onPressed: () {
                       context.pushNamed(
-                        RouteConstants.schoolAchievementDetailsScreen,
-                        extra: DetailScreenArgs(
-                          id: achievement.id ?? 0,
-                          forStaff: false,
-                        ),
+                        RouteConstants.schoolAchievements,
+                        extra: false,
                       );
                     },
-                  );
-                },
-              );
-            },
+                    child: const Text('View'),
+                  ),
+                ],
+              ),
+              if (isLoading)
+                commonShimmerList(itemCount: 3)
+              else
+                ListView.builder(
+                  padding: EdgeInsets.zero,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: achievements.length,
+                  itemBuilder: (context, index) {
+                    final achievement = achievements[index];
+                    return NoticeCard(
+                      title: achievement.title ?? "",
+                      date: DateFormatter.formatDateTime(
+                        achievement.date ?? DateTime.now(),
+                      ),
+                      icon: Icons.workspace_premium,
+                      time: TimeFormatter.formatTime(
+                        achievement.createdAt ?? DateTime.now(),
+                      ),
+                      onTap: () {
+                        context.pushNamed(
+                          RouteConstants.schoolAchievementDetailsScreen,
+                          extra: DetailScreenArgs(
+                            id: achievement.id ?? 0,
+                            forStaff: false,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

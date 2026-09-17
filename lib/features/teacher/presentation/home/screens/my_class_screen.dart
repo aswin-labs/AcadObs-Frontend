@@ -19,7 +19,12 @@ import 'package:provider/provider.dart';
 
 class MyClassScreen extends StatefulWidget {
   final ClassGradeModel classGrade;
-  const MyClassScreen({super.key, required this.classGrade});
+  final bool isCbse;
+  const MyClassScreen({
+    super.key,
+    required this.classGrade,
+    required this.isCbse,
+  });
 
   @override
   State<MyClassScreen> createState() => _MyClassScreenState();
@@ -128,6 +133,7 @@ class _MyClassScreenState extends State<MyClassScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Text(widget.isCbse ? "CBSE" : "NOT CBSE"),
                             const Text(
                               'Class Teacher Of',
                               style: TextStyle(
@@ -265,6 +271,114 @@ class _MyClassScreenState extends State<MyClassScreen> {
                 ),
               ),
             ),
+            if (widget.isCbse &&
+                (widget.classGrade.year != null &&
+                    widget.classGrade.year! <= 2))
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 6,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6C5CE7), Color(0xFF4834D4)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF4834D4).withAlpha(45),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () {
+                          context.pushNamed(
+                            RouteConstants.competencyClassAssessmentScreen,
+                            extra: widget.classGrade,
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withAlpha(35),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  LucideIcons.award,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              const Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            'Competency Assessment',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 4),
+                                        Icon(
+                                          Icons.star_rounded,
+                                          color: Color(0xFFFFD54F),
+                                          size: 18,
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 2),
+                                    Text(
+                                      'Grade student competencies & indicators (1–4 ★)',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(
+                                LucideIcons.chevronRight,
+                                color: Colors.white70,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(20, 22, 20, 12),
               sliver: SliverToBoxAdapter(

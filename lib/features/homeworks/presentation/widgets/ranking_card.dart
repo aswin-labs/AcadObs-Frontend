@@ -100,8 +100,11 @@ class _RankingCardState extends State<RankingCard> {
                 Padding(
                   padding: const EdgeInsets.only(left: 12),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: List.generate(5, (index) {
                       return IconButton(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        constraints: const BoxConstraints(),
                         icon: Icon(
                           index < currentPoint ? Icons.star : Icons.star_border,
                           color:
@@ -110,13 +113,14 @@ class _RankingCardState extends State<RankingCard> {
                                   : Colors.grey.shade400,
                           size: 30,
                         ),
-                        onPressed:
-                            () {
-                                  rankingProvider.updatePoint(
-                                    widget.studentId,
-                                    index + 1,
-                                  );
-                                }
+                        onPressed: () {
+                          final newPoint =
+                              currentPoint == index + 1 ? 0 : index + 1;
+                          rankingProvider.updatePoint(
+                            widget.studentId,
+                            newPoint,
+                          );
+                        },
                       );
                     }),
                   ),
