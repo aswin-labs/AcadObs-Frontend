@@ -27,9 +27,7 @@ class _HomeworkRankingScreenState extends State<HomeworkRankingScreen> {
       for (var status in widget.homework.studentHomeworkStatus ?? []) {
         final id = status.student?.id;
         if (id != null) {
-          if (status.points != null) {
-            provider.updatePoint(id, status.points!);
-          }
+          provider.updatePoint(id, status.points ?? 0);
         }
       }
     });

@@ -81,6 +81,18 @@ class ApiEndpoints {
       "/teacher/createNewMarksByInternalId";
   static const String deleteMarkById = "/teacher/deleteMarkById";
 
+  // Competency Assessment
+  static const String getCompetencyAndIndicators =
+      "/teacher/getCompetencyAndIndicators";
+  static const String createStudentCompetencyAssessment =
+      "/teacher/createStudentCompetencyAssessment";
+  static const String getCompetencyAssessmentByStudentIdAndExamId =
+      "/teacher/getCompetencyAssessmentbyStudentIdandExamId";
+  static const String bulkUpdateCompetencyAssessment =
+      "/teacher/bulkUpdateCompetencyAssessmentbyStudentIdandExamId";
+  static const String deleteCompetencyAssessment =
+      "/teacher/deleteCompetencyAssessment";
+
   //Achievement
   static const String getAllAchievement = "/teacher/allAchievements";
   static const String deleteAchievement = "/teacher/achievements";

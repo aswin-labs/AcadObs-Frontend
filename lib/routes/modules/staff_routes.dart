@@ -1,9 +1,9 @@
 import 'package:acadobs/features/achievements/models/achievement_model.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/achievement_details_screen.dart';
-import 'package:acadobs/features/achievements/presentaion/screens/school_achievement_details_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/achievement_edit_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/achievement_listing_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/add_achievements_screen.dart';
+import 'package:acadobs/features/achievements/presentaion/screens/school_achievement_details_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/school_achievement_listing.dart';
 import 'package:acadobs/features/chats/presentation/screens/add_teacher_note_screen.dart';
 import 'package:acadobs/features/events/data/models/event_model.dart';
@@ -49,8 +49,11 @@ import 'package:acadobs/features/teacher/presentation/attendance/screens/attenda
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/edit_profile_staff.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/competency_class_assessment_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/student_competency_rating_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/my_class_marks_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/my_class_screen.dart';
+import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/leave_request_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/student_leaves_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/teacher_leave_request_home_screen.dart';
@@ -448,9 +451,11 @@ List<GoRoute> staffRoutes = [
     path: '/myClassesScreen',
     name: RouteConstants.myClassesScreen,
     builder: (context, state) {
-      if (state.extra == null) return buildRouteExtraFallback(context);
-      final ClassGradeModel classGrade = state.extra as ClassGradeModel;
-      return MyClassScreen(classGrade: classGrade);
+      if (state.extra == null) {
+        return buildRouteExtraFallback(context);
+      }
+      final args = state.extra as MyClassesRouteArgs;
+      return MyClassScreen(classGrade: args.classGrade, isCbse: args.isCbse);
     },
   ),
 
@@ -522,20 +527,45 @@ List<GoRoute> staffRoutes = [
       );
     },
   ),
-  
+
   // add missing students screen
   GoRoute(
-  path: '/addMissingStudentMarks',
-  name: RouteConstants.addMissingStudentMarks,
-  builder: (context, state) {
-    final params = state.extra as MissingStudentMarksParams;
+    path: '/addMissingStudentMarks',
+    name: RouteConstants.addMissingStudentMarks,
+    builder: (context, state) {
+      final params = state.extra as MissingStudentMarksParams;
 
-    return AddMissingStudentMarksScreen(
-      params: params,
-    );
-  },
-),
+      return AddMissingStudentMarksScreen(params: params);
+    },
+  ),
 
+  // Competency Class Assessment Screen
+  GoRoute(
+    path: '/competencyClassAssessmentScreen',
+    name: RouteConstants.competencyClassAssessmentScreen,
+    builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
+      final ClassGradeModel classGrade = state.extra as ClassGradeModel;
+      return CompetencyClassAssessmentScreen(classGrade: classGrade);
+    },
+  ),
+
+  // Student Competency Rating Screen
+  GoRoute(
+    path: '/studentCompetencyRatingScreen',
+    name: RouteConstants.studentCompetencyRatingScreen,
+    builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
+      final args = state.extra as StudentCompetencyRatingArgs;
+      return StudentCompetencyRatingScreen(
+        classGrade: args.classGrade,
+        students: args.students,
+        initialStudentIndex: args.initialStudentIndex,
+        examId: args.examId,
+        examName: args.examName,
+      );
+    },
+  ),
 ];
 
 class StudentDetailParameters {
@@ -575,5 +605,28 @@ class MissingStudentMarksParams {
     required this.classId,
     required this.totalMarks,
     required this.studentIds,
+  });
+}
+
+class MyClassesRouteArgs {
+  final ClassGradeModel classGrade;
+  final bool isCbse;
+
+  const MyClassesRouteArgs({required this.classGrade, required this.isCbse});
+}
+
+class StudentCompetencyRatingArgs {
+  final ClassGradeModel classGrade;
+  final List<StudentModel> students;
+  final int initialStudentIndex;
+  final int examId;
+  final String examName;
+
+  const StudentCompetencyRatingArgs({
+    required this.classGrade,
+    required this.students,
+    required this.initialStudentIndex,
+    required this.examId,
+    required this.examName,
   });
 }

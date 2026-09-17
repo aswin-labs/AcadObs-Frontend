@@ -1,5 +1,4 @@
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
-import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/time_formatter.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/events/presentation/widgets/event_card.dart';
@@ -13,63 +12,59 @@ class EventSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Row(
+    return Consumer<EventProvider>(
+      builder: (context, provider, _) {
+        final events = provider.eventsLatest;
+        final isLoading = provider.isLatestLoading && events.isEmpty;
+
+        if (!provider.isLatestLoading && events.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Column(
           children: [
-            Text(
-              "Events",
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
+            Row(
+              children: [
+                const Text(
+                  "Events",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const Spacer(),
+                TextButton(
+                  onPressed: () {
+                    context.pushNamed(RouteConstants.eventListscreen, extra: true);
+                  },
+                  child: const Text("View", style: TextStyle(color: Colors.black)),
+                ),
+              ],
+            ),
+            if (isLoading)
+              commonShimmerList(height: 100, itemCount: 3)
+            else
+              Column(
+                children:
+                    events.map((event) {
+                      return EventCard(
+                        event: event,
+                        onViewTap: () {
+                          context.pushNamed(
+                            RouteConstants.eventlistdetails,
+                            extra: event,
+                          );
+                        },
+                        time: TimeFormatter.formatTime(
+                          event.createdAt ?? DateTime.now(),
+                        ),
+                      );
+                    }).toList(),
               ),
-            ),
-            Spacer(),
-            TextButton(
-              onPressed: () {
-                context.pushNamed(RouteConstants.eventListscreen, extra: true);
-              },
-              child: Text("View", style: TextStyle(color: Colors.black)),
-            ),
+            const SizedBox(height: 20),
           ],
-        ),
-
-        //listing latest events
-        Consumer<EventProvider>(
-          builder: (context, provider, _) {
-            final events = provider.eventsLatest;
-            if (provider.isLatestLoading && events.isEmpty) {
-              return commonShimmerList(height: 100, itemCount: 3);
-            } else if (events.isEmpty) {
-              return emptyScreen(
-                message: "No Events Avaliable",
-                heightMultiplier: 5,
-              );
-            }
-
-            return Column(
-              children:
-                  events.map((events) {
-                    return EventCard(
-                      event: events,
-
-                      onViewTap: () {
-                        context.pushNamed(
-                          RouteConstants.eventlistdetails,
-                          extra: events,
-                        );
-                      },
-                      time: TimeFormatter.formatTime(
-                        events.createdAt ?? DateTime.now(),
-                      ),
-                    );
-                  }).toList(),
-            );
-          },
-        ),
-
-        const SizedBox(height: 20),
-      ],
+        );
+      },
     );
   }
 }

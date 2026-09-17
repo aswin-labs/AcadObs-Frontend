@@ -10,6 +10,7 @@ import 'package:acadobs/features/students/presentation/provider/student_provider
 import 'package:acadobs/features/students/presentation/widgets/student_attendence_tab.dart';
 import 'package:acadobs/features/students/presentation/widgets/student_feature_card.dart';
 import 'package:acadobs/features/timetables/data/models/timetable_type.dart';
+import 'package:acadobs/features/timetables/presentation/provider/timetables_provider.dart';
 import 'package:acadobs/features/timetables/presentation/widgets/today_timetable_widget.dart';
 import 'package:acadobs/routes/modules/common_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -50,6 +51,32 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         forStaff: widget.forStaff,
       );
     });
+  }
+
+  Future<void> _onRefresh() async {
+    final futures = <Future>[
+      studentProvider.fetchStudentDetails(
+        studentId: widget.studentId,
+        forStaff: widget.forStaff,
+      ),
+      studentProvider.fetchAttendanceByDate(
+        studentId: widget.studentId,
+        date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
+        forStaff: widget.forStaff,
+      ),
+    ];
+
+    if (!widget.forStaff) {
+      futures.add(
+        context.read<TimetablesProvider>().fetchTodayTimetable(
+          type: TimetableType.student,
+          studentId: widget.studentId,
+          forceRefresh: true,
+        ),
+      );
+    }
+
+    await Future.wait(futures);
   }
 
   File? _selectedImage;
@@ -164,292 +191,254 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: 'Student Profile', isBackButton: true),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(
-            children: [
-              SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: Consumer<StudentProvider>(
-                      builder: (context, provider, _) {
-                        final student = provider.individualStudent;
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Consumer<StudentProvider>(
+                        builder: (context, provider, _) {
+                          final student = provider.individualStudent;
 
-                        if (provider.isLoading ||
-                            student == null ||
-                            student.id != widget.studentId) {
-                          return CommonShimmerTile(height: 100);
-                        }
+                          if (provider.isLoading ||
+                              student == null ||
+                              student.id != widget.studentId) {
+                            return CommonShimmerTile(height: 100);
+                          }
 
-                        return Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withAlpha(9),
-                                blurRadius: 10,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Stack(
-                                children: [
-                                  Container(
-                                    width: 75,
-                                    height: 75,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color(0xFF35C2C1),
-                                          Color(0xFF00AEF0),
-                                        ],
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                      ),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: const Color(
-                                            0xFF35C2C1,
-                                          ).withAlpha(68),
-                                          blurRadius: 12,
-                                          offset: const Offset(0, 4),
-                                        ),
-                                      ],
-                                    ),
-                                    child:
-                                        student.image?.isNotEmpty == true
-                                            ? ClipOval(
-                                              child: Image.network(
-                                                "${BaseUrls.media}${MediaEndpoints.studentDp}${student.image}",
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (
-                                                  context,
-                                                  error,
-                                                  stackTrace,
-                                                ) {
-                                                  return Center(
-                                                    child: Text(
-                                                      student
-                                                                  .fullName
-                                                                  .isNotEmpty ==
-                                                              true
-                                                          ? student.fullName[0]
-                                                              .toUpperCase()
-                                                          : "S",
-                                                      style: const TextStyle(
-                                                        fontSize: 40,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Colors.white,
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            )
-                                            : Center(
-                                              child: Text(
-                                                student.fullName.isNotEmpty ==
-                                                        true
-                                                    ? student.fullName[0]
-                                                        .toUpperCase()
-                                                    : "S",
-                                                style: const TextStyle(
-                                                  fontSize: 40,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                  ),
-
-                                  if (!widget.forStaff) ...[
-                                    Positioned(
-                                      bottom: 0,
-                                      right: 0,
-                                      child: GestureDetector(
-                                        onTap: _showPickOptions,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                Theme.of(context).primaryColor,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 3,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withAlpha(
-                                                  45,
-                                                ),
-                                                blurRadius: 8,
-                                                offset: const Offset(0, 4),
-                                              ),
-                                            ],
-                                          ),
-                                          child: const Icon(
-                                            Icons.camera_alt,
-                                            color: Colors.white,
-                                            size: 10,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                          return Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withAlpha(9),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                Stack(
                                   children: [
-                                    // Student Name
-                                    Text(
-                                      student.fullName.isNotEmpty
-                                          ? student.fullName
-                                          : "Student Name",
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 3,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
+                                    Container(
+                                      width: 75,
+                                      height: 75,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF35C2C1),
+                                            Color(0xFF00AEF0),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: const Color(
+                                              0xFF35C2C1,
+                                            ).withAlpha(68),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ],
                                       ),
+                                      child:
+                                          student.image?.isNotEmpty == true
+                                              ? ClipOval(
+                                                child: Image.network(
+                                                  "${BaseUrls.media}${MediaEndpoints.studentDp}${student.image}",
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (
+                                                    context,
+                                                    error,
+                                                    stackTrace,
+                                                  ) {
+                                                    return Center(
+                                                      child: Text(
+                                                        student
+                                                                    .fullName
+                                                                    .isNotEmpty ==
+                                                                true
+                                                            ? student
+                                                                .fullName[0]
+                                                                .toUpperCase()
+                                                            : "S",
+                                                        style: const TextStyle(
+                                                          fontSize: 40,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                              )
+                                              : Center(
+                                                child: Text(
+                                                  student.fullName.isNotEmpty ==
+                                                          true
+                                                      ? student.fullName[0]
+                                                          .toUpperCase()
+                                                      : "S",
+                                                  style: const TextStyle(
+                                                    fontSize: 40,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                              ),
                                     ),
 
-                                    const SizedBox(height: 8),
-
-                                    // Class Badge
-                                    if (student.classGrade?.classname != null)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Color(0xFF35C2C1),
-                                              Color(0xFF00AEF0),
-                                            ],
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          student.classGrade!.classname,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
+                                    if (!widget.forStaff) ...[
+                                      Positioned(
+                                        bottom: 0,
+                                        right: 0,
+                                        child: GestureDetector(
+                                          onTap: _showPickOptions,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).primaryColor,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 3,
+                                              ),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black.withAlpha(
+                                                    45,
+                                                  ),
+                                                  blurRadius: 8,
+                                                  offset: const Offset(0, 4),
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.camera_alt,
+                                              color: Colors.white,
+                                              size: 10,
+                                            ),
                                           ),
                                         ),
                                       ),
+                                    ],
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Student Name
+                                      Text(
+                                        student.fullName.isNotEmpty
+                                            ? student.fullName
+                                            : "Student Name",
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 3,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 8),
+
+                                      // Class Badge
+                                      if (student.classGrade?.classname != null)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFF35C2C1),
+                                                Color(0xFF00AEF0),
+                                              ],
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            student.classGrade!.classname,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Attendance',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 10),
 
-              StudentAttendenceTab(
-                studentId: widget.studentId,
-                date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
-                forStaff: widget.forStaff,
-              ),
+                const SizedBox(height: 20),
 
-              const SizedBox(height: 10),
-              GridView.count(
-                padding: EdgeInsets.zero,
-                crossAxisCount: MediaQuery.of(context).size.width > 600 ? 4 : 3,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 0.95,
-                children: [
-                  StudentFeatureCard(
-                    icon: Icons.edit_note,
-                    title: "Exam",
-                    color: Colors.green,
-                    onTap: () {
-                      context.pushNamed(
-                        RouteConstants.studentExamScreen,
-                        extra: StudentScreenArgs(
-                          studentId: widget.studentId,
-                          forStaff: widget.forStaff,
-                        ),
-                      );
-                    },
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Attendance',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                   ),
-                  StudentFeatureCard(
-                    icon: Icons.assignment,
-                    color: Colors.brown,
-                    title: "Homework",
-                    onTap: () {
-                      final params = HomeworkParameters(
-                        viewerType:
-                            widget.forStaff
-                                ? HomeworkViewerType.teacherStudentView
-                                : HomeworkViewerType.guardianStudentView,
-                        studentId: widget.studentId,
-                      );
-                      context.pushNamed(
-                        RouteConstants.homeworkLisitingScreen,
-                        extra: params,
-                        queryParameters: params.toQueryParameters(),
-                      );
-                    },
-                  ),
-                  StudentFeatureCard(
-                    icon: Icons.emoji_events,
-                    color: Colors.amber,
-                    title: "Awards",
-                    onTap: () {
-                      context.pushNamed(
-                        RouteConstants.studentAchievementScreen,
-                        extra: StudentScreenArgs(
-                          studentId: widget.studentId,
-                          forStaff: widget.forStaff,
-                        ),
-                      );
-                    },
-                  ),
-                  if (!widget.forStaff)
+                ),
+                const SizedBox(height: 10),
+
+                StudentAttendenceTab(
+                  studentId: widget.studentId,
+                  date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
+                  forStaff: widget.forStaff,
+                ),
+
+                const SizedBox(height: 10),
+                GridView.count(
+                  padding: EdgeInsets.zero,
+                  crossAxisCount:
+                      MediaQuery.of(context).size.width > 600 ? 4 : 3,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.95,
+                  children: [
                     StudentFeatureCard(
-                      icon: Icons.notifications,
-                      title: "Notice",
-                      color: Colors.amberAccent,
+                      icon: Icons.edit_note,
+                      title: "Exam",
+                      color: Colors.green,
                       onTap: () {
                         context.pushNamed(
-                          RouteConstants.studentNoticeScreen,
+                          RouteConstants.studentExamScreen,
                           extra: StudentScreenArgs(
                             studentId: widget.studentId,
                             forStaff: widget.forStaff,
@@ -457,56 +446,105 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                         );
                       },
                     ),
-                  StudentFeatureCard(
-                    icon: Icons.description_outlined,
-                    color: Colors.redAccent,
-                    title: "Leaves",
-                    onTap: () {
-                      context.pushNamed(
-                        RouteConstants.studentLeaveScreen,
-                        extra: StudentScreenArgs(
+                    StudentFeatureCard(
+                      icon: Icons.assignment,
+                      color: Colors.brown,
+                      title: "Homework",
+                      onTap: () {
+                        final params = HomeworkParameters(
+                          viewerType:
+                              widget.forStaff
+                                  ? HomeworkViewerType.teacherStudentView
+                                  : HomeworkViewerType.guardianStudentView,
                           studentId: widget.studentId,
-                          forStaff: widget.forStaff,
-                        ),
-                      );
-                    },
-                  ),
-                  Consumer<StudentProvider>(
-                    builder: (context, provider, _) {
-                      final student = provider.individualStudent;
-                      return StudentFeatureCard(
-                        icon: Icons.person,
-                        color: Colors.blueGrey,
-                        title: "Profile",
+                        );
+                        context.pushNamed(
+                          RouteConstants.homeworkLisitingScreen,
+                          extra: params,
+                          queryParameters: params.toQueryParameters(),
+                        );
+                      },
+                    ),
+                    StudentFeatureCard(
+                      icon: Icons.emoji_events,
+                      color: Colors.amber,
+                      title: "Awards",
+                      onTap: () {
+                        context.pushNamed(
+                          RouteConstants.studentAchievementScreen,
+                          extra: StudentScreenArgs(
+                            studentId: widget.studentId,
+                            forStaff: widget.forStaff,
+                          ),
+                        );
+                      },
+                    ),
+                    if (!widget.forStaff)
+                      StudentFeatureCard(
+                        icon: Icons.notifications,
+                        title: "Notice",
+                        color: Colors.amberAccent,
                         onTap: () {
-                          if (student == null ||
-                              student.id != widget.studentId) {
-                            return;
-                          }
                           context.pushNamed(
-                            RouteConstants.studentProfileScreen,
-                            extra: StudentProfileArgs(
-                              student: student,
+                            RouteConstants.studentNoticeScreen,
+                            extra: StudentScreenArgs(
+                              studentId: widget.studentId,
                               forStaff: widget.forStaff,
                             ),
                           );
                         },
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              widget.forStaff
-                  ? SizedBox.shrink()
-                  : TodayTimetableWidget(
-                    type: TimetableType.student,
-                    studentId: widget.studentId,
-                    forStudent: true,
-                  ),
+                      ),
+                    StudentFeatureCard(
+                      icon: Icons.description_outlined,
+                      color: Colors.redAccent,
+                      title: "Leaves",
+                      onTap: () {
+                        context.pushNamed(
+                          RouteConstants.studentLeaveScreen,
+                          extra: StudentScreenArgs(
+                            studentId: widget.studentId,
+                            forStaff: widget.forStaff,
+                          ),
+                        );
+                      },
+                    ),
+                    Consumer<StudentProvider>(
+                      builder: (context, provider, _) {
+                        final student = provider.individualStudent;
+                        return StudentFeatureCard(
+                          icon: Icons.person,
+                          color: Colors.blueGrey,
+                          title: "Profile",
+                          onTap: () {
+                            if (student == null ||
+                                student.id != widget.studentId) {
+                              return;
+                            }
+                            context.pushNamed(
+                              RouteConstants.studentProfileScreen,
+                              extra: StudentProfileArgs(
+                                student: student,
+                                forStaff: widget.forStaff,
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                widget.forStaff
+                    ? SizedBox.shrink()
+                    : TodayTimetableWidget(
+                      type: TimetableType.student,
+                      studentId: widget.studentId,
+                      forStudent: true,
+                    ),
 
-              const SizedBox(height: 100),
-            ],
+                const SizedBox(height: 100),
+              ],
+            ),
           ),
         ),
       ),

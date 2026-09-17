@@ -48,4 +48,68 @@ class MyClassServices {
     );
     return response;
   }
+
+  // Fetch Competency and Indicators
+  Future<Response> fetchCompetencyAndIndicators() async {
+    final response = await ApiServices.get(
+      ApiEndpoints.getCompetencyAndIndicators,
+    );
+    return response;
+  }
+
+  // Create Student Competency Assessment
+  Future<Response> createStudentCompetencyAssessment({
+    required int studentId,
+    required int examId,
+    required List<Map<String, dynamic>> assessments,
+  }) async {
+    final response = await ApiServices.post(
+      ApiEndpoints.createStudentCompetencyAssessment,
+      {
+        'student_id': studentId,
+        'exam_id': examId,
+        'assessments': assessments,
+      },
+    );
+    return response;
+  }
+
+  // Get Competency Assessment by Student ID and Exam ID
+  Future<Response> getCompetencyAssessmentByStudentIdAndExamId({
+    required int studentId,
+    required int examId,
+  }) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.getCompetencyAssessmentByStudentIdAndExamId}/$studentId/$examId",
+    );
+    return response;
+  }
+
+  // Bulk Update Competency Assessment
+  Future<Response> bulkUpdateCompetencyAssessment({
+    required int studentId,
+    required int examId,
+    required List<Map<String, dynamic>> assessments,
+  }) async {
+    final response = await ApiServices.put(
+      ApiEndpoints.bulkUpdateCompetencyAssessment,
+      {
+        'student_id': studentId,
+        'exam_id': examId,
+        'assessments': assessments,
+      },
+    );
+    return response;
+  }
+
+  // Delete Competency Assessment
+  Future<Response> deleteCompetencyAssessment({
+    required int studentId,
+    required int examId,
+  }) async {
+    final response = await ApiServices.delete(
+      "${ApiEndpoints.deleteCompetencyAssessment}/$studentId/$examId",
+    );
+    return response;
+  }
 }
