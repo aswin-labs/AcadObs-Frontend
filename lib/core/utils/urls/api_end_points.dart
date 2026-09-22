@@ -146,6 +146,12 @@ static const String studentTermExamMarksForGuardian = "/guardian/getTermExamBySt
   static const String updateCredentialAndName =
       "/guardian/changeIdentifiersAndName";
   static const String uploadPaymentDetails = "/guardian/payments";
+  static const String transportInvoiceByStudentId =
+      "/guardian/getTransportInvoiceByOwnStudentId";
+  static const String transportInvoiceById =
+      "/guardian/getTransportInvoiceById";
+  static const String createTransportInvoicePayment =
+      "/guardian/createTransportInvoicePayment";
 
   //profile details for staff
   static const String staffProfileDetails = "/teacher/getProfileDetails";

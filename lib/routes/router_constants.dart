@@ -60,6 +60,7 @@ class RouteConstants {
   static const String changelogin = 'changelogin';
   static const String routeProgress = 'routeProgress';
   static const String invoiceDetailScreen = 'invoiceDetailScreen';
+  static const String transportInvoiceDetailScreen = 'transportInvoiceDetailScreen';
 
   // STUDENTS
   static const String studentListing = 'studentListing';

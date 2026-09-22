@@ -331,7 +331,7 @@ class RouteTimelineTile extends StatelessWidget {
             Icon(Icons.near_me_rounded, color: Colors.white, size: 11),
             SizedBox(width: 4),
             Text(
-              "Vehicle is here",
+              " Here",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 10,

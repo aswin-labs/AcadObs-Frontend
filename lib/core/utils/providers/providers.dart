@@ -11,6 +11,7 @@ import 'package:acadobs/features/notices/presentation/provider/notice_provider.d
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
+import 'package:acadobs/features/parents/presentation/provider/transport_payment_provider.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
@@ -75,6 +76,7 @@ getProviders() {
 
     //**************payment ****************//
     ChangeNotifierProvider(create: (_) => PaymentProvider()),
+    ChangeNotifierProvider(create: (_) => TransportPaymentProvider()),
 
     //**************time table ****************//
     ChangeNotifierProvider(create: (_) => TimetablesProvider()),

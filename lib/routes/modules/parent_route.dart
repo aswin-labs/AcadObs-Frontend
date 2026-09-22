@@ -1,8 +1,10 @@
 import 'package:acadobs/features/authentication/presentation/screens/school_selection_screen.dart';
 import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
 import 'package:acadobs/features/parents/data/models/invoice_student_model.dart';
+import 'package:acadobs/features/parents/data/models/transport_invoice_model.dart';
 import 'package:acadobs/features/parents/presentation/screens/invoice_detail_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
+import 'package:acadobs/features/parents/presentation/screens/transport_invoice_detail_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/prediction.dart';
 import 'package:acadobs/features/students/presentation/screens/student_leave_request_details_screen.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
@@ -104,6 +106,16 @@ List<GoRoute> parentRoutes = [
       if (state.extra == null) return buildRouteExtraFallback(context);
       final invoice = state.extra as InvoiceStudent;
       return InvoiceDetailScreen(invoice: invoice);
+    },
+  ),
+  //transport invoice detail screen
+  GoRoute(
+    path: '/transportInvoiceDetailScreen',
+    name: RouteConstants.transportInvoiceDetailScreen,
+    builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
+      final invoice = state.extra as TransportInvoice;
+      return TransportInvoiceDetailScreen(invoice: invoice);
     },
   ),
 ];

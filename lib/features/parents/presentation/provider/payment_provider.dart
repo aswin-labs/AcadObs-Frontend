@@ -195,9 +195,6 @@ class PaymentProvider extends ChangeNotifier {
         Navigator.of(context).pop();
       }
     } on DioException catch (e) {
-      log('Status Code: ${e.response?.statusCode}');
-      log('Response Data: ${e.response?.data}');
-      log('Request Data: ${e.requestOptions.data}');
 
       if (!context.mounted) return;
 
@@ -256,10 +253,6 @@ class PaymentProvider extends ChangeNotifier {
         Navigator.of(context).pop();
       }
     } on DioException catch (e) {
-      log('Status Code: ${e.response?.statusCode}');
-      log('Response Data: ${e.response?.data}');
-      log('Request Data: ${e.requestOptions.data}');
-
       if (!context.mounted) return;
 
       CustomSnackbar.show(

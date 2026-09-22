@@ -2,11 +2,13 @@ import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/helpers/payment_status_style.dart';
 import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
+import 'package:acadobs/features/parents/presentation/provider/transport_payment_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/item_card.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -18,32 +20,65 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
+    with TickerProviderStateMixin {
+  late TabController _tabController;
   late final PaymentProvider _paymentProvider;
+  late final TransportPaymentProvider _transportProvider;
+  int _tabCount = 2;
 
   final ScrollController _invoiceScrollController = ScrollController();
   final ScrollController _paymentScrollController = ScrollController();
+  final ScrollController _transportScrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
 
     _paymentProvider = context.read<PaymentProvider>();
+    _transportProvider = context.read<TransportPaymentProvider>();
 
-    _tabController = TabController(length: 2, vsync: this);
+    _tabCount = _transportProvider.isAvailable ? 3 : 2;
+    _tabController = TabController(length: _tabCount, vsync: this);
+    _transportProvider.addListener(_onTransportProviderChanged);
 
-    _paymentProvider.fetchInvoices(
-      studentId: widget.studentId,
-      forceRefresh: true,
-    );
-    _paymentProvider.fetchPayments(
-      studentId: widget.studentId,
-      forceRefresh: true,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _paymentProvider.fetchInvoices(
+        studentId: widget.studentId,
+        forceRefresh: true,
+      );
+      _paymentProvider.fetchPayments(
+        studentId: widget.studentId,
+        forceRefresh: true,
+      );
+      _transportProvider.fetchTransportInvoices(
+        studentId: widget.studentId,
+        forceRefresh: true,
+      );
+    });
 
     _invoiceScrollController.addListener(_invoiceScrollListener);
     _paymentScrollController.addListener(_paymentScrollListener);
+    _transportScrollController.addListener(_transportScrollListener);
+  }
+
+  void _onTransportProviderChanged() {
+    final newCount = _transportProvider.isAvailable ? 3 : 2;
+    if (_tabCount != newCount && mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        setState(() {
+          final oldIndex = _tabController.index;
+          _tabController.dispose();
+          _tabCount = newCount;
+          _tabController = TabController(
+            length: _tabCount,
+            vsync: this,
+            initialIndex: oldIndex < _tabCount ? oldIndex : 0,
+          );
+        });
+      });
+    }
   }
 
   void _invoiceScrollListener() {
@@ -76,11 +111,28 @@ class _PaymentScreenState extends State<PaymentScreen>
     }
   }
 
+  void _transportScrollListener() {
+    final isNearBottom =
+        _transportScrollController.position.pixels >=
+        _transportScrollController.position.maxScrollExtent - 200;
+
+    if (isNearBottom &&
+        !_transportProvider.isLoading &&
+        _transportProvider.hasMore) {
+      _transportProvider.fetchTransportInvoices(
+        loadMore: true,
+        studentId: widget.studentId,
+      );
+    }
+  }
+
   @override
   void dispose() {
+    _transportProvider.removeListener(_onTransportProviderChanged);
     _tabController.dispose();
     _invoiceScrollController.dispose();
     _paymentScrollController.dispose();
+    _transportScrollController.dispose();
     super.dispose();
   }
 
@@ -98,13 +150,25 @@ class _PaymentScreenState extends State<PaymentScreen>
     );
   }
 
+  Future<void> _refreshTransportInvoices() async {
+    await context.read<TransportPaymentProvider>().fetchTransportInvoices(
+      studentId: widget.studentId,
+      forceRefresh: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final hasTransport = _tabCount == 3;
+
     return Scaffold(
-      appBar: CommonAppBar(title: "Payments & Invoices", isBackButton: true),
+      appBar: const CommonAppBar(
+        title: "Payments & Invoices",
+        isBackButton: true,
+      ),
       body: Column(
         children: [
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.all(16),
             child: Container(
@@ -131,9 +195,13 @@ class _PaymentScreenState extends State<PaymentScreen>
                   fontWeight: FontWeight.w500,
                   fontSize: 15,
                 ),
-                overlayColor: WidgetStatePropertyAll(Colors.transparent),
+                overlayColor: const WidgetStatePropertyAll(Colors.transparent),
                 splashFactory: NoSplash.splashFactory,
-                tabs: const [Tab(text: "Invoices"), Tab(text: "Payments")],
+                tabs: [
+                  const Tab(text: "Invoices"),
+                  if (hasTransport) const Tab(text: "Transport"),
+                  const Tab(text: "Payments"),
+                ],
               ),
             ),
           ),
@@ -146,6 +214,13 @@ class _PaymentScreenState extends State<PaymentScreen>
                   scrollController: _invoiceScrollController,
                   onRefresh: _refreshInvoices,
                 ),
+
+                if (hasTransport)
+                  _TransportInvoiceTab(
+                    studentId: widget.studentId,
+                    scrollController: _transportScrollController,
+                    onRefresh: _refreshTransportInvoices,
+                  ),
                 _PaymentTab(
                   studentId: widget.studentId,
                   scrollController: _paymentScrollController,
@@ -326,6 +401,99 @@ class _PaymentTab extends StatelessWidget {
                   Consumer<PaymentProvider>(
                     builder: (context, provider, _) {
                       return provider.isLoadingForPayments && provider.hasMore
+                          ? const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                          : const SizedBox();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TransportInvoiceTab extends StatelessWidget {
+  final int studentId;
+  final ScrollController scrollController;
+  final Future<void> Function() onRefresh;
+
+  const _TransportInvoiceTab({
+    required this.studentId,
+    required this.scrollController,
+    required this.onRefresh,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: CustomScrollView(
+        controller: scrollController,
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 30),
+              child: Column(
+                children: [
+                  Consumer<TransportPaymentProvider>(
+                    builder: (context, provider, _) {
+                      if (provider.isLoading &&
+                          provider.transportInvoices.isEmpty) {
+                        return commonShimmerList();
+                      }
+
+                      if (provider.transportInvoices.isEmpty) {
+                        return emptyScreen(
+                          message: "No transport invoices found",
+                          heightMultiplier: 16,
+                        );
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: provider.transportInvoices.length,
+                        itemBuilder: (context, index) {
+                          final invoice = provider.transportInvoices[index];
+
+                          final statusStyle = getPaymentStatusStyle(
+                            invoice.status ?? "",
+                          );
+
+                          return ItemCard(
+                            icon: LucideIcons.bus,
+                            title: "${invoice.term ?? ""} Fee ",
+                            description: "₹${invoice.amount ?? ""}",
+                            status: statusStyle.label,
+                            backgroundColor: statusStyle.backgroundColor,
+                            iconColor: statusStyle.iconColor,
+                            onTap: () {
+                              final invoiceWithStudent =
+                                  invoice.studentId != null
+                                      ? invoice
+                                      : invoice.copyWith(studentId: studentId);
+                              context.pushNamed(
+                                RouteConstants.transportInvoiceDetailScreen,
+                                extra: invoiceWithStudent,
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  Consumer<TransportPaymentProvider>(
+                    builder: (context, provider, _) {
+                      return provider.isLoading && provider.hasMore
                           ? const Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Center(child: CircularProgressIndicator()),
