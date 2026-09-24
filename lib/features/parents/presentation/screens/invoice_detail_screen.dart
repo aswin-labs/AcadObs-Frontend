@@ -2,12 +2,12 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/payment_status_style.dart';
 import 'package:acadobs/features/parents/data/models/invoice_student_model.dart';
+import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
 import 'package:acadobs/features/parents/presentation/widgets/create_payment_bottomsheet.dart';
-import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class InvoiceDetailScreen extends StatefulWidget {
@@ -19,218 +19,457 @@ class InvoiceDetailScreen extends StatefulWidget {
 }
 
 class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
-  late TextEditingController amountController;
-  late TextEditingController paymentDateController;
-  late TextEditingController transactionController;
-  String? selectedMethod;
-
   @override
   void initState() {
     super.initState();
-    amountController = TextEditingController(
-      text: widget.invoice.invoice?.amount ?? "",
-    );
-    paymentDateController = TextEditingController(
-      text:
-          widget.invoice.invoice?.createdAt != null
-              ? DateFormat(
-                'yyyy-MM-dd',
-              ).format(widget.invoice.invoice!.createdAt!)
-              : "",
-    );
-    transactionController = TextEditingController();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DropdownProvider>().setSelectedItem("paymentMethod", "upi");
-    });
+    if (widget.invoice.id != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<PaymentProvider>().fetchStudentInvoiceById(
+          widget.invoice.id!,
+        );
+      });
+    }
   }
 
-  @override
-  void dispose() {
-    amountController.dispose();
-    paymentDateController.dispose();
-    transactionController.dispose();
-    super.dispose();
-  }
-
-  bool _showFab() {
+  bool _showFab(String? status) {
     const actionableStatuses = {'pending', 'partially_paid', 'overdue'};
-    return actionableStatuses.contains(widget.invoice.status);
+    return actionableStatuses.contains(status?.toLowerCase() ?? '');
   }
 
   @override
   Widget build(BuildContext context) {
-    final statusStyle = getPaymentStatusStyle(
-      widget.invoice.status ?? "pending",
-    );
+    return Consumer<PaymentProvider>(
+      builder: (context, provider, _) {
+        final activeInvoice =
+            (provider.selectedInvoice != null &&
+                    provider.selectedInvoice?.id == widget.invoice.id)
+                ? provider.selectedInvoice!
+                : widget.invoice;
 
-    return Scaffold(
-      appBar: CommonAppBar(title: "Invoice Details", isBackButton: true),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 18),
-              decoration: BoxDecoration(
-                color: statusStyle.backgroundColor,
-                borderRadius: BorderRadius.circular(16),
+        final statusStyle = getPaymentStatusStyle(
+          activeInvoice.status ?? "pending",
+        );
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFF8FAFC),
+          appBar: const CommonAppBar(
+            title: "Invoice Details",
+            isBackButton: true,
+          ),
+          body: Column(
+            children: [
+              if (provider.isLoadingDetails)
+                const LinearProgressIndicator(
+                  minHeight: 3,
+                  backgroundColor: Colors.transparent,
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF00AEF0)),
+                ),
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Top Header Card
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 20,
+                          horizontal: 18,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusStyle.backgroundColor,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              "₹ ${activeInvoice.invoice?.amount ?? "0.00"}",
+                              style: const TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              capitalizeEachWord(
+                                activeInvoice.invoice?.title
+                                            ?.trim()
+                                            .isNotEmpty ==
+                                        true
+                                    ? activeInvoice.invoice!.title!
+                                    : "School Fee",
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            if (activeInvoice.invoice?.category != null &&
+                                activeInvoice.invoice!.category!
+                                    .trim()
+                                    .isNotEmpty) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                capitalizeEachWord(
+                                  activeInvoice.invoice!.category!,
+                                ),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey.shade800,
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 10),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withAlpha(220),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    statusStyle.icon,
+                                    size: 14,
+                                    color: statusStyle.iconColor,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    statusStyle.label,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: statusStyle.iconColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // If partially paid or amounts are present, show payment progress & breakdown
+                            if (activeInvoice.pendingAmount != null ||
+                                activeInvoice.totalAmountPaid != null) ...[
+                              const SizedBox(height: 16),
+                              Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withAlpha(245),
+                                  borderRadius: BorderRadius.circular(14),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withAlpha(10),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        // Amount Paid
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    LucideIcons.checkCircle2,
+                                                    size: 14,
+                                                    color: Color(0xFF16A34A),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    "Paid Amount",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color:
+                                                          Colors.grey.shade700,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                "₹ ${activeInvoice.formattedTotalPaid ?? "0.00"}",
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xFF16A34A),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          height: 34,
+                                          width: 1,
+                                          color: Colors.grey.shade300,
+                                        ),
+                                        const SizedBox(width: 16),
+                                        // Remaining Balance
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  const Icon(
+                                                    LucideIcons.clock,
+                                                    size: 14,
+                                                    color: Color(0xFFEA580C),
+                                                  ),
+                                                  const SizedBox(width: 5),
+                                                  Text(
+                                                    "Remaining",
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color:
+                                                          Colors.grey.shade700,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                "₹ ${activeInvoice.formattedPendingAmount ?? "0.00"}",
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xFFEA580C),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    if (activeInvoice.totalAmountNum != null &&
+                                        activeInvoice.totalAmountNum! > 0 &&
+                                        activeInvoice.totalAmountPaid !=
+                                            null) ...[
+                                      const SizedBox(height: 12),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(6),
+                                        child: LinearProgressIndicator(
+                                          value: (activeInvoice
+                                                      .totalAmountPaid! /
+                                                  activeInvoice.totalAmountNum!)
+                                              .clamp(0.0, 1.0),
+                                          minHeight: 6,
+                                          backgroundColor: Colors.grey.shade200,
+                                          valueColor:
+                                              const AlwaysStoppedAnimation<
+                                                Color
+                                              >(Color(0xFF16A34A)),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      // Information Details Card
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.grey.shade200),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withAlpha(10),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            _buildInfoRow(
+                              icon: LucideIcons.receiptText,
+                              title: "Invoice Title",
+                              value: activeInvoice.invoice?.title ?? "N/A",
+                              statusStyle: statusStyle,
+                            ),
+                            if (activeInvoice.student?.fullName != null &&
+                                activeInvoice.student!.fullName!
+                                    .trim()
+                                    .isNotEmpty) ...[
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                child: Divider(height: 1),
+                              ),
+                              _buildInfoRow(
+                                icon: LucideIcons.user,
+                                title: "Student Name",
+                                value: capitalizeEachWord(
+                                  activeInvoice.student!.fullName!,
+                                ),
+                                statusStyle: statusStyle,
+                              ),
+                            ],
+                            if (activeInvoice.invoice?.category != null &&
+                                activeInvoice.invoice!.category!
+                                    .trim()
+                                    .isNotEmpty) ...[
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                child: Divider(height: 1),
+                              ),
+                              _buildInfoRow(
+                                icon: LucideIcons.tags,
+                                title: "Category",
+                                value: capitalizeEachWord(
+                                  activeInvoice.invoice!.category!,
+                                ),
+                                statusStyle: statusStyle,
+                              ),
+                            ],
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              child: Divider(height: 1),
+                            ),
+                            _buildInfoRow(
+                              icon: LucideIcons.indianRupee,
+                              title: "Total Amount",
+                              value:
+                                  "₹${activeInvoice.invoice?.amount ?? "0.00"}",
+                              statusStyle: statusStyle,
+                            ),
+                            if (activeInvoice.totalAmountPaid != null) ...[
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                child: Divider(height: 1),
+                              ),
+                              _buildInfoRow(
+                                icon: LucideIcons.badgeCheck,
+                                title: "Amount Paid",
+                                value:
+                                    "₹${activeInvoice.formattedTotalPaid ?? "0.00"}",
+                                iconColor: const Color(0xFF16A34A),
+                                iconBgColor: const Color(0xFFDCFCE7),
+                                valueColor: const Color(0xFF16A34A),
+                              ),
+                            ],
+                            if (activeInvoice.pendingAmount != null) ...[
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                child: Divider(height: 1),
+                              ),
+                              _buildInfoRow(
+                                icon: LucideIcons.hourglass,
+                                title: "Remaining Balance",
+                                value:
+                                    "₹${activeInvoice.formattedPendingAmount ?? "0.00"}",
+                                iconColor: const Color(0xFFEA580C),
+                                iconBgColor: const Color(0xFFFFEDD5),
+                                valueColor: const Color(0xFFEA580C),
+                              ),
+                            ],
+                            if (activeInvoice.invoice?.description != null &&
+                                activeInvoice.invoice!.description!
+                                    .trim()
+                                    .isNotEmpty) ...[
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 14),
+                                child: Divider(height: 1),
+                              ),
+                              _buildInfoRow(
+                                icon: LucideIcons.fileText,
+                                title: "Description",
+                                value: activeInvoice.invoice!.description!,
+                                statusStyle: statusStyle,
+                                maxLines: 4,
+                              ),
+                            ],
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              child: Divider(height: 1),
+                            ),
+                            _buildInfoRow(
+                              icon: LucideIcons.calendar,
+                              title: "Due Date",
+                              value:
+                                  activeInvoice.invoice?.dueDate != null
+                                      ? DateFormatter.formatDateTime(
+                                        activeInvoice.invoice!.dueDate!,
+                                      )
+                                      : "N/A",
+                              statusStyle: statusStyle,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 14),
+                              child: Divider(height: 1),
+                            ),
+                            _buildInfoRow(
+                              icon: LucideIcons.info,
+                              title: "Payment Status",
+                              value: statusStyle.label,
+                              statusStyle: statusStyle,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 90),
+                    ],
+                  ),
+                ),
               ),
-              child: Column(
-                children: [
-                  Text(
-                    "₹ ${widget.invoice.invoice?.amount ?? ""}",
-                    style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    capitalizeEachWord(widget.invoice.invoice?.title ?? ""),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withAlpha(190),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      statusStyle.label,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: statusStyle.iconColor,
+            ],
+          ),
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+          floatingActionButton:
+              _showFab(activeInvoice.status)
+                  ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: CommonButton(
+                      onPressed: () {
+                        showCreatePaymentBottomSheet(
+                          context: context,
+                          invoice: activeInvoice,
+                        );
+                      },
+                      widget: const Text(
+                        "Pay Now / Upload Receipt",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.grey.shade200),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  _buildInfoRow(
-                    icon: Icons.receipt_long_outlined,
-                    title: "Invoice",
-                    value: widget.invoice.invoice?.title ?? "N/A",
-                  ),
-
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(height: 1),
-                  ),
-
-                  _buildInfoRow(
-                    icon: Icons.category_outlined,
-                    title: "Category",
-                    value: widget.invoice.invoice?.category ?? "N/A",
-                  ),
-
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(height: 1),
-                  ),
-
-                  _buildInfoRow(
-                    icon: Icons.currency_rupee,
-                    title: "Amount",
-                    value: "₹${widget.invoice.invoice?.amount ?? "0.00"}",
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(height: 1),
-                  ),
-                  _buildInfoRow(
-                    icon: Icons.notes_outlined,
-                    title: "Description",
-                    value:
-                        widget.invoice.invoice?.description ??
-                        "No description available",
-                    maxLines: 4,
-                  ),
-
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(height: 1),
-                  ),
-
-                  _buildInfoRow(
-                    icon: Icons.calendar_today_outlined,
-                    title: "Due Date",
-                    value: DateFormatter.formatDateTime(
-                      widget.invoice.invoice?.dueDate ?? DateTime.now(),
-                    ),
-                  ),
-
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(height: 1),
-                  ),
-
-                  _buildInfoRow(
-                    icon: Icons.info_outline,
-                    title: "Payment Status",
-                    value: statusStyle.label,
-                  ),
-
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(height: 1),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 100),
-          ],
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton:
-          _showFab()
-              ? Padding(
-                padding: const EdgeInsets.all(16),
-                child: CommonButton(
-                  onPressed: () {
-                    showCreatePaymentBottomSheet(
-                      context: context,
-                      invoice: widget.invoice,
-                    );
-                  },
-                  widget: const Text("Upload File"),
-                ),
-              )
-              : null,
+                  )
+                  : null,
+        );
+      },
     );
   }
 
@@ -238,31 +477,29 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
     required IconData icon,
     required String title,
     required String value,
+    PaymentStatusStyle? statusStyle,
+    Color? iconColor,
+    Color? iconBgColor,
+    Color? valueColor,
     int maxLines = 2,
   }) {
+    final effectiveIconColor =
+        iconColor ?? statusStyle?.iconColor ?? const Color(0xFF00AEF0);
+    final effectiveBgColor =
+        iconBgColor ?? statusStyle?.backgroundColor ?? const Color(0xFFE0F2FE);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color:
-                getPaymentStatusStyle(
-                  widget.invoice.status ?? "pending",
-                ).backgroundColor,
+            color: effectiveBgColor,
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(
-            icon,
-            color:
-                getPaymentStatusStyle(
-                  widget.invoice.status ?? "pending",
-                ).iconColor,
-            size: 20,
-          ),
+          child: Icon(icon, color: effectiveIconColor, size: 20),
         ),
         const SizedBox(width: 14),
-
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,15 +512,15 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 5),
               Text(
                 value,
                 maxLines: maxLines,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: Colors.black87,
+                  color: valueColor ?? const Color(0xFF1E293B),
                 ),
               ),
             ],

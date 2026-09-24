@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:acadobs/core/netwok/network_provider.dart';
-import 'package:acadobs/core/netwok/screens/offline_banner.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
@@ -23,6 +22,7 @@ import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_
 import 'package:acadobs/features/timetables/data/models/timetable_type.dart';
 import 'package:acadobs/features/timetables/presentation/widgets/today_timetable_widget.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
+import 'package:acadobs/shared/widgets/centered_offline_view.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
@@ -127,6 +127,18 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     ).scale(1.0).clamp(1.0, 1.6);
 
     final responsiveAppBarHeight = 175 * textScaleFactor;
+
+    if (!networkProvider.isConnected) {
+      return DoubleBackToExit(
+        child: Scaffold(
+          backgroundColor: Colors.grey[50],
+          body: CenteredOfflineView(
+            onRetry: () => refreshAllData(),
+          ),
+        ),
+      );
+    }
+
     return DoubleBackToExit(
       child: Scaffold(
         backgroundColor: Colors.grey[50],
@@ -539,8 +551,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                 ],
               ),
             ),
-
-            if (!networkProvider.isConnected) OfflineBanner(),
           ],
         ),
         floatingActionButton:

@@ -1,6 +1,8 @@
 // lib/providers/login_provider.dart
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/popup_loader.dart';
@@ -10,6 +12,7 @@ import 'package:acadobs/features/authentication/data/services/auth_services.dart
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/user_permission_model.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -53,83 +56,206 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Login
+  /// Extract human-readable error messages from various exceptions and response bodies
+  String _parseErrorMessage(dynamic error) {
+    if (error is DioException) {
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          return "Connection timed out. Please check your internet connection.";
+        case DioExceptionType.connectionError:
+          return "Unable to connect to server. Please check your internet connection.";
+        case DioExceptionType.badResponse:
+          final response = error.response;
+          if (response?.data != null) {
+            final data = response!.data;
+            if (data is Map) {
+              if (data['message'] != null &&
+                  data['message'].toString().trim().isNotEmpty) {
+                return data['message'].toString().trim();
+              }
+              if (data['error'] != null &&
+                  data['error'].toString().trim().isNotEmpty) {
+                return data['error'].toString().trim();
+              }
+              if (data['msg'] != null &&
+                  data['msg'].toString().trim().isNotEmpty) {
+                return data['msg'].toString().trim();
+              }
+              if (data['errors'] != null) {
+                final errors = data['errors'];
+                if (errors is List && errors.isNotEmpty) {
+                  return errors.first.toString();
+                } else if (errors is Map && errors.isNotEmpty) {
+                  return errors.values.first.toString();
+                }
+              }
+            } else if (data is String && data.trim().isNotEmpty) {
+              return data.trim();
+            }
+          }
+          final statusCode = response?.statusCode;
+          if (statusCode == 400) {
+            return "Invalid request. Please verify your phone number or username and password.";
+          } else if (statusCode == 401) {
+            return "Incorrect phone number/username or password. Please try again.";
+          } else if (statusCode == 403) {
+            return "Access denied. Your account may be inactive or restricted.";
+          } else if (statusCode == 404) {
+            return "Account not found. Please verify your entered details.";
+          } else if (statusCode == 429) {
+            return "Too many login attempts. Please wait a few moments and try again.";
+          } else if (statusCode != null && statusCode >= 500) {
+            return "Server is temporarily unavailable. Please try again later.";
+          }
+          return "Login failed (${statusCode ?? 'Unknown'}). Please try again.";
+        case DioExceptionType.cancel:
+          return "Login request was cancelled.";
+        default:
+          return "Network error occurred. Please check your internet connection.";
+      }
+    } else if (error is SocketException) {
+      return "No internet connection detected. Please verify your network.";
+    }
+    return "Something went wrong. Please try again.";
+  }
 
-  Future<void> login({
+  // Login for all roles (Parents, Teachers, Staff)
+  Future<bool> login({
     required BuildContext context,
     required String identifier,
     required String password,
   }) async {
-    // _isLoading = true;
     _setLoading(true);
     _loginError = null;
-    notifyListeners();
 
     try {
       final response = await AuthServices().login(
-        identifier: identifier,
+        identifier: identifier.trim(),
         password: password,
       );
       log("Login Response: ${response.data}");
-      await _storageService.saveUserCredentials(
-        token: response.data['token'],
-        userData: response.data['userData'],
-      );
 
-      await _storageService.saveTokens(
-        accessToken: response.data['token'],
-        refreshToken: response.data['refreshToken'],
-      );
-      log(">>>status code: ${response.statusCode}");
-
-      if (response.statusCode == 200) {
-        final userRole = await _storageService.getUserRole();
-        if (!context.mounted) return;
-        CustomSnackbar.show(
-          context,
-          message: "Login Successfull",
-          type: SnackbarType.success,
-        );
-
-        if (userRole == 'guardian') {
-          await fetchSchoolsByParent();
-          await AuthServices().sendFcmToken();
-          if (_totalSchoolsUnderParent == 1) {
-            if (!context.mounted) return;
-            context.pushReplacementNamed(
-              RouteConstants.bottomNavScreen,
-              extra: UserType.parent,
-            );
-          } else {
-            if (!context.mounted) return;
-            context.pushReplacementNamed(RouteConstants.schoolSelectionScreen);
-          }
-        } else if (userRole == 'teacher') {
-          await fetchSchoolDetailsForTeacher();
-          if (!context.mounted) return;
-          context.pushReplacementNamed(
-            RouteConstants.bottomNavScreen,
-            extra: UserType.teacher,
-          );
-        } else if (userRole == 'staff') {
-          await fetchSchoolDetailsForTeacher();
-          if (!context.mounted) return;
-          context.pushReplacementNamed(
-            RouteConstants.bottomNavScreen,
-            extra: UserType.nonTeachingStaff,
-          );
-        }
-        return;
+      if (response.data == null || response.data is! Map) {
+        _setError("Unexpected server response format. Please try again.");
+        return false;
       }
-      final serverMsg =
-          response.data['message']?.toString() ??
-          response.data['error']?.toString() ??
-          "Invalid credentials";
-      _setError(serverMsg);
-    } catch (e) {
-      // debugPrint("Login error: $e");
-      _setError("Something went wrong. Please try again.");
-      debugPrint("Login error: $e");
+
+      final data = Map<String, dynamic>.from(response.data);
+      final token = data['token']?.toString();
+      final userData = data['userData'];
+      final refreshToken = data['refreshToken']?.toString();
+
+      if (token == null || userData == null) {
+        final serverMsg =
+            data['message']?.toString() ??
+            data['error']?.toString() ??
+            "Invalid credentials. Please try again.";
+        _setError(serverMsg);
+        return false;
+      }
+
+      // Save token and user details in secure storage
+      await _storageService.saveUserCredentials(
+        token: token,
+        userData: Map<String, dynamic>.from(userData),
+      );
+
+      if (refreshToken != null && refreshToken.isNotEmpty) {
+        await _storageService.saveTokens(
+          accessToken: token,
+          refreshToken: refreshToken,
+        );
+      }
+
+      final userRole = await _storageService.getUserRole();
+      log("Logged in user role: $userRole");
+
+      // Reset session manager logout state on successful login
+      try {
+        ApiServices.sessionManager.reset();
+      } catch (e) {
+        log("SessionManager reset note: $e");
+      }
+
+      if (!context.mounted) return true;
+
+      CustomSnackbar.show(
+        context,
+        message: "Login Successful",
+        type: SnackbarType.success,
+      );
+
+      // Route based on user role
+      if (userRole == 'guardian') {
+        try {
+          await fetchSchoolsByParent();
+        } catch (e) {
+          log("Error fetching schools for parent: $e");
+        }
+
+        try {
+          await AuthServices().sendFcmToken();
+        } catch (e) {
+          log("FCM token sync skipped/failed: $e");
+        }
+
+        if (_totalSchoolsUnderParent == 1) {
+          if (!context.mounted) return true;
+          context.pushReplacementNamed(
+            RouteConstants.bottomNavScreen,
+            extra: UserType.parent,
+          );
+        } else {
+          if (!context.mounted) return true;
+          context.pushReplacementNamed(RouteConstants.schoolSelectionScreen);
+        }
+      } else if (userRole == 'teacher') {
+        try {
+          await fetchSchoolDetailsForTeacher();
+        } catch (e) {
+          log("Error fetching school details for teacher: $e");
+        }
+
+        if (!context.mounted) return true;
+        context.pushReplacementNamed(
+          RouteConstants.bottomNavScreen,
+          extra: UserType.teacher,
+        );
+      } else if (userRole == 'staff') {
+        try {
+          await fetchSchoolDetailsForTeacher();
+        } catch (e) {
+          log("Error fetching school details for staff: $e");
+        }
+
+        try {
+          await getStaffPermissions();
+        } catch (e) {
+          log("Error fetching staff permissions: $e");
+        }
+
+        if (!context.mounted) return true;
+        context.pushReplacementNamed(
+          RouteConstants.bottomNavScreen,
+          extra: UserType.nonTeachingStaff,
+        );
+      } else {
+        log("Unsupported user role: $userRole");
+        _setError(
+          "Account role '$userRole' is not authorized to access this mobile portal. Please contact your school administrator.",
+        );
+        await _storageService.clear();
+        return false;
+      }
+
+      return true;
+    } catch (e, stack) {
+      log("Login exception: $e", stackTrace: stack);
+      final errorMsg = _parseErrorMessage(e);
+      _setError(errorMsg);
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();

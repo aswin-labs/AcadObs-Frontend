@@ -51,9 +51,12 @@ class GuardianModel {
 
   factory GuardianModel.fromJson(Map<String, dynamic> json) => GuardianModel(
     message: json["message"],
-    guardianName: json["guardian_name"],
-    guardianContact: json["guardian_contact"],
-    guardianEmail: json["guardian_email"],
+    guardianName: json["guardian_name"] ??
+        (json["user"] != null ? json["user"]["name"] : null),
+    guardianContact: json["guardian_contact"] ??
+        (json["user"] != null ? json["user"]["phone"] : null),
+    guardianEmail: json["guardian_email"] ??
+        (json["user"] != null ? json["user"]["email"] : null),
     guardianJob: json["guardian_job"],
     guardianRelation: json["guardian_relation"],
     guardian2Name: json["guardian2_name"],

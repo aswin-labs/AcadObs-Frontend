@@ -5,20 +5,79 @@ import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/profile/data/models/guardian_model.dart';
 import 'package:acadobs/features/profile/data/services/profile_services.dart';
 import 'package:acadobs/features/teacher/data/models/staff_model.dart';
-
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 
 class ProfileProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
   bool _isLoadingTwo = false;
   bool get isLoadingTwo => _isLoadingTwo;
+
+  bool _isPhotoLoading = false;
+  bool get isPhotoLoading => _isPhotoLoading;
+
   GuardianModel? guardianProfile;
   StaffModelProfile? staffProfile;
   bool _editProfileEnabled = false;
   bool get editProfileEnabled => _editProfileEnabled;
-  //change password
-  Future<void> changePassword({
+
+  List<String> _guardianRelations = [];
+  List<String> get guardianRelations => _guardianRelations;
+
+  bool _isLoadingRelations = false;
+  bool get isLoadingRelations => _isLoadingRelations;
+
+  static const List<String> defaultRelations = [
+    "father",
+    "mother",
+    "grandfather",
+    "grandmother",
+    "uncle",
+    "aunty",
+    "local_guardian",
+    "other",
+  ];
+
+  /// Helper to extract clean error message from DioException or general Exception
+  String _extractErrorMessage(dynamic e, String defaultMessage) {
+    if (e is DioException) {
+      final data = e.response?.data;
+      if (data is Map) {
+        if (data['message'] != null &&
+            data['message'].toString().trim().isNotEmpty) {
+          return data['message'].toString().trim();
+        }
+        if (data['error'] != null &&
+            data['error'].toString().trim().isNotEmpty) {
+          return data['error'].toString().trim();
+        }
+        if (data['detail'] != null &&
+            data['detail'].toString().trim().isNotEmpty) {
+          return data['detail'].toString().trim();
+        }
+      } else if (data is String && data.trim().isNotEmpty) {
+        return data.trim();
+      }
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return 'Connection timed out. Please check your internet connection.';
+      }
+      if (e.type == DioExceptionType.connectionError) {
+        return 'Unable to connect to the server. Please check your internet connection.';
+      }
+      if (e.response?.statusCode != null) {
+        return 'Request failed with status code ${e.response?.statusCode}';
+      }
+    }
+    return defaultMessage;
+  }
+
+  // Change password
+  Future<bool> changePassword({
+    required BuildContext context,
     required String newPassword,
     required String oldPassword,
     required bool forStaff,
@@ -32,12 +91,45 @@ class ProfileProvider extends ChangeNotifier {
         forStaff: forStaff,
       );
       if (response.statusCode == 200) {
-        log("password changed successfully: ${response.data}");
+        log("Password changed successfully: ${response.data}");
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: "Password changed successfully",
+            type: SnackbarType.success,
+          );
+        }
+        return true;
       } else {
-        log("failed to change the password: ${response.data}");
+        log("Failed to change password: ${response.data}");
+        final errorMsg = response.data is Map
+            ? (response.data['message'] ??
+                response.data['error'] ??
+                "Failed to change password")
+            : "Failed to change password";
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: errorMsg.toString(),
+            type: SnackbarType.failure,
+          );
+        }
+        return false;
       }
     } catch (e) {
-      log(e.toString());
+      log("Error changing password: $e");
+      final errorMsg = _extractErrorMessage(
+        e,
+        "Failed to change password. Please check your current password.",
+      );
+      if (context.mounted) {
+        CustomSnackbar.show(
+          context,
+          message: errorMsg,
+          type: SnackbarType.failure,
+        );
+      }
+      return false;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -50,7 +142,7 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final response = await ProfileServices().fetchProfileDetails();
-      log(" Fetched guardian profile response: ${response.data}");
+      log("Fetched guardian profile response: ${response.data}");
       if (response.statusCode == 200 && response.data['guardian'] != null) {
         guardianProfile = GuardianModel.fromJson({
           ...Map<String, dynamic>.from(response.data['guardian']),
@@ -59,12 +151,11 @@ class ProfileProvider extends ChangeNotifier {
 
         log(guardianProfile.toString());
       } else {
-        log(" Guardian data missing in response");
+        log("Guardian data missing in response");
         guardianProfile = null;
       }
       notifyListeners();
     } catch (e, st) {
-      log('Error fetching guardian profile: $e');
       log('Error fetching guardian profile: $e');
       log('Stack trace: $st');
       guardianProfile = null;
@@ -75,20 +166,57 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
+  // Fetch guardian relations
+  Future<void> fetchGuardianRelations() async {
+    _isLoadingRelations = true;
+    notifyListeners();
+    try {
+      final response = await ProfileServices().getGuardianRelations();
+      log("Fetched guardian relations response: ${response.data}");
+      if (response.statusCode == 200 && response.data != null) {
+        List rawList = [];
+        if (response.data is List) {
+          rawList = response.data as List;
+        } else if (response.data is Map) {
+          final map = response.data as Map;
+          if (map['data'] is List) {
+            rawList = map['data'] as List;
+          } else if (map['relations'] is List) {
+            rawList = map['relations'] as List;
+          }
+        }
+        _guardianRelations = rawList.map((e) => e.toString()).toList();
+        if (_guardianRelations.isEmpty) {
+          _guardianRelations = List.from(defaultRelations);
+        }
+      } else if (_guardianRelations.isEmpty) {
+        _guardianRelations = List.from(defaultRelations);
+      }
+    } catch (e) {
+      log("Error fetching guardian relations: $e");
+      if (_guardianRelations.isEmpty) {
+        _guardianRelations = List.from(defaultRelations);
+      }
+    } finally {
+      _isLoadingRelations = false;
+      notifyListeners();
+    }
+  }
+
   // Enable edit profile
   void enableEditProfile() {
     _editProfileEnabled = true;
     notifyListeners();
   }
 
-  // disable edit profile
+  // Disable edit profile
   void disableEditProfile() {
     _editProfileEnabled = false;
     notifyListeners();
   }
 
-  // save profile details
-  Future<void> saveProfileDetails({
+  // Save profile details
+  Future<bool> saveProfileDetails({
     required BuildContext context,
     required GuardianModel guardian,
   }) async {
@@ -102,31 +230,52 @@ class ProfileProvider extends ChangeNotifier {
         log('Profile updated successfully');
         await fetchProfileGuardian();
         disableEditProfile();
-        if (!context.mounted) return;
-        CustomSnackbar.show(
-          context,
-          message: 'Profile updated successfully',
-          type: SnackbarType.success,
-        );
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: 'Profile updated successfully',
+            type: SnackbarType.success,
+          );
+        }
+        return true;
       } else {
         log('Failed to update profile: ${response.statusCode}');
-        if (!context.mounted) return;
+        final errorMsg = response.data is Map
+            ? (response.data['message'] ??
+                response.data['error'] ??
+                'Failed to update profile')
+            : 'Failed to update profile';
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: errorMsg.toString(),
+            type: SnackbarType.failure,
+          );
+        }
+        return false;
+      }
+    } catch (e) {
+      log('Error saving profile details: $e');
+      final errorMsg = _extractErrorMessage(
+        e,
+        'Failed to update profile. Please check your input and try again.',
+      );
+      if (context.mounted) {
         CustomSnackbar.show(
           context,
-          message: 'Failed to update profile',
+          message: errorMsg,
           type: SnackbarType.failure,
         );
       }
-    } catch (e) {
-      log('Error: $e');
+      return false;
     } finally {
       _isLoadingTwo = false;
       notifyListeners();
     }
   }
 
-  //update crenditals and name
-  Future<void> changeCredentialAndName({
+  // Update credentials and name
+  Future<bool> changeCredentialAndName({
     required BuildContext context,
     required GuardianModel guardian,
   }) async {
@@ -137,40 +286,62 @@ class ProfileProvider extends ChangeNotifier {
         guardian: guardian,
       );
       if (response.statusCode == 200) {
-        log('Profile updated successfully');
+        log('Login credentials updated successfully');
         await fetchProfileGuardian();
         disableEditProfile();
-        if (!context.mounted) return;
-        CustomSnackbar.show(
-          context,
-          message: 'Profile updated successfully',
-          type: SnackbarType.success,
-        );
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: 'Login credentials updated successfully',
+            type: SnackbarType.success,
+          );
+        }
+        return true;
       } else {
-        log('Failed to update profile: ${response.statusCode}');
-        if (!context.mounted) return;
+        log('Failed to update credentials: ${response.statusCode}');
+        final errorMsg = response.data is Map
+            ? (response.data['message'] ??
+                response.data['error'] ??
+                'Failed to update login credentials')
+            : 'Failed to update login credentials';
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: errorMsg.toString(),
+            type: SnackbarType.failure,
+          );
+        }
+        return false;
+      }
+    } catch (e) {
+      log('Error changing credentials: $e');
+      final errorMsg = _extractErrorMessage(
+        e,
+        'Failed to update login credentials. The email or phone may already be registered.',
+      );
+      if (context.mounted) {
         CustomSnackbar.show(
           context,
-          message: 'Failed to update profile',
+          message: errorMsg,
           type: SnackbarType.failure,
         );
       }
-    } catch (e) {
-      log('Error: $e');
+      return false;
     } finally {
       _isLoadingTwo = false;
       notifyListeners();
     }
   }
 
-  // update profile photo
-  Future<void> updateProfilePhoto({
+  // Update profile photo
+  Future<bool> updateProfilePhoto({
+    required BuildContext context,
     required File imageFile,
     required bool forStaff,
   }) async {
-    _isLoading = true;
+    _isPhotoLoading = true;
     notifyListeners();
-    log(" Starting profile photo upload...");
+    log("Starting profile photo upload...");
 
     try {
       final response = await ProfileServices().updateProfilePhoto(
@@ -181,18 +352,50 @@ class ProfileProvider extends ChangeNotifier {
 
       if (response.statusCode == 200) {
         log("Profile photo updated successfully, fetching updated profile...");
-        log(" Profile photo updated successfully");
         forStaff ? await fetchProfileStaff() : await fetchProfileGuardian();
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: 'Profile photo updated successfully!',
+            type: SnackbarType.success,
+          );
+        }
+        return true;
       } else {
-        log(" Failed to update profile photo: ${response.statusCode}");
+        log("Failed to update profile photo: ${response.statusCode}");
+        final errorMsg = response.data is Map
+            ? (response.data['message'] ??
+                response.data['error'] ??
+                "Failed to update profile photo")
+            : "Failed to update profile photo";
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: errorMsg.toString(),
+            type: SnackbarType.failure,
+          );
+        }
+        return false;
       }
     } catch (e, st) {
       log("Error updating profile photo: $e");
       log("Stack trace: $st");
+      final errorMsg = _extractErrorMessage(
+        e,
+        "Failed to upload profile photo. Please try again.",
+      );
+      if (context.mounted) {
+        CustomSnackbar.show(
+          context,
+          message: errorMsg,
+          type: SnackbarType.failure,
+        );
+      }
+      return false;
     } finally {
-      _isLoading = false;
+      _isPhotoLoading = false;
       notifyListeners();
-      log(" Done updating profile photo");
+      log("Done updating profile photo");
     }
   }
 
@@ -209,13 +412,12 @@ class ProfileProvider extends ChangeNotifier {
 
         staffProfile = StaffModelProfile.fromJson(staffData);
       } else {
-        log("staff data missing in response");
+        log("Staff data missing in response");
         staffProfile = null;
       }
       notifyListeners();
     } catch (e, st) {
       log('Error fetching staff profile: $e');
-      log(' Error fetching staff profile: $e');
       log('Stack trace: $st');
       staffProfile = null;
       notifyListeners();
@@ -225,8 +427,8 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
-  // save profile details staff
-  Future<void> saveProfileDetailsStaff({
+  // Save profile details staff
+  Future<bool> saveProfileDetailsStaff({
     required BuildContext context,
     required StaffModelProfile staff,
   }) async {
@@ -237,25 +439,47 @@ class ProfileProvider extends ChangeNotifier {
         staff: staff,
       );
       if (response.statusCode == 200) {
-        log('Profile updated successfully');
+        log('Staff profile updated successfully');
+        await fetchProfileStaff();
         disableEditProfile();
-        if (!context.mounted) return;
-        CustomSnackbar.show(
-          context,
-          message: 'Profile updated successfully',
-          type: SnackbarType.success,
-        );
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: 'Profile updated successfully',
+            type: SnackbarType.success,
+          );
+        }
+        return true;
       } else {
-        log('Failed to update profile: ${response.statusCode}');
-        if (!context.mounted) return;
+        log('Failed to update staff profile: ${response.statusCode}');
+        final errorMsg = response.data is Map
+            ? (response.data['message'] ??
+                response.data['error'] ??
+                'Failed to update profile')
+            : 'Failed to update profile';
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: errorMsg.toString(),
+            type: SnackbarType.failure,
+          );
+        }
+        return false;
+      }
+    } catch (e) {
+      log('Error updating staff profile: $e');
+      final errorMsg = _extractErrorMessage(
+        e,
+        'Failed to update profile. Please try again.',
+      );
+      if (context.mounted) {
         CustomSnackbar.show(
           context,
-          message: 'Failed to update profile',
+          message: errorMsg,
           type: SnackbarType.failure,
         );
       }
-    } catch (e) {
-      log('Error: $e');
+      return false;
     } finally {
       _isLoadingTwo = false;
       notifyListeners();

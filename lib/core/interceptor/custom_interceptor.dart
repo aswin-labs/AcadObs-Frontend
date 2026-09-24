@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:acadobs/core/services/session_manager.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
@@ -16,6 +17,32 @@ class CustomInterceptor extends Interceptor {
   final AuthStorageService storage = AuthStorageService();
 
   Completer<String?>? _refreshCompleter;
+
+  /// Determines whether an error is caused by network issues or server unavailability
+  /// rather than an explicit authentication rejection.
+  bool _isNetworkError(dynamic error) {
+    if (error is DioException) {
+      if (error.type == DioExceptionType.connectionError ||
+          error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.sendTimeout ||
+          error.type == DioExceptionType.receiveTimeout) {
+        return true;
+      }
+      if (error.error is SocketException) {
+        return true;
+      }
+      if (error.response == null) {
+        return true;
+      }
+      final statusCode = error.response?.statusCode;
+      if (statusCode != null && statusCode >= 500) {
+        return true;
+      }
+    } else if (error is SocketException) {
+      return true;
+    }
+    return false;
+  }
 
   @override
   void onRequest(
@@ -41,7 +68,15 @@ class CustomInterceptor extends Interceptor {
             options.headers['Authorization'] = 'Bearer $newToken';
           }
         } catch (e) {
-          await storage.logout();
+          log('Token refresh attempt failed in onRequest: $e', name: 'API_SERVICE');
+          // If offline / network error, preserve session! Never clear session for network drop.
+          if (!_isNetworkError(e)) {
+            if (e is DioException &&
+                (e.response?.statusCode == 401 ||
+                    e.response?.statusCode == 403)) {
+              await sessionManager.forceLogout();
+            }
+          }
         }
       } else {
         options.headers['Authorization'] = 'Bearer $token';
@@ -65,12 +100,20 @@ class CustomInterceptor extends Interceptor {
     log('URL => ${err.requestOptions.uri}', name: 'API_SERVICE');
 
     log('STATUS => ${err.response?.statusCode}', name: 'API_SERVICE');
+    log('ERROR TYPE => ${err.type}', name: 'API_SERVICE');
 
-    // prevent refresh loop
+    // Prevent refresh loop when the refresh endpoint itself fails
     if (isRefreshApi) {
-      log('REFRESH API FAILED', name: 'API_SERVICE');
+      log('REFRESH API FAILED with status: ${err.response?.statusCode}', name: 'API_SERVICE');
 
-      await sessionManager.forceLogout();
+      // ONLY force logout if the server specifically rejected the refresh token (401 or 403).
+      // Disconnected internet, timeouts, or 500 errors must NEVER kick the user out!
+      if (err.response?.statusCode == 401 || err.response?.statusCode == 403) {
+        log('Refresh token rejected by server. Logging out.', name: 'API_SERVICE');
+        await sessionManager.forceLogout();
+      } else {
+        log('Refresh API failed due to network/server connectivity. Keeping user session intact.', name: 'API_SERVICE');
+      }
 
       return handler.next(err);
     }
@@ -95,7 +138,17 @@ class CustomInterceptor extends Interceptor {
       } catch (e, stack) {
         log('REFRESH FAILED', error: e, stackTrace: stack, name: 'API_SERVICE');
 
-        await sessionManager.forceLogout();
+        // Only logout if the server explicitly rejected the refresh token (401 / 403).
+        // If it failed because of offline / network connectivity, do NOT logout!
+        if (!_isNetworkError(e)) {
+          if (e is DioException &&
+              (e.response?.statusCode == 401 ||
+                  e.response?.statusCode == 403)) {
+            await sessionManager.forceLogout();
+          }
+        } else {
+          log('Token refresh failed due to network connectivity. Preserving user session.', name: 'API_SERVICE');
+        }
 
         return handler.next(err);
       }

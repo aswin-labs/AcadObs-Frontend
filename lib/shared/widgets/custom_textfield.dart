@@ -17,6 +17,8 @@ class CustomTextfield extends StatelessWidget {
   final bool enabled;
   final double borderRadius;
   final int maxLines;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onFieldSubmitted;
 
   CustomTextfield({
     this.controller,
@@ -35,6 +37,8 @@ class CustomTextfield extends StatelessWidget {
     this.enabled = true,
     this.borderRadius = 8.0,
     this.maxLines = 1,
+    this.textInputAction,
+    this.onFieldSubmitted,
   }) : isObscure = ValueNotifier<bool>(isPasswordField);
 
   @override
@@ -50,6 +54,8 @@ class CustomTextfield extends StatelessWidget {
         builder: (context, value, child) {
           return TextFormField(
             controller: controller,
+            textInputAction: textInputAction,
+            onFieldSubmitted: onFieldSubmitted,
             style:
                 textStyle ??
                 Theme.of(context).textTheme.bodySmall!.copyWith(

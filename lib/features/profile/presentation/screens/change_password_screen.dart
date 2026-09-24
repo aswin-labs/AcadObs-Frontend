@@ -1,4 +1,4 @@
-import 'package:acadobs/core/utils/custom_snackbar.dart';
+import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
@@ -41,31 +41,30 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final oldPassword = oldPasswordController.text.trim();
     final newPassword = newPasswordController.text.trim();
 
-    await provider.changePassword(
+    final success = await provider.changePassword(
+      context: context,
       oldPassword: oldPassword,
       newPassword: newPassword,
       forStaff: widget.forStaff,
     );
 
     if (!mounted) return;
-    context.pop();
-
-    CustomSnackbar.show(
-      context,
-      message: "Password changed successfully",
-      type: SnackbarType.success,
-    );
+    if (success) {
+      context.pop();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final profileProvider = context.watch<ProfileProvider>();
+
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       appBar: const CommonAppBar(title: "Change Password", isBackButton: true),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: 40),
+            const SizedBox(height: 30),
             // Header Section
             Column(
               children: [
@@ -80,25 +79,47 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Color(0xFF6366F1).withAlpha(60),
-                        blurRadius: 15,
+                        color: const Color(0xFF00AEF0).withValues(alpha: 0.35),
+                        blurRadius: 18,
                         offset: const Offset(0, 8),
                       ),
                     ],
                   ),
                   child: const Icon(
-                    Icons.lock_reset,
+                    Icons.lock_reset_rounded,
                     size: 48,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 16),
+                const Text(
+                  "Update Account Password",
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    "Create a strong password with at least 8 characters to secure your account",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.shade600,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
               ],
             ),
 
             // Form Section
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -162,7 +183,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           return 'Password must be at least 8 characters';
                         }
                         if (value == oldPasswordController.text) {
-                          return 'New password must be different from current';
+                          return 'New password must be different from current password';
                         }
                         return null;
                       },
@@ -202,31 +223,35 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                       },
                     ),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 36),
 
                     // Change Password Button
                     SizedBox(
                       width: double.infinity,
                       child: CommonButton(
-                        onPressed: _onChangePassword,
-                        widget: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.check_circle_outline, size: 20),
-                            SizedBox(width: 8),
-                            Text(
-                              "Change Password",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                        onPressed: profileProvider.isLoading
+                            ? () {}
+                            : _onChangePassword,
+                        widget: profileProvider.isLoading
+                            ? const ButtonLoading()
+                            : const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.check_circle_outline_rounded, size: 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Update Password",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
                   ],
                 ),
               ),

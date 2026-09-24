@@ -129,7 +129,9 @@ static const String studentTermExamMarksForGuardian = "/guardian/getTermExamBySt
       "/guardian/getStudentsUnderGuardianBySchoolId";
 
   static const String studentPayment = "/guardian/getPaymentbyStudentId";
+  static const String studentPaymentById = "/guardian/getPaymentById";
   static const String studentInvoices = "/guardian/getInvoiceByStudentId";
+  static const String studentInvoiceById = "/guardian/getStudentInvoiceById";
   static const String studentNotices = "/guardian/getNoticeByStudentId/";
   static const String staffsBySchoolId = "/guardian/getStaffsBySchoolId";
 
@@ -142,6 +144,7 @@ static const String studentTermExamMarksForGuardian = "/guardian/getTermExamBySt
       "/guardian/getStudentAttendanceByDate/";
 
   static const String updateStudentProfile = "/guardian/updateStudentProfile";
+  static const String getGuardianRelations = "/guardian/getGuardianRelations";
 
   static const String updateCredentialAndName =
       "/guardian/changeIdentifiersAndName";

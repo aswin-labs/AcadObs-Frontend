@@ -86,26 +86,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           SizedBox(height: 10),
                           _settingsTile(
-                            onTap: () {
-                              context.pushNamed(
+                            onTap: () async {
+                              await context.pushNamed(
                                 widget.forStaff
                                     ? RouteConstants.editProfileStaff
                                     : RouteConstants.profileDetails,
                               );
+                              if (!context.mounted) return;
+                              widget.forStaff
+                                  ? profileProvider.fetchProfileStaff()
+                                  : profileProvider.fetchProfileGuardian();
                             },
                             text: 'My Profile',
-                            icon: Icons.person,
+                            icon: Icons.person_outline_rounded,
                           ),
 
                           _settingsTile(
-                            onTap: () {
-                              context.pushNamed(
+                            onTap: () async {
+                              await context.pushNamed(
                                 RouteConstants.updateProfilePhoto,
                                 extra: widget.forStaff,
                               );
+                              if (!context.mounted) return;
+                              widget.forStaff
+                                  ? profileProvider.fetchProfileStaff()
+                                  : profileProvider.fetchProfileGuardian();
                             },
                             text: 'Edit Profile Photo',
-                            icon: Icons.edit,
+                            icon: Icons.photo_camera_outlined,
                           ),
 
                           _settingsTile(

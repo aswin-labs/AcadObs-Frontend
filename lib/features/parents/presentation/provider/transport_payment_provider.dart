@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/parents/data/models/transport_invoice_model.dart';
 import 'package:acadobs/features/parents/data/services/transport_payment_services.dart';
@@ -29,7 +30,8 @@ class TransportPaymentProvider extends ChangeNotifier {
   int _totalContent = 0;
   int get totalContent => _totalContent;
 
-  bool get hasMore => _currentPage < _totalPages;
+  bool _hasMore = true;
+  bool get hasMore => _hasMore;
 
   bool _isFetchedOnce = false;
   bool get isFetchedOnce => _isFetchedOnce;
@@ -60,6 +62,7 @@ class TransportPaymentProvider extends ChangeNotifier {
     _currentStudentId = studentId;
 
     if (_isLoading) return;
+    if (loadMore && !_hasMore) return;
 
     if (!loadMore && !forceRefresh && _isFetchedOnce) return;
 
@@ -69,17 +72,18 @@ class TransportPaymentProvider extends ChangeNotifier {
     });
 
     try {
-      if (loadMore) {
-        _currentPage++;
-      } else {
+      final targetPage = loadMore ? (_currentPage + 1) : 1;
+      if (!loadMore) {
         _currentPage = 1;
         _transportInvoices.clear();
         _isFetchedOnce = false;
+        _hasMore = true;
+        _isAvailable = false;
       }
 
       final response = await _services.fetchTransportInvoices(
         studentId: studentId,
-        pageNo: _currentPage,
+        pageNo: targetPage,
       );
 
       log(
@@ -97,7 +101,7 @@ class TransportPaymentProvider extends ChangeNotifier {
         _currentPage =
             data['currentPage'] is int
                 ? data['currentPage']
-                : int.tryParse(data['currentPage']?.toString() ?? '1') ?? 1;
+                : int.tryParse(data['currentPage']?.toString() ?? '1') ?? targetPage;
 
         _totalContent =
             data['totalcontent'] is int
@@ -125,17 +129,33 @@ class TransportPaymentProvider extends ChangeNotifier {
         _transportInvoices.addAll(newItems);
         _isFetchedOnce = true;
         _isAvailable = _transportInvoices.isNotEmpty;
+
+        if (fetched.isEmpty ||
+            fetched.length < AppConstants.paginationLimit ||
+            _currentPage >= _totalPages) {
+          _hasMore = false;
+        } else {
+          _hasMore = true;
+        }
       } else {
+        if (loadMore) {
+          _hasMore = false;
+        }
         _isAvailable = false;
       }
     } on DioException catch (e) {
       log("Error fetching transport invoices: $e");
-      // If 404 or empty, transport is not available
+      if (loadMore) {
+        _hasMore = false;
+      }
       if (!loadMore) {
         _isAvailable = false;
       }
     } catch (e) {
       log("Unexpected error fetching transport invoices: $e");
+      if (loadMore) {
+        _hasMore = false;
+      }
       if (!loadMore) {
         _isAvailable = false;
       }
@@ -159,18 +179,26 @@ class TransportPaymentProvider extends ChangeNotifier {
 
       if (response.statusCode == 200 && response.data != null) {
         final rawData = response.data;
-        final data =
-            (rawData is Map && rawData['data'] is Map)
-                ? rawData['data']
-                : rawData;
-        if (data != null && data is Map) {
-          final map = Map<String, dynamic>.from(data);
-          if (map['student_id'] == null &&
-              map['studentId'] == null &&
+        if (rawData is Map) {
+          final data =
+              (rawData['data'] is Map)
+                  ? Map<String, dynamic>.from(rawData['data'] as Map)
+                  : Map<String, dynamic>.from(rawData);
+
+          if (data['student_id'] == null &&
+              data['studentId'] == null &&
               _currentStudentId != null) {
-            map['student_id'] = _currentStudentId;
+            data['student_id'] = _currentStudentId;
           }
-          _selectedInvoice = TransportInvoice.fromJson(map);
+
+          if (rawData['pendingAmount'] != null && data['pendingAmount'] == null) {
+            data['pendingAmount'] = rawData['pendingAmount'];
+          }
+          if (rawData['totalAmountPaid'] != null && data['totalAmountPaid'] == null) {
+            data['totalAmountPaid'] = rawData['totalAmountPaid'];
+          }
+
+          _selectedInvoice = TransportInvoice.fromJson(data);
         }
       }
     } catch (e) {

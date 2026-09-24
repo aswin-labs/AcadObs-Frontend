@@ -60,6 +60,45 @@ class _EditProfileStaffState extends State<EditProfileStaff> {
     });
   }
 
+  final _formKey = GlobalKey<FormState>();
+
+  void _resetControllers(StaffModelProfile profile) {
+    setState(() {
+      nameController.text = profile.user?.name ?? '';
+      qualificationController.text = profile.qualification ?? '';
+      addressController.text = profile.address ?? '';
+      emailController.text = profile.user?.email ?? '';
+      phoneController.text = profile.user?.phone ?? '';
+    });
+  }
+
+  void _onCancelEdit() {
+    final profile = provider.staffProfile;
+    if (profile != null) {
+      _resetControllers(profile);
+    }
+    provider.disableEditProfile();
+  }
+
+  void _saveProfile() async {
+    if (_formKey.currentState != null && !_formKey.currentState!.validate()) {
+      return;
+    }
+    final updatedStaff = StaffModelProfile(
+      user: UserModel(
+        name: nameController.text.trim(),
+        phone: phoneController.text.trim(),
+        role: 'teacher',
+      ),
+      qualification: qualificationController.text.trim(),
+      address: addressController.text.trim(),
+    );
+    await context.read<ProfileProvider>().saveProfileDetailsStaff(
+      context: context,
+      staff: updatedStaff,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileProvider = context.watch<ProfileProvider>();
@@ -71,7 +110,18 @@ class _EditProfileStaffState extends State<EditProfileStaff> {
           Consumer<ProfileProvider>(
             builder: (context, provider, _) {
               if (provider.editProfileEnabled) {
-                return SizedBox.shrink();
+                return TextButton.icon(
+                  onPressed: _onCancelEdit,
+                  icon: const Icon(Icons.close, size: 18, color: Colors.red),
+                  label: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
+                );
               }
 
               return GestureDetector(
@@ -81,12 +131,16 @@ class _EditProfileStaffState extends State<EditProfileStaff> {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: Row(
-                    children: [
-                      Icon(Icons.edit, size: 18),
+                    children: const [
+                      Icon(Icons.edit_outlined, size: 18),
                       SizedBox(width: 5),
                       Text(
                         "Edit",
-                        style: TextStyle(color: Colors.black, fontSize: 18),
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -99,107 +153,156 @@ class _EditProfileStaffState extends State<EditProfileStaff> {
       body:
           profileProvider.isLoading
               ? const Center(child: CircularProgressIndicator())
-              : CustomScrollView(
-                physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics(),
-                ),
-                slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: context.paddingHorizontal,
-                      child: Consumer<ProfileProvider>(
-                        builder: (context, provider, _) {
-                          final enabled = provider.editProfileEnabled;
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 20),
-                              if (provider.editProfileEnabled)
-                                EditingEnableMode(),
-
-                              _buildSectionTitle("Teacher"),
-                              SizedBox(height: 10),
-
-                              CustomTextfield(
-                                iconData: const Icon(LucideIcons.user),
-                                controller: nameController,
-                                label: " Name",
-                                hintText: 'Enter name',
-                                enabled: enabled,
-                              ),
-                              const SizedBox(height: 16),
-                              CustomTextfield(
-                                iconData: const Icon(LucideIcons.home),
-                                controller: addressController,
-                                label: " Address",
-                                hintText: 'Enter address',
-                                enabled: enabled,
-                              ),
-                              const SizedBox(height: 16),
-
-                              CustomTextfield(
-                                iconData: const Icon(LucideIcons.school),
-                                controller: qualificationController,
-                                label: "qualification",
-                                hintText: 'qualification',
-                                enabled: enabled,
-                              ),
-                              const SizedBox(height: 16),
-
-                              CustomTextfield(
-                                iconData: const Icon(LucideIcons.mail),
-                                controller: emailController,
-                                label: "Email",
-                                hintText: 'Enter email address',
-                                enabled: false,
-                              ),
-                              const SizedBox(height: 16),
-
-                              CustomTextfield(
-                                iconData: const Icon(LucideIcons.phone),
-                                controller: phoneController,
-                                label: "phone",
-                                hintText: 'Enter mobile',
-                                enabled: enabled,
-                              ),
-                              const SizedBox(height: 16),
-
-                              const SizedBox(height: 50),
-                              provider.editProfileEnabled
-                                  ? CommonButton(
-                                    onPressed: () {
-                                      final updatedStaff = StaffModelProfile(
-                                        user: UserModel(
-                                          name: nameController.text.trim(),
-                                          phone: phoneController.text.trim(),
-                                          role: 'teacher',
-                                        ),
-                                        qualification:
-                                            qualificationController.text.trim(),
-                                        address: addressController.text.trim(),
-                                      );
-                                      context
-                                          .read<ProfileProvider>()
-                                          .saveProfileDetailsStaff(
-                                            context: context,
-                                            staff: updatedStaff,
-                                          );
-                                    },
-                                    widget:
-                                        provider.isLoading
-                                            ? ButtonLoading()
-                                            : Text("Save Changes"),
-                                  )
-                                  : SizedBox.shrink(),
-                              const SizedBox(height: 50),
-                            ],
-                          );
-                        },
-                      ),
+              : Form(
+                  key: _formKey,
+                  child: CustomScrollView(
+                    physics: const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
                     ),
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: context.paddingHorizontal,
+                          child: Consumer<ProfileProvider>(
+                            builder: (context, provider, _) {
+                              final enabled = provider.editProfileEnabled;
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 20),
+                                  if (provider.editProfileEnabled)
+                                    const EditingEnableMode(),
+
+                                  _buildSectionTitle("Teacher"),
+                                  const SizedBox(height: 10),
+
+                                  CustomTextfield(
+                                    iconData: const Icon(LucideIcons.user),
+                                    controller: nameController,
+                                    label: "Full Name",
+                                    hintText: 'Enter name',
+                                    enabled: enabled,
+                                    validator: (value) {
+                                      if (value == null || value.trim().isEmpty) {
+                                        return 'Please enter name';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  CustomTextfield(
+                                    iconData: const Icon(LucideIcons.home),
+                                    controller: addressController,
+                                    label: "Address",
+                                    hintText: 'Enter address',
+                                    enabled: enabled,
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  CustomTextfield(
+                                    iconData: const Icon(LucideIcons.school),
+                                    controller: qualificationController,
+                                    label: "Qualification",
+                                    hintText: 'Enter qualification',
+                                    enabled: enabled,
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  CustomTextfield(
+                                    iconData: const Icon(LucideIcons.mail),
+                                    controller: emailController,
+                                    label: "Email",
+                                    hintText: 'Enter email address',
+                                    enabled: false,
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  CustomTextfield(
+                                    iconData: const Icon(LucideIcons.phone),
+                                    controller: phoneController,
+                                    label: "Phone Number",
+                                    hintText: 'Enter mobile',
+                                    keyBoardtype: TextInputType.phone,
+                                    enabled: enabled,
+                                    validator: (value) {
+                                      if (value != null && value.trim().isNotEmpty) {
+                                        final digits = value.replaceAll(RegExp(r'[^0-9]'), '');
+                                        if (digits.length < 7 || digits.length > 15) {
+                                          return 'Please enter a valid phone number (7-15 digits)';
+                                        }
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 40),
+
+                                  if (provider.editProfileEnabled) ...[
+                                    CommonButton(
+                                      onPressed:
+                                          provider.isLoadingTwo
+                                              ? () {}
+                                              : _saveProfile,
+                                      widget:
+                                          provider.isLoadingTwo
+                                              ? const ButtonLoading()
+                                              : const Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.check_rounded,
+                                                      size: 20,
+                                                    ),
+                                                    SizedBox(width: 8),
+                                                    Text(
+                                                      "Save Changes",
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: OutlinedButton(
+                                        onPressed:
+                                            provider.isLoadingTwo
+                                                ? null
+                                                : _onCancelEdit,
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: Colors.grey.shade700,
+                                          side: BorderSide(
+                                            color: Colors.grey.shade300,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 14,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        child: const Text(
+                                          "Discard Changes",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  const SizedBox(height: 50),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
     );
   }
 

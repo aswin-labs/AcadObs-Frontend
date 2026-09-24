@@ -1,4 +1,5 @@
 import 'package:acadobs/core/services/api_services.dart';
+import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -47,13 +48,29 @@ class AuthServices {
     return response;
   }
 
-  // send fcm token
-  Future<Response> sendFcmToken() async {
-    final token = await FirebaseMessaging.instance.getToken();
-    final response = await ApiServices.put(ApiEndpoints.guardianNotification, {
-      "fcm_token": token,
-    });
-    return response;
+  // send fcm token safely
+  Future<Response?> sendFcmToken() async {
+    try {
+      String? token;
+      try {
+        token = await FirebaseMessaging.instance.getToken();
+      } catch (e) {
+        // Firebase token fetching may fail if notification permission is denied
+      }
+
+      token ??= await AuthStorageService().getFcmToken();
+
+      if (token == null || token.isEmpty) {
+        return null;
+      }
+
+      final response = await ApiServices.put(ApiEndpoints.guardianNotification, {
+        "fcm_token": token,
+      });
+      return response;
+    } catch (e) {
+      return null;
+    }
   }
 
   // get user permissions

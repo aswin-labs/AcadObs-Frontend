@@ -98,7 +98,19 @@ class _ProfileIconState extends State<ProfileIcon>
                     ),
                   ],
                 ),
-                child: Icon(widget.icon, color: Colors.white, size: 18),
+                child: (widget.profileImageUrl != null &&
+                        widget.profileImageUrl!.trim().isNotEmpty)
+                    ? ClipOval(
+                        child: Image.network(
+                          widget.profileImageUrl!.trim(),
+                          width: 32,
+                          height: 32,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Icon(widget.icon, color: Colors.white, size: 18),
+                        ),
+                      )
+                    : Icon(widget.icon, color: Colors.white, size: 18),
               ),
             ],
           ),

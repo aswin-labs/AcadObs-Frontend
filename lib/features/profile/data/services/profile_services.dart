@@ -30,6 +30,12 @@ class ProfileServices {
     return response;
   }
 
+  // Get guardian relations
+  Future<Response> getGuardianRelations() async {
+    final response = await ApiServices.get(ApiEndpoints.getGuardianRelations);
+    return response;
+  }
+
   // update profile details
   Future<Response> updateProfileDetails({
     required GuardianModel guardian,
@@ -69,6 +75,9 @@ class ProfileServices {
           "guardian_name": guardian.guardianName,
           "guardian_contact": guardian.guardianContact,
           "guardian_email": guardian.guardianEmail,
+          "name": guardian.guardianName,
+          "phone": guardian.guardianContact,
+          "email": guardian.guardianEmail,
         });
 
     return response;

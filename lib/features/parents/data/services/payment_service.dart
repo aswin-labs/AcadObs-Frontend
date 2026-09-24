@@ -30,6 +30,22 @@ class PaymentService {
     return response;
   }
 
+  // fetch single invoice details by ID
+  Future<Response> fetchStudentInvoiceById({required int invoiceId}) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.studentInvoiceById}/$invoiceId",
+    );
+    return response;
+  }
+
+  // fetch single payment details by ID
+  Future<Response> fetchPaymentById({required int paymentId}) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.studentPaymentById}/$paymentId",
+    );
+    return response;
+  }
+
   // upload payment details
   Future<Response> uploadPaymentDetails({
     required BuildContext context,
@@ -71,7 +87,8 @@ class PaymentService {
     required BuildContext context,
     required int paymentId,
     required int studentId,
-    required int invoiceStudentId,
+    int? invoiceStudentId,
+    int? transportInvoiceId,
     required double amount,
     required String paymentDate,
     required String paymentCategory,
@@ -79,14 +96,19 @@ class PaymentService {
     required String paymentMethod,
   }) async {
     final fileUpload = context.read<FilePickerProvider>().getFile(
-      'paymentAttachment',
-    );
+          'paymentAttachment',
+        ) ??
+        context.read<FilePickerProvider>().getFile(
+          'transportPaymentAttachment',
+        );
 
     final multipartFile = await FileUploadUtils.toMultipartFile(fileUpload);
 
     final formData = FormData.fromMap({
       "student_id": studentId,
-      "invoice_student_id": invoiceStudentId,
+      if (invoiceStudentId != null) "invoice_student_id": invoiceStudentId,
+      if (transportInvoiceId != null)
+        "transport_invoice_id": transportInvoiceId,
       "amount": amount,
       "payment_date": paymentDate,
       "payment_category": paymentCategory,

@@ -1,5 +1,4 @@
 import 'package:acadobs/core/netwok/network_provider.dart';
-import 'package:acadobs/core/netwok/screens/offline_banner.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
@@ -14,6 +13,7 @@ import 'package:acadobs/features/profile/presentation/provider/profile_provider.
 import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/features/tracking/presentation/widgets/bus_route_section.dart';
 import 'package:acadobs/routes/router_constants.dart';
+import 'package:acadobs/shared/widgets/centered_offline_view.dart';
 import 'package:acadobs/shared/widgets/double_back_to_exit.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
 import 'package:flutter/cupertino.dart';
@@ -69,6 +69,21 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final networkProvider = context.watch<NetworkProvider>();
+    final textScaleFactor = MediaQuery.textScalerOf(
+      context,
+    ).scale(1.0).clamp(1.0, 1.4);
+    final responsiveAppBarHeight = (170 * textScaleFactor).clamp(165.0, 215.0);
+
+    if (!networkProvider.isConnected) {
+      return DoubleBackToExit(
+        child: Scaffold(
+          backgroundColor: Colors.grey[50],
+          body: CenteredOfflineView(
+            onRetry: () => refreshAllData(forceRefresh: true),
+          ),
+        ),
+      );
+    }
 
     return DoubleBackToExit(
       child: Scaffold(
@@ -80,24 +95,12 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
               child: CustomScrollView(
                 slivers: [
                   SliverAppBar(
-                    expandedHeight: 180,
+                    expandedHeight: responsiveAppBarHeight,
                     pinned: true,
                     floating: false,
+                    elevation: 0,
                     automaticallyImplyLeading: false,
                     backgroundColor: const Color(0xFF00AEF0),
-                    actions: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: 12),
-                        child: ProfileIcon(
-                          icon: CupertinoIcons.profile_circled,
-                          ontap:
-                              () => context.pushNamed(
-                                RouteConstants.profileScreen,
-                                extra: false,
-                              ),
-                        ),
-                      ),
-                    ],
                     flexibleSpace: FlexibleSpaceBar(
                       background: Stack(
                         fit: StackFit.expand,
@@ -130,12 +133,32 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                             },
                           ),
 
+                          // Subtle brand cyan/blue tint to maintain identity while showcasing the photo
                           Container(
                             decoration: const BoxDecoration(
                               gradient: LinearGradient(
-                                colors: [Color(0xE635C2C1), Color(0xE600AEF0)],
+                                colors: [
+                                  Color(0x5935C2C1), // ~35% brand cyan
+                                  Color(0x6600AEF0), // ~40% brand blue
+                                ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
+                              ),
+                            ),
+                          ),
+
+                          // Cinematic contrast vignette for status bar and high-contrast text legibility
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.black.withAlpha(128),
+                                  Colors.black.withAlpha(31),
+                                  Colors.black.withAlpha(178),
+                                ],
+                                stops: const [0.0, 0.45, 1.0],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
                               ),
                             ),
                           ),
@@ -143,68 +166,153 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                           SafeArea(
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(
-                                20,
-                                20,
-                                20,
                                 16,
+                                10,
+                                16,
+                                14,
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  Consumer2<AuthProvider, ParentProvider>(
-                                    builder: (
-                                      context,
-                                      authProv,
-                                      parentProv,
-                                      _,
-                                    ) {
-                                      final schoolDetails =
-                                          authProv.schoolDetails ??
-                                          parentProv.schoolDetails;
-                                      return Row(
-                                        children: [
-                                          if (schoolDetails?['logo'] != null)
-                                            CircleAvatar(
-                                              radius: 16,
-                                              backgroundColor: Colors.white,
-                                              child: ClipOval(
-                                                child: Image.network(
-                                                  schoolDetails!['logo'],
-                                                  width: 32,
-                                                  height: 32,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (
-                                                    context,
-                                                    error,
-                                                    stackTrace,
-                                                  ) {
-                                                    return const Icon(
-                                                      Icons.business_outlined,
-                                                      color: Colors.grey,
-                                                    );
-                                                  },
+                                  // Top Row: School Badge on the left, Profile on the right
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Consumer2<
+                                          AuthProvider,
+                                          ParentProvider
+                                        >(
+                                          builder: (
+                                            context,
+                                            authProv,
+                                            parentProv,
+                                            _,
+                                          ) {
+                                            final schoolDetails =
+                                                authProv.schoolDetails ??
+                                                parentProv.schoolDetails;
+                                            final schoolName =
+                                                schoolDetails?['name']
+                                                    ?.toString() ??
+                                                '';
+                                            final logo =
+                                                schoolDetails?['logo']
+                                                    ?.toString() ??
+                                                '';
+
+                                            return Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 5,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withAlpha(
+                                                  82,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(24),
+                                                border: Border.all(
+                                                  color: Colors.white.withAlpha(
+                                                    64,
+                                                  ),
+                                                  width: 1,
                                                 ),
                                               ),
-                                            ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            capitalizeEachWord(
-                                              schoolDetails?['name'] ?? '',
-                                            ),
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                        ],
-                                      );
-                                    },
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius: 13,
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    child: ClipOval(
+                                                      child:
+                                                          logo.isNotEmpty
+                                                              ? Image.network(
+                                                                logo,
+                                                                width: 26,
+                                                                height: 26,
+                                                                fit:
+                                                                    BoxFit
+                                                                        .cover,
+                                                                errorBuilder:
+                                                                    (
+                                                                      context,
+                                                                      error,
+                                                                      stackTrace,
+                                                                    ) => const Icon(
+                                                                      Icons
+                                                                          .school,
+                                                                      size: 15,
+                                                                      color: Color(
+                                                                        0xFF00AEF0,
+                                                                      ),
+                                                                    ),
+                                                              )
+                                                              : const Icon(
+                                                                Icons.school,
+                                                                size: 15,
+                                                                color: Color(
+                                                                  0xFF00AEF0,
+                                                                ),
+                                                              ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Expanded(
+                                                    child: Text(
+                                                      capitalizeEachWord(
+                                                        schoolName.isNotEmpty
+                                                            ? schoolName
+                                                            : 'School',
+                                                      ),
+                                                      maxLines: 2,
+                                                      softWrap: true,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        fontSize: 13.5,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Colors.white,
+                                                        letterSpacing: 0.2,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Consumer<ProfileProvider>(
+                                        builder: (context, profileProv, _) {
+                                          return ProfileIcon(
+                                            icon:
+                                                CupertinoIcons.profile_circled,
+                                            profileImageUrl:
+                                                profileProv
+                                                    .guardianProfile
+                                                    ?.user
+                                                    ?.dp,
+                                            ontap:
+                                                () => context.pushNamed(
+                                                  RouteConstants.profileScreen,
+                                                  extra: false,
+                                                ),
+                                          );
+                                        },
+                                      ),
+                                    ],
                                   ),
 
-                                  const SizedBox(height: 8),
+                                  const Spacer(),
 
+                                  // Bottom Row: Greeting & Guardian Name
                                   Consumer<ProfileProvider>(
                                     builder: (context, provider, _) {
                                       if (provider.isLoading) {
@@ -215,8 +323,8 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                                           highlightColor: Colors.white
                                               .withAlpha(220),
                                           child: Container(
-                                            height: 32,
-                                            width: 160,
+                                            height: 28,
+                                            width: 150,
                                             decoration: BoxDecoration(
                                               color: Colors.white,
                                               borderRadius:
@@ -233,16 +341,67 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                                               ?.name ??
                                           '';
 
-                                      return Text(
-                                        name.isNotEmpty
-                                            ? "Hi, \n$name"
-                                            : "Hi, Parent",
-                                        style: const TextStyle(
-                                          fontSize: 28,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          letterSpacing: 0.5,
-                                        ),
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 6,
+                                                height: 6,
+                                                decoration: const BoxDecoration(
+                                                  color: Color(0xFF35C2C1),
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                "WELCOME BACK",
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.white.withAlpha(
+                                                    230,
+                                                  ),
+                                                  letterSpacing: 1.1,
+                                                  shadows: const [
+                                                    Shadow(
+                                                      color: Colors.black54,
+                                                      offset: Offset(0, 1),
+                                                      blurRadius: 3,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 3),
+                                          Text(
+                                            name.isNotEmpty
+                                                ? capitalizeEachWord(name)
+                                                : "Hi, Parent",
+                                            maxLines: 2,
+                                            softWrap: true,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                              letterSpacing: 0.2,
+                                              height: 1.2,
+                                              shadows: [
+                                                Shadow(
+                                                  color: Colors.black87,
+                                                  offset: Offset(0, 1.5),
+                                                  blurRadius: 5,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       );
                                     },
                                   ),
@@ -292,7 +451,6 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                 ],
               ),
             ),
-            if (!networkProvider.isConnected) OfflineBanner(),
           ],
         ),
       ),

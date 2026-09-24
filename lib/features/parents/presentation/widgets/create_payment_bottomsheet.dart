@@ -29,7 +29,9 @@ void showCreatePaymentBottomSheet({
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final TextEditingController amountController = TextEditingController(
-    text: invoice.invoice?.amount?.toString() ?? '',
+    text: (invoice.pendingAmount != null && invoice.pendingAmount! > 0)
+        ? (invoice.formattedPendingAmount ?? invoice.pendingAmount.toString())
+        : (invoice.invoice?.amount?.toString() ?? ''),
   );
   final transactionIdController = TextEditingController(text: transactionId);
   final TextEditingController dateController = TextEditingController();
@@ -96,7 +98,8 @@ void showCreatePaymentBottomSheet({
                   controller: transactionIdController,
                   hintText: 'Transaction ID',
                 ),
-                SizedBox(height: Responsive.height * 1),
+ 
+               SizedBox(height: Responsive.height * 1),
                 CustomDropdown(
                   dropdownKey: "paymentMethod",
                   label: "Payment Method",

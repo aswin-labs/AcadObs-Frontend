@@ -9,6 +9,8 @@ class CustomDropdown extends StatelessWidget {
   final List<String> items;
   final Function(String)? onChanged;
   final String? Function(String?)? validator;
+  final bool enabled;
+  final String Function(String)? itemLabelBuilder;
 
   const CustomDropdown({
     super.key,
@@ -18,6 +20,8 @@ class CustomDropdown extends StatelessWidget {
     required this.items,
     this.onChanged,
     this.validator,
+    this.enabled = true,
+    this.itemLabelBuilder,
   });
 
   @override
@@ -29,11 +33,17 @@ class CustomDropdown extends StatelessWidget {
                 ? dropdownProvider.getSelectedItem(dropdownKey)
                 : null;
 
+        final isValueValid =
+            selectedValue != null && items.contains(selectedValue);
+        final currentVal = isValueValid ? selectedValue : null;
+
         return DropdownButtonFormField<String>(
-          initialValue: selectedValue,
+          key: ValueKey('${dropdownKey}_$currentVal'),
+          initialValue: currentVal,
           isExpanded: true,
           decoration: InputDecoration(
             labelText: label,
+            enabled: enabled,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(30),
               borderSide: const BorderSide(color: Colors.grey),
@@ -44,27 +54,38 @@ class CustomDropdown extends StatelessWidget {
             ),
           ),
           icon: const Icon(Icons.arrow_drop_down),
+          disabledHint: selectedValue != null
+              ? Text(
+                  itemLabelBuilder != null
+                      ? itemLabelBuilder!(selectedValue)
+                      : selectedValue,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.black87),
+                )
+              : null,
           items:
               items.map((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
                   child: Text(
-          value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+                    itemLabelBuilder != null ? itemLabelBuilder!(value) : value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 );
               }).toList(),
-          onChanged: (String? newValue) {
-            if (newValue != null) {
-              dropdownProvider.setSelectedItem(dropdownKey, newValue);
-              if (onChanged != null) {
-                onChanged!(newValue);
-              }
-            }
-          },
+          onChanged: enabled
+              ? (String? newValue) {
+                  if (newValue != null) {
+                    dropdownProvider.setSelectedItem(dropdownKey, newValue);
+                    if (onChanged != null) {
+                      onChanged!(newValue);
+                    }
+                  }
+                }
+              : null,
           validator: validator,
-
           dropdownColor: Colors.white,
           style: const TextStyle(color: Colors.black),
           menuMaxHeight: 200,

@@ -4,6 +4,7 @@ import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/helpers/form_validators.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/parents/data/models/transport_invoice_model.dart';
+import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/transport_payment_provider.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/file_picker_provider.dart';
@@ -20,13 +21,22 @@ import 'package:provider/provider.dart';
 void showCreateTransportPaymentBottomSheet({
   required BuildContext context,
   required TransportInvoice invoice,
+  int? paymentId,
+  String? transactionId,
+  bool forEdit = false,
 }) {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
+  final defaultAmount =
+      (invoice.pendingAmount != null && invoice.pendingAmount! > 0)
+          ? (invoice.formattedPendingAmount ?? invoice.pendingAmount.toString())
+          : (invoice.amount?.toString() ?? '');
+
   final TextEditingController amountController = TextEditingController(
-    text: invoice.amount?.toString() ?? '',
+    text: defaultAmount,
   );
-  final TextEditingController transactionIdController = TextEditingController();
+  final TextEditingController transactionIdController =
+      TextEditingController(text: transactionId ?? '');
   final TextEditingController dateController = TextEditingController();
 
   context.read<DropdownProvider>().setSelectedItem(
@@ -59,7 +69,9 @@ void showCreateTransportPaymentBottomSheet({
               children: [
                 Center(
                   child: Text(
-                    "Create Transport Payment",
+                    forEdit
+                        ? "Edit Transport Payment"
+                        : "Create Transport Payment",
                     style: context.textTheme.titleLarge!.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -124,6 +136,42 @@ void showCreateTransportPaymentBottomSheet({
                     ),
                   ),
 
+                // Remaining balance banner if invoice is partially paid
+                if (invoice.pendingAmount != null && invoice.pendingAmount! > 0) ...[
+                  const SizedBox(height: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF7ED),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFFFEDD5)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          LucideIcons.hourglass,
+                          size: 16,
+                          color: Color(0xFFEA580C),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Remaining Balance: ₹${invoice.formattedPendingAmount} (Total: ₹${invoice.amount ?? '0.00'})",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFFC2410C),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 SizedBox(height: Responsive.height * 1.5),
 
                 CustomTextfield(
@@ -134,7 +182,19 @@ void showCreateTransportPaymentBottomSheet({
                     decimal: true,
                   ),
                   validator: (value) {
-                    return FormValidator.validateNotEmpty(value);
+                    final notEmpty = FormValidator.validateNotEmpty(value);
+                    if (notEmpty != null) return notEmpty;
+
+                    final parsed = double.tryParse(value ?? '');
+                    if (parsed == null || parsed <= 0) {
+                      return 'Please enter a valid amount';
+                    }
+                    if (invoice.pendingAmount != null &&
+                        invoice.pendingAmount! > 0 &&
+                        parsed > invoice.pendingAmount!) {
+                      return 'Amount cannot exceed remaining balance (₹${invoice.formattedPendingAmount})';
+                    }
+                    return null;
                   },
                 ),
 
@@ -181,7 +241,9 @@ void showCreateTransportPaymentBottomSheet({
                 SizedBox(height: Responsive.height * 1.5),
 
                 CustomFilePicker(
-                  label: "Upload File* (Max 5 MB):",
+                  label: forEdit
+                      ? "Upload File (Optional if unchanged, Max 5 MB):"
+                      : "Upload File* (Max 5 MB):",
                   fieldName: "transportPaymentAttachment",
                   validator: (value) {
                     final provider = context.read<FilePickerProvider>();
@@ -190,8 +252,9 @@ void showCreateTransportPaymentBottomSheet({
                     );
                     if (error != null) return error;
 
-                    if (provider.getFile("transportPaymentAttachment") ==
-                        null) {
+                    if (!forEdit &&
+                        provider.getFile("transportPaymentAttachment") ==
+                            null) {
                       return "Please upload a payment attachment";
                     }
                     return null;
@@ -200,8 +263,12 @@ void showCreateTransportPaymentBottomSheet({
 
                 SizedBox(height: Responsive.height * 3),
 
-                Consumer<TransportPaymentProvider>(
-                  builder: (context, provider, _) {
+                Consumer2<TransportPaymentProvider, PaymentProvider>(
+                  builder: (context, transportProvider, paymentProvider, _) {
+                    final isLoading = forEdit
+                        ? paymentProvider.isLoadingForEdit
+                        : transportProvider.isLoadingUpload;
+
                     return CommonButton(
                       onPressed: () {
                         if (formKey.currentState?.validate() ?? false) {
@@ -223,23 +290,41 @@ void showCreateTransportPaymentBottomSheet({
                           final amount = double.tryParse(amountController.text);
                           if (amount == null) return;
 
-                          provider.createTransportPayment(
-                            context: context,
-                            studentId: invoice.studentId ?? 0,
-                            transportInvoiceId: invoice.id ?? 0,
-                            amount: amount,
-                            paymentDate: dateController.text,
-                            transactionId: transactionIdController.text.trim(),
-                            paymentMethod: paymentMethod,
-                          );
+                          if (forEdit) {
+                            paymentProvider.editPaymentDetails(
+                              context: context,
+                              paymentId: paymentId ?? 0,
+                              studentId: invoice.studentId ?? 0,
+                              transportInvoiceId: invoice.id ?? 0,
+                              amount: amount,
+                              paymentDate: dateController.text,
+                              paymentCategory: 'transport',
+                              transactionId:
+                                  transactionIdController.text.trim(),
+                              paymentMethod: paymentMethod,
+                            );
+                          } else {
+                            transportProvider.createTransportPayment(
+                              context: context,
+                              studentId: invoice.studentId ?? 0,
+                              transportInvoiceId: invoice.id ?? 0,
+                              amount: amount,
+                              paymentDate: dateController.text,
+                              transactionId:
+                                  transactionIdController.text.trim(),
+                              paymentMethod: paymentMethod,
+                            );
+                          }
                         }
                       },
                       widget:
-                          provider.isLoadingUpload
+                          isLoading
                               ? const ButtonLoading()
-                              : const Text(
-                                'Upload & Submit Payment',
-                                style: TextStyle(
+                              : Text(
+                                forEdit
+                                    ? 'Update Payment'
+                                    : 'Upload & Submit Payment',
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
