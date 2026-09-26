@@ -92,6 +92,26 @@ class ApiEndpoints {
       "/teacher/bulkUpdateCompetencyAssessmentbyStudentIdandExamId";
   static const String deleteCompetencyAssessment =
       "/teacher/deleteCompetencyAssessment";
+  static const String getCompetencyAssessmentByStudentIdTeacher =
+      "/teacher/getCompetencyAssesmentByStudentId";
+  static const String getCompetencyAssessmentByStudentIdGuardian =
+      "/guardian/getCompetencyAssesmentByStudentId";
+
+  // Co-Scholastic Assessment
+  static const String getCoScholasticAreasListByStudentId =
+      "/teacher/getCoScholasticAreasListByStudentId";
+  static const String createStudentCoScholasticAssessment =
+      "/teacher/createStudentCoScholasticAssessment";
+  static const String getCoScholasticAssessmentByStudentIdAndExamId =
+      "/teacher/getCoScholasticAssessmentbyStudentIdandExamId";
+  static const String bulkUpdateCoScholasticAssessment =
+      "/teacher/bulkUpdateCoScholasticAssessmentbyStudentIdandExamId";
+  static const String deleteCoScholasticAssessment =
+      "/teacher/deleteCoScholasticAssessment";
+  static const String getCoScholasticAssessmentByStudentIdTeacher =
+      "/teacher/getCoScholasticAssessmentByStudentId";
+  static const String getCoScholasticAssessmentByStudentIdGuardian =
+      "/guardian/getCoScholasticAssessmentByStudentId";
 
   //Achievement
   static const String getAllAchievement = "/teacher/allAchievements";
@@ -105,6 +125,7 @@ class ApiEndpoints {
   static const String teacherTodayAttendance = "/teacher/todayAttendanceStatus";
   static const String teacherCheckIn = "/teacher/markSelfAttendance";
   static const String teacherCheckOut = "/teacher/markCheckOutSelfAttendance";
+  static const String getMyStaffAttendance = "/teacher/getMyStaffAttendance";
 
   static const String staffProfile = "/teacher/getProfileDetails";
 

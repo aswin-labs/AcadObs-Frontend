@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/popup_loader.dart';
+import 'package:acadobs/features/teacher/data/models/attendance/staff_attendance_history_model.dart';
 import 'package:acadobs/features/teacher/data/services/teacher_attendance_services.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,30 @@ class TeacherAttendanceProvider extends ChangeNotifier {
 
   String _todayAttendanceStatus = '';
   String get todayAttendanceStatus => _todayAttendanceStatus;
+
+  // Attendance History state
+  List<StaffAttendanceHistoryItem> _historyList = [];
+  List<StaffAttendanceHistoryItem> get historyList => _historyList;
+
+  bool _isLoadingHistory = false;
+  bool get isLoadingHistory => _isLoadingHistory;
+
+  bool _isFetchingMoreHistory = false;
+  bool get isFetchingMoreHistory => _isFetchingMoreHistory;
+
+  int _historyCurrentPage = 1;
+  int get historyCurrentPage => _historyCurrentPage;
+
+  int _historyTotalPages = 1;
+  int get historyTotalPages => _historyTotalPages;
+
+  int _historyTotalContent = 0;
+  int get historyTotalContent => _historyTotalContent;
+
+  String? _historyDateFilter;
+  String? get historyDateFilter => _historyDateFilter;
+
+  bool get hasMoreHistory => _historyCurrentPage < _historyTotalPages;
 
   // get today attendance status
   Future<void> getTodayAttendanceStatus() async {
@@ -37,6 +62,96 @@ class TeacherAttendanceProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // Fetch staff attendance history
+  Future<void> fetchStaffAttendanceHistory({
+    bool refresh = false,
+    String? date,
+  }) async {
+    _isLoadingHistory = true;
+    if (refresh) {
+      _historyCurrentPage = 1;
+      _historyList.clear();
+    }
+    notifyListeners();
+
+    if (date != null) {
+      _historyDateFilter = date.trim().isEmpty ? null : date.trim();
+    }
+
+    try {
+      final response = await TeacherAttendanceServices().getMyStaffAttendance(
+        pageNo: 1,
+        date: _historyDateFilter,
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final parsed = StaffAttendanceHistoryResponse.fromJson(response.data);
+        _historyList = parsed.data;
+        _historyCurrentPage = parsed.currentPage;
+        _historyTotalPages = parsed.totalPages;
+        _historyTotalContent = parsed.totalContent;
+      } else {
+        _historyList = [];
+        _historyCurrentPage = 1;
+        _historyTotalPages = 1;
+        _historyTotalContent = 0;
+      }
+    } catch (e) {
+      log("Error fetching staff attendance history: $e");
+      _historyList = [];
+      _historyCurrentPage = 1;
+      _historyTotalPages = 1;
+      _historyTotalContent = 0;
+    } finally {
+      _isLoadingHistory = false;
+      notifyListeners();
+    }
+  }
+
+  // Load more staff attendance history (pagination)
+  Future<void> loadMoreStaffAttendanceHistory() async {
+    if (_isLoadingHistory || _isFetchingMoreHistory || !hasMoreHistory) {
+      return;
+    }
+
+    _isFetchingMoreHistory = true;
+    notifyListeners();
+
+    try {
+      final nextPage = _historyCurrentPage + 1;
+      final response = await TeacherAttendanceServices().getMyStaffAttendance(
+        pageNo: nextPage,
+        date: _historyDateFilter,
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final parsed = StaffAttendanceHistoryResponse.fromJson(response.data);
+        _historyList.addAll(parsed.data);
+        _historyCurrentPage = parsed.currentPage;
+        _historyTotalPages = parsed.totalPages;
+        _historyTotalContent = parsed.totalContent;
+      }
+    } catch (e) {
+      log("Error loading more staff attendance history: $e");
+    } finally {
+      _isFetchingMoreHistory = false;
+      notifyListeners();
+    }
+  }
+
+  // Set date filter
+  void setHistoryDateFilter(String? date) {
+    _historyDateFilter =
+        (date != null && date.trim().isNotEmpty) ? date.trim() : null;
+    fetchStaffAttendanceHistory(refresh: true);
+  }
+
+  // Clear date filter
+  void clearHistoryDateFilter() {
+    _historyDateFilter = null;
+    fetchStaffAttendanceHistory(refresh: true);
   }
 
   // Check in attendance
@@ -221,6 +336,13 @@ class TeacherAttendanceProvider extends ChangeNotifier {
   void resetAttendance() {
     _todayAttendanceStatus = '';
     _isLoading = false;
+    _historyList = [];
+    _isLoadingHistory = false;
+    _isFetchingMoreHistory = false;
+    _historyCurrentPage = 1;
+    _historyTotalPages = 1;
+    _historyTotalContent = 0;
+    _historyDateFilter = null;
     notifyListeners();
   }
 }

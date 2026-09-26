@@ -40,6 +40,8 @@ class RouteConstants {
   static const String studentNoticeScreen = "studentNoticeScreen";
   static const String studentLeaveScreen = "studentLeaveScreen";
   static const String studentProfileScreen = "studentProfileScreen";
+  static const String studentCompetencyScreen = "studentCompetencyScreen";
+  static const String studentCoScholasticScreen = "studentCoScholasticScreen";
   static const String studentProgressCardScreen = "studentProgressCardScreen";
   static const String myClassesScreen = "myClassesScreen";
   static const String myClassMarksScreen = "myClassMarksScreen";
@@ -47,6 +49,12 @@ class RouteConstants {
       "competencyClassAssessmentScreen";
   static const String studentCompetencyRatingScreen =
       "studentCompetencyRatingScreen";
+  static const String coScholasticClassAssessmentScreen =
+      "coScholasticClassAssessmentScreen";
+  static const String studentCoScholasticRatingScreen =
+      "studentCoScholasticRatingScreen";
+  static const String staffAttendanceHistoryScreen =
+      "staffAttendanceHistoryScreen";
 
   //PARENT
   static const String noticedetails = 'noticedetails';

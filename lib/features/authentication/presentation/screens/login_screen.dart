@@ -248,10 +248,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                 // Identifier Field (Phone number or username)
                                 CustomTextfield(
-                                  hintText: "Phone number or Username",
-                                  label: "Phone / Username",
+                                  hintText: "Phone number",
+                                  label: "Phone Number",
                                   enabled: !isLoading,
-                                  keyBoardtype: TextInputType.text,
+                                  keyBoardtype: TextInputType.number,
                                   textInputAction: TextInputAction.next,
                                   iconData: const Icon(
                                     Icons.person_outline,
@@ -265,10 +265,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
-                                      return "Please enter your phone number or username";
+                                      return "Please enter your phone number";
                                     }
-                                    if (value.trim().length < 3) {
-                                      return "Identifier must be at least 3 characters";
+                                    if (value.trim().length < 10) {
+                                      return "Phone number must be 10 digits";
                                     }
                                     return null;
                                   },

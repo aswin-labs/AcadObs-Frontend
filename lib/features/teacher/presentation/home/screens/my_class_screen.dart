@@ -271,6 +271,112 @@ class _MyClassScreenState extends State<MyClassScreen> {
                 ),
               ),
             ),
+            if (widget.isCbse)
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 6,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFF0077B6).withAlpha(45),
+                        width: 1.2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha(8),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(16),
+                        onTap: () {
+                          context.pushNamed(
+                            RouteConstants.coScholasticClassAssessmentScreen,
+                            extra: widget.classGrade,
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 42,
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0077B6).withAlpha(25),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  LucideIcons.shapes,
+                                  color: Color(0xFF0077B6),
+                                  size: 22,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Flexible(
+                                          child: Text(
+                                            'Co-Scholastic Assessment',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: Colors.black87,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Icon(
+                                          LucideIcons.sparkles,
+                                          color: Colors.amber.shade600,
+                                          size: 16,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Grade co-scholastic areas & activities',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(
+                                LucideIcons.chevronRight,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             if (widget.isCbse &&
                 (widget.classGrade.year != null &&
                     widget.classGrade.year! <= 2))
@@ -282,17 +388,17 @@ class _MyClassScreenState extends State<MyClassScreen> {
                 sliver: SliverToBoxAdapter(
                   child: Container(
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF6C5CE7), Color(0xFF4834D4)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFF6C5CE7).withAlpha(45),
+                        width: 1.2,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF4834D4).withAlpha(45),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
+                          color: Colors.black.withAlpha(8),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
@@ -309,57 +415,57 @@ class _MyClassScreenState extends State<MyClassScreen> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
-                            vertical: 14,
+                            vertical: 12,
                           ),
                           child: Row(
                             children: [
                               Container(
-                                width: 44,
-                                height: 44,
+                                width: 42,
+                                height: 42,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withAlpha(35),
+                                  color: const Color(0xFF6C5CE7).withAlpha(25),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: const Icon(
                                   LucideIcons.award,
-                                  color: Colors.white,
-                                  size: 24,
+                                  color: Color(0xFF6C5CE7),
+                                  size: 22,
                                 ),
                               ),
                               const SizedBox(width: 14),
-                              const Expanded(
+                              Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       children: [
-                                        Flexible(
+                                        const Flexible(
                                           child: Text(
                                             'Competency Assessment',
                                             maxLines: 1,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 16,
+                                              color: Colors.black87,
+                                              fontSize: 15,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
                                         ),
-                                        SizedBox(width: 4),
+                                        const SizedBox(width: 4),
                                         Icon(
                                           Icons.star_rounded,
-                                          color: Color(0xFFFFD54F),
-                                          size: 18,
+                                          color: Colors.amber.shade600,
+                                          size: 16,
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: 2),
+                                    const SizedBox(height: 2),
                                     Text(
                                       'Grade student competencies & indicators (1–4 ★)',
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
-                                        color: Colors.white70,
+                                        color: Colors.grey.shade600,
                                         fontSize: 12,
                                       ),
                                     ),
@@ -368,7 +474,7 @@ class _MyClassScreenState extends State<MyClassScreen> {
                               ),
                               const Icon(
                                 LucideIcons.chevronRight,
-                                color: Colors.white70,
+                                color: Colors.grey,
                                 size: 20,
                               ),
                             ],

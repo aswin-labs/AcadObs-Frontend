@@ -32,6 +32,8 @@ import 'package:acadobs/features/parents/presentation/screens/payment_detail_scr
 import 'package:acadobs/features/students/data/models/student_profile_args.dart';
 import 'package:acadobs/features/students/data/models/student_screen_args.dart';
 import 'package:acadobs/features/students/presentation/screens/student_achievement_screen.dart';
+import 'package:acadobs/features/students/presentation/screens/student_co_scholastic_screen.dart';
+import 'package:acadobs/features/students/presentation/screens/student_competency_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_detail_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_exam_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/student_leave_screen.dart';
@@ -49,10 +51,13 @@ import 'package:acadobs/features/teacher/presentation/attendance/screens/attenda
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/edit_profile_staff.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/co_scholastic_class_assessment_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/student_co_scholastic_rating_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/competency_class_assessment_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/student_competency_rating_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/my_class_marks_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/my_class_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/staff_attendance_history_screen.dart';
 import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/leave_request_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/student_leaves_screen.dart';
@@ -440,6 +445,36 @@ List<GoRoute> staffRoutes = [
     },
   ),
 
+  //student competency assessment screen
+  GoRoute(
+    path: '/studentCompetencyScreen',
+    name: RouteConstants.studentCompetencyScreen,
+    builder: (context, state) {
+      final args =
+          state.extra as StudentScreenArgs? ??
+          StudentScreenArgs.fromQueryParameters(state.uri.queryParameters);
+      return StudentCompetencyScreen(
+        studentId: args.studentId,
+        forStaff: args.forStaff,
+      );
+    },
+  ),
+
+  //student co-scholastic assessment screen
+  GoRoute(
+    path: '/studentCoScholasticScreen',
+    name: RouteConstants.studentCoScholasticScreen,
+    builder: (context, state) {
+      final args =
+          state.extra as StudentScreenArgs? ??
+          StudentScreenArgs.fromQueryParameters(state.uri.queryParameters);
+      return StudentCoScholasticScreen(
+        studentId: args.studentId,
+        forStaff: args.forStaff,
+      );
+    },
+  ),
+
   GoRoute(
     path: '/studentProgressCardScreen',
     name: RouteConstants.studentProgressCardScreen,
@@ -566,6 +601,29 @@ List<GoRoute> staffRoutes = [
       );
     },
   ),
+  GoRoute(
+    path: '/staffAttendanceHistoryScreen',
+    name: RouteConstants.staffAttendanceHistoryScreen,
+    builder: (context, state) => const StaffAttendanceHistoryScreen(),
+  ),
+  GoRoute(
+    path: '/coScholasticClassAssessmentScreen',
+    name: RouteConstants.coScholasticClassAssessmentScreen,
+    builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
+      final classGrade = state.extra as ClassGradeModel;
+      return CoScholasticClassAssessmentScreen(classGrade: classGrade);
+    },
+  ),
+  GoRoute(
+    path: '/studentCoScholasticRatingScreen',
+    name: RouteConstants.studentCoScholasticRatingScreen,
+    builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
+      final args = state.extra as StudentCoScholasticRatingArgs;
+      return StudentCoScholasticRatingScreen(args: args);
+    },
+  ),
 ];
 
 class StudentDetailParameters {
@@ -630,3 +688,20 @@ class StudentCompetencyRatingArgs {
     required this.examName,
   });
 }
+
+class StudentCoScholasticRatingArgs {
+  final ClassGradeModel classGrade;
+  final List<StudentModel> students;
+  final int initialStudentIndex;
+  final int examId;
+  final String examName;
+
+  const StudentCoScholasticRatingArgs({
+    required this.classGrade,
+    required this.students,
+    required this.initialStudentIndex,
+    required this.examId,
+    required this.examName,
+  });
+}
+

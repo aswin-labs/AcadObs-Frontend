@@ -2,6 +2,8 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:acadobs/features/notices/data/models/notice_model.dart';
+import 'package:acadobs/features/students/data/models/student_co_scholastic_assessment_model.dart';
+import 'package:acadobs/features/students/data/models/student_competency_assessment_model.dart';
 import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/students/data/services/student_services.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +25,35 @@ class StudentProvider extends ChangeNotifier {
 
   StudentModel? _individualStudent;
   StudentModel? get individualStudent => _individualStudent;
+
+  bool _isLoadingCompetency = false;
+  bool get isLoadingCompetency => _isLoadingCompetency;
+
+  bool _hasCompetencyAssessment = false;
+  bool get hasCompetencyAssessment => _hasCompetencyAssessment;
+
+  List<StudentCompetencyAssessmentItem> _competencyAssessments = [];
+  List<StudentCompetencyAssessmentItem> get competencyAssessments => _competencyAssessments;
+
+  List<GroupedCompetency> _groupedCompetencies = [];
+  List<GroupedCompetency> get groupedCompetencies => _groupedCompetencies;
+
+  List<StudentCompetencyExamInfo> _competencyExams = [];
+  List<StudentCompetencyExamInfo> get competencyExams => _competencyExams;
+
+  bool _isLoadingCoScholastic = false;
+  bool get isLoadingCoScholastic => _isLoadingCoScholastic;
+
+  List<StudentCoScholasticAssessmentItem> _coScholasticAssessments = [];
+  List<StudentCoScholasticAssessmentItem> get coScholasticAssessments =>
+      _coScholasticAssessments;
+
+  List<GroupedCoScholasticArea> _groupedCoScholasticAreas = [];
+  List<GroupedCoScholasticArea> get groupedCoScholasticAreas =>
+      _groupedCoScholasticAreas;
+
+  List<StudentCoScholasticExamInfo> _coScholasticExams = [];
+  List<StudentCoScholasticExamInfo> get coScholasticExams => _coScholasticExams;
 
   // Fetch Students by class id
   Future<void> fetchStudentsByClassId({
@@ -65,6 +96,11 @@ class StudentProvider extends ChangeNotifier {
     _hasFetched = false;
     _students.clear();
     _individualStudent = null;
+    _isLoadingCompetency = false;
+    _hasCompetencyAssessment = false;
+    _competencyAssessments.clear();
+    _groupedCompetencies.clear();
+    _competencyExams.clear();
     notifyListeners();
   }
 
@@ -309,6 +345,104 @@ class StudentProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       log(" Done updating profile photo");
+    }
+  }
+
+  // Fetch competency assessments by student id
+  Future<void> fetchCompetencyAssessment({
+    required int studentId,
+    required bool forStaff,
+  }) async {
+    _isLoadingCompetency = true;
+    notifyListeners();
+
+    try {
+      final response =
+          await StudentServices().fetchCompetencyAssessmentByStudentId(
+        studentId: studentId,
+        forStaff: forStaff,
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final dynamic rawData = response.data['data'] ?? response.data;
+        if (rawData is List && rawData.isNotEmpty) {
+          _competencyAssessments =
+              StudentCompetencyAssessmentItem.fromJsonList(rawData);
+          _groupedCompetencies =
+              StudentCompetencyHelper.groupAssessments(_competencyAssessments);
+          _competencyExams =
+              StudentCompetencyHelper.getUniqueExams(_competencyAssessments);
+          _hasCompetencyAssessment = _competencyAssessments.isNotEmpty;
+        } else {
+          _competencyAssessments = [];
+          _groupedCompetencies = [];
+          _competencyExams = [];
+          _hasCompetencyAssessment = false;
+        }
+      } else {
+        _competencyAssessments = [];
+        _groupedCompetencies = [];
+        _competencyExams = [];
+        _hasCompetencyAssessment = false;
+      }
+    } catch (e) {
+      log("Error fetching student competency assessment: $e");
+      _competencyAssessments = [];
+      _groupedCompetencies = [];
+      _competencyExams = [];
+      _hasCompetencyAssessment = false;
+    } finally {
+      _isLoadingCompetency = false;
+      notifyListeners();
+    }
+  }
+
+  // Fetch co-scholastic assessments by student id
+  Future<void> fetchCoScholasticAssessment({
+    required int studentId,
+    required bool forStaff,
+  }) async {
+    _isLoadingCoScholastic = true;
+    notifyListeners();
+
+    try {
+      final response =
+          await StudentServices().fetchCoScholasticAssessmentByStudentId(
+        studentId: studentId,
+        forStaff: forStaff,
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final dynamic rawData = response.data['data'] ?? response.data;
+        if (rawData is List && rawData.isNotEmpty) {
+          _coScholasticAssessments =
+              StudentCoScholasticAssessmentItem.fromJsonList(rawData);
+          _groupedCoScholasticAreas =
+              StudentCoScholasticHelper.groupAssessments(
+            _coScholasticAssessments,
+          );
+          _coScholasticExams =
+              StudentCoScholasticHelper.getUniqueExams(
+            _coScholasticAssessments,
+          );
+        } else {
+          _coScholasticAssessments = [];
+          _groupedCoScholasticAreas = [];
+          _coScholasticExams = [];
+        }
+      } else {
+        _coScholasticAssessments = [];
+        _groupedCoScholasticAreas = [];
+        _coScholasticExams = [];
+      }
+    } catch (e) {
+      log("Error fetching student co-scholastic assessment: $e");
+      _coScholasticAssessments = [];
+      _groupedCoScholasticAreas = [];
+      _coScholasticExams = [];
+    } finally {
+      _isLoadingCoScholastic = false;
+      notifyListeners();
     }
   }
 }

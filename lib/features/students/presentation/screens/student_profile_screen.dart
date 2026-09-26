@@ -124,7 +124,7 @@ class StudentProfileScreen extends StatelessWidget {
                 _buildInfoRow(
                   Icons.person_outline,
                   "Father's Name",
-                  student.user?.guardian?.fatherName,
+                  student.user?.name,
                 ),
                 _buildInfoRow(
                   Icons.person_outline,
@@ -136,7 +136,7 @@ class StudentProfileScreen extends StatelessWidget {
                 _buildInfoRow(
                   Icons.person,
                   "Guardian Name",
-                  student.user?.guardian?.guardianName,
+                  student.user?.name,
                 ),
                 _buildInfoRow(
                   Icons.family_restroom,
@@ -146,12 +146,12 @@ class StudentProfileScreen extends StatelessWidget {
                 _buildInfoRow(
                   Icons.phone_outlined,
                   "Guardian Contact",
-                  student.user?.guardian?.guardianContact,
+                  student.user?.phone,
                 ),
                 _buildInfoRow(
                   Icons.email_outlined,
                   "Guardian Email",
-                  student.user?.guardian?.guardianEmail,
+                  student.user?.email,
                 ),
                 _buildInfoRow(
                   Icons.work_outline,

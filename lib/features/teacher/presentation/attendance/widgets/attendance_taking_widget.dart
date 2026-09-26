@@ -32,6 +32,33 @@ class AttendanceTakingWidget extends StatefulWidget {
 }
 
 class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
+  late TextEditingController _remarksController;
+  late FocusNode _remarksFocusNode;
+  bool _isOtherSelected = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _remarksController = TextEditingController();
+    _remarksFocusNode = FocusNode();
+  }
+
+  @override
+  void didUpdateWidget(covariant AttendanceTakingWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.studentId != widget.studentId) {
+      _remarksController.clear();
+      _isOtherSelected = false;
+    }
+  }
+
+  @override
+  void dispose() {
+    _remarksController.dispose();
+    _remarksFocusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<AttendanceProvider>(context);
@@ -40,7 +67,38 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
 
     final shouldShowRemarks =
         selectedStatus == "Late" || selectedStatus == "Absent";
-    // final showTextField = selectedRemarks == "Other";
+
+    final isPresetRemark =
+        selectedRemarks != null &&
+        ['Medical', 'Personal', 'Official'].contains(selectedRemarks);
+    final isCustomRemark =
+        selectedRemarks != null &&
+        selectedRemarks.isNotEmpty &&
+        !isPresetRemark;
+
+    final showRemarkBox =
+        !widget.alreadyTaken &&
+        shouldShowRemarks &&
+        (_isOtherSelected || isCustomRemark);
+
+    final String? dropdownValue =
+        isPresetRemark
+            ? selectedRemarks
+            : (_isOtherSelected || isCustomRemark)
+            ? 'Other'
+            : null;
+
+    if (!_remarksFocusNode.hasFocus) {
+      if (isCustomRemark &&
+          _remarksController.text != selectedRemarks &&
+          selectedRemarks != 'Other') {
+        _remarksController.text = selectedRemarks;
+      } else if (!isCustomRemark &&
+          !_isOtherSelected &&
+          _remarksController.text.isNotEmpty) {
+        _remarksController.clear();
+      }
+    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -109,45 +167,8 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                       : shouldShowRemarks
                       ? Padding(
                         padding: const EdgeInsets.only(right: 8),
-                        child:
-                        // (showTextField)
-                        //     ? SizedBox(
-                        //       width: 120,
-                        //       child: TextField(
-                        //         style:
-                        //             Theme.of(context).textTheme.bodySmall,
-                        //         decoration: InputDecoration(
-                        //           hintText: "Enter remark",
-                        //           isDense: true,
-                        //           contentPadding:
-                        //               const EdgeInsets.symmetric(
-                        //                 horizontal: 8,
-                        //                 vertical: 6,
-                        //               ),
-                        //           border: OutlineInputBorder(
-                        //             borderRadius: BorderRadius.circular(6),
-                        //           ),
-                        //         ),
-                        //         onChanged: (value) {
-                        //           provider.setRemarks(
-                        //             widget.studentId,
-                        //             value,
-                        //           );
-                        //           provider.setAttendance(
-                        //             widget.studentId,
-                        //             selectedStatus!,
-                        //             value,
-                        //           );
-                        //         },
-                        //       ),
-                        //     )
-                        DropdownButton<String>(
-                          value:
-                              AppConstants.attendanceRemarks.contains(
-                                    selectedRemarks,
-                                  )
-                                  ? selectedRemarks
-                                  : null,
+                        child: DropdownButton<String>(
+                          value: dropdownValue,
                           hint: Text(
                             'Remarks',
                             style: context.textTheme.bodySmall!.copyWith(
@@ -166,12 +187,42 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                               }).toList(),
                           style: context.textTheme.bodySmall,
                           onChanged: (newValue) {
-                            provider.setRemarks(widget.studentId, newValue);
-                            provider.setAttendance(
-                              widget.studentId,
-                              selectedStatus!,
-                              newValue,
-                            );
+                            if (newValue == 'Other' || newValue == 'Others') {
+                              setState(() {
+                                _isOtherSelected = true;
+                              });
+                              final currentText =
+                                  _remarksController.text.trim();
+                              final remarkToSave =
+                                  currentText.isNotEmpty
+                                      ? currentText
+                                      : 'Other';
+                              provider.setRemarks(
+                                widget.studentId,
+                                remarkToSave,
+                              );
+                              provider.setAttendance(
+                                widget.studentId,
+                                selectedStatus!,
+                                remarkToSave,
+                              );
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                if (mounted) {
+                                  _remarksFocusNode.requestFocus();
+                                }
+                              });
+                            } else {
+                              setState(() {
+                                _isOtherSelected = false;
+                              });
+                              _remarksController.clear();
+                              provider.setRemarks(widget.studentId, newValue);
+                              provider.setAttendance(
+                                widget.studentId,
+                                selectedStatus!,
+                                newValue,
+                              );
+                            }
                           },
                         ),
                       )
@@ -179,6 +230,77 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                 ],
               ),
             ),
+
+            if (showRemarkBox)
+              Container(
+                color:
+                    widget.isLeaveApproved == true
+                        ? const Color.fromARGB(255, 234, 142, 142)
+                        : const Color(0xFFFFFFFF),
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                child: TextField(
+                  controller: _remarksController,
+                  focusNode: _remarksFocusNode,
+                  style: Theme.of(context).textTheme.bodySmall,
+                  decoration: InputDecoration(
+                    hintText: "Enter remark...",
+                    hintStyle: TextStyle(
+                      color: Colors.grey.shade400,
+                      fontSize: 12,
+                    ),
+                    isDense: true,
+                    filled: true,
+                    fillColor: const Color(0xFFF9F9F9),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 8,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      borderSide: const BorderSide(color: Color(0xFFCCCCCC)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      borderSide: const BorderSide(color: Color(0xFF35C2C1)),
+                    ),
+                    suffixIcon:
+                        _remarksController.text.isNotEmpty
+                            ? IconButton(
+                              icon: const Icon(
+                                Icons.clear,
+                                size: 16,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                _remarksController.clear();
+                                provider.setRemarks(widget.studentId, 'Other');
+                                provider.setAttendance(
+                                  widget.studentId,
+                                  selectedStatus!,
+                                  'Other',
+                                );
+                                setState(() {});
+                              },
+                            )
+                            : null,
+                  ),
+                  onChanged: (value) {
+                    final trimmed = value.trim();
+                    final finalRemarks = trimmed.isEmpty ? 'Other' : value;
+                    provider.setRemarks(widget.studentId, finalRemarks);
+                    provider.setAttendance(
+                      widget.studentId,
+                      selectedStatus!,
+                      finalRemarks,
+                    );
+                    setState(() {});
+                  },
+                ),
+              ),
 
             /// Attendance Buttons
             Row(
@@ -196,6 +318,10 @@ class _AttendanceTakingWidgetState extends State<AttendanceTakingWidget> {
                       widget.alreadyTaken
                           ? () {}
                           : () {
+                            setState(() {
+                              _isOtherSelected = false;
+                            });
+                            _remarksController.clear();
                             provider.setAttendance(
                               widget.studentId,
                               "Present",

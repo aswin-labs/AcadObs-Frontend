@@ -50,6 +50,10 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         studentId: widget.studentId,
         forStaff: widget.forStaff,
       );
+      studentProvider.fetchCompetencyAssessment(
+        studentId: widget.studentId,
+        forStaff: widget.forStaff,
+      );
     });
   }
 
@@ -62,6 +66,14 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       studentProvider.fetchAttendanceByDate(
         studentId: widget.studentId,
         date: DateFormat("yyyy-MM-dd").format(DateTime.now()),
+        forStaff: widget.forStaff,
+      ),
+      studentProvider.fetchCompetencyAssessment(
+        studentId: widget.studentId,
+        forStaff: widget.forStaff,
+      ),
+      studentProvider.fetchCoScholasticAssessment(
+        studentId: widget.studentId,
         forStaff: widget.forStaff,
       ),
     ];
@@ -422,96 +434,125 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 ),
 
                 const SizedBox(height: 10),
-                GridView.count(
-                  padding: EdgeInsets.zero,
-                  crossAxisCount:
-                      MediaQuery.of(context).size.width > 600 ? 4 : 3,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 0.95,
-                  children: [
-                    StudentFeatureCard(
-                      icon: Icons.edit_note,
-                      title: "Exam",
-                      color: Colors.green,
-                      onTap: () {
-                        context.pushNamed(
-                          RouteConstants.studentExamScreen,
-                          extra: StudentScreenArgs(
-                            studentId: widget.studentId,
-                            forStaff: widget.forStaff,
-                          ),
-                        );
-                      },
-                    ),
-                    StudentFeatureCard(
-                      icon: Icons.assignment,
-                      color: Colors.brown,
-                      title: "Homework",
-                      onTap: () {
-                        final params = HomeworkParameters(
-                          viewerType:
-                              widget.forStaff
-                                  ? HomeworkViewerType.teacherStudentView
-                                  : HomeworkViewerType.guardianStudentView,
-                          studentId: widget.studentId,
-                        );
-                        context.pushNamed(
-                          RouteConstants.homeworkLisitingScreen,
-                          extra: params,
-                          queryParameters: params.toQueryParameters(),
-                        );
-                      },
-                    ),
-                    StudentFeatureCard(
-                      icon: Icons.emoji_events,
-                      color: Colors.amber,
-                      title: "Awards",
-                      onTap: () {
-                        context.pushNamed(
-                          RouteConstants.studentAchievementScreen,
-                          extra: StudentScreenArgs(
-                            studentId: widget.studentId,
-                            forStaff: widget.forStaff,
-                          ),
-                        );
-                      },
-                    ),
-                    if (!widget.forStaff)
-                      StudentFeatureCard(
-                        icon: Icons.notifications,
-                        title: "Notice",
-                        color: Colors.amberAccent,
-                        onTap: () {
-                          context.pushNamed(
-                            RouteConstants.studentNoticeScreen,
-                            extra: StudentScreenArgs(
+                Consumer<StudentProvider>(
+                  builder: (context, studentProvider, _) {
+                    final student = studentProvider.individualStudent;
+                    return GridView.count(
+                      padding: EdgeInsets.zero,
+                      crossAxisCount:
+                          MediaQuery.of(context).size.width > 600 ? 4 : 3,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 0.9,
+                      children: [
+                        StudentFeatureCard(
+                          icon: Icons.edit_note,
+                          title: "Exam",
+                          color: Colors.green,
+                          onTap: () {
+                            context.pushNamed(
+                              RouteConstants.studentExamScreen,
+                              extra: StudentScreenArgs(
+                                studentId: widget.studentId,
+                                forStaff: widget.forStaff,
+                              ),
+                            );
+                          },
+                        ),
+                        StudentFeatureCard(
+                          icon: Icons.assignment,
+                          color: Colors.brown,
+                          title: "Homework",
+                          onTap: () {
+                            final params = HomeworkParameters(
+                              viewerType:
+                                  widget.forStaff
+                                      ? HomeworkViewerType.teacherStudentView
+                                      : HomeworkViewerType.guardianStudentView,
                               studentId: widget.studentId,
-                              forStaff: widget.forStaff,
-                            ),
-                          );
-                        },
-                      ),
-                    StudentFeatureCard(
-                      icon: Icons.description_outlined,
-                      color: Colors.redAccent,
-                      title: "Leaves",
-                      onTap: () {
-                        context.pushNamed(
-                          RouteConstants.studentLeaveScreen,
-                          extra: StudentScreenArgs(
-                            studentId: widget.studentId,
-                            forStaff: widget.forStaff,
+                            );
+                            context.pushNamed(
+                              RouteConstants.homeworkLisitingScreen,
+                              extra: params,
+                              queryParameters: params.toQueryParameters(),
+                            );
+                          },
+                        ),
+                        StudentFeatureCard(
+                          icon: Icons.emoji_events,
+                          color: Colors.amber,
+                          title: "Awards",
+                          onTap: () {
+                            context.pushNamed(
+                              RouteConstants.studentAchievementScreen,
+                              extra: StudentScreenArgs(
+                                studentId: widget.studentId,
+                                forStaff: widget.forStaff,
+                              ),
+                            );
+                          },
+                        ),
+                        if (!widget.forStaff)
+                          StudentFeatureCard(
+                            icon: Icons.notifications,
+                            title: "Notice",
+                            color: Colors.amberAccent,
+                            onTap: () {
+                              context.pushNamed(
+                                RouteConstants.studentNoticeScreen,
+                                extra: StudentScreenArgs(
+                                  studentId: widget.studentId,
+                                  forStaff: widget.forStaff,
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
-                    Consumer<StudentProvider>(
-                      builder: (context, provider, _) {
-                        final student = provider.individualStudent;
-                        return StudentFeatureCard(
+                        StudentFeatureCard(
+                          icon: Icons.description_outlined,
+                          color: Colors.redAccent,
+                          title: "Leaves",
+                          onTap: () {
+                            context.pushNamed(
+                              RouteConstants.studentLeaveScreen,
+                              extra: StudentScreenArgs(
+                                studentId: widget.studentId,
+                                forStaff: widget.forStaff,
+                              ),
+                            );
+                          },
+                        ),
+                        if (studentProvider.hasCompetencyAssessment)
+                          StudentFeatureCard(
+                            icon: LucideIcons.sparkles,
+                            color: const Color(0xFF4834D4),
+                            title: "Competency",
+                            onTap: () {
+                              context.pushNamed(
+                                RouteConstants.studentCompetencyScreen,
+                                extra: StudentScreenArgs(
+                                  studentId: widget.studentId,
+                                  forStaff: widget.forStaff,
+                                ),
+                              );
+                            },
+                          ),
+                        StudentFeatureCard(
+                          icon: LucideIcons.shapes,
+                          color: const Color(0xFF0077B6),
+                          title: "Co-Scholastic",
+                          onTap: () {
+                            context.pushNamed(
+                              RouteConstants.studentCoScholasticScreen,
+                              extra: StudentScreenArgs(
+                                studentId: widget.studentId,
+                                forStaff: widget.forStaff,
+                              ),
+                            );
+                          },
+                        ),
+                        StudentFeatureCard(
                           icon: Icons.person,
                           color: Colors.blueGrey,
                           title: "Profile",
@@ -528,11 +569,12 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                               ),
                             );
                           },
-                        );
-                      },
-                    ),
-                  ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
+
                 const SizedBox(height: 20),
                 widget.forStaff
                     ? SizedBox.shrink()

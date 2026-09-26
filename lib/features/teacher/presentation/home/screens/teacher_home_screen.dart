@@ -22,9 +22,9 @@ import 'package:acadobs/features/teacher/presentation/home/widgets/quick_action_
 import 'package:acadobs/features/timetables/data/models/timetable_type.dart';
 import 'package:acadobs/features/timetables/presentation/widgets/today_timetable_widget.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
-import 'package:acadobs/shared/widgets/centered_offline_view.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
+import 'package:acadobs/shared/widgets/centered_offline_view.dart';
 import 'package:acadobs/shared/widgets/common_floating_button.dart';
 import 'package:acadobs/shared/widgets/double_back_to_exit.dart';
 import 'package:acadobs/shared/widgets/profile_icon.dart';
@@ -132,9 +132,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       return DoubleBackToExit(
         child: Scaffold(
           backgroundColor: Colors.grey[50],
-          body: CenteredOfflineView(
-            onRetry: () => refreshAllData(),
-          ),
+          body: CenteredOfflineView(onRetry: () => refreshAllData()),
         ),
       );
     }
@@ -406,7 +404,36 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                         children: [
                           // Check-in Card
                           CheckInWidget(),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  context.pushNamed(
+                                    RouteConstants.staffAttendanceHistoryScreen,
+                                  );
+                                },
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 4,
+                                  ),
+                                  child: Text(
+                                    "View Check-in History",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: Colors.black87,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
 
                           // Quick Actions Section
                           widget.userType == UserType.teacher

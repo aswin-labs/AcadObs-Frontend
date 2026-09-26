@@ -1,3 +1,4 @@
+import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
@@ -32,4 +33,19 @@ class TeacherAttendanceServices {
     });
     return response;
   }
+
+  // get my staff attendance history
+  Future<Response> getMyStaffAttendance({
+    required int pageNo,
+    int limit = AppConstants.paginationLimit,
+    String? date,
+  }) async {
+    String url = "${ApiEndpoints.getMyStaffAttendance}?page=$pageNo&pageNo=$pageNo&limit=$limit";
+    if (date != null && date.trim().isNotEmpty) {
+      url += "&date=${Uri.encodeComponent(date.trim())}";
+    }
+    final response = await ApiServices.get(url);
+    return response;
+  }
 }
+

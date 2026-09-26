@@ -112,4 +112,63 @@ class MyClassServices {
     );
     return response;
   }
+
+  // ==================== CO-SCHOLASTIC SERVICES ====================
+
+  // Fetch Co-Scholastic Areas by Student ID
+  Future<Response> fetchCoScholasticAreasByStudentId({
+    required int studentId,
+  }) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.getCoScholasticAreasListByStudentId}/$studentId",
+    );
+    return response;
+  }
+
+  // Create Student Co-Scholastic Assessment
+  Future<Response> createStudentCoScholasticAssessment({
+    required List<Map<String, dynamic>> assessments,
+  }) async {
+    final response = await ApiServices.post(
+      ApiEndpoints.createStudentCoScholasticAssessment,
+      assessments,
+    );
+    return response;
+  }
+
+  // Get Co-Scholastic Assessment by Student ID and Exam ID
+  Future<Response> getCoScholasticAssessmentByStudentIdAndExamId({
+    required int studentId,
+    required int examId,
+  }) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.getCoScholasticAssessmentByStudentIdAndExamId}/$studentId/$examId",
+    );
+    return response;
+  }
+
+  // Bulk Update Co-Scholastic Assessment
+  Future<Response> bulkUpdateCoScholasticAssessment({
+    required int studentId,
+    required int examId,
+    required List<Map<String, dynamic>> assessments,
+  }) async {
+    final response = await ApiServices.put(
+      ApiEndpoints.bulkUpdateCoScholasticAssessment,
+      assessments,
+    );
+    return response;
+  }
+
+  // Delete Co-Scholastic Assessment
+  Future<Response> deleteCoScholasticAssessment({
+    required int studentId,
+    required int examId,
+  }) async {
+    final response = await ApiServices.delete(
+      "${ApiEndpoints.deleteCoScholasticAssessment}/$studentId/$examId",
+    );
+    return response;
+  }
 }
+

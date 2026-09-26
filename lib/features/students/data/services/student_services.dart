@@ -28,6 +28,32 @@ class StudentServices {
     return response;
   }
 
+  // Get competency assessment by student id
+  Future<Response> fetchCompetencyAssessmentByStudentId({
+    required int studentId,
+    required bool forStaff,
+  }) async {
+    final response = await ApiServices.get(
+      forStaff
+          ? '${ApiEndpoints.getCompetencyAssessmentByStudentIdTeacher}/$studentId'
+          : '${ApiEndpoints.getCompetencyAssessmentByStudentIdGuardian}/$studentId',
+    );
+    return response;
+  }
+
+  // Get co-scholastic assessment by student id
+  Future<Response> fetchCoScholasticAssessmentByStudentId({
+    required int studentId,
+    required bool forStaff,
+  }) async {
+    final response = await ApiServices.get(
+      forStaff
+          ? '${ApiEndpoints.getCoScholasticAssessmentByStudentIdTeacher}/$studentId'
+          : '${ApiEndpoints.getCoScholasticAssessmentByStudentIdGuardian}/$studentId',
+    );
+    return response;
+  }
+
   //get attandence by date
   Future<Response> fetchAttendanceByDate({
     required int studentId,
