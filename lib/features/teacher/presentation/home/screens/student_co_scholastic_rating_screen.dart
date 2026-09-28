@@ -11,10 +11,7 @@ import 'package:provider/provider.dart';
 class StudentCoScholasticRatingScreen extends StatefulWidget {
   final StudentCoScholasticRatingArgs args;
 
-  const StudentCoScholasticRatingScreen({
-    super.key,
-    required this.args,
-  });
+  const StudentCoScholasticRatingScreen({super.key, required this.args});
 
   @override
   State<StudentCoScholasticRatingScreen> createState() =>
@@ -27,7 +24,8 @@ class _StudentCoScholasticRatingScreenState
   bool _isEditing = false;
   final Map<int, TextEditingController> _scoreControllers = {};
   final Map<int, TextEditingController> _remarksControllers = {};
-  final List<String> _gradeOptions = ['A+', 'A', 'B+', 'B', 'C', 'D'];
+  final Map<int, TextEditingController> _attendanceControllers = {};
+  final List<String> _gradeOptions = ['A', 'B', 'C', 'D'];
 
   StudentModel get _currentStudent => widget.args.students[_currentIndex];
 
@@ -48,7 +46,18 @@ class _StudentCoScholasticRatingScreenState
     for (final c in _remarksControllers.values) {
       c.dispose();
     }
+    for (final c in _attendanceControllers.values) {
+      c.dispose();
+    }
     super.dispose();
+  }
+
+  bool _isAttendanceArea(String name) {
+    final lower = name.toLowerCase();
+    return lower.contains('attendance') ||
+        lower.contains('presence') ||
+        lower.contains('present days') ||
+        lower.contains('working days');
   }
 
   Future<void> _loadCurrentStudentData() async {
@@ -56,9 +65,7 @@ class _StudentCoScholasticRatingScreenState
 
     // Fetch areas if needed
     if (provider.coScholasticAreas.isEmpty) {
-      await provider.fetchCoScholasticAreas(
-        studentId: _currentStudent.id,
-      );
+      await provider.fetchCoScholasticAreas(studentId: _currentStudent.id);
     }
 
     // Load existing assessment for current student and exam
@@ -70,15 +77,37 @@ class _StudentCoScholasticRatingScreenState
     // Sync controllers with loaded ratings
     for (final area in provider.coScholasticAreas) {
       final entry = provider.studentCoScholasticRatings[area.id];
-      final scoreVal = entry?.score != null ? entry!.score.toString() : '';
-      final remarksVal = entry?.remarks ?? '';
+      final isAttendance = _isAttendanceArea(area.name);
 
-      if (_scoreControllers.containsKey(area.id)) {
-        _scoreControllers[area.id]!.text = scoreVal;
+      if (isAttendance) {
+        String attendanceVal = '';
+        if (entry != null &&
+            entry.grade.isNotEmpty &&
+            !_gradeOptions.contains(entry.grade.toUpperCase())) {
+          attendanceVal = entry.grade;
+        } else if (entry?.score != null) {
+          final sc = entry!.score!;
+          attendanceVal =
+              sc == sc.roundToDouble() ? sc.toInt().toString() : sc.toString();
+        }
+
+        if (_attendanceControllers.containsKey(area.id)) {
+          _attendanceControllers[area.id]!.text = attendanceVal;
+        } else {
+          _attendanceControllers[area.id] = TextEditingController(
+            text: attendanceVal,
+          );
+        }
       } else {
-        _scoreControllers[area.id] = TextEditingController(text: scoreVal);
+        final scoreVal = entry?.score != null ? entry!.score.toString() : '';
+        if (_scoreControllers.containsKey(area.id)) {
+          _scoreControllers[area.id]!.text = scoreVal;
+        } else {
+          _scoreControllers[area.id] = TextEditingController(text: scoreVal);
+        }
       }
 
+      final remarksVal = entry?.remarks ?? '';
       if (_remarksControllers.containsKey(area.id)) {
         _remarksControllers[area.id]!.text = remarksVal;
       } else {
@@ -95,18 +124,11 @@ class _StudentCoScholasticRatingScreenState
     }
   }
 
-  TextEditingController _getScoreController(int areaId) {
-    if (!_scoreControllers.containsKey(areaId)) {
-      _scoreControllers[areaId] = TextEditingController();
+  TextEditingController _getAttendanceController(int areaId) {
+    if (!_attendanceControllers.containsKey(areaId)) {
+      _attendanceControllers[areaId] = TextEditingController();
     }
-    return _scoreControllers[areaId]!;
-  }
-
-  TextEditingController _getRemarksController(int areaId) {
-    if (!_remarksControllers.containsKey(areaId)) {
-      _remarksControllers[areaId] = TextEditingController();
-    }
-    return _remarksControllers[areaId]!;
+    return _attendanceControllers[areaId]!;
   }
 
   void _goToStudent(int newIndex) {
@@ -122,9 +144,42 @@ class _StudentCoScholasticRatingScreenState
 
     // Push controllers text into provider state before saving
     for (final area in provider.coScholasticAreas) {
-      final scoreText = _scoreControllers[area.id]?.text.trim() ?? '';
-      final scoreVal = double.tryParse(scoreText);
-      provider.setCoScholasticScore(areaId: area.id, score: scoreVal);
+      final isAttendance = _isAttendanceArea(area.name);
+
+      if (isAttendance) {
+        final attendanceText =
+            _attendanceControllers[area.id]?.text.trim() ?? '';
+        if (attendanceText.isNotEmpty) {
+          provider.setCoScholasticGrade(areaId: area.id, grade: attendanceText);
+
+          // Calculate percentage score if format is X/Y (e.g. 90/110)
+          if (attendanceText.contains('/')) {
+            final parts = attendanceText.split('/');
+            final present = double.tryParse(parts[0].trim());
+            final total = double.tryParse(
+              parts.length > 1 ? parts[1].trim() : '',
+            );
+            if (present != null && total != null && total > 0) {
+              final pct = double.parse(
+                ((present / total) * 100).toStringAsFixed(1),
+              );
+              provider.setCoScholasticScore(areaId: area.id, score: pct);
+            } else if (present != null) {
+              provider.setCoScholasticScore(areaId: area.id, score: present);
+            }
+          } else {
+            final scoreVal = double.tryParse(attendanceText);
+            provider.setCoScholasticScore(areaId: area.id, score: scoreVal);
+          }
+        } else {
+          provider.setCoScholasticGrade(areaId: area.id, grade: '');
+          provider.setCoScholasticScore(areaId: area.id, score: null);
+        }
+      } else {
+        final scoreText = _scoreControllers[area.id]?.text.trim() ?? '';
+        final scoreVal = double.tryParse(scoreText);
+        provider.setCoScholasticScore(areaId: area.id, score: scoreVal);
+      }
 
       final remarksText = _remarksControllers[area.id]?.text.trim() ?? '';
       provider.setCoScholasticRemarks(areaId: area.id, remarks: remarksText);
@@ -156,34 +211,37 @@ class _StudentCoScholasticRatingScreenState
   Future<void> _confirmDeleteAssessment() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(LucideIcons.triangleAlert, color: Colors.red),
-            SizedBox(width: 8),
-            Text("Delete Assessment", style: TextStyle(fontSize: 16)),
-          ],
-        ),
-        content: Text(
-          "Are you sure you want to delete co-scholastic assessments for ${_currentStudent.fullName}?",
-          style: const TextStyle(fontSize: 14),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text("Cancel"),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+      builder:
+          (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text("Delete"),
+            title: const Row(
+              children: [
+                Icon(LucideIcons.triangleAlert, color: Colors.red),
+                SizedBox(width: 8),
+                Text("Delete Assessment", style: TextStyle(fontSize: 16)),
+              ],
+            ),
+            content: Text(
+              "Are you sure you want to delete co-scholastic assessments for ${_currentStudent.fullName}?",
+              style: const TextStyle(fontSize: 14),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () => Navigator.pop(ctx, true),
+                child: const Text("Delete"),
+              ),
+            ],
           ),
-        ],
-      ),
     );
 
     if (confirmed == true && mounted) {
@@ -199,6 +257,9 @@ class _StudentCoScholasticRatingScreenState
           c.clear();
         }
         for (final c in _remarksControllers.values) {
+          c.clear();
+        }
+        for (final c in _attendanceControllers.values) {
           c.clear();
         }
         setState(() {
@@ -223,7 +284,7 @@ class _StudentCoScholasticRatingScreenState
         'Sep',
         'Oct',
         'Nov',
-        'Dec'
+        'Dec',
       ];
       return "${parsed.day.toString().padLeft(2, '0')} ${months[parsed.month - 1]} ${parsed.year}";
     } catch (_) {
@@ -232,6 +293,9 @@ class _StudentCoScholasticRatingScreenState
   }
 
   IconData _getAreaIcon(String name) {
+    if (_isAttendanceArea(name)) {
+      return Icons.calendar_month_rounded;
+    }
     final lower = name.toLowerCase();
     if (lower.contains('physical') ||
         lower.contains('sport') ||
@@ -250,9 +314,7 @@ class _StudentCoScholasticRatingScreenState
         lower.contains('dance')) {
       return Icons.music_note_rounded;
     }
-    if (lower.contains('attendance') ||
-        lower.contains('punctual') ||
-        lower.contains('discipline')) {
+    if (lower.contains('punctual') || lower.contains('discipline')) {
       return Icons.event_available_rounded;
     }
     if (lower.contains('work') || lower.contains('experience')) {
@@ -265,6 +327,9 @@ class _StudentCoScholasticRatingScreenState
   }
 
   Color _getAreaColor(String name) {
+    if (_isAttendanceArea(name)) {
+      return const Color(0xFF0284C7);
+    }
     final lower = name.toLowerCase();
     if (lower.contains('physical') || lower.contains('sport')) {
       return const Color(0xFF00B894);
@@ -275,10 +340,46 @@ class _StudentCoScholasticRatingScreenState
     if (lower.contains('music')) {
       return const Color(0xFF6C5CE7);
     }
-    if (lower.contains('attendance')) {
-      return const Color(0xFF0984E3);
-    }
     return const Color(0xFF0077B6);
+  }
+
+  String _getAttendanceHelperText(String text) {
+    if (text.contains('/')) {
+      final parts = text.split('/');
+      final present = double.tryParse(parts[0].trim());
+      final total = double.tryParse(parts.length > 1 ? parts[1].trim() : '');
+      if (present != null && total != null && total > 0) {
+        final pct = ((present / total) * 100).toStringAsFixed(1);
+        final pInt =
+            present == present.roundToDouble() ? present.toInt() : present;
+        final tInt = total == total.roundToDouble() ? total.toInt() : total;
+        return "$pInt days present out of $tInt total days ($pct%)";
+      }
+    }
+    return "Enter present and total days (e.g. 90/110)";
+  }
+
+  String _buildAttendanceSummary(String text, double? score) {
+    if (text.contains('/')) {
+      final parts = text.split('/');
+      final present = double.tryParse(parts[0].trim());
+      final total = double.tryParse(parts.length > 1 ? parts[1].trim() : '');
+      if (present != null && total != null && total > 0) {
+        final pct = ((present / total) * 100).toStringAsFixed(1);
+        final pInt =
+            present == present.roundToDouble() ? present.toInt() : present;
+        final tInt = total == total.roundToDouble() ? total.toInt() : total;
+        return "$pInt days present out of $tInt working days ($pct%)";
+      }
+    }
+    if (text.isNotEmpty) {
+      return text.toLowerCase().contains('day') ? text : "$text days present";
+    }
+    if (score != null) {
+      final sInt = score == score.roundToDouble() ? score.toInt() : score;
+      return "$sInt days present";
+    }
+    return "Recorded";
   }
 
   Color _getGradeColor(String grade) {
@@ -344,29 +445,33 @@ class _StudentCoScholasticRatingScreenState
                     hasPrev ? () => _goToStudent(_currentIndex - 1) : null,
                 icon: const Icon(LucideIcons.chevronLeft, size: 20),
               ),
+              const SizedBox(width: 4),
 
               // Avatar
               CircleAvatar(
-                radius: 24,
-                backgroundColor:
-                    const Color(0xFF0077B6).withValues(alpha: 0.15),
-                backgroundImage: _currentStudent.image != null &&
-                        _currentStudent.image!.isNotEmpty
-                    ? NetworkImage(_currentStudent.image!)
-                    : null,
-                child: _currentStudent.image == null ||
-                        _currentStudent.image!.isEmpty
-                    ? Text(
-                        _currentStudent.fullName.isNotEmpty
-                            ? _currentStudent.fullName[0].toUpperCase()
-                            : "S",
-                        style: const TextStyle(
-                          color: Color(0xFF0077B6),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      )
-                    : null,
+                radius: 22,
+                backgroundColor: const Color(
+                  0xFF0077B6,
+                ).withValues(alpha: 0.15),
+                backgroundImage:
+                    _currentStudent.image != null &&
+                            _currentStudent.image!.isNotEmpty
+                        ? NetworkImage(_currentStudent.image!)
+                        : null,
+                child:
+                    _currentStudent.image == null ||
+                            _currentStudent.image!.isEmpty
+                        ? Text(
+                          _currentStudent.fullName.isNotEmpty
+                              ? _currentStudent.fullName[0].toUpperCase()
+                              : "S",
+                          style: const TextStyle(
+                            color: Color(0xFF0077B6),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        )
+                        : null,
               ),
               const SizedBox(width: 12),
 
@@ -385,10 +490,13 @@ class _StudentCoScholasticRatingScreenState
                         color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Row(
+                    const SizedBox(height: 3),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        if (_currentStudent.rollNumber != null) ...[
+                        if (_currentStudent.rollNumber != null)
                           Text(
                             "Roll: ${_currentStudent.rollNumber}",
                             style: TextStyle(
@@ -396,12 +504,10 @@ class _StudentCoScholasticRatingScreenState
                               fontSize: 12,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                        ],
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 6,
-                            vertical: 1,
+                            vertical: 1.5,
                           ),
                           decoration: BoxDecoration(
                             color: Colors.blue.shade50,
@@ -421,6 +527,7 @@ class _StudentCoScholasticRatingScreenState
                   ],
                 ),
               ),
+              const SizedBox(width: 4),
 
               // Next Button
               IconButton(
@@ -444,40 +551,45 @@ class _StudentCoScholasticRatingScreenState
 
           // Exam tag & Graded status
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(
-                    LucideIcons.calendar,
-                    size: 14,
-                    color: Color(0xFF0077B6),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    widget.args.examName,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(
+                      LucideIcons.calendar,
+                      size: 14,
                       color: Color(0xFF0077B6),
                     ),
-                  ),
-                ],
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 3,
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        widget.args.examName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF0077B6),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
-                  color: gradedCount > 0
-                      ? Colors.green.shade50
-                      : Colors.orange.shade50,
+                  color:
+                      gradedCount > 0
+                          ? Colors.green.shade50
+                          : Colors.orange.shade50,
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: gradedCount > 0
-                        ? Colors.green.shade300
-                        : Colors.orange.shade300,
+                    color:
+                        gradedCount > 0
+                            ? Colors.green.shade300
+                            : Colors.orange.shade300,
                   ),
                 ),
                 child: Text(
@@ -489,9 +601,10 @@ class _StudentCoScholasticRatingScreenState
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    color: gradedCount > 0
-                        ? Colors.green.shade800
-                        : Colors.orange.shade800,
+                    color:
+                        gradedCount > 0
+                            ? Colors.green.shade800
+                            : Colors.orange.shade800,
                   ),
                 ),
               ),
@@ -518,11 +631,7 @@ class _StudentCoScholasticRatingScreenState
             children: [
               const Row(
                 children: [
-                  Icon(
-                    LucideIcons.award,
-                    size: 16,
-                    color: Color(0xFF0077B6),
-                  ),
+                  Icon(LucideIcons.award, size: 16, color: Color(0xFF0077B6)),
                   SizedBox(width: 6),
                   Text(
                     "Assessment Summary",
@@ -635,9 +744,10 @@ class _StudentCoScholasticRatingScreenState
                       ),
                       elevation: 0,
                     ),
-                    onPressed: hasNext
-                        ? () => _goToStudent(_currentIndex + 1)
-                        : () => Navigator.pop(context),
+                    onPressed:
+                        hasNext
+                            ? () => _goToStudent(_currentIndex + 1)
+                            : () => Navigator.pop(context),
                     icon: Icon(
                       hasNext ? LucideIcons.arrowRight : LucideIcons.checkCheck,
                       size: 16,
@@ -667,16 +777,30 @@ class _StudentCoScholasticRatingScreenState
   ) {
     final areaColor = _getAreaColor(area.name);
     final areaIcon = _getAreaIcon(area.name);
-    final isAttendance = area.name.toLowerCase().contains('attendance');
+    final isAttendance = _isAttendanceArea(area.name);
 
-    final bool isGraded = entry != null &&
-        (entry.grade.isNotEmpty ||
-            entry.score != null ||
-            entry.remarks.isNotEmpty);
     final grade = entry?.grade ?? '';
     final hasGrade = grade.isNotEmpty;
     final score = entry?.score;
-    final remarks = entry?.remarks ?? '';
+
+    // Attendance specific display
+    String attendanceText = '';
+    if (isAttendance) {
+      if (hasGrade && !_gradeOptions.contains(grade.toUpperCase())) {
+        attendanceText = grade;
+      } else if (score != null) {
+        attendanceText =
+            score == score.roundToDouble()
+                ? "${score.toInt()} Days"
+                : "$score Days";
+      }
+    }
+    final hasAttendanceRecorded =
+        isAttendance && (attendanceText.isNotEmpty || score != null);
+
+    final bool isGraded =
+        entry != null &&
+        (isAttendance ? hasAttendanceRecorded : hasGrade);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -684,9 +808,10 @@ class _StudentCoScholasticRatingScreenState
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isGraded
-              ? areaColor.withValues(alpha: 0.35)
-              : Colors.grey.shade200,
+          color:
+              isGraded
+                  ? areaColor.withValues(alpha: 0.35)
+                  : Colors.grey.shade200,
           width: isGraded ? 1.5 : 1,
         ),
         boxShadow: [
@@ -702,7 +827,7 @@ class _StudentCoScholasticRatingScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Row 1: Area Info & Big Grade Badge
+            // Row 1: Area Info & Badge
             Row(
               children: [
                 Container(
@@ -715,152 +840,157 @@ class _StudentCoScholasticRatingScreenState
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        area.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      if (area.classGroup != null &&
-                          area.classGroup!.isNotEmpty) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          "Class Group: ${area.classGroup}",
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                      ],
-                    ],
+                  child: Text(
+                    area.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
 
-                // Grade Badge or Not Graded Tag
-                if (hasGrade)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _getGradeColor(grade),
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color:
-                              _getGradeColor(grade).withValues(alpha: 0.25),
-                          blurRadius: 6,
-                          offset: const Offset(0, 2),
+                // If Attendance: show Attendance Badge (e.g. "90/110 Days")
+                if (isAttendance) ...[
+                  if (hasAttendanceRecorded)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color(0xFF0284C7).withValues(alpha: 0.3),
                         ),
-                      ],
-                    ),
-                    child: Text(
-                      "Grade $grade",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.calendar_month_rounded,
+                            size: 14,
+                            color: Color(0xFF0284C7),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            attendanceText.isNotEmpty
+                                ? (attendanceText.toLowerCase().contains('day')
+                                    ? attendanceText
+                                    : "$attendanceText Days")
+                                : (score != null ? "$score%" : "Recorded"),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0284C7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "Not Recorded",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  )
-                else
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      "Not Graded",
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Colors.grey.shade500,
-                        fontWeight: FontWeight.w500,
+                ] else ...[
+                  // For regular areas: Grade Badge or Not Graded Tag
+                  if (hasGrade)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getGradeColor(grade),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: _getGradeColor(
+                              grade,
+                            ).withValues(alpha: 0.25),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        "Grade $grade",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "Not Graded",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
+                ],
               ],
             ),
 
-            // Row 2: Score / Attendance (if present)
-            if (score != null) ...[
+            // Row 2: Score / Attendance Details (if present)
+            if (isAttendance && hasAttendanceRecorded) ...[
               const SizedBox(height: 12),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.blue.shade200),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isAttendance
-                              ? LucideIcons.calendarCheck
-                              : LucideIcons.percent,
-                          size: 13,
-                          color: Colors.blue.shade700,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          isAttendance
-                              ? "Attendance: $score%"
-                              : "Score: $score",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.blue.shade900,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-
-            // Row 3: Remarks (if present)
-            if (remarks.trim().isNotEmpty) ...[
-              const SizedBox(height: 10),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8F9FA),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade200),
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.blue.shade200),
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(
-                      LucideIcons.messageSquare,
-                      size: 14,
-                      color: Colors.grey.shade600,
+                      Icons.event_available_rounded,
+                      size: 16,
+                      color: Colors.blue.shade700,
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        remarks,
-                        style: const TextStyle(
+                        _buildAttendanceSummary(attendanceText, score),
+                        style: TextStyle(
                           fontSize: 12,
-                          color: Colors.black87,
-                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.blue.shade900,
                         ),
                       ),
                     ),
@@ -1075,15 +1205,14 @@ class _StudentCoScholasticRatingScreenState
   ) {
     final areaColor = _getAreaColor(area.name);
     final areaIcon = _getAreaIcon(area.name);
-    final isAttendance = area.name.toLowerCase().contains('attendance');
+    final isAttendance = _isAttendanceArea(area.name);
 
     final currentEntry = provider.studentCoScholasticRatings[area.id];
     final selectedGrade = currentEntry?.grade ?? '';
     final hasGrade = selectedGrade.trim().isNotEmpty;
-    final hasScore = currentEntry?.score != null;
-
-    final scoreCtrl = _getScoreController(area.id);
-    final remarksCtrl = _getRemarksController(area.id);
+    final attendanceCtrl = _getAttendanceController(area.id);
+    final attendanceText = attendanceCtrl.text.trim();
+    final hasAttendanceRecorded = isAttendance && attendanceText.isNotEmpty;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -1091,10 +1220,11 @@ class _StudentCoScholasticRatingScreenState
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: hasGrade
-              ? areaColor.withValues(alpha: 0.4)
-              : Colors.grey.shade200,
-          width: hasGrade ? 1.5 : 1,
+          color:
+              (isAttendance ? hasAttendanceRecorded : hasGrade)
+                  ? areaColor.withValues(alpha: 0.4)
+                  : Colors.grey.shade200,
+          width: (isAttendance ? hasAttendanceRecorded : hasGrade) ? 1.5 : 1,
         ),
         boxShadow: [
           BoxShadow(
@@ -1109,7 +1239,7 @@ class _StudentCoScholasticRatingScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with Area Icon & Title & Current Grade Badge
+            // Header with Area Icon & Title & Current Status Badge
             Row(
               children: [
                 Container(
@@ -1122,277 +1252,298 @@ class _StudentCoScholasticRatingScreenState
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        area.name,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      if (area.classGroup != null &&
-                          area.classGroup!.isNotEmpty)
-                        Text(
-                          "Class Group: ${area.classGroup}",
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                    ],
+                  child: Text(
+                    area.name,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
                   ),
                 ),
+                const SizedBox(width: 8),
 
-                // Selected Grade Chip
-                if (hasGrade)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color:
-                          _getGradeColor(selectedGrade).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "Grade: $selectedGrade",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: _getGradeColor(selectedGrade),
+                // Top right status badge
+                if (isAttendance) ...[
+                  if (hasAttendanceRecorded)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0284C7).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.calendar_month_rounded,
+                            size: 13,
+                            color: Color(0xFF0284C7),
                           ),
-                        ),
-                        if (hasScore) ...[
                           const SizedBox(width: 4),
                           Text(
-                            "(${currentEntry!.score}${isAttendance ? '%' : ''})",
+                            attendanceText.contains('/')
+                                ? "$attendanceText Days"
+                                : (attendanceText.toLowerCase().contains('day')
+                                    ? attendanceText
+                                    : "$attendanceText Days"),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF0284C7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "Not Recorded",
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                ] else ...[
+                  if (hasGrade)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getGradeColor(
+                          selectedGrade,
+                        ).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "Grade: $selectedGrade",
                             style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
                               color: _getGradeColor(selectedGrade),
                             ),
                           ),
                         ],
-                      ],
-                    ),
-                  )
-                else
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      "Not Graded",
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade600,
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "Not Graded",
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                     ),
-                  ),
+                ],
               ],
             ),
 
-            const SizedBox(height: 14),
-
-            // Grade Selector Pills
-            const Text(
-              "Select Grade",
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.black54,
+            // Grade Selector Pills (ONLY FOR NON-ATTENDANCE AREAS)
+            if (!isAttendance) ...[
+              const SizedBox(height: 14),
+              const Text(
+                "Select Grade",
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black54,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: _gradeOptions.map((grade) {
-                final isSelected = selectedGrade == grade;
-                final gradeColor = _getGradeColor(grade);
-                return Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(8),
-                      onTap: () {
-                        if (isSelected) {
-                          provider.setCoScholasticGrade(
-                            areaId: area.id,
-                            grade: '',
-                          );
-                        } else {
-                          provider.setCoScholasticGrade(
-                            areaId: area.id,
-                            grade: grade,
-                          );
-                        }
-                      },
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isSelected ? gradeColor : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isSelected
-                                ? gradeColor
-                                : Colors.grey.shade300,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            grade,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.bold,
-                              color:
-                                  isSelected ? Colors.white : Colors.black87,
+              const SizedBox(height: 8),
+              Row(
+                children:
+                    _gradeOptions.map((grade) {
+                      final isSelected = selectedGrade == grade;
+                      final gradeColor = _getGradeColor(grade);
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 2),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(8),
+                            onTap: () {
+                              if (isSelected) {
+                                provider.setCoScholasticGrade(
+                                  areaId: area.id,
+                                  grade: '',
+                                );
+                              } else {
+                                provider.setCoScholasticGrade(
+                                  areaId: area.id,
+                                  grade: grade,
+                                );
+                              }
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              decoration: BoxDecoration(
+                                color:
+                                    isSelected
+                                        ? gradeColor
+                                        : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color:
+                                      isSelected
+                                          ? gradeColor
+                                          : Colors.grey.shade300,
+                                ),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  grade,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        isSelected
+                                            ? Colors.white
+                                            : Colors.black87,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
+                      );
+                    }).toList(),
+              ),
+            ],
+
+            // Attendance Input: Present/Total days (ONLY FOR ATTENDANCE AREA)
+            if (isAttendance) ...[
+              const SizedBox(height: 14),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Attendance (Present/Total)",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: attendanceCtrl,
+                    keyboardType: TextInputType.text,
+                    onChanged: (val) {
+                      setState(() {}); // updates helper text and header badge
+                      final trimmed = val.trim();
+                      provider.setCoScholasticGrade(
+                        areaId: area.id,
+                        grade: trimmed,
+                      );
+                      if (trimmed.contains('/')) {
+                        final parts = trimmed.split('/');
+                        final present = double.tryParse(parts[0].trim());
+                        final total = double.tryParse(
+                          parts.length > 1 ? parts[1].trim() : '',
+                        );
+                        if (present != null &&
+                            total != null &&
+                            total > 0) {
+                          final pct = double.parse(
+                            ((present / total) * 100).toStringAsFixed(1),
+                          );
+                          provider.setCoScholasticScore(
+                            areaId: area.id,
+                            score: pct,
+                          );
+                        }
+                      } else {
+                        final scoreVal = double.tryParse(trimmed);
+                        provider.setCoScholasticScore(
+                          areaId: area.id,
+                          score: scoreVal,
+                        );
+                      }
+                    },
+                    decoration: InputDecoration(
+                      hintText: "e.g. 90/110",
+                      hintStyle: TextStyle(
+                        color: Colors.grey.shade400,
+                        fontSize: 13,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.calendar_month_rounded,
+                        size: 18,
+                        color: Color(0xFF0077B6),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 10,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey.shade50,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF0077B6),
+                        ),
                       ),
                     ),
                   ),
-                );
-              }).toList(),
-            ),
-
-            const SizedBox(height: 14),
-
-            // Score / Attendance and Remarks Inputs
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Score Input
-                Expanded(
-                  flex: 4,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isAttendance ? "Attendance %" : "Score (optional)",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      TextField(
-                        controller: scoreCtrl,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        onChanged: (val) {
-                          final parsed = double.tryParse(val.trim());
-                          provider.setCoScholasticScore(
-                            areaId: area.id,
-                            score: parsed,
-                          );
-                        },
-                        decoration: InputDecoration(
-                          hintText: isAttendance ? "e.g. 95" : "e.g. 85",
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 13,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: areaColor),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-
-                // Remarks Input
-                Expanded(
-                  flex: 6,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Remarks",
+                  if (attendanceCtrl.text.trim().isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 2),
+                      child: Text(
+                        _getAttendanceHelperText(attendanceCtrl.text.trim()),
                         style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black54,
+                          fontSize: 11,
+                          color: Colors.blue.shade700,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      TextField(
-                        controller: remarksCtrl,
-                        onChanged: (val) {
-                          provider.setCoScholasticRemarks(
-                            areaId: area.id,
-                            remarks: val.trim(),
-                          );
-                        },
-                        decoration: InputDecoration(
-                          hintText: isAttendance
-                              ? "Regular & punctual"
-                              : "Good progress",
-                          hintStyle: TextStyle(
-                            color: Colors.grey.shade400,
-                            fontSize: 13,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          filled: true,
-                          fillColor: Colors.grey.shade50,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                BorderSide(color: Colors.grey.shade300),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide:
-                                BorderSide(color: Colors.grey.shade300),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: areaColor),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -1447,68 +1598,69 @@ class _StudentCoScholasticRatingScreenState
                         _confirmDeleteAssessment();
                       }
                     },
-                    itemBuilder: (context) => [
-                      const PopupMenuItem(
-                        value: 'quick_fill_A+',
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.grade_rounded,
-                              color: Color(0xFF00B894),
-                              size: 18,
+                    itemBuilder:
+                        (context) => [
+                          const PopupMenuItem(
+                            value: 'quick_fill_A+',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.grade_rounded,
+                                  color: Color(0xFF00B894),
+                                  size: 18,
+                                ),
+                                SizedBox(width: 8),
+                                Text("Fill All with A+"),
+                              ],
                             ),
-                            SizedBox(width: 8),
-                            Text("Fill All with A+"),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 'quick_fill_A',
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.grade_rounded,
-                              color: Color(0xFF00CEC9),
-                              size: 18,
-                            ),
-                            SizedBox(width: 8),
-                            Text("Fill All with A"),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem(
-                        value: 'quick_fill_B+',
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.grade_rounded,
-                              color: Color(0xFF0984E3),
-                              size: 18,
-                            ),
-                            SizedBox(width: 8),
-                            Text("Fill All with B+"),
-                          ],
-                        ),
-                      ),
-                      if (hasExisting)
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(
-                                LucideIcons.trash2,
-                                color: Colors.red,
-                                size: 18,
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                "Delete Assessment",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ],
                           ),
-                        ),
-                    ],
+                          const PopupMenuItem(
+                            value: 'quick_fill_A',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.grade_rounded,
+                                  color: Color(0xFF00CEC9),
+                                  size: 18,
+                                ),
+                                SizedBox(width: 8),
+                                Text("Fill All with A"),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'quick_fill_B+',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.grade_rounded,
+                                  color: Color(0xFF0984E3),
+                                  size: 18,
+                                ),
+                                SizedBox(width: 8),
+                                Text("Fill All with B+"),
+                              ],
+                            ),
+                          ),
+                          if (hasExisting)
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    LucideIcons.trash2,
+                                    color: Colors.red,
+                                    size: 18,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    "Delete Assessment",
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
                   ),
                 ],
               );
@@ -1541,10 +1693,7 @@ class _StudentCoScholasticRatingScreenState
                   child: Center(
                     child: Text(
                       "No Co-Scholastic Areas found for this class.",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
                   ),
                 ),
@@ -1556,9 +1705,10 @@ class _StudentCoScholasticRatingScreenState
             children: [
               _buildStudentNavigatorBanner(provider),
               Expanded(
-                child: _isEditing
-                    ? _buildEditingView(provider)
-                    : _buildShowingView(provider),
+                child:
+                    _isEditing
+                        ? _buildEditingView(provider)
+                        : _buildShowingView(provider),
               ),
             ],
           );

@@ -129,6 +129,7 @@ class AuthProvider with ChangeNotifier {
   }) async {
     _setLoading(true);
     _loginError = null;
+    bool isLoginSuccess = false;
 
     try {
       final response = await AuthServices().login(
@@ -190,7 +191,7 @@ class AuthProvider with ChangeNotifier {
       // Route based on user role
       if (userRole == 'guardian') {
         try {
-          await fetchSchoolsByParent();
+          await fetchSchoolsByParent(manageLoading: false);
         } catch (e) {
           log("Error fetching schools for parent: $e");
         }
@@ -201,6 +202,7 @@ class AuthProvider with ChangeNotifier {
           log("FCM token sync skipped/failed: $e");
         }
 
+        isLoginSuccess = true;
         if (_totalSchoolsUnderParent == 1) {
           if (!context.mounted) return true;
           context.pushReplacementNamed(
@@ -213,11 +215,12 @@ class AuthProvider with ChangeNotifier {
         }
       } else if (userRole == 'teacher') {
         try {
-          await fetchSchoolDetailsForTeacher();
+          await fetchSchoolDetailsForTeacher(manageLoading: false);
         } catch (e) {
           log("Error fetching school details for teacher: $e");
         }
 
+        isLoginSuccess = true;
         if (!context.mounted) return true;
         context.pushReplacementNamed(
           RouteConstants.bottomNavScreen,
@@ -225,17 +228,18 @@ class AuthProvider with ChangeNotifier {
         );
       } else if (userRole == 'staff') {
         try {
-          await fetchSchoolDetailsForTeacher();
+          await fetchSchoolDetailsForTeacher(manageLoading: false);
         } catch (e) {
           log("Error fetching school details for staff: $e");
         }
 
         try {
-          await getStaffPermissions();
+          await getStaffPermissions(manageLoading: false);
         } catch (e) {
           log("Error fetching staff permissions: $e");
         }
 
+        isLoginSuccess = true;
         if (!context.mounted) return true;
         context.pushReplacementNamed(
           RouteConstants.bottomNavScreen,
@@ -257,8 +261,10 @@ class AuthProvider with ChangeNotifier {
       _setError(errorMsg);
       return false;
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (!isLoginSuccess) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -324,8 +330,10 @@ class AuthProvider with ChangeNotifier {
   }
 
   // Schools by guardian
-  Future<void> fetchSchoolsByParent() async {
-    _isLoading = true;
+  Future<void> fetchSchoolsByParent({bool manageLoading = true}) async {
+    if (manageLoading) {
+      _isLoading = true;
+    }
     _schools.clear();
     try {
       final response = await AuthServices().fetchSchoolsByParent();
@@ -346,8 +354,10 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       log(e.toString());
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (manageLoading) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -403,8 +413,10 @@ class AuthProvider with ChangeNotifier {
   }
 
   // fetch school details for teacher
-  Future<void> fetchSchoolDetailsForTeacher() async {
-    _isLoading = true;
+  Future<void> fetchSchoolDetailsForTeacher({bool manageLoading = true}) async {
+    if (manageLoading) {
+      _isLoading = true;
+    }
     try {
       final response = await AuthServices().fetchSchoolDetailsForTeacher();
       if (response.statusCode == 200) {
@@ -419,8 +431,10 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       log(e.toString());
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (manageLoading) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -441,9 +455,11 @@ class AuthProvider with ChangeNotifier {
 
   // retrieve and save staff permissions
   UserPermissionModel? staffPermission;
-  Future<void> getStaffPermissions() async {
-    _isLoading = true;
-    notifyListeners();
+  Future<void> getStaffPermissions({bool manageLoading = true}) async {
+    if (manageLoading) {
+      _isLoading = true;
+      notifyListeners();
+    }
 
     try {
       // First try to load from local storage
@@ -468,8 +484,10 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       log("Permission Fetch Error: $e");
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (manageLoading) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 

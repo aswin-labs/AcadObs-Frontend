@@ -1,3 +1,4 @@
+import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/helpers/date_formatter.dart';
 import 'package:acadobs/core/utils/helpers/payment_status_style.dart';
@@ -9,6 +10,7 @@ import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/download_file_card.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
 class PaymentDetailScreen extends StatefulWidget {
@@ -24,7 +26,6 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch latest payment details by ID
     if (widget.payment.id != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         context.read<PaymentProvider>().fetchPaymentById(widget.payment.id!);
@@ -36,7 +37,6 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
   Widget build(BuildContext context) {
     return Consumer<PaymentProvider>(
       builder: (context, provider, _) {
-        // Use fetched payment details if matching ID, otherwise fall back to widget.payment
         final activePayment =
             (provider.selectedPayment != null &&
                     provider.selectedPayment?.id == widget.payment.id)
@@ -50,78 +50,85 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
         final isDonation = activePayment.paymentCategory == "donation";
 
         return Scaffold(
-          backgroundColor: const Color(0xFFF7F8FA),
+          backgroundColor: AppColors.background,
           appBar: CommonAppBar(
             title: "Payment Details",
             isBackButton: true,
             actions: [
-              // -------------------------------------------------------------
-              // IDENTIFIABLE EDIT ACTION LOGIC:
-              // 1. General Invoice:
-              //    If transportInvoice is null (and invoiceStudent is present)
-              //    and status is pending -> Open General Payment BottomSheet
-              // -------------------------------------------------------------
+              // 1. General Invoice Edit Action
               if (activePayment.paymentStatus == "pending" &&
                   !isDonation &&
                   activePayment.transportInvoice == null &&
                   activePayment.invoiceStudent != null)
-                TextButton.icon(
-                  key: const ValueKey('edit_invoice_payment_btn'),
-                  onPressed: () {
-                    // Ensure studentId is available on invoice
-                    final invoice =
-                        activePayment.invoiceStudent!.studentId != null
-                            ? activePayment.invoiceStudent!
-                            : activePayment.invoiceStudent!.copyWith(
-                              studentId:
-                                  activePayment.studentId ??
-                                  activePayment.student?.id,
-                            );
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: TextButton.icon(
+                    key: const ValueKey('edit_invoice_payment_btn'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFF0F172A),
+                    ),
+                    onPressed: () {
+                      final invoice =
+                          activePayment.invoiceStudent!.studentId != null
+                              ? activePayment.invoiceStudent!
+                              : activePayment.invoiceStudent!.copyWith(
+                                studentId:
+                                    activePayment.studentId ??
+                                    activePayment.student?.id,
+                              );
 
-                    showCreatePaymentBottomSheet(
-                      context: context,
-                      invoice: invoice,
-                      transactionId: activePayment.transactionId,
-                      forEdit: true,
-                      paymentId: activePayment.id,
-                    );
-                  },
-                  icon: const Icon(Icons.edit_outlined, size: 18),
-                  label: const Text("Edit"),
+                      showCreatePaymentBottomSheet(
+                        context: context,
+                        invoice: invoice,
+                        transactionId: activePayment.transactionId,
+                        forEdit: true,
+                        paymentId: activePayment.id,
+                      );
+                    },
+                    icon: const Icon(Icons.edit_outlined, size: 16),
+                    label: const Text(
+                      "Edit",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
 
-              // -------------------------------------------------------------
-              // 2. Transport Invoice:
-              //    If invoiceStudent is null (and transportInvoice is present)
-              //    and status is pending -> Open Transport Payment BottomSheet
-              // -------------------------------------------------------------
+              // 2. Transport Invoice Edit Action
               if (activePayment.paymentStatus == "pending" &&
                   !isDonation &&
                   activePayment.invoiceStudent == null &&
                   activePayment.transportInvoice != null)
-                TextButton.icon(
-                  key: const ValueKey('edit_transport_payment_btn'),
-                  onPressed: () {
-                    // Ensure studentId is available on transport invoice
-                    final transportInv =
-                        activePayment.transportInvoice!.studentId != null
-                            ? activePayment.transportInvoice!
-                            : activePayment.transportInvoice!.copyWith(
-                              studentId:
-                                  activePayment.studentId ??
-                                  activePayment.student?.id,
-                            );
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: TextButton.icon(
+                    key: const ValueKey('edit_transport_payment_btn'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: const Color(0xFF0F172A),
+                    ),
+                    onPressed: () {
+                      final transportInv =
+                          activePayment.transportInvoice!.studentId != null
+                              ? activePayment.transportInvoice!
+                              : activePayment.transportInvoice!.copyWith(
+                                studentId:
+                                    activePayment.studentId ??
+                                    activePayment.student?.id,
+                              );
 
-                    showCreateTransportPaymentBottomSheet(
-                      context: context,
-                      invoice: transportInv,
-                      transactionId: activePayment.transactionId,
-                      forEdit: true,
-                      paymentId: activePayment.id,
-                    );
-                  },
-                  icon: const Icon(Icons.edit_outlined, size: 18),
-                  label: const Text("Edit"),
+                      showCreateTransportPaymentBottomSheet(
+                        context: context,
+                        invoice: transportInv,
+                        transactionId: activePayment.transactionId,
+                        forEdit: true,
+                        paymentId: activePayment.id,
+                      );
+                    },
+                    icon: const Icon(Icons.edit_outlined, size: 16),
+                    label: const Text(
+                      "Edit",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -135,8 +142,9 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Loading progress bar indicator when refreshing in background
                   if (provider.isLoadingPaymentDetails)
@@ -144,377 +152,43 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                       padding: EdgeInsets.only(bottom: 12),
                       child: ClipRRect(
                         borderRadius: BorderRadius.all(Radius.circular(4)),
-                        child: LinearProgressIndicator(minHeight: 3),
+                        child: LinearProgressIndicator(
+                          minHeight: 3,
+                          backgroundColor: Colors.transparent,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Color(0xFF00AEF0),
+                          ),
+                        ),
                       ),
                     ),
 
-                  // Student info card (if returned in API response)
-                  if (activePayment.student != null)
-                    Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12,
-                        horizontal: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey.shade200),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withAlpha(8),
-                            blurRadius: 10,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 22,
-                            backgroundColor: const Color(0xFFF1F5F9),
-                            backgroundImage:
-                                activePayment.student?.image?.isNotEmpty == true
-                                    ? CachedNetworkImageProvider(
-                                      activePayment.student!.image!,
-                                    )
-                                    : null,
-                            child:
-                                activePayment.student?.image?.isNotEmpty != true
-                                    ? const Icon(
-                                      Icons.person_outline,
-                                      color: Color(0xFF64748B),
-                                      size: 24,
-                                    )
-                                    : null,
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  activePayment.student?.fullName ?? "Student",
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF0F172A),
-                                  ),
-                                ),
-                                if (activePayment.student?.regNo?.isNotEmpty ==
-                                    true)
-                                  Text(
-                                    "Reg No: ${activePayment.student!.regNo}",
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFF64748B),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  // 1. Student info card (if present)
+                  if (activePayment.student != null) ...[
+                    _buildStudentCard(student: activePayment.student!),
+                    const SizedBox(height: 16),
+                  ],
 
-                  // Payment summary card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 22,
-                      horizontal: 18,
-                    ),
-                    decoration: BoxDecoration(
-                      color: paymentStatusStyle.backgroundColor,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 54,
-                          width: 54,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withAlpha(190),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            isDonation
-                                ? Icons.volunteer_activism_outlined
-                                : (activePayment.invoiceStudent == null &&
-                                        activePayment.transportInvoice != null
-                                    ? Icons.directions_bus_outlined
-                                    : Icons.payments_outlined),
-                            color: paymentStatusStyle.iconColor,
-                            size: 28,
-                          ),
-                        ),
-
-                        const SizedBox(height: 12),
-
-                        Text(
-                          "₹ ${activePayment.amount ?? "0.00"}",
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-
-                        const SizedBox(height: 4),
-
-                        Text(
-                          isDonation
-                              ? "Donation"
-                              : (activePayment.invoiceStudent == null &&
-                                      activePayment.transportInvoice != null
-                                  ? (activePayment
-                                              .transportInvoice
-                                              ?.stop
-                                              ?.stopName !=
-                                          null
-                                      ? "${activePayment.transportInvoice?.term ?? 'Transport'} - ${activePayment.transportInvoice!.stop!.stopName}"
-                                      : (activePayment.transportInvoice?.term ??
-                                          'Transport Fee'))
-                                  : capitalizeEachWord(
-                                    activePayment
-                                            .invoiceStudent
-                                            ?.invoice
-                                            ?.title ??
-                                        activePayment.paymentCategory ??
-                                        "Payment",
-                                  )),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-
-                        const SizedBox(height: 10),
-
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withAlpha(200),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            paymentStatusStyle.label,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              color: paymentStatusStyle.iconColor,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  // 2. Hero Payment Summary Card
+                  _buildHeroPaymentCard(
+                    payment: activePayment,
+                    statusStyle: paymentStatusStyle,
+                    isDonation: isDonation,
                   ),
 
-                  const SizedBox(height: 18),
-
-                  // Invoice / Transport specific details section
+                  // 3. Invoice / Transport Specific Details Section
                   if (!isDonation &&
                       (activePayment.transportInvoice != null ||
                           activePayment.invoiceStudent != null)) ...[
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      margin: const EdgeInsets.only(bottom: 18),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                activePayment.invoiceStudent == null &&
-                                        activePayment.transportInvoice != null
-                                    ? Icons.directions_bus_outlined
-                                    : Icons.receipt_long_outlined,
-                                size: 18,
-                                color: const Color(0xFF0F172A),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                activePayment.invoiceStudent == null &&
-                                        activePayment.transportInvoice != null
-                                    ? "Transport Invoice Details"
-                                    : "Invoice Details",
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF0F172A),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Divider(height: 24),
-
-                          // If Transport Invoice
-                          if (activePayment.invoiceStudent == null &&
-                              activePayment.transportInvoice != null) ...[
-                            _detailRow(
-                              icon: Icons.directions_bus_outlined,
-                              label: "Bus Stop",
-                              value:
-                                  activePayment
-                                      .transportInvoice
-                                      ?.stop
-                                      ?.stopName ??
-                                  "N/A",
-                            ),
-                            const Divider(height: 24),
-                            _detailRow(
-                              icon: Icons.schedule_outlined,
-                              label: "Term",
-                              value:
-                                  activePayment.transportInvoice?.term ?? "N/A",
-                            ),
-                            const Divider(height: 24),
-                            _detailRow(
-                              icon: Icons.account_balance_wallet_outlined,
-                              label: "Transport Fee",
-                              value:
-                                  "₹ ${activePayment.transportInvoice?.stop?.charge ?? activePayment.transportInvoice?.amount ?? "0.00"}",
-                            ),
-                            if (activePayment.transportInvoice?.dueDate != null) ...[
-                              const Divider(height: 24),
-                              _detailRow(
-                                icon: Icons.event_outlined,
-                                label: "Due Date",
-                                value: DateFormatter.formatDateTime(
-                                  activePayment.transportInvoice!.dueDate!,
-                                ),
-                              ),
-                            ],
-                          ] else if (activePayment.transportInvoice == null &&
-                              activePayment.invoiceStudent != null) ...[
-                            // If General Invoice
-                            _detailRow(
-                              icon: Icons.receipt_long_outlined,
-                              label: "Invoice",
-                              value:
-                                  activePayment
-                                      .invoiceStudent
-                                      ?.invoice
-                                      ?.title ??
-                                  "N/A",
-                            ),
-                            const Divider(height: 24),
-                            _detailRow(
-                              icon: Icons.account_balance_wallet_outlined,
-                              label: "Invoice Amount",
-                              value:
-                                  "₹ ${activePayment.invoiceStudent?.invoice?.amount ?? "0.00"}",
-                            ),
-                            if (activePayment
-                                    .invoiceStudent
-                                    ?.invoice
-                                    ?.dueDate !=
-                                null) ...[
-                              const Divider(height: 24),
-                              _detailRow(
-                                icon: Icons.event_outlined,
-                                label: "Due Date",
-                                value: DateFormatter.formatDateTime(
-                                  activePayment
-                                      .invoiceStudent!
-                                      .invoice!
-                                      .dueDate!,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ],
-                      ),
-                    ),
+                    const SizedBox(height: 16),
+                    _buildInvoiceSpecificCard(payment: activePayment),
                   ],
 
-                  // Payment information section
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: Colors.grey.shade200),
-                    ),
-                    child: Column(
-                      children: [
-                        _detailRow(
-                          icon: Icons.category_outlined,
-                          label: "Category",
-                          value: capitalizeEachWord(
-                            (activePayment.paymentCategory ?? "N/A").replaceAll(
-                              "_",
-                              " ",
-                            ),
-                          ),
-                        ),
+                  const SizedBox(height: 16),
 
-                        const Divider(height: 28),
+                  // 4. Payment Information Card
+                  _buildPaymentInformationCard(payment: activePayment),
 
-                        _detailRow(
-                          icon: Icons.calendar_today_outlined,
-                          label: "Payment Date",
-                          value:
-                              activePayment.paymentDate != null
-                                  ? DateFormatter.formatDateTime(
-                                    activePayment.paymentDate!,
-                                  )
-                                  : "N/A",
-                        ),
-
-                        const Divider(height: 28),
-
-                        _detailRow(
-                          icon: Icons.account_balance_wallet_outlined,
-                          label: "Payment Method",
-                          value: capitalizeEachWord(
-                            (activePayment.paymentMethod ?? "N/A").replaceAll(
-                              "_",
-                              " ",
-                            ),
-                          ),
-                        ),
-
-                        const Divider(height: 28),
-
-                        _detailRow(
-                          icon: Icons.tag_outlined,
-                          label: "Transaction ID",
-                          value:
-                              activePayment.transactionId?.isNotEmpty == true
-                                  ? activePayment.transactionId!
-                                  : "N/A",
-                        ),
-
-                        if (activePayment.remarks != null &&
-                            activePayment.remarks.toString().isNotEmpty) ...[
-                          const Divider(height: 28),
-                          _detailRow(
-                            icon: Icons.notes_outlined,
-                            label: "Remarks",
-                            value: activePayment.remarks.toString(),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-
-                  // Payment attachment
+                  // 5. Payment Attachment Card
                   if (activePayment.paymentAttachment?.isNotEmpty == true) ...[
                     const SizedBox(height: 16),
                     DownloadFileCard(
@@ -522,7 +196,7 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
                     ),
                   ],
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -532,43 +206,438 @@ class _PaymentDetailScreenState extends State<PaymentDetailScreen> {
     );
   }
 
-  Widget _detailRow({
-    required IconData icon,
-    required String label,
-    required String value,
+  /// Student Information Card
+  Widget _buildStudentCard({required PaymentStudentInfo student}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: const Color(0xFFF1F5F9),
+            backgroundImage:
+                student.image?.isNotEmpty == true
+                    ? CachedNetworkImageProvider(student.image!)
+                    : null,
+            child:
+                student.image?.isNotEmpty != true
+                    ? const Icon(
+                      LucideIcons.user,
+                      color: Color(0xFF64748B),
+                      size: 20,
+                    )
+                    : null,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  capitalizeEachWord(student.fullName ?? "Student"),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF0F172A),
+                  ),
+                ),
+                if (student.regNo?.isNotEmpty == true) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    "Reg No: ${student.regNo}",
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF64748B),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Hero Payment Summary Card
+  Widget _buildHeroPaymentCard({
+    required Payment payment,
+    required PaymentStatusStyle statusStyle,
+    required bool isDonation,
   }) {
+    final title =
+        isDonation
+            ? "Donation"
+            : (payment.invoiceStudent == null &&
+                    payment.transportInvoice != null
+                ? (payment.transportInvoice?.stop?.stopName != null
+                    ? "${payment.transportInvoice?.term ?? 'Transport'} - ${payment.transportInvoice!.stop!.stopName}"
+                    : (payment.transportInvoice?.term ?? 'Transport Fee'))
+                : capitalizeEachWord(
+                  payment.invoiceStudent?.invoice?.title ??
+                      payment.paymentCategory ??
+                      "Payment",
+                ));
+
+    final categoryLabel =
+        isDonation
+            ? "Donation"
+            : (payment.paymentCategory?.isNotEmpty == true
+                ? capitalizeEachWord(
+                  payment.paymentCategory!.replaceAll("_", " "),
+                )
+                : null);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Top Row: Category tag + Status Pill
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (categoryLabel != null && categoryLabel.trim().isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    categoryLabel,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF475569),
+                    ),
+                  ),
+                )
+              else
+                const SizedBox.shrink(),
+
+              // Status Pill
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: statusStyle.backgroundColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      statusStyle.icon,
+                      size: 13,
+                      color: statusStyle.iconColor,
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      statusStyle.label,
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: statusStyle.iconColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 14),
+
+          // Amount & Title
+          Text(
+            "₹ ${payment.amount ?? "0.00"}",
+            style: const TextStyle(
+              fontSize: 30,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF0F172A),
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF64748B),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Invoice / Transport Specific Details Card
+  Widget _buildInvoiceSpecificCard({required Payment payment}) {
+    final isTransport =
+        payment.invoiceStudent == null && payment.transportInvoice != null;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isTransport ? "Transport Invoice Details" : "Invoice Details",
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          if (isTransport) ...[
+            _buildInfoRow(
+              icon: LucideIcons.bus,
+              title: "Bus Stop",
+              value: payment.transportInvoice?.stop?.stopName ?? "N/A",
+            ),
+            const _CardDivider(),
+            _buildInfoRow(
+              icon: LucideIcons.calendarClock,
+              title: "Term",
+              value: payment.transportInvoice?.term ?? "N/A",
+            ),
+            const _CardDivider(),
+            _buildInfoRow(
+              icon: LucideIcons.indianRupee,
+              title: "Transport Fee",
+              value:
+                  "₹ ${payment.transportInvoice?.stop?.charge ?? payment.transportInvoice?.amount ?? "0.00"}",
+            ),
+            if (payment.transportInvoice?.dueDate != null) ...[
+              const _CardDivider(),
+              _buildInfoRow(
+                icon: LucideIcons.calendar,
+                title: "Due Date",
+                value: DateFormatter.formatDateTime(
+                  payment.transportInvoice!.dueDate!,
+                ),
+              ),
+            ],
+          ] else ...[
+            _buildInfoRow(
+              icon: LucideIcons.receiptText,
+              title: "Invoice Title",
+              value: payment.invoiceStudent?.invoice?.title ?? "N/A",
+            ),
+            const _CardDivider(),
+            _buildInfoRow(
+              icon: LucideIcons.indianRupee,
+              title: "Invoice Amount",
+              value: "₹ ${payment.invoiceStudent?.invoice?.amount ?? "0.00"}",
+            ),
+            if (payment.invoiceStudent?.invoice?.dueDate != null) ...[
+              const _CardDivider(),
+              _buildInfoRow(
+                icon: LucideIcons.calendar,
+                title: "Due Date",
+                value: DateFormatter.formatDateTime(
+                  payment.invoiceStudent!.invoice!.dueDate!,
+                ),
+              ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Payment Information Card
+  Widget _buildPaymentInformationCard({required Payment payment}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Payment Information",
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          _buildInfoRow(
+            icon: LucideIcons.tags,
+            title: "Category",
+            value: capitalizeEachWord(
+              (payment.paymentCategory ?? "N/A").replaceAll("_", " "),
+            ),
+          ),
+          const _CardDivider(),
+          _buildInfoRow(
+            icon: LucideIcons.calendar,
+            title: "Payment Date",
+            value:
+                payment.paymentDate != null
+                    ? DateFormatter.formatDateTime(payment.paymentDate!)
+                    : "N/A",
+          ),
+          const _CardDivider(),
+          _buildInfoRow(
+            icon: LucideIcons.wallet,
+            title: "Payment Method",
+            value: capitalizeEachWord(
+              (payment.paymentMethod ?? "N/A").replaceAll("_", " "),
+            ),
+          ),
+          const _CardDivider(),
+          _buildInfoRow(
+            icon: LucideIcons.hash,
+            title: "Transaction ID",
+            value:
+                payment.transactionId?.isNotEmpty == true
+                    ? payment.transactionId!
+                    : "N/A",
+          ),
+          if (payment.remarks != null &&
+              payment.remarks.toString().trim().isNotEmpty) ...[
+            const _CardDivider(),
+            _buildInfoRow(
+              icon: LucideIcons.fileText,
+              title: "Remarks",
+              value: payment.remarks.toString(),
+              maxLines: 4,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow({
+    required IconData icon,
+    required String title,
+    required String value,
+    Color? iconColor,
+    Color? iconBgColor,
+    Color? valueColor,
+    int maxLines = 2,
+  }) {
+    final effectiveIconColor = iconColor ?? const Color(0xFF475569);
+    final effectiveBgColor = iconBgColor ?? const Color(0xFFF1F5F9);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: Colors.blueGrey),
-
-        const SizedBox(width: 12),
-
-        Expanded(
-          flex: 4,
-          child: Text(
-            label,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontWeight: FontWeight.w500,
-            ),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: effectiveBgColor,
+            borderRadius: BorderRadius.circular(10),
           ),
+          child: Icon(icon, color: effectiveIconColor, size: 16),
         ),
-
         const SizedBox(width: 12),
-
         Expanded(
-          flex: 5,
-          child: Text(
-            value,
-            textAlign: TextAlign.end,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              color: Colors.black87,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF64748B),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 3),
+              Text(
+                value,
+                maxLines: maxLines,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: valueColor ?? const Color(0xFF0F172A),
+                ),
+              ),
+            ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CardDivider extends StatelessWidget {
+  const _CardDivider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 12),
+      child: Divider(height: 1, color: Color(0xFFF1F5F9)),
     );
   }
 }

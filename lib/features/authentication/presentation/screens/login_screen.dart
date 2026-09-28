@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController identifierController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _isSubmitting = false;
 
   @override
   void dispose() {
@@ -49,6 +50,10 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    setState(() {
+      _isSubmitting = true;
+    });
+
     final authProvider = context.read<AuthProvider>();
     final success = await authProvider.login(
       context: context,
@@ -57,6 +62,9 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (!success && mounted) {
+      setState(() {
+        _isSubmitting = false;
+      });
       final errorMsg = authProvider.loginError;
       if (errorMsg != null && errorMsg.isNotEmpty) {
         CustomSnackbar.show(
@@ -144,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       child: Consumer<AuthProvider>(
                         builder: (context, provider, _) {
-                          final isLoading = provider.isLoading;
+                          final isLoading = provider.isLoading || _isSubmitting;
                           final loginError = provider.loginError;
 
                           return Form(

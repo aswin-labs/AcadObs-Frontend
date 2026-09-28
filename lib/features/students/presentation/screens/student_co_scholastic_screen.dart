@@ -85,6 +85,11 @@ class _StudentCoScholasticScreenState extends State<StudentCoScholasticScreen> {
 
   IconData _getAreaIcon(String name) {
     final lower = name.toLowerCase();
+    if (lower.contains('attendance') ||
+        lower.contains('punctual') ||
+        lower.contains('presence')) {
+      return Icons.calendar_month_rounded;
+    }
     if (lower.contains('physical') ||
         lower.contains('sport') ||
         lower.contains('pe') ||
@@ -102,9 +107,7 @@ class _StudentCoScholasticScreenState extends State<StudentCoScholasticScreen> {
         lower.contains('dance')) {
       return Icons.music_note_rounded;
     }
-    if (lower.contains('attendance') ||
-        lower.contains('punctual') ||
-        lower.contains('discipline')) {
+    if (lower.contains('discipline')) {
       return Icons.event_available_rounded;
     }
     if (lower.contains('work') || lower.contains('experience')) {
@@ -639,11 +642,13 @@ class _StudentCoScholasticScreenState extends State<StudentCoScholasticScreen> {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: _getGradeColor(grade),
+                        color: isAttendance
+                            ? const Color(0xFF0284C7)
+                            : _getGradeColor(grade),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        "Grade $grade",
+                        isAttendance ? "$grade Days" : "Grade $grade",
                         style: const TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
@@ -798,18 +803,23 @@ class _StudentCoScholasticScreenState extends State<StudentCoScholasticScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: _getGradeColor(grade),
+                    color: isAttendance
+                        ? const Color(0xFF0284C7)
+                        : _getGradeColor(grade),
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                        color: _getGradeColor(grade).withAlpha(50),
+                        color: (isAttendance
+                                ? const Color(0xFF0284C7)
+                                : _getGradeColor(grade))
+                            .withAlpha(50),
                         blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
                     ],
                   ),
                   child: Text(
-                    "Grade $grade",
+                    isAttendance ? "$grade Days" : "Grade $grade",
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,

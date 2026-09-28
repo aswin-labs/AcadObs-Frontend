@@ -610,6 +610,9 @@ class MyClassProvider extends ChangeNotifier {
   // Quick fill all co-scholastic areas with a specific grade
   void quickFillAllCoScholasticGrades(String grade) {
     for (final area in _coScholasticAreas) {
+      // Attendance does not use letter grades
+      if (area.name.toLowerCase().contains('attendance')) continue;
+
       final existing = _studentCoScholasticRatings[area.id];
       if (existing != null) {
         existing.grade = grade;
