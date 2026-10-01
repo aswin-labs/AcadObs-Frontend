@@ -67,7 +67,8 @@ class ApiEndpoints {
       "/teacher/getExamMarkByRecordedBy";
   static const String marksBulkUpdate = "/teacher/bulkUpdateMarks";
   static const String studentMarks = "/teacher/getInternalMarkByStudentId";
-  static const String studentTermExamMarksForTeacher = "/teacher/getTermExamByStudentId";
+  static const String studentTermExamMarksForTeacher =
+      "/teacher/getTermExamByStudentId";
   static const String termExams = "/teacher/getExams";
   static const String myMultiTeacherSubjectInternalMarks =
       "/teacher/myMultiTeacherSubjectInternalMarks";
@@ -113,6 +114,12 @@ class ApiEndpoints {
   static const String getCoScholasticAssessmentByStudentIdGuardian =
       "/guardian/getCoScholasticAssessmentByStudentId";
 
+  // Progress Report
+  static const String getProgressReportByStudentIdTeacher =
+      "/teacher/getProgressReportByStudentId/";
+  static const String getProgressReportByStudentIdGuardian =
+      "/guardian/getProgressReportByStudentId/";
+
   //Achievement
   static const String getAllAchievement = "/teacher/allAchievements";
   static const String deleteAchievement = "/teacher/achievements";
@@ -142,7 +149,8 @@ class ApiEndpoints {
       "/guardian/getHomeworkByStudentId";
   static const String studentMarksForParent =
       "/guardian/getInternalMarkByStudentId";
-static const String studentTermExamMarksForGuardian = "/guardian/getTermExamByStudentId";
+  static const String studentTermExamMarksForGuardian =
+      "/guardian/getTermExamByStudentId";
   static const String achievementByGuardian =
       "/guardian/achievementByStudentId";
   static const String schoolsByGuardian = "/guardian/getSchoolsByUser";
@@ -153,6 +161,8 @@ static const String studentTermExamMarksForGuardian = "/guardian/getTermExamBySt
   static const String studentPaymentById = "/guardian/getPaymentById";
   static const String studentInvoices = "/guardian/getInvoiceByStudentId";
   static const String studentInvoiceById = "/guardian/getStudentInvoiceById";
+  static const String getUnPaidInvoicesByGuardian =
+      "/guardian/getUnPaidInvoicesByGuardian";
   static const String studentNotices = "/guardian/getNoticeByStudentId/";
   static const String staffsBySchoolId = "/guardian/getStaffsBySchoolId";
 
@@ -174,6 +184,8 @@ static const String studentTermExamMarksForGuardian = "/guardian/getTermExamBySt
       "/guardian/getTransportInvoiceByOwnStudentId";
   static const String transportInvoiceById =
       "/guardian/getTransportInvoiceById";
+  static const String getUnPaidTransportInvoicesByGuardian =
+      "/guardian/getUnPaidTransportInvoicesByGuardian";
   static const String createTransportInvoicePayment =
       "/guardian/createTransportInvoicePayment";
 
@@ -238,6 +250,8 @@ static const String studentTermExamMarksForGuardian = "/guardian/getTermExamBySt
       "/teacher/getHomeworkByIdAndStudentId";
   static const String uploadHomeworkFileAndRemarksByGuardian =
       "/guardian/updateHomeworkAssignment";
+  static const String getUnseenHomeworkCountByStudentId =
+      "/guardian/getUnseenHomeworkCountByStudentId";
 
   // ************************* HOMEWORKS END*****************************
 
@@ -252,9 +266,7 @@ static const String studentTermExamMarksForGuardian = "/guardian/getTermExamBySt
   static const String createStudentLeaveRequest = "/guardian/leaveRequest";
   static const String getStudentLeaveRequest =
       "/guardian/getLeaveRequestByStudentId";
-   static const String getLeaveTypesForTeacher =
-      "/teacher/getLeaveTypes";
-   static const String getLeaveTypesForGuardian =
-      "/guardian/getLeaveTypes";
+  static const String getLeaveTypesForTeacher = "/teacher/getLeaveTypes";
+  static const String getLeaveTypesForGuardian = "/guardian/getLeaveTypes";
   // ************************* LEAVE REQUESTS END************************
 }

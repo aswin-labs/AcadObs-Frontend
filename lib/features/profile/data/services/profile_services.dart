@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
+import 'package:flutter/foundation.dart';
 import 'package:acadobs/features/profile/data/models/guardian_model.dart';
 import 'package:acadobs/features/teacher/data/models/staff_model.dart';
 import 'package:dio/dio.dart';
@@ -85,10 +86,29 @@ class ProfileServices {
 
   // update profile photo
   Future<Response> updateProfilePhoto({
-    required File imageFile,
+    File? imageFile,
+    Uint8List? imageBytes,
     required bool forStaff,
   }) async {
-    final formData = {'dp': await MultipartFile.fromFile(imageFile.path)};
+    final MultipartFile multipartFile;
+    if (imageBytes != null) {
+      multipartFile = MultipartFile.fromBytes(
+        imageBytes,
+        filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+    } else if (imageFile != null && !kIsWeb) {
+      multipartFile = await MultipartFile.fromFile(imageFile.path);
+    } else if (imageFile != null) {
+      final bytes = await imageFile.readAsBytes();
+      multipartFile = MultipartFile.fromBytes(
+        bytes,
+        filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+    } else {
+      throw Exception('No image file or bytes provided');
+    }
+
+    final formData = {'dp': multipartFile};
 
     try {
       final response = await ApiServices.put(

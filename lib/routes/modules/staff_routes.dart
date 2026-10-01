@@ -479,7 +479,13 @@ List<GoRoute> staffRoutes = [
     path: '/studentProgressCardScreen',
     name: RouteConstants.studentProgressCardScreen,
     builder: (context, state) {
-      return StudentProgressCardScreen();
+      final args =
+          state.extra as StudentScreenArgs? ??
+          StudentScreenArgs.fromQueryParameters(state.uri.queryParameters);
+      return StudentProgressCardScreen(
+        studentId: args.studentId,
+        forStaff: args.forStaff,
+      );
     },
   ),
   GoRoute(

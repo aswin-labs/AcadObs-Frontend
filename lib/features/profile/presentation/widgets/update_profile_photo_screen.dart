@@ -6,6 +6,8 @@ import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/features/profile/presentation/screens/full_screen_image.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/shared/widgets/profile_photo_crop_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -21,26 +23,46 @@ class UpdateProfilePhotoScreen extends StatefulWidget {
 
 class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
   File? _selectedImage;
+  Uint8List? _selectedBytes;
   final ImagePicker _picker = ImagePicker();
+
+  bool get _hasSelectedImage => _selectedBytes != null || _selectedImage != null;
 
   Future<void> _pickImage(ImageSource source) async {
     try {
       final pickedFile = await _picker.pickImage(
         source: source,
-        imageQuality: 85,
-        maxWidth: 1200,
-        maxHeight: 1200,
+        imageQuality: 95,
       );
-      if (pickedFile != null) {
-        setState(() {
-          _selectedImage = File(pickedFile.path);
-        });
+      if (pickedFile != null && mounted) {
+        final bytes = await pickedFile.readAsBytes();
+        final original = kIsWeb ? null : File(pickedFile.path);
+
+        if (!mounted) return;
+        final cropResult = await ProfilePhotoCropScreen.cropImage(
+          context,
+          imageFile: original,
+          imageBytes: bytes,
+          title:
+              widget.forStaff
+                  ? 'Crop Staff Profile Photo'
+                  : 'Crop Guardian Profile Photo',
+        );
+
+        if (cropResult != null && mounted) {
+          setState(() {
+            _selectedBytes = cropResult.bytes;
+            _selectedImage = cropResult.file;
+          });
+        }
       }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Could not access ${source == ImageSource.camera ? "camera" : "gallery"}.'),
+          content: Text(
+            'Could not access ${source == ImageSource.camera ? "camera" : "gallery"}.',
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -59,7 +81,10 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
             ),
             child: SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -83,7 +108,10 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
                     const SizedBox(height: 6),
                     Text(
                       'Select a clear picture for your school profile',
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey.shade600,
+                      ),
                     ),
                     const SizedBox(height: 20),
                     InkWell(
@@ -237,7 +265,10 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: const CommonAppBar(title: "Edit Profile Photo", isBackButton: true),
+      appBar: const CommonAppBar(
+        title: "Edit Profile Photo",
+        isBackButton: true,
+      ),
       body: _buildProfileContent(context),
     );
   }
@@ -265,10 +296,13 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
             children: [
               const SizedBox(height: 10),
               // Status Badge
-              if (_selectedImage != null)
+              if (_hasSelectedImage)
                 Container(
                   margin: const EdgeInsets.only(bottom: 24),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.amber.shade50,
                     borderRadius: BorderRadius.circular(20),
@@ -277,7 +311,11 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.image_outlined, size: 16, color: Colors.amber.shade900),
+                      Icon(
+                        Icons.image_outlined,
+                        size: 16,
+                        color: Colors.amber.shade900,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         'New image selected • Pending save',
@@ -309,9 +347,9 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
                       ),
                       child: GestureDetector(
                         onTap: () {
-                          if (profilePhoto != null &&
-                              profilePhoto.isNotEmpty &&
-                              _selectedImage == null) {
+                          if (!_hasSelectedImage &&
+                              profilePhoto != null &&
+                              profilePhoto.isNotEmpty) {
                             showDialog(
                               context: context,
                               barrierDismissible: true,
@@ -335,16 +373,18 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
                               radius: 81,
                               backgroundColor: Colors.grey.shade100,
                               backgroundImage:
-                                  _selectedImage != null
-                                      ? FileImage(_selectedImage!)
-                                      : (profilePhoto != null &&
+                                  _selectedBytes != null
+                                      ? MemoryImage(_selectedBytes!)
+                                      : (_selectedImage != null
+                                          ? FileImage(_selectedImage!)
+                                          : (profilePhoto != null &&
                                               profilePhoto.isNotEmpty)
-                                      ? NetworkImage(
-                                        "${BaseUrls.media}${MediaEndpoints.dp}$profilePhoto",
-                                      )
-                                      : null,
+                                          ? NetworkImage(
+                                            "${BaseUrls.media}${MediaEndpoints.dp}$profilePhoto",
+                                          )
+                                          : null),
                               child:
-                                  _selectedImage == null &&
+                                  !_hasSelectedImage &&
                                           (profilePhoto == null ||
                                               profilePhoto.isEmpty)
                                       ? Icon(
@@ -394,13 +434,12 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
                                 end: Alignment.bottomRight,
                               ),
                               shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 3,
-                              ),
+                              border: Border.all(color: Colors.white, width: 3),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF00AEF0).withValues(alpha: 0.4),
+                                  color: const Color(
+                                    0xFF00AEF0,
+                                  ).withValues(alpha: 0.4),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -422,7 +461,7 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
               const SizedBox(height: 32),
 
               Text(
-                _selectedImage == null
+                !_hasSelectedImage
                     ? (profilePhoto != null && profilePhoto.isNotEmpty
                         ? 'Profile Photo'
                         : 'Add a Profile Photo')
@@ -435,7 +474,7 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                _selectedImage == null
+                !_hasSelectedImage
                     ? 'Upload a clear headshot to help others recognize you'
                     : 'Review the preview above, then tap Save Changes',
                 textAlign: TextAlign.center,
@@ -448,52 +487,56 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
 
               const SizedBox(height: 36),
 
-              // Choose / Change Photo Button
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton.icon(
-                  onPressed: isUploading ? null : _showPickOptions,
-                  icon: const Icon(Icons.add_photo_alternate_rounded, size: 20),
-                  label: Text(
-                    _selectedImage == null ? "Select New Photo" : "Pick Different Photo",
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
+              // Action Buttons
+              if (!_hasSelectedImage)
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    onPressed: isUploading ? null : _showPickOptions,
+                    icon: const Icon(
+                      Icons.add_photo_alternate_rounded,
+                      size: 20,
+                    ),
+                    label: const Text(
+                      "Select New Photo",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00AEF0),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00AEF0),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Save & Discard Buttons if an image is selected
-              if (_selectedImage != null) ...[
-                const SizedBox(height: 14),
+                )
+              else ...[
                 SizedBox(
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: isUploading
-                        ? null
-                        : () async {
-                            final success = await provider.updateProfilePhoto(
-                              context: context,
-                              imageFile: _selectedImage!,
-                              forStaff: widget.forStaff,
-                            );
-                            if (success && mounted) {
-                              setState(() {
-                                _selectedImage = null;
-                              });
-                            }
-                          },
+                    onPressed:
+                        isUploading
+                            ? null
+                            : () async {
+                              final success = await provider.updateProfilePhoto(
+                                context: context,
+                                imageFile: _selectedImage,
+                                imageBytes: _selectedBytes,
+                                forStaff: widget.forStaff,
+                              );
+                              if (success && mounted) {
+                                setState(() {
+                                  _selectedImage = null;
+                                  _selectedBytes = null;
+                                });
+                              }
+                            },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green.shade600,
                       foregroundColor: Colors.white,
@@ -502,43 +545,54 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
                         borderRadius: BorderRadius.circular(14),
                       ),
                     ),
-                    child: isUploading
-                        ? const ButtonLoading()
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(Icons.check_rounded, size: 20),
-                              SizedBox(width: 8),
-                              Text(
-                                "Save Changes",
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
+                    child:
+                        isUploading
+                            ? const ButtonLoading()
+                            : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.check_rounded, size: 20),
+                                SizedBox(width: 8),
+                                Text(
+                                  "Save Changes",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
+                              ],
+                            ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                TextButton.icon(
-                  onPressed: isUploading
-                      ? null
-                      : () {
-                          setState(() {
-                            _selectedImage = null;
-                          });
-                        },
-                  icon: const Icon(Icons.close_rounded, size: 18),
-                  label: const Text(
-                    "Discard Selection",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: OutlinedButton.icon(
+                    onPressed:
+                        isUploading
+                            ? null
+                            : () {
+                              setState(() {
+                                _selectedImage = null;
+                                _selectedBytes = null;
+                              });
+                            },
+                    icon: const Icon(Icons.close_rounded, size: 18),
+                    label: const Text(
+                      "Discard",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.grey.shade700,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.grey.shade700,
+                      side: BorderSide(color: Colors.grey.shade300),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -549,4 +603,3 @@ class _UpdateProfilePhotoScreenState extends State<UpdateProfilePhotoScreen> {
     );
   }
 }
-

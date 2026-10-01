@@ -3,12 +3,16 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
+import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
+import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
+import 'package:acadobs/features/parents/presentation/provider/transport_payment_provider.dart';
 import 'package:acadobs/features/parents/presentation/widgets/latest_award_section.dart';
 import 'package:acadobs/features/parents/presentation/widgets/latest_events_section.dart';
 import 'package:acadobs/features/parents/presentation/widgets/latest_news_section.dart';
 import 'package:acadobs/features/parents/presentation/widgets/my_children_section.dart';
+import 'package:acadobs/features/parents/presentation/widgets/unpaid_invoices_ticker_section.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
 import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/features/tracking/presentation/widgets/bus_route_section.dart';
@@ -61,9 +65,26 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
         forStaff: false,
       ),
       context.read<StudentRouteProvider>().getStudentRoutes(),
+      context.read<PaymentProvider>().fetchUnpaidInvoicesByGuardian(
+        forceRefresh: forceRefresh,
+      ),
+      context
+          .read<TransportPaymentProvider>()
+          .fetchUnpaidTransportInvoicesByGuardian(
+            forceRefresh: forceRefresh,
+          ),
       parentProvider.fetchSchoolDetailsForParent(),
       profileProvider.fetchProfileGuardian(),
     ]);
+
+    if (mounted) {
+      final homeworksProvider = context.read<HomeworksProvider>();
+      for (final student in parentProvider.students) {
+        homeworksProvider.getUnseenHomeworkCountByStudentId(
+          studentId: student.id,
+        );
+      }
+    }
   }
 
   @override
@@ -418,6 +439,8 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
                   SliverToBoxAdapter(
                     child: Column(
                       children: [
+                        // Unpaid Invoices Moving Text Ticker Section
+                        const UnpaidInvoicesTickerSection(),
                         // My Children Section
                         MyChildrenSection(),
                         // Bus route section

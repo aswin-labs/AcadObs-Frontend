@@ -5,6 +5,7 @@ class StudentHomeworkStatus {
   String? remark;
   int? points;
   String? solvedFile;
+  bool? isSeen;
   StudentModel? student;
 
   StudentHomeworkStatus({
@@ -12,6 +13,7 @@ class StudentHomeworkStatus {
     this.remark,
     this.points,
     this.solvedFile,
+    this.isSeen,
     this.student,
   });
 
@@ -21,6 +23,7 @@ class StudentHomeworkStatus {
         remark: json["remarks"],
         points: json["points"],
         solvedFile: json["solved_file"],
+        isSeen: json["is_seen"],
         student:
             json["Student"] == null
                 ? null

@@ -42,6 +42,65 @@ class TransportPaymentProvider extends ChangeNotifier {
   final List<TransportInvoice> _transportInvoices = [];
   List<TransportInvoice> get transportInvoices => _transportInvoices;
 
+  List<TransportInvoice> _unpaidTransportInvoices = [];
+  List<TransportInvoice> get unpaidTransportInvoices =>
+      _unpaidTransportInvoices;
+
+  bool _isLoadingUnpaidTransportInvoices = false;
+  bool get isLoadingUnpaidTransportInvoices =>
+      _isLoadingUnpaidTransportInvoices;
+
+  int _unpaidTransportInvoicesCount = 0;
+  int get unpaidTransportInvoicesCount => _unpaidTransportInvoicesCount;
+
+  // Fetch unpaid transport invoices by guardian
+  Future<void> fetchUnpaidTransportInvoicesByGuardian({
+    bool forceRefresh = false,
+  }) async {
+    if (_isLoadingUnpaidTransportInvoices) return;
+
+    if (!forceRefresh && _unpaidTransportInvoices.isNotEmpty) {
+      return;
+    }
+
+    _isLoadingUnpaidTransportInvoices = true;
+    notifyListeners();
+
+    try {
+      final response =
+          await _services.fetchUnPaidTransportInvoicesByGuardian();
+      log("Unpaid Transport Invoices API Response: ${response.data}, Status: ${response.statusCode}");
+
+      if (response.statusCode == 200 && response.data != null) {
+        final dynamic resData = response.data;
+        final dynamic rawList =
+            resData is Map ? (resData['data'] ?? []) : resData;
+
+        if (rawList is List) {
+          _unpaidTransportInvoices =
+              rawList.map((e) => TransportInvoice.fromJson(e)).toList();
+          _unpaidTransportInvoicesCount =
+              (resData is Map && resData['count'] != null)
+                  ? (resData['count'] as num).toInt()
+                  : _unpaidTransportInvoices.length;
+        } else {
+          _unpaidTransportInvoices = [];
+          _unpaidTransportInvoicesCount = 0;
+        }
+      } else {
+        _unpaidTransportInvoices = [];
+        _unpaidTransportInvoicesCount = 0;
+      }
+    } catch (e) {
+      log("Error fetching unpaid transport invoices: $e");
+      _unpaidTransportInvoices = [];
+      _unpaidTransportInvoicesCount = 0;
+    } finally {
+      _isLoadingUnpaidTransportInvoices = false;
+      notifyListeners();
+    }
+  }
+
   TransportInvoice? _selectedInvoice;
   TransportInvoice? get selectedInvoice => _selectedInvoice;
 

@@ -30,6 +30,14 @@ class PaymentService {
     return response;
   }
 
+  // fetch unpaid invoices by guardian
+  Future<Response> fetchUnpaidInvoicesByGuardian() async {
+    final response = await ApiServices.get(
+      ApiEndpoints.getUnPaidInvoicesByGuardian,
+    );
+    return response;
+  }
+
   // fetch single invoice details by ID
   Future<Response> fetchStudentInvoiceById({required int invoiceId}) async {
     final response = await ApiServices.get(

@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/profile/data/models/guardian_model.dart';
@@ -336,7 +337,8 @@ class ProfileProvider extends ChangeNotifier {
   // Update profile photo
   Future<bool> updateProfilePhoto({
     required BuildContext context,
-    required File imageFile,
+    File? imageFile,
+    Uint8List? imageBytes,
     required bool forStaff,
   }) async {
     _isPhotoLoading = true;
@@ -347,6 +349,7 @@ class ProfileProvider extends ChangeNotifier {
       final response = await ProfileServices().updateProfilePhoto(
         forStaff: forStaff,
         imageFile: imageFile,
+        imageBytes: imageBytes,
       );
       log("🟢 Upload response status: ${response.statusCode}");
 

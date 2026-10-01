@@ -28,6 +28,7 @@ class StudentModel {
   ClassGradeModel? classGrade;
   UserModel? user;
   List<AttendanceStatusModel>? studentRecords;
+  final List<dynamic>? invoiceStudents;
 
   StudentModel({
     required this.id,
@@ -50,6 +51,7 @@ class StudentModel {
     this.classGrade,
     this.user,
     this.studentRecords,
+    this.invoiceStudents,
   });
 
   factory StudentModel.fromJson(Map<String, dynamic> json) => StudentModel(
@@ -89,5 +91,9 @@ class StudentModel {
                 (x) => AttendanceStatusModel.fromJson(x),
               ),
             ),
+    invoiceStudents: json['InvoiceStudents'],
   );
+
+  bool get hasPendingInvoices =>
+      invoiceStudents != null && invoiceStudents!.isNotEmpty;
 }

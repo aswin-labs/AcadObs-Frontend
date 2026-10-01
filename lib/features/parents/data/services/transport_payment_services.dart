@@ -27,6 +27,14 @@ class TransportPaymentServices {
     return response;
   }
 
+  // Fetch unpaid transport invoices by guardian
+  Future<Response> fetchUnPaidTransportInvoicesByGuardian() async {
+    final response = await ApiServices.get(
+      ApiEndpoints.getUnPaidTransportInvoicesByGuardian,
+    );
+    return response;
+  }
+
   // Create transport invoice payment
   Future<Response> createTransportInvoicePayment({
     required BuildContext context,

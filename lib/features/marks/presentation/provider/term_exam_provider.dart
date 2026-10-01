@@ -269,8 +269,9 @@ class TermExamProvider extends ChangeNotifier {
     if (_isLoadingMultiSubjectMarks) return;
 
     // If not loading more, check if already fetched once.
-    if (!loadMore && !forceRefresh && _isFetchedOnceForMultiSubjectMarks)
+    if (!loadMore && !forceRefresh && _isFetchedOnceForMultiSubjectMarks) {
       return;
+    }
     _isLoadingMultiSubjectMarks = true;
     notifyListeners();
     try {

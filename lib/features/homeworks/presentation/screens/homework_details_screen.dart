@@ -19,6 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+enum HomeworkSeenFilter { all, viewed, notViewed }
+
 class HomeworkDetailsScreen extends StatefulWidget {
   final HomeworkParameters homeworkParams;
   const HomeworkDetailsScreen({super.key, required this.homeworkParams});
@@ -29,6 +31,7 @@ class HomeworkDetailsScreen extends StatefulWidget {
 
 class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
   late HomeworksProvider homeworkProvider;
+  HomeworkSeenFilter _seenFilter = HomeworkSeenFilter.all;
 
   @override
   void initState() {
@@ -168,83 +171,139 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
                                   homework
                                       ?.studentHomeworkStatus?[0]
                                       .solvedFile,
+                              isSeen:
+                                  homework
+                                      ?.studentHomeworkStatus?[0]
+                                      .isSeen,
+                              showSeenStatus:
+                                  widget.homeworkParams.viewerType ==
+                                  HomeworkViewerType.teacherStudentView,
                             )
                           else
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _studentPointsButton(homework),
-                                _gap(2),
-                                ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const BouncingScrollPhysics(),
-                                  itemCount:
-                                      homework?.studentHomeworkStatus?.length ?? 0,
-                                  itemBuilder: (context, index) {
-                                    final studentHomework =
-                                        homework?.studentHomeworkStatus?[index];
-                                    return HomeworkPointsViewCard(
-                                      studentName:
-                                          studentHomework?.student?.fullName ??
-                                          "",
-                                      rollNumber:
-                                          studentHomework?.student?.rollNumber
-                                              ?.toString() ??
-                                          "",
-                                      points: studentHomework?.points ?? 0,
-                                      fileName: studentHomework?.solvedFile,
-                                      remarks: studentHomework?.remark,
-                                    );
-                                  },
-                                ),
-                                if (widget.homeworkParams.viewerType ==
-                                    HomeworkViewerType.teacherView) ...[
-                                  _gap(2),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: OutlinedButton.icon(
-                                      onPressed: () {
-                                        context.pushNamed(
-                                          RouteConstants
-                                              .addMissingHomeworkStudentRanking,
-                                          queryParameters: {
-                                            'homeworkId':
-                                                (homework?.id ?? 0).toString(),
+                            Builder(
+                              builder: (context) {
+                                final allStatuses =
+                                    homework?.studentHomeworkStatus ?? [];
+                                final isTeacherView =
+                                    widget.homeworkParams.viewerType ==
+                                    HomeworkViewerType.teacherView;
+
+                                final totalCount = allStatuses.length;
+                                final viewedCount = allStatuses
+                                    .where((s) => s.isSeen == true)
+                                    .length;
+                                final notViewedCount = totalCount - viewedCount;
+
+                                final filteredList = isTeacherView
+                                    ? allStatuses.where((status) {
+                                      switch (_seenFilter) {
+                                        case HomeworkSeenFilter.viewed:
+                                          return status.isSeen == true;
+                                        case HomeworkSeenFilter.notViewed:
+                                          return status.isSeen != true;
+                                        case HomeworkSeenFilter.all:
+                                          return true;
+                                      }
+                                    }).toList()
+                                    : allStatuses;
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _studentPointsButton(homework),
+                                    if (isTeacherView && totalCount > 0) ...[
+                                      _gap(1.5),
+                                      _buildSeenSummaryFilter(
+                                        totalCount: totalCount,
+                                        viewedCount: viewedCount,
+                                        notViewedCount: notViewedCount,
+                                      ),
+                                    ],
+                                    _gap(2),
+                                    if (filteredList.isEmpty)
+                                      _buildEmptyFilterState()
+                                    else
+                                      ListView.builder(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemCount: filteredList.length,
+                                        itemBuilder: (context, index) {
+                                          final studentHomework =
+                                              filteredList[index];
+                                          return HomeworkPointsViewCard(
+                                            studentName:
+                                                studentHomework
+                                                    .student
+                                                    ?.fullName ??
+                                                "",
+                                            rollNumber:
+                                                studentHomework
+                                                    .student
+                                                    ?.rollNumber
+                                                    ?.toString() ??
+                                                "",
+                                            points:
+                                                studentHomework.points ?? 0,
+                                            fileName:
+                                                studentHomework.solvedFile,
+                                            remarks: studentHomework.remark,
+                                            isSeen: studentHomework.isSeen,
+                                            showSeenStatus: isTeacherView,
+                                          );
+                                        },
+                                      ),
+                                    if (isTeacherView) ...[
+                                      _gap(2),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: OutlinedButton.icon(
+                                          onPressed: () {
+                                            context.pushNamed(
+                                              RouteConstants
+                                                  .addMissingHomeworkStudentRanking,
+                                              queryParameters: {
+                                                'homeworkId':
+                                                    (homework?.id ?? 0)
+                                                        .toString(),
+                                              },
+                                            );
                                           },
-                                        );
-                                      },
-                                      icon: const Icon(Icons.add),
-                                      label: const Text("Add More Students"),
-                                    ),
-                                  ),
-                                  _gap(1),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    child: OutlinedButton.icon(
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (_) =>
-                                              RemoveStudentHomeworkDialog(
-                                            homeworkId: homework?.id ?? 0,
+                                          icon: const Icon(Icons.add),
+                                          label: const Text("Add More Students"),
+                                        ),
+                                      ),
+                                      _gap(1),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: OutlinedButton.icon(
+                                          onPressed: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (_) =>
+                                                  RemoveStudentHomeworkDialog(
+                                                homeworkId: homework?.id ?? 0,
+                                              ),
+                                            );
+                                          },
+                                          icon: const Icon(
+                                            Icons.delete_outline,
+                                            color: Colors.red,
                                           ),
-                                        );
-                                      },
-                                      icon: const Icon(
-                                        Icons.delete_outline,
-                                        color: Colors.red,
+                                          label: const Text(
+                                            "Remove Option",
+                                            style: TextStyle(color: Colors.red),
+                                          ),
+                                          style: OutlinedButton.styleFrom(
+                                            side: const BorderSide(
+                                                color: Colors.red),
+                                          ),
+                                        ),
                                       ),
-                                      label: const Text(
-                                        "Remove Option",
-                                        style: TextStyle(color: Colors.red),
-                                      ),
-                                      style: OutlinedButton.styleFrom(
-                                        side: const BorderSide(color: Colors.red),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
+                                    ],
+                                  ],
+                                );
+                              },
                             ),
                           _gap(2),
                           if (widget.homeworkParams.viewerType ==
@@ -492,6 +551,151 @@ class _HomeworkDetailsScreenState extends State<HomeworkDetailsScreen> {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSeenSummaryFilter({
+    required int totalCount,
+    required int viewedCount,
+    required int notViewedCount,
+  }) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      child: Row(
+        children: [
+          _buildFilterChip(
+            title: "All",
+            count: totalCount,
+            isSelected: _seenFilter == HomeworkSeenFilter.all,
+            activeColor: const Color(0xFF6366F1),
+            onTap: () => setState(() => _seenFilter = HomeworkSeenFilter.all),
+          ),
+          const SizedBox(width: 8),
+          _buildFilterChip(
+            title: "Viewed",
+            count: viewedCount,
+            icon: Icons.visibility_rounded,
+            isSelected: _seenFilter == HomeworkSeenFilter.viewed,
+            activeColor: const Color(0xFF16A34A),
+            onTap: () => setState(() => _seenFilter = HomeworkSeenFilter.viewed),
+          ),
+          const SizedBox(width: 8),
+          _buildFilterChip(
+            title: "Not Viewed",
+            count: notViewedCount,
+            icon: Icons.visibility_off_rounded,
+            isSelected: _seenFilter == HomeworkSeenFilter.notViewed,
+            activeColor: const Color(0xFFD97706),
+            onTap: () =>
+                setState(() => _seenFilter = HomeworkSeenFilter.notViewed),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilterChip({
+    required String title,
+    required int count,
+    IconData? icon,
+    required bool isSelected,
+    required Color activeColor,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+        decoration: BoxDecoration(
+          color: isSelected ? activeColor : Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? activeColor : Colors.grey.shade300,
+            width: 1,
+          ),
+          boxShadow:
+              isSelected
+                  ? [
+                    BoxShadow(
+                      color: activeColor.withAlpha(50),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                  : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 13,
+                color: isSelected ? Colors.white : Colors.grey.shade700,
+              ),
+              const SizedBox(width: 5),
+            ],
+            Text(
+              "$title ($count)",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? Colors.white : Colors.grey.shade800,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyFilterState() {
+    final String message;
+    final IconData icon;
+    final Color iconColor;
+
+    if (_seenFilter == HomeworkSeenFilter.viewed) {
+      message = "No students have viewed this homework yet.";
+      icon = Icons.visibility_off_outlined;
+      iconColor = const Color(0xFFD97706);
+    } else if (_seenFilter == HomeworkSeenFilter.notViewed) {
+      message = "All students have viewed this homework!";
+      icon = Icons.check_circle_outline_rounded;
+      iconColor = const Color(0xFF16A34A);
+    } else {
+      message = "No student status available.";
+      icon = Icons.info_outline;
+      iconColor = Colors.grey;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 36, color: iconColor),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade700,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -41,6 +41,14 @@ class HomeworksProvider extends ChangeNotifier {
     return _studentPoints[studentId] ?? 0;
   }
 
+  // unseen homework count per student (for guardian)
+  final Map<int, int> _unseenHomeworkCounts = {};
+  Map<int, int> get unseenHomeworkCounts => _unseenHomeworkCounts;
+
+  int getUnseenHomeworkCount(int studentId) {
+    return _unseenHomeworkCounts[studentId] ?? 0;
+  }
+
   // Fetch homeworks
   Future<void> fetchHomeworks({
     required HomeworkViewerType viewerType,
@@ -559,5 +567,34 @@ class HomeworksProvider extends ChangeNotifier {
         type: SnackbarType.failure,
       );
     }
+  }
+
+  // get unseen homework count by student id (for guardians)
+  Future<int> getUnseenHomeworkCountByStudentId({
+    required int studentId,
+  }) async {
+    try {
+      final response =
+          await HomeworksServices().getUnseenHomeworkCountByStudentId(
+        studentId: studentId,
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data;
+        final dynamic rawCount =
+            data is Map ? data["unseenHomeworkCount"] : null;
+        final int count =
+            rawCount is int
+                ? rawCount
+                : int.tryParse(rawCount?.toString() ?? '0') ?? 0;
+
+        _unseenHomeworkCounts[studentId] = count;
+        notifyListeners();
+        return count;
+      }
+    } catch (e) {
+      log('Error getting unseen homework count: $e');
+    }
+    return _unseenHomeworkCounts[studentId] ?? 0;
   }
 }

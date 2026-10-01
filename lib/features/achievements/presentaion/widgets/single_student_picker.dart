@@ -84,23 +84,31 @@ Future<void> showSingleStudentSelectionPopup(
                     SizedBox(
                       height: 320,
                       width: 300,
-                      child: ListView.builder(
-                        itemCount: students.length,
-                        itemBuilder: (context, index) {
-                          final student = students[index];
-
-                          return RadioListTile<int>(
-                            title: Text(student.fullName),
-                            value: student.id,
-                            groupValue: tempSelected?.id,
-                            onChanged: (_) {
-                              setState(() {
-                                tempSelected = student;
-                              });
-                              onStudentSelected(student);
-                            },
+                      child: RadioGroup<int>(
+                        groupValue: tempSelected?.id,
+                        onChanged: (selectedId) {
+                          if (selectedId == null) return;
+                          final index = students.indexWhere(
+                            (s) => s.id == selectedId,
                           );
+                          if (index == -1) return;
+                          final student = students[index];
+                          setState(() {
+                            tempSelected = student;
+                          });
+                          onStudentSelected(student);
                         },
+                        child: ListView.builder(
+                          itemCount: students.length,
+                          itemBuilder: (context, index) {
+                            final student = students[index];
+
+                            return RadioListTile<int>(
+                              title: Text(student.fullName),
+                              value: student.id,
+                            );
+                          },
+                        ),
                       ),
                     ),
                   ],

@@ -76,8 +76,10 @@ class InvoiceStudent {
 
   factory InvoiceStudent.fromJson(Map<String, dynamic> json) => InvoiceStudent(
     id: json["id"],
-    invoiceId: json["invoice_id"] ?? json["invoiceId"],
-    studentId: json["student_id"] ?? json["studentId"],
+    invoiceId:
+        json["invoice_id"] ?? json["invoiceId"] ?? json["Invoice"]?["id"],
+    studentId:
+        json["student_id"] ?? json["studentId"] ?? json["Student"]?["id"],
     status: json["status"],
     createdAt:
         json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),

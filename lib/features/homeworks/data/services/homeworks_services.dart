@@ -217,10 +217,22 @@ class HomeworksServices {
     return response;
   }
 
-   //delete student homework
-  Future<Response> deleteHomeWorkStudent({required int studentHomeworkId}) async {
+  //delete student homework
+  Future<Response> deleteHomeWorkStudent({
+    required int studentHomeworkId,
+  }) async {
     final response = await ApiServices.delete(
       "${ApiEndpoints.deleteHomeworkAssignment}/$studentHomeworkId",
+    );
+    return response;
+  }
+
+  // get homework unseen count by student id
+  Future<Response> getUnseenHomeworkCountByStudentId({
+    required int studentId,
+  }) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.getUnseenHomeworkCountByStudentId}/$studentId",
     );
     return response;
   }

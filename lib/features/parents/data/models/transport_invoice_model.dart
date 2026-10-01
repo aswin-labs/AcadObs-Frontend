@@ -1,3 +1,5 @@
+import 'package:acadobs/features/parents/data/models/invoice_student_model.dart';
+
 class TransportInvoice {
   final int? id;
   final int? schoolId;
@@ -13,6 +15,7 @@ class TransportInvoice {
   final TransportStop? stop;
   final double? pendingAmount;
   final double? totalAmountPaid;
+  final InvoiceStudentInfo? student;
 
   TransportInvoice({
     this.id,
@@ -29,6 +32,7 @@ class TransportInvoice {
     this.stop,
     this.pendingAmount,
     this.totalAmountPaid,
+    this.student,
   });
 
   static double? _toDouble(dynamic value) {
@@ -104,8 +108,11 @@ class TransportInvoice {
           ? dataMap['student_id']
           : dataMap['studentId'] is int
           ? dataMap['studentId']
+          : dataMap['Student']?['id'] is int
+          ? dataMap['Student']['id']
           : int.tryParse(dataMap['student_id']?.toString() ?? '') ??
-              int.tryParse(dataMap['studentId']?.toString() ?? ''),
+              int.tryParse(dataMap['studentId']?.toString() ?? '') ??
+              int.tryParse(dataMap['Student']?['id']?.toString() ?? ''),
       amount: dataMap['amount']?.toString(),
       term: dataMap['term']?.toString(),
       dueDate: dataMap['due_date'] != null
@@ -128,6 +135,9 @@ class TransportInvoice {
           : null,
       pendingAmount: _toDouble(rawPendingAmount),
       totalAmountPaid: _toDouble(rawTotalAmountPaid),
+      student: dataMap['Student'] != null && dataMap['Student'] is Map
+          ? InvoiceStudentInfo.fromJson(Map<String, dynamic>.from(dataMap['Student'] as Map))
+          : null,
     );
   }
 
@@ -146,6 +156,7 @@ class TransportInvoice {
     TransportStop? stop,
     double? pendingAmount,
     double? totalAmountPaid,
+    InvoiceStudentInfo? student,
   }) {
     return TransportInvoice(
       id: id ?? this.id,
@@ -162,6 +173,7 @@ class TransportInvoice {
       stop: stop ?? this.stop,
       pendingAmount: pendingAmount ?? this.pendingAmount,
       totalAmountPaid: totalAmountPaid ?? this.totalAmountPaid,
+      student: student ?? this.student,
     );
   }
 
@@ -180,6 +192,7 @@ class TransportInvoice {
     'Stop': stop?.toJson(),
     'pendingAmount': pendingAmount,
     'totalAmountPaid': totalAmountPaid,
+    'Student': student?.toJson(),
   };
 }
 

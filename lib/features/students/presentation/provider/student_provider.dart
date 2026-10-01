@@ -1,10 +1,12 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:acadobs/features/notices/data/models/notice_model.dart';
 import 'package:acadobs/features/students/data/models/student_co_scholastic_assessment_model.dart';
 import 'package:acadobs/features/students/data/models/student_competency_assessment_model.dart';
 import 'package:acadobs/features/students/data/models/student_model.dart';
+import 'package:acadobs/features/students/data/models/student_progress_report_model.dart';
 import 'package:acadobs/features/students/data/services/student_services.dart';
 import 'package:flutter/material.dart';
 
@@ -55,6 +57,15 @@ class StudentProvider extends ChangeNotifier {
   List<StudentCoScholasticExamInfo> _coScholasticExams = [];
   List<StudentCoScholasticExamInfo> get coScholasticExams => _coScholasticExams;
 
+  bool _isLoadingProgressReport = false;
+  bool get isLoadingProgressReport => _isLoadingProgressReport;
+
+  StudentProgressReportModel? _progressReport;
+  StudentProgressReportModel? get progressReport => _progressReport;
+
+  String? _progressReportError;
+  String? get progressReportError => _progressReportError;
+
   // Fetch Students by class id
   Future<void> fetchStudentsByClassId({
     required BuildContext context,
@@ -101,6 +112,9 @@ class StudentProvider extends ChangeNotifier {
     _competencyAssessments.clear();
     _groupedCompetencies.clear();
     _competencyExams.clear();
+    _progressReport = null;
+    _progressReportError = null;
+    _isLoadingProgressReport = false;
     notifyListeners();
   }
 
@@ -314,7 +328,8 @@ class StudentProvider extends ChangeNotifier {
 
   //update student profile picture
   Future<void> updateProfilePhoto({
-    required File image,
+    File? image,
+    Uint8List? imageBytes,
     required bool forStaff,
     required int studentId,
   }) async {
@@ -326,6 +341,7 @@ class StudentProvider extends ChangeNotifier {
       final response = await StudentServices().updateProfilePhoto(
         forStaff: forStaff,
         image: image,
+        imageBytes: imageBytes,
         studentId: studentId,
       );
       log("🟢 Upload response status: ${response.statusCode}");
@@ -444,5 +460,51 @@ class StudentProvider extends ChangeNotifier {
       _isLoadingCoScholastic = false;
       notifyListeners();
     }
+  }
+
+  // Fetch progress report by student id
+  Future<void> fetchProgressReport({
+    required int studentId,
+    required bool forStaff,
+  }) async {
+    _isLoadingProgressReport = true;
+    _progressReportError = null;
+    notifyListeners();
+
+    try {
+      final response = await StudentServices().fetchProgressReportByStudentId(
+        studentId: studentId,
+        forStaff: forStaff,
+      );
+
+      if (response.statusCode == 200 && response.data != null) {
+        final dynamic raw = response.data;
+        if (raw is Map<String, dynamic>) {
+          _progressReport = StudentProgressReportModel.fromJson(raw);
+          _progressReportError = null;
+        } else {
+          _progressReport = null;
+          _progressReportError = "Invalid report data received";
+        }
+      } else {
+        _progressReport = null;
+        _progressReportError =
+            "Failed to load progress report (${response.statusCode})";
+      }
+    } catch (e, st) {
+      log("Error fetching progress report: $e\n$st");
+      _progressReport = null;
+      _progressReportError = e.toString();
+    } finally {
+      _isLoadingProgressReport = false;
+      notifyListeners();
+    }
+  }
+
+  void clearProgressReport() {
+    _progressReport = null;
+    _progressReportError = null;
+    _isLoadingProgressReport = false;
+    notifyListeners();
   }
 }

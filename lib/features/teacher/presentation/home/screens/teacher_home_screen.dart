@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
@@ -124,9 +122,9 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     final networkProvider = context.watch<NetworkProvider>();
     final textScaleFactor = MediaQuery.textScalerOf(
       context,
-    ).scale(1.0).clamp(1.0, 1.6);
+    ).scale(1.0).clamp(1.0, 1.4);
 
-    final responsiveAppBarHeight = 175 * textScaleFactor;
+    final responsiveAppBarHeight = (180 * textScaleFactor).clamp(175.0, 225.0);
 
     if (!networkProvider.isConnected) {
       return DoubleBackToExit(
@@ -153,244 +151,333 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                     pinned: true,
                     elevation: 0,
                     automaticallyImplyLeading: false,
-                    backgroundColor: Colors.white,
+                    backgroundColor: const Color(0xFF00AEF0),
                     flexibleSpace: FlexibleSpaceBar(
-                      background: Container(
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Color(0xFF2196F3), Color(0xFF1976D2)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Consumer<AuthProvider>(
-                              builder: (context, provider, _) {
-                                final bgImage =
-                                    provider.schoolDetails?["bg_image"]
-                                        ?.toString() ??
-                                    '';
+                      background: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Consumer<AuthProvider>(
+                            builder: (context, authProv, _) {
+                              final schoolDetails = authProv.schoolDetails;
+                              final bgImage = schoolDetails?['bg_image'];
 
-                                if (bgImage.isEmpty) {
+                              if (bgImage == null ||
+                                  bgImage.toString().trim().isEmpty) {
+                                return Image.asset(
+                                  'assets/school.jpg',
+                                  fit: BoxFit.cover,
+                                );
+                              }
+
+                              return Image.network(
+                                bgImage,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
                                   return Image.asset(
                                     'assets/school.jpg',
                                     fit: BoxFit.cover,
                                   );
-                                }
+                                },
+                              );
+                            },
+                          ),
 
-                                return Image.network(
-                                  bgImage,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                      'assets/school.jpg',
-                                      fit: BoxFit.cover,
-                                    );
-                                  },
-                                );
-                              },
-                            ),
-
-                            ImageFiltered(
-                              imageFilter: ImageFilter.blur(
-                                sigmaX: 10,
-                                sigmaY: 10,
-                              ),
-                              child: Container(
-                                color: Colors.black.withAlpha(40),
+                          // Subtle brand cyan/blue tint to maintain identity while showcasing the photo
+                          Container(
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0x5935C2C1), // ~35% brand cyan
+                                  Color(0x6600AEF0), // ~40% brand blue
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
                               ),
                             ),
+                          ),
 
-                            Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    const Color(0xFF2196F3).withAlpha(180),
-                                    const Color(0xFF1976D2).withAlpha(180),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                              ),
+                          // Cinematic contrast vignette for status bar and high-contrast text legibility
+                          Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.black.withAlpha(128),
+                                  Colors.black.withAlpha(31),
+                                  Colors.black.withAlpha(178),
+                                ],
+                                stops: const [0.0, 0.45, 1.0],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
                             ),
+                          ),
+                        ),
 
-                            SafeArea(
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  20,
-                                  16,
-                                  16,
-                                  16,
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Consumer<AuthProvider>(
-                                            builder: (context, provider, _) {
-                                              final schoolDetails =
-                                                  provider.schoolDetails;
+                        SafeArea(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                16,
+                                10,
+                                16,
+                                14,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Top Row: School Badge on the left, Profile on the right
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Expanded(
+                                        child: Consumer<AuthProvider>(
+                                          builder: (
+                                            context,
+                                            authProv,
+                                            _,
+                                          ) {
+                                            final schoolDetails =
+                                                authProv.schoolDetails;
+                                            final schoolName =
+                                                schoolDetails?['name']
+                                                    ?.toString() ??
+                                                '';
+                                            final logo =
+                                                schoolDetails?['logo']
+                                                    ?.toString() ??
+                                                '';
 
-                                              final logo =
-                                                  schoolDetails?["logo"]
-                                                      ?.toString() ??
-                                                  '';
-                                              final schoolName =
-                                                  schoolDetails?["name"]
-                                                      ?.toString() ??
-                                                  'School';
-
-                                              return Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
+                                            return Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 5,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black.withAlpha(
+                                                  82,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(24),
+                                                border: Border.all(
+                                                  color: Colors.white.withAlpha(
+                                                    64,
+                                                  ),
+                                                  width: 1,
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  if (logo.isNotEmpty) ...[
-                                                    CircleAvatar(
-                                                      radius: 16,
-                                                      backgroundColor:
-                                                          Colors.white,
-                                                      child: ClipOval(
-                                                        child: Image.network(
-                                                          logo,
-                                                          width: 32,
-                                                          height: 32,
-                                                          fit: BoxFit.cover,
-                                                          errorBuilder: (
-                                                            context,
-                                                            error,
-                                                            stackTrace,
-                                                          ) {
-                                                            return const Icon(
-                                                              Icons.school,
-                                                              size: 20,
-                                                              color:
-                                                                  Colors.grey,
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
+                                                  CircleAvatar(
+                                                    radius: 13,
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    child: ClipOval(
+                                                      child:
+                                                          logo.isNotEmpty
+                                                              ? Image.network(
+                                                                logo,
+                                                                width: 26,
+                                                                height: 26,
+                                                                fit:
+                                                                    BoxFit
+                                                                        .cover,
+                                                                errorBuilder:
+                                                                    (
+                                                                      context,
+                                                                      error,
+                                                                      stackTrace,
+                                                                    ) => const Icon(
+                                                                      Icons
+                                                                          .school,
+                                                                      size: 15,
+                                                                      color: Color(
+                                                                        0xFF00AEF0,
+                                                                      ),
+                                                                    ),
+                                                              )
+                                                              : const Icon(
+                                                                Icons.school,
+                                                                size: 15,
+                                                                color: Color(
+                                                                  0xFF00AEF0,
+                                                                ),
+                                                              ),
                                                     ),
-                                                    const SizedBox(width: 8),
-                                                  ],
+                                                  ),
+                                                  const SizedBox(width: 8),
                                                   Expanded(
                                                     child: Text(
                                                       capitalizeEachWord(
-                                                        schoolName,
+                                                        schoolName.isNotEmpty
+                                                            ? schoolName
+                                                            : 'School',
                                                       ),
-                                                      maxLines: 3,
+                                                      maxLines: 2,
                                                       softWrap: true,
                                                       overflow:
                                                           TextOverflow.ellipsis,
                                                       style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 16,
+                                                        fontSize: 13.5,
                                                         fontWeight:
-                                                            FontWeight.bold,
+                                                            FontWeight.w600,
+                                                        color: Colors.white,
+                                                        letterSpacing: 0.2,
                                                       ),
                                                     ),
                                                   ),
                                                 ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Consumer<ProfileProvider>(
+                                        builder: (context, profileProv, _) {
+                                          return ProfileIcon(
+                                            icon:
+                                                CupertinoIcons.profile_circled,
+                                            profileImageUrl:
+                                                profileProv
+                                                    .staffProfile
+                                                    ?.user
+                                                    ?.dp,
+                                            ontap: () {
+                                              context.pushNamed(
+                                                RouteConstants.profileScreen,
+                                                extra: true,
                                               );
                                             },
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+
+                                  const Spacer(),
+
+                                  // Bottom Row: Greeting & Staff Name
+                                  Consumer<ProfileProvider>(
+                                    builder: (context, provider, _) {
+                                      if (provider.isLoading) {
+                                        return Shimmer.fromColors(
+                                          baseColor: Colors.white.withAlpha(
+                                            120,
                                           ),
+                                          highlightColor: Colors.white
+                                              .withAlpha(220),
+                                          child: Container(
+                                            height: 28,
+                                            width: 150,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                          ),
+                                        );
+                                      }
 
-                                          const SizedBox(height: 8),
+                                      final name =
+                                          provider
+                                              .staffProfile
+                                              ?.user
+                                              ?.name ??
+                                          '';
 
-                                          Consumer<ProfileProvider>(
-                                            builder: (context, provider, _) {
-                                              if (provider.isLoading) {
-                                                return Shimmer.fromColors(
-                                                  baseColor: Colors.white
-                                                      .withAlpha(120),
-                                                  highlightColor: Colors.white
-                                                      .withAlpha(220),
-                                                  child: Container(
-                                                    height: 32,
-                                                    width: 160,
-                                                    constraints:
-                                                        const BoxConstraints(
-                                                          maxWidth:
-                                                              double.infinity,
-                                                        ),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            6,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-
-                                              return GestureDetector(
-                                                onTap: refreshAllData,
-                                                child: Text(
-                                                  provider
-                                                          .staffProfile
-                                                          ?.user
-                                                          ?.name ??
-                                                      "",
-                                                  maxLines: 3,
-                                                  softWrap: true,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
+                                      return Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 6,
+                                                height: 6,
+                                                decoration: const BoxDecoration(
+                                                  color: Color(0xFF35C2C1),
+                                                  shape: BoxShape.circle,
                                                 ),
-                                              );
-                                            },
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                "WELCOME BACK",
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.white.withAlpha(
+                                                    230,
+                                                  ),
+                                                  letterSpacing: 1.1,
+                                                  shadows: const [
+                                                    Shadow(
+                                                      color: Colors.black54,
+                                                      offset: Offset(0, 1),
+                                                      blurRadius: 3,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
                                           ),
-
-                                          const SizedBox(height: 8),
-
+                                          const SizedBox(height: 3),
+                                          GestureDetector(
+                                            onTap: refreshAllData,
+                                            child: Text(
+                                              name.isNotEmpty
+                                                  ? capitalizeEachWord(name)
+                                                  : "Hi, Teacher",
+                                              maxLines: 2,
+                                              softWrap: true,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                                letterSpacing: 0.2,
+                                                height: 1.2,
+                                                shadows: [
+                                                  Shadow(
+                                                    color: Colors.black87,
+                                                    offset: Offset(0, 1.5),
+                                                    blurRadius: 5,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
                                           Text(
                                             DateFormat(
                                               'EEEE, dd MMMM',
                                             ).format(DateTime.now()),
-                                            maxLines: 2,
-                                            softWrap: true,
-                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
                                               color: Colors.white.withAlpha(
                                                 200,
                                               ),
-                                              fontSize: 15,
+                                              shadows: const [
+                                                Shadow(
+                                                  color: Colors.black54,
+                                                  offset: Offset(0, 1),
+                                                  blurRadius: 3,
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
-                                      ),
-                                    ),
-
-                                    const SizedBox(width: 8),
-
-                                    ProfileIcon(
-                                      icon: CupertinoIcons.profile_circled,
-                                      ontap: () {
-                                        context.pushNamed(
-                                          RouteConstants.profileScreen,
-                                          extra: true,
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

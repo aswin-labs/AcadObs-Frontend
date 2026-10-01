@@ -65,6 +65,62 @@ class PaymentProvider extends ChangeNotifier {
   final List<InvoiceStudent> _invoices = [];
   List<InvoiceStudent> get invoices => _invoices;
 
+  List<InvoiceStudent> _unpaidInvoices = [];
+  List<InvoiceStudent> get unpaidInvoices => _unpaidInvoices;
+
+  bool _isLoadingUnpaidInvoices = false;
+  bool get isLoadingUnpaidInvoices => _isLoadingUnpaidInvoices;
+
+  int _unpaidInvoicesCount = 0;
+  int get unpaidInvoicesCount => _unpaidInvoicesCount;
+
+  // fetch unpaid invoices by guardian
+  Future<void> fetchUnpaidInvoicesByGuardian({
+    bool forceRefresh = false,
+  }) async {
+    if (_isLoadingUnpaidInvoices) return;
+
+    if (!forceRefresh && _unpaidInvoices.isNotEmpty) {
+      return;
+    }
+
+    _isLoadingUnpaidInvoices = true;
+    notifyListeners();
+
+    try {
+      final response = await PaymentService().fetchUnpaidInvoicesByGuardian();
+      log("Unpaid Invoices API Response: ${response.data}, Status: ${response.statusCode}");
+
+      if (response.statusCode == 200 && response.data != null) {
+        final dynamic resData = response.data;
+        final dynamic rawList =
+            resData is Map ? (resData['data'] ?? []) : resData;
+
+        if (rawList is List) {
+          _unpaidInvoices =
+              rawList.map((e) => InvoiceStudent.fromJson(e)).toList();
+          _unpaidInvoicesCount =
+              (resData is Map && resData['count'] != null)
+                  ? (resData['count'] as num).toInt()
+                  : _unpaidInvoices.length;
+        } else {
+          _unpaidInvoices = [];
+          _unpaidInvoicesCount = 0;
+        }
+      } else {
+        _unpaidInvoices = [];
+        _unpaidInvoicesCount = 0;
+      }
+    } catch (e) {
+      log("Error fetching unpaid invoices: $e");
+      _unpaidInvoices = [];
+      _unpaidInvoicesCount = 0;
+    } finally {
+      _isLoadingUnpaidInvoices = false;
+      notifyListeners();
+    }
+  }
+
   //  fetch payments
   Future<void> fetchPayments({
     bool loadMore = false,

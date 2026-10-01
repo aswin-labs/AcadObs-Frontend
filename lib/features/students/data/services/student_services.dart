@@ -5,6 +5,7 @@ import 'package:acadobs/core/constants/app_constants.dart';
 import 'package:acadobs/core/services/api_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 class StudentServices {
   // Get students from classId
@@ -54,6 +55,21 @@ class StudentServices {
     return response;
   }
 
+  // Get progress report by student id
+  Future<Response> fetchProgressReportByStudentId({
+    required int studentId,
+    required bool forStaff,
+  }) async {
+    final endpoint =
+        forStaff
+            ? ApiEndpoints.getProgressReportByStudentIdTeacher
+            : ApiEndpoints.getProgressReportByStudentIdGuardian;
+    final url =
+        endpoint.endsWith('/') ? '$endpoint$studentId' : '$endpoint/$studentId';
+    final response = await ApiServices.get(url);
+    return response;
+  }
+
   //get attandence by date
   Future<Response> fetchAttendanceByDate({
     required int studentId,
@@ -93,11 +109,32 @@ class StudentServices {
 
   //update student profile picture
   Future<Response> updateProfilePhoto({
-    required File image,
+    File? image,
+    Uint8List? imageBytes,
     required bool forStaff,
     required int studentId,
   }) async {
-    final formData = {'image': await MultipartFile.fromFile(image.path)};
+    final MultipartFile multipartFile;
+    if (imageBytes != null) {
+      multipartFile = MultipartFile.fromBytes(
+        imageBytes,
+        filename:
+            'student_${studentId}_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+    } else if (image != null && !kIsWeb) {
+      multipartFile = await MultipartFile.fromFile(image.path);
+    } else if (image != null) {
+      final bytes = await image.readAsBytes();
+      multipartFile = MultipartFile.fromBytes(
+        bytes,
+        filename:
+            'student_${studentId}_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+    } else {
+      throw Exception('No image file or bytes provided');
+    }
+
+    final formData = {'image': multipartFile};
 
     try {
       final response = await ApiServices.put(

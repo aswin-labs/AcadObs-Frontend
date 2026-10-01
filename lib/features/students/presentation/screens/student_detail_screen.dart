@@ -4,6 +4,7 @@ import 'package:acadobs/core/utils/common_shimmer_tile.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
 import 'package:acadobs/features/homeworks/data/models/homework_viewer_type.dart';
+import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
 import 'package:acadobs/features/students/data/models/student_profile_args.dart';
 import 'package:acadobs/features/students/data/models/student_screen_args.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
@@ -17,6 +18,8 @@ import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/common_floating_button2.dart';
+import 'package:acadobs/shared/widgets/profile_photo_crop_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
@@ -54,6 +57,11 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
         studentId: widget.studentId,
         forStaff: widget.forStaff,
       );
+      if (!widget.forStaff) {
+        context.read<HomeworksProvider>().getUnseenHomeworkCountByStudentId(
+          studentId: widget.studentId,
+        );
+      }
     });
   }
 
@@ -86,37 +94,58 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
           forceRefresh: true,
         ),
       );
+      futures.add(
+        context.read<HomeworksProvider>().getUnseenHomeworkCountByStudentId(
+          studentId: widget.studentId,
+        ),
+      );
     }
 
     await Future.wait(futures);
   }
 
-  File? _selectedImage;
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage(ImageSource source) async {
-    final pickedFile = await _picker.pickImage(
-      source: source,
-      imageQuality: 80,
-    );
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-
-      if (mounted && _selectedImage != null) {
-        await studentProvider.updateProfilePhoto(
-          image: _selectedImage!,
-          forStaff: widget.forStaff,
-          studentId: widget.studentId,
+    try {
+      final pickedFile = await _picker.pickImage(
+        source: source,
+        imageQuality: 95,
+      );
+      if (pickedFile != null && mounted) {
+        final bytes = await pickedFile.readAsBytes();
+        final original = kIsWeb ? null : File(pickedFile.path);
+        if (!mounted) return;
+        final cropResult = await ProfilePhotoCropScreen.cropImage(
+          context,
+          imageFile: original,
+          imageBytes: bytes,
+          title: 'Crop Student Profile Photo',
         );
-        if (mounted) {
-          await studentProvider.fetchStudentDetails(
-            studentId: widget.studentId,
+
+        if (cropResult != null && mounted) {
+          await studentProvider.updateProfilePhoto(
+            image: cropResult.file,
+            imageBytes: cropResult.bytes,
             forStaff: widget.forStaff,
+            studentId: widget.studentId,
           );
+          if (mounted) {
+            await studentProvider.fetchStudentDetails(
+              studentId: widget.studentId,
+              forStaff: widget.forStaff,
+            );
+          }
         }
       }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Could not access ${source == ImageSource.camera ? "camera" : "gallery"}.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -461,22 +490,45 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                             );
                           },
                         ),
-                        StudentFeatureCard(
-                          icon: Icons.assignment,
-                          color: Colors.brown,
-                          title: "Homework",
-                          onTap: () {
-                            final params = HomeworkParameters(
-                              viewerType:
-                                  widget.forStaff
-                                      ? HomeworkViewerType.teacherStudentView
-                                      : HomeworkViewerType.guardianStudentView,
-                              studentId: widget.studentId,
-                            );
-                            context.pushNamed(
-                              RouteConstants.homeworkLisitingScreen,
-                              extra: params,
-                              queryParameters: params.toQueryParameters(),
+                        Consumer<HomeworksProvider>(
+                          builder: (context, homeworkProvider, _) {
+                            final unseenCount =
+                                widget.forStaff
+                                    ? 0
+                                    : homeworkProvider.getUnseenHomeworkCount(
+                                      widget.studentId,
+                                    );
+
+                            return StudentFeatureCard(
+                              icon: Icons.assignment,
+                              color: Colors.brown,
+                              title: "Homework",
+                              badgeText:
+                                  unseenCount > 0 ? "$unseenCount new" : null,
+                              badgeColor: const Color(0xFFE11D48),
+                              onTap: () async {
+                                final params = HomeworkParameters(
+                                  viewerType:
+                                      widget.forStaff
+                                          ? HomeworkViewerType
+                                              .teacherStudentView
+                                          : HomeworkViewerType
+                                              .guardianStudentView,
+                                  studentId: widget.studentId,
+                                );
+                                await context.pushNamed(
+                                  RouteConstants.homeworkLisitingScreen,
+                                  extra: params,
+                                  queryParameters: params.toQueryParameters(),
+                                );
+                                if (!widget.forStaff && context.mounted) {
+                                  context
+                                      .read<HomeworksProvider>()
+                                      .getUnseenHomeworkCountByStudentId(
+                                        studentId: widget.studentId,
+                                      );
+                                }
+                              },
                             );
                           },
                         ),
@@ -545,6 +597,20 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           onTap: () {
                             context.pushNamed(
                               RouteConstants.studentCoScholasticScreen,
+                              extra: StudentScreenArgs(
+                                studentId: widget.studentId,
+                                forStaff: widget.forStaff,
+                              ),
+                            );
+                          },
+                        ),
+                        StudentFeatureCard(
+                          icon: LucideIcons.fileSpreadsheet,
+                          color: const Color(0xFF0D9488),
+                          title: "Progress report",
+                          onTap: () {
+                            context.pushNamed(
+                              RouteConstants.studentProgressCardScreen,
                               extra: StudentScreenArgs(
                                 studentId: widget.studentId,
                                 forStaff: widget.forStaff,
