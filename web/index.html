@@ -31,13 +31,14 @@
     <link rel="manifest" href="manifest.json">
 
     <!-- Preload splash images for faster rendering -->
-    <link rel="preload" href="splash/img/light-1x.png" as="image">
-    <link rel="preload" href="splash/img/dark-1x.png" as="image">
-    <link rel="preload" href="logo.png" as="image">
+    <link rel="preload" href="splash/img/light-1x.png" as="image" media="(prefers-color-scheme: light)">
+    <link rel="preload" href="splash/img/dark-1x.png" as="image" media="(prefers-color-scheme: dark)">
     <script>
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("firebase-messaging-sw.js");
-      }
+      window.addEventListener('load', function () {
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.register("firebase-messaging-sw.js");
+        }
+      });
     </script>
 
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">

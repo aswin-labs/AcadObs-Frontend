@@ -26,6 +26,8 @@ class _StudentCoScholasticRatingScreenState
   final Map<int, TextEditingController> _remarksControllers = {};
   final Map<int, TextEditingController> _attendanceControllers = {};
   final List<String> _gradeOptions = ['A', 'B', 'C', 'D'];
+  final Set<int> _manuallyExpandedAreaIds = {};
+  final Set<int> _initiallyUngradedPeAreaIds = {};
 
   StudentModel get _currentStudent => widget.args.students[_currentIndex];
 
@@ -60,6 +62,40 @@ class _StudentCoScholasticRatingScreenState
         lower.contains('working days');
   }
 
+  bool _isPhysicalEducationArea(String name) {
+    final lower = name.toLowerCase();
+    return lower.contains('physical') ||
+        lower.contains('sports') ||
+        lower.contains('sport') ||
+        lower.contains('fitness') ||
+        lower.contains('yoga') ||
+        lower.contains('hpe') ||
+        lower == 'pe' ||
+        lower == 'p.e.' ||
+        lower == 'p.e' ||
+        lower == 'pet';
+  }
+
+  List<CoScholasticAreaModel> _getDisplayAreas(
+    List<CoScholasticAreaModel> areas,
+    MyClassProvider provider,
+  ) {
+    if (areas.isEmpty) return areas;
+
+    final peAreaIndex = areas.indexWhere(
+      (a) =>
+          _isPhysicalEducationArea(a.name) &&
+          _initiallyUngradedPeAreaIds.contains(a.id),
+    );
+    if (peAreaIndex == -1) return areas;
+
+    final peArea = areas[peAreaIndex];
+    final result = List<CoScholasticAreaModel>.from(areas);
+    result.removeAt(peAreaIndex);
+    result.add(peArea);
+    return result;
+  }
+
   Future<void> _loadCurrentStudentData() async {
     final provider = context.read<MyClassProvider>();
 
@@ -75,6 +111,20 @@ class _StudentCoScholasticRatingScreenState
     );
 
     // Sync controllers with loaded ratings
+    _manuallyExpandedAreaIds.clear();
+    _initiallyUngradedPeAreaIds.clear();
+    for (final area in provider.coScholasticAreas) {
+      if (_isPhysicalEducationArea(area.name)) {
+        final entry = provider.studentCoScholasticRatings[area.id];
+        final hasGrade =
+            (entry?.grade != null && entry!.grade.trim().isNotEmpty) ||
+            (entry?.score != null);
+        if (!hasGrade) {
+          _initiallyUngradedPeAreaIds.add(area.id);
+        }
+      }
+    }
+
     for (final area in provider.coScholasticAreas) {
       final entry = provider.studentCoScholasticRatings[area.id];
       final isAttendance = _isAttendanceArea(area.name);
@@ -135,6 +185,7 @@ class _StudentCoScholasticRatingScreenState
     if (newIndex < 0 || newIndex >= widget.args.students.length) return;
     setState(() {
       _currentIndex = newIndex;
+      _manuallyExpandedAreaIds.clear();
     });
     _loadCurrentStudentData();
   }
@@ -264,6 +315,12 @@ class _StudentCoScholasticRatingScreenState
         }
         setState(() {
           _isEditing = true;
+          _manuallyExpandedAreaIds.clear();
+          for (final a in context.read<MyClassProvider>().coScholasticAreas) {
+            if (_isPhysicalEducationArea(a.name)) {
+              _initiallyUngradedPeAreaIds.add(a.id);
+            }
+          }
         });
       }
     }
@@ -672,13 +729,21 @@ class _StudentCoScholasticRatingScreenState
 
         // List of Showing Area Cards
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 20),
-            itemCount: provider.coScholasticAreas.length,
-            itemBuilder: (context, index) {
-              final area = provider.coScholasticAreas[index];
-              final entry = provider.studentCoScholasticRatings[area.id];
-              return _buildShowingAreaCard(area, entry);
+          child: Builder(
+            builder: (context) {
+              final displayAreas = _getDisplayAreas(
+                provider.coScholasticAreas,
+                provider,
+              );
+              return ListView.builder(
+                padding: const EdgeInsets.only(bottom: 20),
+                itemCount: displayAreas.length,
+                itemBuilder: (context, index) {
+                  final area = displayAreas[index];
+                  final entry = provider.studentCoScholasticRatings[area.id];
+                  return _buildShowingAreaCard(area, entry);
+                },
+              );
             },
           ),
         ),
@@ -778,6 +843,7 @@ class _StudentCoScholasticRatingScreenState
     final areaColor = _getAreaColor(area.name);
     final areaIcon = _getAreaIcon(area.name);
     final isAttendance = _isAttendanceArea(area.name);
+    final isPe = _isPhysicalEducationArea(area.name);
 
     final grade = entry?.grade ?? '';
     final hasGrade = grade.isNotEmpty;
@@ -801,6 +867,88 @@ class _StudentCoScholasticRatingScreenState
     final bool isGraded =
         entry != null &&
         (isAttendance ? hasAttendanceRecorded : hasGrade);
+
+    // If Physical Education is not graded, show compact/hidden tile in showing mode
+    if (isPe && !isGraded) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: areaColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(areaIcon, size: 20, color: areaColor),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      area.name,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      "Typically assessed by PE Teacher • Not Graded",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              TextButton.icon(
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  foregroundColor: const Color(0xFF0077B6),
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isEditing = true;
+                    _manuallyExpandedAreaIds.add(area.id);
+                  });
+                },
+                icon: const Icon(LucideIcons.plus, size: 14),
+                label: const Text(
+                  "Add Grade",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -1108,12 +1256,20 @@ class _StudentCoScholasticRatingScreenState
 
         // List of Editable Cards
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.only(bottom: 20),
-            itemCount: provider.coScholasticAreas.length,
-            itemBuilder: (context, index) {
-              final area = provider.coScholasticAreas[index];
-              return _buildEditableAreaCard(area, provider);
+          child: Builder(
+            builder: (context) {
+              final displayAreas = _getDisplayAreas(
+                provider.coScholasticAreas,
+                provider,
+              );
+              return ListView.builder(
+                padding: const EdgeInsets.only(bottom: 20),
+                itemCount: displayAreas.length,
+                itemBuilder: (context, index) {
+                  final area = displayAreas[index];
+                  return _buildEditableAreaCard(area, provider);
+                },
+              );
             },
           ),
         ),
@@ -1206,6 +1362,7 @@ class _StudentCoScholasticRatingScreenState
     final areaColor = _getAreaColor(area.name);
     final areaIcon = _getAreaIcon(area.name);
     final isAttendance = _isAttendanceArea(area.name);
+    final isPe = _isPhysicalEducationArea(area.name);
 
     final currentEntry = provider.studentCoScholasticRatings[area.id];
     final selectedGrade = currentEntry?.grade ?? '';
@@ -1213,6 +1370,106 @@ class _StudentCoScholasticRatingScreenState
     final attendanceCtrl = _getAttendanceController(area.id);
     final attendanceText = attendanceCtrl.text.trim();
     final hasAttendanceRecorded = isAttendance && attendanceText.isNotEmpty;
+    final isExpanded = _manuallyExpandedAreaIds.contains(area.id);
+
+    // If Physical Education is not yet graded and not manually expanded, show "little hide" compact tile
+    if (isPe && !hasGrade && !isExpanded) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () {
+            setState(() {
+              _manuallyExpandedAreaIds.add(area.id);
+            });
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: areaColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(areaIcon, size: 20, color: areaColor),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        area.name,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        "Typically assessed by PE Teacher",
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0077B6).withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFF0077B6).withValues(alpha: 0.25),
+                    ),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        LucideIcons.plus,
+                        size: 13,
+                        color: Color(0xFF0077B6),
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        "Add Grade",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF0077B6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -1252,16 +1509,61 @@ class _StudentCoScholasticRatingScreenState
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
-                    area.name,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        area.name,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      if (isPe) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          hasGrade
+                              ? (currentEntry?.recorderName != null &&
+                                      currentEntry!.recorderName!.isNotEmpty
+                                  ? "Assessed by ${currentEntry.recorderName}"
+                                  : "Physical Education")
+                              : "Typically assessed by PE Teacher",
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 const SizedBox(width: 8),
+
+                if (isPe && !hasGrade)
+                  TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _manuallyExpandedAreaIds.remove(area.id);
+                      });
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      "Hide",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
 
                 // Top right status badge
                 if (isAttendance) ...[

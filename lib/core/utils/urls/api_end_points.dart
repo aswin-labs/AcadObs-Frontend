@@ -103,6 +103,8 @@ class ApiEndpoints {
       "/teacher/getCoScholasticAreasListByStudentId";
   static const String createStudentCoScholasticAssessment =
       "/teacher/createStudentCoScholasticAssessment";
+  static const String createStudentPhysicalAssessment =
+      "/teacher/createStudentPhysicalAssessment";
   static const String getCoScholasticAssessmentByStudentIdAndExamId =
       "/teacher/getCoScholasticAssessmentbyStudentIdandExamId";
   static const String bulkUpdateCoScholasticAssessment =
@@ -113,6 +115,10 @@ class ApiEndpoints {
       "/teacher/getCoScholasticAssessmentByStudentId";
   static const String getCoScholasticAssessmentByStudentIdGuardian =
       "/guardian/getCoScholasticAssessmentByStudentId";
+  static const String getCoScholasticAssessmentRecordedByMe =
+      "/teacher/getCoScholasticAssessmentRecordedByMe";
+  static const String updateCoScholasticAssessmentById =
+      "/teacher/updateCoScholasticAssessmentById";
 
   // Progress Report
   static const String getProgressReportByStudentIdTeacher =

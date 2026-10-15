@@ -64,6 +64,10 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
 
       if (_userType != null) {
         _pages = _getPages(_userType!);
+        if (_pages.isEmpty && mounted) {
+          context.goNamed(RouteConstants.loginScreen);
+          return;
+        }
       } else {
         if (mounted) {
           context.goNamed(RouteConstants.loginScreen);
@@ -72,6 +76,9 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       }
     } catch (e) {
       log("Error loading user type in BottomNavScreen: $e");
+      if (mounted) {
+        context.goNamed(RouteConstants.loginScreen);
+      }
     } finally {
       if (mounted) {
         setState(() {

@@ -18,10 +18,14 @@ class SubjectProvider extends ChangeNotifier {
   int lastPage = 1;
   bool isLoadingMore = false;
 
+  bool get hasPetSubject => _subjectsAll.any((subject) {
+        final name = subject.subjectName.trim().toUpperCase();
+        return name == 'PET' || name == 'P.E.T' || name == 'P.E.T.';
+      });
+
   // Fetch all subjects
   Future<void> fetchAllSubjects({bool loadMore = false}) async {
     _isLoading = true;
-    _subjectsAll.clear();
 
     try {
       final response = await SubjectServices().fetchStaffSubjects();

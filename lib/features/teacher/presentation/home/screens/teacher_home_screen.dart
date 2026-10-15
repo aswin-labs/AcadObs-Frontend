@@ -8,6 +8,7 @@ import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/profile/presentation/provider/profile_provider.dart';
+import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/award_section.dart';
 import 'package:acadobs/features/teacher/presentation/home/widgets/build_quick_actions.dart';
@@ -51,6 +52,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
   late AchievementProvider achievementProvider;
   late ProfileProvider profileProvider;
   late AuthProvider authProvider;
+  late SubjectProvider subjectProvider;
 
   @override
   void initState() {
@@ -63,6 +65,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
     achievementProvider = context.read<AchievementProvider>();
     profileProvider = context.read<ProfileProvider>();
     authProvider = context.read<AuthProvider>();
+    subjectProvider = context.read<SubjectProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         refreshAllData();
@@ -88,6 +91,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         return [
           ...commonTasks,
           studentLeaveRequestProvider.getLeaveRequestNotification(),
+          subjectProvider.fetchAllSubjects(),
         ];
 
       case UserType.nonTeachingStaff:
@@ -604,6 +608,38 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                 //         ),
                                                 // classname: className,
                                                 // ),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+
+                                  // Co-Scholastic Assessment for Physical Assessment Section
+                                  Consumer<SubjectProvider>(
+                                    builder: (context, subjectProv, _) {
+                                      if (!subjectProv.hasPetSubject) {
+                                        return const SizedBox.shrink();
+                                      }
+
+                                      return Column(
+                                        children: [
+                                          const SizedBox(height: 10),
+                                          QuickActionCard(
+                                            icon: Icons.fitness_center_rounded,
+                                            label:
+                                                "Co-Scholastic Assessment\n(Physical Assessment)",
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFF0077B6),
+                                                Color(0xFF0096C7),
+                                              ],
+                                            ),
+                                            onTap: () {
+                                              context.pushNamed(
+                                                RouteConstants
+                                                    .physicalCoscholasticAssessment,
                                               );
                                             },
                                           ),

@@ -53,6 +53,9 @@ import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail
 import 'package:acadobs/features/teacher/presentation/home/screens/edit_profile_staff.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/co_scholastic_class_assessment_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/student_co_scholastic_rating_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_overview_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_class_selection_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_student_rating_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/competency_class_assessment_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/student_competency_rating_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/my_class_marks_screen.dart';
@@ -630,6 +633,29 @@ List<GoRoute> staffRoutes = [
       return StudentCoScholasticRatingScreen(args: args);
     },
   ),
+  GoRoute(
+    path: '/physicalCoscholasticAssessment',
+    name: RouteConstants.physicalCoscholasticAssessment,
+    builder: (context, state) {
+      return const PhysicalCoscholasticOverviewScreen();
+    },
+  ),
+  GoRoute(
+    path: '/physicalCoscholasticClassSelection',
+    name: RouteConstants.physicalCoscholasticClassSelection,
+    builder: (context, state) {
+      return const PhysicalCoscholasticClassSelectionScreen();
+    },
+  ),
+  GoRoute(
+    path: '/physicalCoscholasticStudentRating',
+    name: RouteConstants.physicalCoscholasticStudentRating,
+    builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
+      final args = state.extra as PhysicalCoscholasticRatingArgs;
+      return PhysicalCoscholasticStudentRatingScreen(args: args);
+    },
+  ),
 ];
 
 class StudentDetailParameters {
@@ -708,6 +734,28 @@ class StudentCoScholasticRatingArgs {
     required this.initialStudentIndex,
     required this.examId,
     required this.examName,
+  });
+}
+
+class PhysicalCoscholasticRatingArgs {
+  final List<StudentModel> students;
+  final int initialStudentIndex;
+  final int examId;
+  final String examName;
+  final String standard;
+  final String className;
+  final int? classId;
+  final DateTime assessedAt;
+
+  const PhysicalCoscholasticRatingArgs({
+    required this.students,
+    required this.initialStudentIndex,
+    required this.examId,
+    required this.examName,
+    required this.standard,
+    required this.className,
+    this.classId,
+    required this.assessedAt,
   });
 }
 
