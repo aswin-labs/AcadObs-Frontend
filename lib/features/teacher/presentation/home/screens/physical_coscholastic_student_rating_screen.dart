@@ -102,7 +102,7 @@ class _PhysicalCoscholasticStudentRatingScreenState
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: CommonAppBar(
-        title: "Physical Education Grade",
+        title: "Health & Physical Education Grade",
         isBackButton: true,
         actions: [
           Consumer<PhysicalCoscholasticProvider>(
@@ -405,7 +405,7 @@ class _PhysicalCoscholasticStudentRatingScreenState
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Physical Education Grade",
+                                "Health & Physical Education Grade",
                                 style: TextStyle(
                                   fontSize: 15.5,
                                   fontWeight: FontWeight.bold,

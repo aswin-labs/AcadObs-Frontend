@@ -616,7 +616,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                     },
                                   ),
 
-                                  // Co-Scholastic Assessment for Physical Assessment Section
+                                  // Co-Scholastic Assessment for Health & Physical Education Section
                                   Consumer<SubjectProvider>(
                                     builder: (context, subjectProv, _) {
                                       if (!subjectProv.hasPetSubject) {
@@ -629,7 +629,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                           QuickActionCard(
                                             icon: Icons.fitness_center_rounded,
                                             label:
-                                                "Co-Scholastic Assessment\n(Physical Assessment)",
+                                                "Co-Scholastic Assessment\n(Health & Physical Education)",
                                             gradient: const LinearGradient(
                                               colors: [
                                                 Color(0xFF0077B6),
@@ -640,6 +640,39 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                               context.pushNamed(
                                                 RouteConstants
                                                     .physicalCoscholasticAssessment,
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+
+                                  // Co-Scholastic Assessment for Music / Arts / Robotics Section
+                                  Consumer<SubjectProvider>(
+                                    builder: (context, subjectProv, _) {
+                                      if (!subjectProv
+                                          .hasMusicArtsRoboticsSubject) {
+                                        return const SizedBox.shrink();
+                                      }
+
+                                      return Column(
+                                        children: [
+                                          const SizedBox(height: 10),
+                                          QuickActionCard(
+                                            icon: Icons.palette_rounded,
+                                            label:
+                                                "Co-Scholastic Assessment\n(Music / Arts / Robotics)",
+                                            gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFF7B2CBF),
+                                                Color(0xFF9D4EDD),
+                                              ],
+                                            ),
+                                            onTap: () {
+                                              context.pushNamed(
+                                                RouteConstants
+                                                    .musicArtsRoboticsCoscholasticClassSelection,
                                               );
                                             },
                                           ),

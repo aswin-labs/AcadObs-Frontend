@@ -8,6 +8,7 @@ import 'package:acadobs/features/students/data/models/student_competency_assessm
 import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/students/data/models/student_progress_report_model.dart';
 import 'package:acadobs/features/students/data/services/student_services.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class StudentProvider extends ChangeNotifier {
@@ -66,6 +67,19 @@ class StudentProvider extends ChangeNotifier {
   String? _progressReportError;
   String? get progressReportError => _progressReportError;
 
+  int? _progressReportStatusCode;
+  int? get progressReportStatusCode => _progressReportStatusCode;
+
+  bool get isProgressReportNotPublished {
+    if (_progressReportStatusCode == 404) return true;
+    final err = _progressReportError?.toLowerCase() ?? '';
+    return err.contains('not yet published') ||
+        err.contains('not published') ||
+        err.contains('no published') ||
+        err.contains('published exams') ||
+        err.contains('not available for this education year');
+  }
+
   // Fetch Students by class id
   Future<void> fetchStudentsByClassId({
     required BuildContext context,
@@ -114,6 +128,7 @@ class StudentProvider extends ChangeNotifier {
     _competencyExams.clear();
     _progressReport = null;
     _progressReportError = null;
+    _progressReportStatusCode = null;
     _isLoadingProgressReport = false;
     notifyListeners();
   }
@@ -462,6 +477,47 @@ class StudentProvider extends ChangeNotifier {
     }
   }
 
+  // Helper to extract clean error message from DioException or general Exception
+  String _extractProgressReportError(dynamic e) {
+    if (e is DioException) {
+      final data = e.response?.data;
+      if (data is Map) {
+        if (data['error'] != null &&
+            data['error'].toString().trim().isNotEmpty) {
+          return data['error'].toString().trim();
+        }
+        if (data['message'] != null &&
+            data['message'].toString().trim().isNotEmpty) {
+          return data['message'].toString().trim();
+        }
+        if (data['detail'] != null &&
+            data['detail'].toString().trim().isNotEmpty) {
+          return data['detail'].toString().trim();
+        }
+      } else if (data is String && data.trim().isNotEmpty) {
+        return data.trim();
+      }
+
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        return 'Connection timed out. Please check your internet connection.';
+      }
+      if (e.type == DioExceptionType.connectionError) {
+        return 'Unable to connect to the server. Please check your internet connection.';
+      }
+      if (e.response?.statusCode == 404) {
+        return 'Exams are not yet published for this academic year.';
+      }
+      if (e.response?.statusCode != null) {
+        return 'Unable to fetch progress report (${e.response?.statusCode}). Please try again later.';
+      }
+    } else if (e is String && e.trim().isNotEmpty) {
+      return e.trim();
+    }
+    return 'Unable to load progress report at this moment.';
+  }
+
   // Fetch progress report by student id
   Future<void> fetchProgressReport({
     required int studentId,
@@ -469,6 +525,7 @@ class StudentProvider extends ChangeNotifier {
   }) async {
     _isLoadingProgressReport = true;
     _progressReportError = null;
+    _progressReportStatusCode = null;
     notifyListeners();
 
     try {
@@ -477,6 +534,8 @@ class StudentProvider extends ChangeNotifier {
         forStaff: forStaff,
       );
 
+      _progressReportStatusCode = response.statusCode;
+
       if (response.statusCode == 200 && response.data != null) {
         final dynamic raw = response.data;
         if (raw is Map<String, dynamic>) {
@@ -484,17 +543,19 @@ class StudentProvider extends ChangeNotifier {
           _progressReportError = null;
         } else {
           _progressReport = null;
-          _progressReportError = "Invalid report data received";
+          _progressReportError = "Invalid report data received from server.";
         }
       } else {
         _progressReport = null;
-        _progressReportError =
-            "Failed to load progress report (${response.statusCode})";
+        _progressReportError = _extractProgressReportError(response.data);
       }
     } catch (e, st) {
       log("Error fetching progress report: $e\n$st");
       _progressReport = null;
-      _progressReportError = e.toString();
+      if (e is DioException) {
+        _progressReportStatusCode = e.response?.statusCode;
+      }
+      _progressReportError = _extractProgressReportError(e);
     } finally {
       _isLoadingProgressReport = false;
       notifyListeners();
@@ -504,6 +565,7 @@ class StudentProvider extends ChangeNotifier {
   void clearProgressReport() {
     _progressReport = null;
     _progressReportError = null;
+    _progressReportStatusCode = null;
     _isLoadingProgressReport = false;
     notifyListeners();
   }

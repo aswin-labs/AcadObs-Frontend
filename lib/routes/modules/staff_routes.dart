@@ -56,6 +56,10 @@ import 'package:acadobs/features/teacher/presentation/home/screens/student_co_sc
 import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_overview_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_class_selection_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_student_rating_screen.dart';
+import 'package:acadobs/features/teacher/data/models/music_arts_robotics_model.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/music_arts_robotics_overview_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/music_arts_robotics_class_selection_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/music_arts_robotics_student_rating_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/competency_class_assessment_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/student_competency_rating_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/my_class_marks_screen.dart';
@@ -656,6 +660,29 @@ List<GoRoute> staffRoutes = [
       return PhysicalCoscholasticStudentRatingScreen(args: args);
     },
   ),
+  GoRoute(
+    path: '/musicArtsRoboticsCoscholasticAssessment',
+    name: RouteConstants.musicArtsRoboticsCoscholasticAssessment,
+    builder: (context, state) {
+      return const MusicArtsRoboticsOverviewScreen();
+    },
+  ),
+  GoRoute(
+    path: '/musicArtsRoboticsCoscholasticClassSelection',
+    name: RouteConstants.musicArtsRoboticsCoscholasticClassSelection,
+    builder: (context, state) {
+      return const MusicArtsRoboticsClassSelectionScreen();
+    },
+  ),
+  GoRoute(
+    path: '/musicArtsRoboticsCoscholasticStudentRating',
+    name: RouteConstants.musicArtsRoboticsCoscholasticStudentRating,
+    builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
+      final args = state.extra as MusicArtsRoboticsRatingArgs;
+      return MusicArtsRoboticsStudentRatingScreen(args: args);
+    },
+  ),
 ];
 
 class StudentDetailParameters {
@@ -756,6 +783,30 @@ class PhysicalCoscholasticRatingArgs {
     required this.className,
     this.classId,
     required this.assessedAt,
+  });
+}
+
+class MusicArtsRoboticsRatingArgs {
+  final List<StudentModel> students;
+  final int initialStudentIndex;
+  final int examId;
+  final String examName;
+  final String standard;
+  final String className;
+  final int? classId;
+  final DateTime assessedAt;
+  final List<MusicArtsRoboticsAreaItem> areas;
+
+  const MusicArtsRoboticsRatingArgs({
+    required this.students,
+    required this.initialStudentIndex,
+    required this.examId,
+    required this.examName,
+    required this.standard,
+    required this.className,
+    this.classId,
+    required this.assessedAt,
+    this.areas = const [],
   });
 }
 

@@ -18,6 +18,7 @@ import 'package:acadobs/features/subjects/presentation/provider/subject_provider
 import 'package:acadobs/features/teacher/presentation/attendance/provider/attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/duties/provider/duty_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/my_class_provider.dart';
+import 'package:acadobs/features/teacher/presentation/home/provider/music_arts_robotics_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/physical_coscholastic_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
@@ -97,5 +98,8 @@ getProviders() {
 
     // *************physical co-scholastic provider*****
     ChangeNotifierProvider(create: (_) => PhysicalCoscholasticProvider()),
+
+    // *************music / arts / robotics co-scholastic provider*****
+    ChangeNotifierProvider(create: (_) => MusicArtsRoboticsProvider()),
   ];
 }

@@ -246,7 +246,7 @@ class _PhysicalCoscholasticClassSelectionScreenState
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: const CommonAppBar(
-        title: "Physical Education Grading",
+        title: "Health & Physical Education Grading",
         isBackButton: true,
       ),
       body: CustomScrollView(

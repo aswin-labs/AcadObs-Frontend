@@ -7,6 +7,7 @@ import 'package:acadobs/features/students/presentation/provider/student_provider
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:screen_protector/screen_protector.dart';
 
@@ -87,74 +88,7 @@ class _StudentProgressCardScreenState extends State<StudentProgressCardScreen> {
 
           if (provider.progressReportError != null &&
               provider.progressReport == null) {
-            return RefreshIndicator(
-              onRefresh: _loadData,
-              child: ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.7,
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.red.shade50,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.error_outline_rounded,
-                                color: Colors.red.shade600,
-                                size: 40,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Unable to load progress report',
-                              style: TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              provider.progressReportError!,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton.icon(
-                              onPressed: _loadData,
-                              icon: const Icon(Icons.refresh, size: 18),
-                              label: const Text('Try Again'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0D9488),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
+            return _buildErrorState(provider);
           }
 
           final report = provider.progressReport;
@@ -207,6 +141,165 @@ class _StudentProgressCardScreenState extends State<StudentProgressCardScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  // User-friendly error / not-yet-published state widget
+  Widget _buildErrorState(StudentProvider provider) {
+    final isNotPublished = provider.isProgressReportNotPublished;
+    final isConnectionError = provider.progressReportError != null &&
+        (provider.progressReportError!.toLowerCase().contains('internet') ||
+            provider.progressReportError!.toLowerCase().contains('connect') ||
+            provider.progressReportError!.toLowerCase().contains('timeout'));
+
+    final IconData iconData;
+    final Color iconColor;
+    final Color bgColor;
+    final String title;
+    final String message;
+    final String buttonText;
+
+    if (isNotPublished) {
+      iconData = LucideIcons.calendarClock;
+      iconColor = const Color(0xFF0D9488);
+      bgColor = const Color(0xFF0D9488).withAlpha(20);
+      title = "Exams Not Yet Published";
+      message = provider.progressReportError ??
+          "The progress report has not been published for this academic year yet. Please check back later.";
+      buttonText = "Check Again";
+    } else if (isConnectionError) {
+      iconData = LucideIcons.wifiOff;
+      iconColor = const Color(0xFFD97706);
+      bgColor = const Color(0xFFFEF3C7);
+      title = "Connection Problem";
+      message = provider.progressReportError ??
+          "Please check your internet connection and try again.";
+      buttonText = "Retry";
+    } else {
+      iconData = LucideIcons.info;
+      iconColor = const Color(0xFF475569);
+      bgColor = const Color(0xFFF1F5F9);
+      title = "Progress Report Unavailable";
+      message = provider.progressReportError ??
+          "Unable to load progress report right now. Please try again later.";
+      buttonText = "Try Again";
+    }
+
+    return RefreshIndicator(
+      onRefresh: _loadData,
+      color: const Color(0xFF0D9488),
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: BouncingScrollPhysics(),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        children: [
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.65,
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 420),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 28,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(8),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: bgColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        iconData,
+                        color: iconColor,
+                        size: 38,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 17.5,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      message,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        color: Colors.grey.shade600,
+                        height: 1.45,
+                      ),
+                    ),
+                    if (isNotPublished) ...[
+                      const SizedBox(height: 14),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: const Color(0xFFE2E8F0),
+                          ),
+                        ),
+                        child: Text(
+                          "Results will appear automatically once published by the school.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: Colors.grey.shade500,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 22),
+                    ElevatedButton.icon(
+                      onPressed: _loadData,
+                      icon: const Icon(LucideIcons.rotateCcw, size: 16),
+                      label: Text(buttonText),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0D9488),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

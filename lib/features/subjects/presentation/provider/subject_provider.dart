@@ -20,7 +20,20 @@ class SubjectProvider extends ChangeNotifier {
 
   bool get hasPetSubject => _subjectsAll.any((subject) {
         final name = subject.subjectName.trim().toUpperCase();
-        return name == 'PET' || name == 'P.E.T' || name == 'P.E.T.';
+        return name == 'PET' ||
+            name == 'P.E.T' ||
+            name == 'P.E.T.' ||
+            name.contains('PHYSICAL') ||
+            name.contains('HEALTH');
+      });
+
+  bool get hasMusicArtsRoboticsSubject => _subjectsAll.any((subject) {
+        final name = subject.subjectName.trim().toUpperCase();
+        final regex = RegExp(
+          r'\b(MUSIC|ART|ARTS|ROBOTIC|ROBOTICS)\b',
+          caseSensitive: false,
+        );
+        return regex.hasMatch(name);
       });
 
   // Fetch all subjects

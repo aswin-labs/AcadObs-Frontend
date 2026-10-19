@@ -1527,7 +1527,7 @@ class _StudentCoScholasticRatingScreenState
                               ? (currentEntry?.recorderName != null &&
                                       currentEntry!.recorderName!.isNotEmpty
                                   ? "Assessed by ${currentEntry.recorderName}"
-                                  : "Physical Education")
+                                  : "Health & Physical Education")
                               : "Typically assessed by PE Teacher",
                           style: TextStyle(
                             fontSize: 11,

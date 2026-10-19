@@ -906,7 +906,7 @@ class _PhysicalCoscholasticOverviewScreenState
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Physical Education Assessment",
+                                      "Health & Physical Education Assessment",
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontSize: 16.5,
@@ -949,11 +949,14 @@ class _PhysicalCoscholasticOverviewScreenState
                               size: 18,
                               color: Color(0xFF0077B6),
                             ),
-                            label: const Text(
-                              "Add Physical Education Grades",
-                              style: TextStyle(
-                                fontSize: 13.5,
-                                fontWeight: FontWeight.bold,
+                            label: const FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                "Add Health & Physical Education Grades",
+                                style: TextStyle(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -1332,7 +1335,7 @@ class _PhysicalCoscholasticOverviewScreenState
                               activeFilters > 0 ||
                                       provider.filterSearchQuery.isNotEmpty
                                   ? "Try clearing search or filters to see all recorded assessments."
-                                  : "Tap 'Add Physical Education Grades' above to start assessing students.",
+                                  : "Tap 'Add Health & Physical Education Grades' above to start assessing students.",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 12.5,
@@ -1641,46 +1644,54 @@ class _PhysicalCoscholasticOverviewScreenState
 
             // Bottom metadata: Area tag & Exam • Date
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Area tag
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      _getAreaIcon(item.areaName),
-                      size: 13,
-                      color: const Color(0xFF0077B6),
-                    ),
-                    const SizedBox(width: 5),
-                    Flexible(
-                      child: Text(
-                        item.areaName.isNotEmpty
-                            ? item.areaName
-                            : "Physical Education",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF0077B6),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(
+                        _getAreaIcon(item.areaName),
+                        size: 13,
+                        color: const Color(0xFF0077B6),
+                      ),
+                      const SizedBox(width: 5),
+                      Expanded(
+                        child: Text(
+                          item.areaName.isNotEmpty
+                              ? item.areaName
+                              : "Health & Physical Education",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF0077B6),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
 
                 // Exam & Date
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (item.examName.isNotEmpty) ...[
-                      Text(
-                        item.examName,
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          color: Colors.grey.shade600,
-                          fontWeight: FontWeight.w500,
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width * 0.35,
+                        ),
+                        child: Text(
+                          item.examName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            color: Colors.grey.shade600,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -1707,6 +1718,7 @@ class _PhysicalCoscholasticOverviewScreenState
   IconData _getAreaIcon(String name) {
     final lower = name.toLowerCase();
     if (lower.contains('physical') ||
+        lower.contains('health') ||
         lower.contains('sport') ||
         lower.contains('fitness') ||
         lower.contains('pe')) {

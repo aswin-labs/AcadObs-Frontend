@@ -119,6 +119,10 @@ class ApiEndpoints {
       "/teacher/getCoScholasticAssessmentRecordedByMe";
   static const String updateCoScholasticAssessmentById =
       "/teacher/updateCoScholasticAssessmentById";
+  static const String getCoScholasticMusicOrArtsOrRobticsByYear =
+      "/teacher/getCoScholasticMusicOrArtsOrRobticsByYear";
+  static const String createStudentMusicOrArtsOrRoboticsAssessment =
+      "/teacher/createStudentMusicOrArtsOrRoboticsAssessment";
 
   // Progress Report
   static const String getProgressReportByStudentIdTeacher =

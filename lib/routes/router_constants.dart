@@ -61,6 +61,12 @@ class RouteConstants {
       "physicalCoscholasticClassSelection";
   static const String physicalCoscholasticStudentRating =
       "physicalCoscholasticStudentRating";
+  static const String musicArtsRoboticsCoscholasticAssessment =
+      "musicArtsRoboticsCoscholasticAssessment";
+  static const String musicArtsRoboticsCoscholasticClassSelection =
+      "musicArtsRoboticsCoscholasticClassSelection";
+  static const String musicArtsRoboticsCoscholasticStudentRating =
+      "musicArtsRoboticsCoscholasticStudentRating";
 
   //PARENT
   static const String noticedetails = 'noticedetails';
