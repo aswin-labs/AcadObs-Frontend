@@ -136,7 +136,10 @@ class _MusicArtsRoboticsStudentRatingScreenState
                 icon: const Icon(LucideIcons.ellipsisVertical, size: 20),
                 tooltip: "Set All Areas",
                 onSelected: (grade) {
-                  for (final area in provider.areas) {
+                  final activeAreas = widget.args.areas.isNotEmpty
+                      ? widget.args.areas
+                      : provider.areas;
+                  for (final area in activeAreas) {
                     provider.setStudentAreaGrade(
                       _currentStudent.id,
                       area.id,
@@ -172,7 +175,7 @@ class _MusicArtsRoboticsStudentRatingScreenState
         builder: (context, provider, _) {
           final entry = provider.getOrCreateRating(_currentStudent.id);
           final areas =
-              provider.areas.isNotEmpty ? provider.areas : widget.args.areas;
+              widget.args.areas.isNotEmpty ? widget.args.areas : provider.areas;
           final gradedCount = entry.gradedCount;
           final isAllGraded = areas.isNotEmpty && entry.isComplete(areas);
 
@@ -383,7 +386,9 @@ class _MusicArtsRoboticsStudentRatingScreenState
                             ),
                             child: Text(
                               isAllGraded
-                                  ? "All Areas Graded"
+                                  ? (areas.length == 1
+                                      ? "Graded"
+                                      : "All Areas Graded")
                                   : gradedCount > 0
                                   ? "$gradedCount/${areas.length} Graded"
                                   : "Not Graded",

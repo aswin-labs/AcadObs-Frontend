@@ -198,48 +198,48 @@ class _PhysicalCoscholasticClassSelectionScreenState
     );
   }
 
-  // Future<void> _submitAllAssessments(List<StudentModel> allStudents) async {
-  //   final physicalProvider = context.read<PhysicalCoscholasticProvider>();
-  //   final ratingsMap = physicalProvider.studentRatings;
+  Future<void> _submitAllAssessments(List<StudentModel> allStudents) async {
+    final physicalProvider = context.read<PhysicalCoscholasticProvider>();
+    final ratingsMap = physicalProvider.studentRatings;
 
-  //   final gradedEntries =
-  //       ratingsMap.values
-  //           .where((entry) => entry.grade.trim().isNotEmpty)
-  //           .toList();
+    final gradedEntries =
+        ratingsMap.values
+            .where((entry) => entry.grade.trim().isNotEmpty)
+            .toList();
 
-  //   if (gradedEntries.isEmpty) {
-  //     CustomSnackbar.show(
-  //       context,
-  //       message: "Please select a grade for at least one student before saving",
-  //       type: SnackbarType.warning,
-  //     );
-  //     return;
-  //   }
+    if (gradedEntries.isEmpty) {
+      CustomSnackbar.show(
+        context,
+        message: "Please select a grade for at least one student before saving",
+        type: SnackbarType.warning,
+      );
+      return;
+    }
 
-  //   if (_selectedExamId == null) {
-  //     CustomSnackbar.show(
-  //       context,
-  //       message: "Please select an Exam",
-  //       type: SnackbarType.warning,
-  //     );
-  //     return;
-  //   }
+    if (_selectedExamId == null) {
+      CustomSnackbar.show(
+        context,
+        message: "Please select an Exam",
+        type: SnackbarType.warning,
+      );
+      return;
+    }
 
-  //   final success = await physicalProvider.savePhysicalAssessment(
-  //     context: context,
-  //     examId: _selectedExamId!,
-  //     assessedAt: _assessedDate,
-  //     assessments: gradedEntries,
-  //     allStudents: allStudents,
-  //     className: _selectedClassName,
-  //     standard: _selectedStandard,
-  //     examName: _selectedExamName,
-  //   );
+    final success = await physicalProvider.savePhysicalAssessment(
+      context: context,
+      examId: _selectedExamId!,
+      assessedAt: _assessedDate,
+      assessments: gradedEntries,
+      allStudents: allStudents,
+      className: _selectedClassName,
+      standard: _selectedStandard,
+      examName: _selectedExamName,
+    );
 
-  //   if (success && mounted) {
-  //     Navigator.pop(context); // Return to overview screen
-  //   }
-  // }
+    if (success && mounted) {
+      Navigator.pop(context); // Return to overview screen
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1003,64 +1003,64 @@ class _PhysicalCoscholasticClassSelectionScreenState
       ),
 
       // Bottom Bar with "Submit Assessments"
-      // bottomSheet: Consumer<StudentProvider>(
-      //   builder: (context, studentProv, _) {
-      //     if (studentProv.students.isEmpty) {
-      //       return const SizedBox.shrink();
-      //     }
+      bottomSheet: Consumer<StudentProvider>(
+        builder: (context, studentProv, _) {
+          if (studentProv.students.isEmpty) {
+            return const SizedBox.shrink();
+          }
 
-      //     return Consumer<PhysicalCoscholasticProvider>(
-      //       builder: (context, physicalProv, _) {
-      //         final allStudents = studentProv.students;
-      //         final gradedCount = physicalProv.getGradedStudentsCount(
-      //           allStudents,
-      //         );
+          return Consumer<PhysicalCoscholasticProvider>(
+            builder: (context, physicalProv, _) {
+              final allStudents = studentProv.students;
+              final gradedCount = physicalProv.getGradedStudentsCount(
+                allStudents,
+              );
 
-      //         return Container(
-      //           padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      //           decoration: BoxDecoration(
-      //             color: Colors.white,
-      //             boxShadow: [
-      //               BoxShadow(
-      //                 color: Colors.black.withAlpha(20),
-      //                 blurRadius: 10,
-      //                 offset: const Offset(0, -3),
-      //               ),
-      //             ],
-      //           ),
-      //           child: SafeArea(
-      //             top: false,
-      //             child: ElevatedButton.icon(
-      //               style: ElevatedButton.styleFrom(
-      //                 backgroundColor: const Color(0xFF0077B6),
-      //                 foregroundColor: Colors.white,
-      //                 minimumSize: const Size(double.infinity, 48),
-      //                 shape: RoundedRectangleBorder(
-      //                   borderRadius: BorderRadius.circular(14),
-      //                 ),
-      //                 elevation: 0,
-      //               ),
-      //               onPressed:
-      //                   gradedCount > 0
-      //                       ? () => _submitAllAssessments(allStudents)
-      //                       : null,
-      //               icon: const Icon(LucideIcons.checkCheck, size: 18),
-      //               label: Text(
-      //                 gradedCount > 0
-      //                     ? "Submit Assessments ($gradedCount Graded)"
-      //                     : "Grade Students to Submit",
-      //                 style: const TextStyle(
-      //                   fontSize: 14.5,
-      //                   fontWeight: FontWeight.bold,
-      //                 ),
-      //               ),
-      //             ),
-      //           ),
-      //         );
-      //       },
-      //     );
-      //   },
-      // ),
+              return Container(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(20),
+                      blurRadius: 10,
+                      offset: const Offset(0, -3),
+                    ),
+                  ],
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0077B6),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed:
+                        gradedCount > 0
+                            ? () => _submitAllAssessments(allStudents)
+                            : null,
+                    icon: const Icon(LucideIcons.checkCheck, size: 18),
+                    label: Text(
+                      gradedCount > 0
+                          ? "Submit Assessments ($gradedCount Graded)"
+                          : "Grade Students to Submit",
+                      style: const TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

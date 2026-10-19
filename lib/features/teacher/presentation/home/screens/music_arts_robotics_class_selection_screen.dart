@@ -4,6 +4,7 @@ import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
 import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
+import 'package:acadobs/features/teacher/data/models/music_arts_robotics_model.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/music_arts_robotics_provider.dart';
 import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
@@ -38,12 +39,23 @@ class _MusicArtsRoboticsClassSelectionScreenState
   String? _selectedExamName;
   DateTime _assessedDate = DateTime.now();
   String _searchQuery = '';
+  Set<int> _selectedAreaIds = {};
 
   late DropdownProvider dropdownProvider;
   late StudentProvider studentProvider;
   late TermExamProvider termExamProvider;
 
   static const Color _primaryThemeColor = Color(0xFF7B2CBF);
+
+  List<MusicArtsRoboticsAreaItem> _getEffectiveSelectedAreas(
+    List<MusicArtsRoboticsAreaItem> areas,
+  ) {
+    if (areas.isEmpty) return [];
+    if (areas.length == 1) return areas;
+    final selected =
+        areas.where((a) => _selectedAreaIds.contains(a.id)).toList();
+    return selected.isNotEmpty ? selected : areas;
+  }
 
   @override
   void initState() {
@@ -143,6 +155,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
       _selectedClassId = null;
       _selectedClassName = null;
       _searchQuery = '';
+      _selectedAreaIds.clear();
       _searchController.clear();
     });
 
@@ -178,6 +191,8 @@ class _MusicArtsRoboticsClassSelectionScreenState
       );
     }
 
+    final activeAreas = _getEffectiveSelectedAreas(provider.areas);
+
     context.pushNamed(
       RouteConstants.musicArtsRoboticsCoscholasticStudentRating,
       extra: MusicArtsRoboticsRatingArgs(
@@ -189,47 +204,51 @@ class _MusicArtsRoboticsClassSelectionScreenState
         className: _selectedClassName ?? "",
         classId: _selectedClassId,
         assessedAt: _assessedDate,
-        areas: provider.areas,
+        areas: activeAreas,
       ),
     );
   }
 
-  // Future<void> _submitAllAssessments(List<StudentModel> allStudents) async {
-  //   final provider = context.read<MusicArtsRoboticsProvider>();
-  //   final gradedCount = provider.getGradedStudentsCount(allStudents);
+  Future<void> _submitAllAssessments(List<StudentModel> allStudents) async {
+    final provider = context.read<MusicArtsRoboticsProvider>();
+    final activeAreas = _getEffectiveSelectedAreas(provider.areas);
+    final gradedCount = provider.getGradedStudentsCount(
+      allStudents,
+      targetAreas: activeAreas,
+    );
 
-  //   if (gradedCount == 0) {
-  //     CustomSnackbar.show(
-  //       context,
-  //       message: "Please enter grades for at least one student before saving",
-  //       type: SnackbarType.warning,
-  //     );
-  //     return;
-  //   }
+    if (gradedCount == 0) {
+      CustomSnackbar.show(
+        context,
+        message: "Please enter grades for at least one student before saving",
+        type: SnackbarType.warning,
+      );
+      return;
+    }
 
-  //   if (_selectedExamId == null) {
-  //     CustomSnackbar.show(
-  //       context,
-  //       message: "Please select an Exam",
-  //       type: SnackbarType.warning,
-  //     );
-  //     return;
-  //   }
+    if (_selectedExamId == null) {
+      CustomSnackbar.show(
+        context,
+        message: "Please select an Exam",
+        type: SnackbarType.warning,
+      );
+      return;
+    }
 
-  //   final success = await provider.saveClassAssessments(
-  //     context: context,
-  //     examId: _selectedExamId!,
-  //     assessedAt: _assessedDate,
-  //     allStudents: allStudents,
-  //     className: _selectedClassName,
-  //     standard: _selectedStandard,
-  //     examName: _selectedExamName,
-  //   );
+    final success = await provider.saveClassAssessments(
+      context: context,
+      examId: _selectedExamId!,
+      assessedAt: _assessedDate,
+      allStudents: allStudents,
+      className: _selectedClassName,
+      standard: _selectedStandard,
+      examName: _selectedExamName,
+    );
 
-  //   if (success && mounted) {
-  //     // Stay or provide feedback
-  //   }
-  // }
+    if (success && mounted) {
+      // Stay or provide feedback
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -338,7 +357,10 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                         ? 'Select standard'
                                         : null,
                             onChanged: (standard) {
-                              setState(() => _selectedStandard = standard);
+                              setState(() {
+                                _selectedStandard = standard;
+                                _selectedAreaIds.clear();
+                              });
                               _formKey.currentState?.validate();
 
                               studentProvider.clearStudents();
@@ -616,6 +638,12 @@ class _MusicArtsRoboticsClassSelectionScreenState
                         }
 
                         if (provider.areas.isNotEmpty) {
+                          final activeAreas = _getEffectiveSelectedAreas(
+                            provider.areas,
+                          );
+                          final bool isAllSelected =
+                              activeAreas.length == provider.areas.length;
+
                           return Padding(
                             padding: const EdgeInsets.only(top: 14),
                             child: Column(
@@ -623,67 +651,320 @@ class _MusicArtsRoboticsClassSelectionScreenState
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(
-                                      LucideIcons.sparkles,
+                                    Icon(
+                                      provider.areas.length > 1
+                                          ? LucideIcons.checkSquare
+                                          : LucideIcons.sparkles,
                                       size: 13,
                                       color: _primaryThemeColor,
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      "Assessment Areas for Class ${_selectedStandard ?? ''}:",
+                                      provider.areas.length > 1
+                                          ? "Select Assessment Area(s):"
+                                          : "Assessment Area for Class ${_selectedStandard ?? ''}:",
                                       style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.black87,
                                       ),
                                     ),
+                                    if (provider.areas.length > 1) ...[
+                                      const Spacer(),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 7,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: _primaryThemeColor.withAlpha(
+                                            20,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          isAllSelected
+                                              ? (provider.areas.length == 2
+                                                  ? "Both Selected"
+                                                  : "All Selected")
+                                              : "${activeAreas.length} of ${provider.areas.length} Selected",
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: _primaryThemeColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ],
                                 ),
                                 const SizedBox(height: 8),
-                                Wrap(
-                                  spacing: 8,
-                                  runSpacing: 6,
-                                  children:
-                                      provider.areas.map((area) {
-                                        return Container(
+
+                                // If only 1 area is returned, no selection is needed
+                                if (provider.areas.length <= 1)
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 6,
+                                    children:
+                                        provider.areas.map((area) {
+                                          return Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 5,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: _primaryThemeColor
+                                                  .withAlpha(16),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: _primaryThemeColor
+                                                    .withAlpha(50),
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  _getAreaIcon(area.name),
+                                                  size: 14,
+                                                  color: _primaryThemeColor,
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  area.name,
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: _primaryThemeColor,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                  )
+                                else
+                                  // When 2 or more areas are returned, provide options to select 1 or both
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: [
+                                      // "Both / All" selection option
+                                      InkWell(
+                                        borderRadius: BorderRadius.circular(10),
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedAreaIds =
+                                                provider.areas
+                                                    .map((a) => a.id)
+                                                    .toSet();
+                                          });
+                                        },
+                                        child: AnimatedContainer(
+                                          duration: const Duration(
+                                            milliseconds: 180,
+                                          ),
                                           padding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                            vertical: 5,
+                                            horizontal: 12,
+                                            vertical: 7,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: _primaryThemeColor.withAlpha(
-                                              16,
-                                            ),
+                                            color:
+                                                isAllSelected
+                                                    ? _primaryThemeColor
+                                                    : Colors.grey.shade100,
                                             borderRadius: BorderRadius.circular(
-                                              8,
+                                              10,
                                             ),
                                             border: Border.all(
-                                              color: _primaryThemeColor
-                                                  .withAlpha(50),
+                                              color:
+                                                  isAllSelected
+                                                      ? _primaryThemeColor
+                                                      : Colors.grey.shade300,
+                                              width: isAllSelected ? 1.5 : 1,
                                             ),
+                                            boxShadow:
+                                                isAllSelected
+                                                    ? [
+                                                      BoxShadow(
+                                                        color:
+                                                            _primaryThemeColor
+                                                                .withAlpha(45),
+                                                        blurRadius: 6,
+                                                        offset: const Offset(
+                                                          0,
+                                                          2,
+                                                        ),
+                                                      ),
+                                                    ]
+                                                    : null,
                                           ),
                                           child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Icon(
-                                                _getAreaIcon(area.name),
+                                                isAllSelected
+                                                    ? LucideIcons.checkCheck
+                                                    : LucideIcons.layers,
                                                 size: 14,
-                                                color: _primaryThemeColor,
+                                                color:
+                                                    isAllSelected
+                                                        ? Colors.white
+                                                        : Colors.grey.shade700,
                                               ),
                                               const SizedBox(width: 6),
                                               Text(
-                                                area.name,
-                                                style: const TextStyle(
+                                                provider.areas.length == 2
+                                                    ? "Both (${provider.areas.map((a) => a.name).join(' & ')})"
+                                                    : "All Areas (${provider.areas.length})",
+                                                style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.bold,
-                                                  color: _primaryThemeColor,
+                                                  color:
+                                                      isAllSelected
+                                                          ? Colors.white
+                                                          : Colors.black87,
                                                 ),
                                               ),
                                             ],
                                           ),
+                                        ),
+                                      ),
+
+                                      // Individual Area options (select one or toggle)
+                                      ...provider.areas.map((area) {
+                                        final isSingleActive =
+                                            !isAllSelected &&
+                                            _selectedAreaIds.contains(area.id);
+                                        final isPartOfAll =
+                                            isAllSelected &&
+                                            _selectedAreaIds.contains(area.id);
+
+                                        return InkWell(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          onTap: () {
+                                            setState(() {
+                                              if (isAllSelected) {
+                                                // From all selected, tapping an individual area isolates it
+                                                _selectedAreaIds = {area.id};
+                                              } else if (_selectedAreaIds
+                                                  .contains(area.id)) {
+                                                if (_selectedAreaIds.length >
+                                                    1) {
+                                                  _selectedAreaIds.remove(
+                                                    area.id,
+                                                  );
+                                                } else {
+                                                  // Tapping the only selected area toggles back to all/both
+                                                  _selectedAreaIds =
+                                                      provider.areas
+                                                          .map((a) => a.id)
+                                                          .toSet();
+                                                }
+                                              } else {
+                                                // When 2 areas exist, tapping the other area switches to it
+                                                if (provider.areas.length ==
+                                                    2) {
+                                                  _selectedAreaIds = {area.id};
+                                                } else {
+                                                  _selectedAreaIds.add(area.id);
+                                                }
+                                              }
+                                            });
+                                          },
+                                          child: AnimatedContainer(
+                                            duration: const Duration(
+                                              milliseconds: 180,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 7,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  isSingleActive
+                                                      ? _primaryThemeColor
+                                                      : (isPartOfAll
+                                                          ? _primaryThemeColor
+                                                              .withAlpha(20)
+                                                          : Colors
+                                                              .grey
+                                                              .shade100),
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              border: Border.all(
+                                                color:
+                                                    (isSingleActive ||
+                                                            isPartOfAll)
+                                                        ? _primaryThemeColor
+                                                        : Colors.grey.shade300,
+                                                width: isSingleActive ? 1.5 : 1,
+                                              ),
+                                              boxShadow:
+                                                  isSingleActive
+                                                      ? [
+                                                        BoxShadow(
+                                                          color:
+                                                              _primaryThemeColor
+                                                                  .withAlpha(
+                                                                    40,
+                                                                  ),
+                                                          blurRadius: 6,
+                                                          offset: const Offset(
+                                                            0,
+                                                            2,
+                                                          ),
+                                                        ),
+                                                      ]
+                                                      : null,
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  isSingleActive
+                                                      ? LucideIcons.check
+                                                      : _getAreaIcon(area.name),
+                                                  size: 14,
+                                                  color:
+                                                      isSingleActive
+                                                          ? Colors.white
+                                                          : ((isSingleActive ||
+                                                                  isPartOfAll)
+                                                              ? _primaryThemeColor
+                                                              : Colors
+                                                                  .grey
+                                                                  .shade600),
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  area.name,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        isSingleActive
+                                                            ? Colors.white
+                                                            : ((isSingleActive ||
+                                                                    isPartOfAll)
+                                                                ? _primaryThemeColor
+                                                                : Colors
+                                                                    .grey
+                                                                    .shade800),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                         );
-                                      }).toList(),
-                                ),
+                                      }),
+                                    ],
+                                  ),
                               ],
                             ),
                           );
@@ -724,8 +1005,12 @@ class _MusicArtsRoboticsClassSelectionScreenState
                 return Consumer<MusicArtsRoboticsProvider>(
                   builder: (context, provider, _) {
                     final allStudents = studentProv.students;
+                    final activeAreas = _getEffectiveSelectedAreas(
+                      provider.areas,
+                    );
                     final gradedCount = provider.getGradedStudentsCount(
                       allStudents,
+                      targetAreas: activeAreas,
                     );
                     final total = allStudents.length;
 
@@ -743,24 +1028,31 @@ class _MusicArtsRoboticsClassSelectionScreenState
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _primaryThemeColor.withAlpha(24),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  "$gradedCount of $total Students Graded",
-                                  style: const TextStyle(
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.bold,
-                                    color: _primaryThemeColor,
+                              Flexible(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _primaryThemeColor.withAlpha(24),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    activeAreas.length == 1
+                                        ? "$gradedCount of $total Graded (${activeAreas.first.name})"
+                                        : "$gradedCount of $total Students Graded",
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: _primaryThemeColor,
+                                    ),
                                   ),
                                 ),
                               ),
+                              const SizedBox(width: 8),
                               // Quick Fill Menu
                               PopupMenuButton<String>(
                                 tooltip: "Quick Fill",
@@ -798,11 +1090,18 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                 onSelected: (grade) {
                                   final ids =
                                       allStudents.map((s) => s.id).toList();
-                                  provider.quickFillAllAreasGrades(ids, grade);
+                                  provider.quickFillAllAreasGrades(
+                                    ids,
+                                    grade,
+                                    targetAreaIds:
+                                        activeAreas.map((a) => a.id).toList(),
+                                  );
                                   CustomSnackbar.show(
                                     context,
                                     message:
-                                        "Applied Grade $grade across all areas to all students",
+                                        activeAreas.length == 1
+                                            ? "Applied Grade $grade for ${activeAreas.first.name} to all students"
+                                            : "Applied Grade $grade across selected areas to all students",
                                     type: SnackbarType.success,
                                   );
                                 },
@@ -980,7 +1279,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
 
                 return Consumer<MusicArtsRoboticsProvider>(
                   builder: (context, provider, _) {
-                    final areas = provider.areas;
+                    final areas = _getEffectiveSelectedAreas(provider.areas);
 
                     return ListView.separated(
                       shrinkWrap: true,
@@ -994,11 +1293,15 @@ class _MusicArtsRoboticsClassSelectionScreenState
                           (s) => s.id == student.id,
                         );
                         final entry = provider.studentRatings[student.id];
-                        final hasAny = entry != null && entry.hasAnyGrade;
+                        final gradedInActiveAreas =
+                            areas
+                                .where((a) => entry?.hasGrade(a.id) ?? false)
+                                .length;
+                        final hasAny = gradedInActiveAreas > 0;
                         final isComplete =
                             entry != null &&
                             areas.isNotEmpty &&
-                            entry.isComplete(areas);
+                            areas.every((a) => entry.hasGrade(a.id));
 
                         return Material(
                           color: Colors.white,
@@ -1061,7 +1364,11 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                           ),
                                         ),
                                         const SizedBox(height: 2),
-                                        Row(
+                                        Wrap(
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          spacing: 6,
+                                          runSpacing: 2,
                                           children: [
                                             Text(
                                               "Roll: ${student.rollNumber ?? '-'}",
@@ -1070,16 +1377,16 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                                 color: Colors.grey.shade600,
                                               ),
                                             ),
-                                            if (hasAny && areas.isNotEmpty) ...[
-                                              const SizedBox(width: 8),
+                                            if (hasAny && areas.isNotEmpty)
                                               Text(
-                                                "• ${entry.gradedCount}/${areas.length} areas",
+                                                areas.length == 1
+                                                    ? "• Grade: ${entry?.getGrade(areas.first.id) ?? '-'}"
+                                                    : "• $gradedInActiveAreas/${areas.length} areas",
                                                 style: TextStyle(
                                                   fontSize: 11.5,
                                                   color: Colors.grey.shade500,
                                                 ),
                                               ),
-                                            ],
                                           ],
                                         ),
                                       ],
@@ -1111,7 +1418,9 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
-                                            "All Graded",
+                                            areas.length == 1
+                                                ? "Grade ${entry.getGrade(areas.first.id)}"
+                                                : "All Graded",
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
@@ -1135,7 +1444,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                         ),
                                       ),
                                       child: Text(
-                                        "${entry.gradedCount}/${areas.length} Graded",
+                                        "$gradedInActiveAreas/${areas.length} Graded",
                                         style: TextStyle(
                                           fontSize: 11.5,
                                           fontWeight: FontWeight.bold,
@@ -1187,61 +1496,63 @@ class _MusicArtsRoboticsClassSelectionScreenState
           ),
         ],
       ),
-      // bottomSheet: Consumer<StudentProvider>(
-      //   builder: (context, studentProv, _) {
-      //     if (studentProv.students.isEmpty) {
-      //       return const SizedBox.shrink();
-      //     }
+      bottomSheet: Consumer<StudentProvider>(
+        builder: (context, studentProv, _) {
+          if (studentProv.students.isEmpty) {
+            return const SizedBox.shrink();
+          }
 
-      //     return Consumer<MusicArtsRoboticsProvider>(
-      //       builder: (context, provider, _) {
-      //         final allStudents = studentProv.students;
-      //         final gradedCount = provider.getGradedStudentsCount(
-      //           allStudents,
-      //         );
+          return Consumer<MusicArtsRoboticsProvider>(
+            builder: (context, provider, _) {
+              final allStudents = studentProv.students;
+              final activeAreas = _getEffectiveSelectedAreas(provider.areas);
+              final gradedCount = provider.getGradedStudentsCount(
+                allStudents,
+                targetAreas: activeAreas,
+              );
 
-      //         if (gradedCount == 0) return const SizedBox.shrink();
+              if (gradedCount == 0) return const SizedBox.shrink();
 
-      //         return Container(
-      //           padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      //           decoration: BoxDecoration(
-      //             color: Colors.white,
-      //             boxShadow: [
-      //               BoxShadow(
-      //                 color: Colors.black.withAlpha(20),
-      //                 blurRadius: 10,
-      //                 offset: const Offset(0, -3),
-      //               ),
-      //             ],
-      //           ),
-      //           child: SafeArea(
-      //             top: false,
-      //             child: ElevatedButton.icon(
-      //               style: ElevatedButton.styleFrom(
-      //                 backgroundColor: _primaryThemeColor,
-      //                 foregroundColor: Colors.white,
-      //                 minimumSize: const Size(double.infinity, 48),
-      //                 shape: RoundedRectangleBorder(
-      //                   borderRadius: BorderRadius.circular(14),
-      //                 ),
-      //                 elevation: 0,
-      //               ),
-      //               onPressed: () => _submitAllAssessments(allStudents),
-      //               icon: const Icon(LucideIcons.checkCheck, size: 18),
-      //               label: Text(
-      //                 "Submit Assessments ($gradedCount Graded)",
-      //                 style: const TextStyle(
-      //                   fontSize: 14.5,
-      //                   fontWeight: FontWeight.bold,
-      //                 ),
-      //               ),
-      //             ),
-      //           ),
-      //         );
-      //       },
-      //     );
-      //   },
-      // ),
+              return Container(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withAlpha(20),
+                      blurRadius: 10,
+                      offset: const Offset(0, -3),
+                    ),
+                  ],
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _primaryThemeColor,
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: () => _submitAllAssessments(allStudents),
+                    icon: const Icon(LucideIcons.checkCheck, size: 18),
+                    label: Text(
+                      "Submit Assessments ($gradedCount Graded)",
+                      style: const TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

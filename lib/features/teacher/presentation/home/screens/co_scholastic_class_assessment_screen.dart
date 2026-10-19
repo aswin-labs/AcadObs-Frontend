@@ -461,7 +461,11 @@ class _CoScholasticClassAssessmentScreenState
                                                 ),
                                               ),
                                               const SizedBox(height: 2),
-                                              Row(
+                                              Wrap(
+                                                spacing: 8,
+                                                runSpacing: 2,
+                                                crossAxisAlignment:
+                                                    WrapCrossAlignment.center,
                                                 children: [
                                                   if (student.rollNumber !=
                                                       null) ...[

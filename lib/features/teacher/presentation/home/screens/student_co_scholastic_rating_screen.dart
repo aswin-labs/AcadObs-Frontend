@@ -865,8 +865,7 @@ class _StudentCoScholasticRatingScreenState
         isAttendance && (attendanceText.isNotEmpty || score != null);
 
     final bool isGraded =
-        entry != null &&
-        (isAttendance ? hasAttendanceRecorded : hasGrade);
+        entry != null && (isAttendance ? hasAttendanceRecorded : hasGrade);
 
     // If Physical Education is not graded, show compact/hidden tile in showing mode
     if (isPe && !isGraded) {
@@ -938,10 +937,7 @@ class _StudentCoScholasticRatingScreenState
                 icon: const Icon(LucideIcons.plus, size: 14),
                 label: const Text(
                   "Add Grade",
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -1773,9 +1769,7 @@ class _StudentCoScholasticRatingScreenState
                         final total = double.tryParse(
                           parts.length > 1 ? parts[1].trim() : '',
                         );
-                        if (present != null &&
-                            total != null &&
-                            total > 0) {
+                        if (present != null && total != null && total > 0) {
                           final pct = double.parse(
                             ((present / total) * 100).toStringAsFixed(1),
                           );
@@ -1811,21 +1805,15 @@ class _StudentCoScholasticRatingScreenState
                       fillColor: Colors.grey.shade50,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                        ),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.grey.shade300,
-                        ),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(
-                          color: Color(0xFF0077B6),
-                        ),
+                        borderSide: const BorderSide(color: Color(0xFF0077B6)),
                       ),
                     ),
                   ),

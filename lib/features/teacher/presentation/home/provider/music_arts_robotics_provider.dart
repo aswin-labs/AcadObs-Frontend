@@ -192,11 +192,16 @@ class MusicArtsRoboticsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void quickFillAllAreasGrades(List<int> studentIds, String grade) {
+  void quickFillAllAreasGrades(
+    List<int> studentIds,
+    String grade, {
+    List<int>? targetAreaIds,
+  }) {
+    final fillAreaIds = targetAreaIds ?? _areas.map((a) => a.id).toList();
     for (final sId in studentIds) {
       final entry = getOrCreateRating(sId);
-      for (final area in _areas) {
-        entry.setGrade(area.id, grade);
+      for (final aId in fillAreaIds) {
+        entry.setGrade(aId, grade);
       }
     }
     notifyListeners();
@@ -219,12 +224,22 @@ class MusicArtsRoboticsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  int getGradedStudentsCount(List<StudentModel> students) {
+  int getGradedStudentsCount(
+    List<StudentModel> students, {
+    List<MusicArtsRoboticsAreaItem>? targetAreas,
+  }) {
+    final checkAreas = targetAreas ?? _areas;
     int count = 0;
     for (final s in students) {
       final entry = _studentRatings[s.id];
-      if (entry != null && entry.hasAnyGrade) {
-        count++;
+      if (entry != null) {
+        if (checkAreas.isNotEmpty) {
+          if (checkAreas.any((a) => entry.hasGrade(a.id))) {
+            count++;
+          }
+        } else if (entry.hasAnyGrade) {
+          count++;
+        }
       }
     }
     return count;
