@@ -10,6 +10,7 @@ class StudentFeatureCard extends StatelessWidget {
   final Color? badgeColor;
   final double? height;
   final double? width;
+  final bool isLocked;
 
   const StudentFeatureCard({
     super.key,
@@ -22,6 +23,7 @@ class StudentFeatureCard extends StatelessWidget {
     this.badgeColor,
     this.height,
     this.width,
+    this.isLocked = false,
   });
 
   @override
@@ -35,10 +37,14 @@ class StudentFeatureCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.shade200),
+          border: Border.all(
+            color: isLocked ? const Color(0xFFFED7AA) : Colors.grey.shade200,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withAlpha(6),
+              color: isLocked
+                  ? const Color(0xFFEA580C).withAlpha(14)
+                  : Colors.black.withAlpha(6),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -46,7 +52,28 @@ class StudentFeatureCard extends StatelessWidget {
         ),
         child: Stack(
           children: [
-            if (badgeText != null && badgeText!.isNotEmpty)
+            if (isLocked)
+              Positioned(
+                top: 4,
+                right: 4,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF7ED),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFFDBA74),
+                      width: 1,
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.lock_rounded,
+                    size: 11,
+                    color: Color(0xFFEA580C),
+                  ),
+                ),
+              )
+            else if (badgeText != null && badgeText!.isNotEmpty)
               Positioned(
                 top: 2,
                 right: 2,

@@ -84,6 +84,72 @@ class TermExamProvider extends ChangeNotifier {
     }
   }
 
+  // Filter state for Added Term Exam Marks
+  int? _filterSubjectId;
+  String? _filterSubjectName;
+  int? _filterClassId;
+  String? _filterClassName;
+  String? _filterStandard;
+  int? _filterExamId;
+  String? _filterExamName;
+  String _searchQuery = '';
+
+  int? get filterSubjectId => _filterSubjectId;
+  String? get filterSubjectName => _filterSubjectName;
+  int? get filterClassId => _filterClassId;
+  String? get filterClassName => _filterClassName;
+  String? get filterStandard => _filterStandard;
+  int? get filterExamId => _filterExamId;
+  String? get filterExamName => _filterExamName;
+  String get searchQuery => _searchQuery;
+
+  bool get hasActiveFilters =>
+      _filterSubjectId != null ||
+      _filterClassId != null ||
+      _filterExamId != null ||
+      _searchQuery.isNotEmpty;
+
+  int get activeFilterCount {
+    int count = 0;
+    if (_filterExamId != null) count++;
+    if (_filterClassId != null) count++;
+    if (_filterSubjectId != null) count++;
+    return count;
+  }
+
+  // Filter state for Multi Teacher Subject Marks
+  int? _multiFilterSubjectId;
+  String? _multiFilterSubjectName;
+  int? _multiFilterClassId;
+  String? _multiFilterClassName;
+  String? _multiFilterStandard;
+  int? _multiFilterExamId;
+  String? _multiFilterExamName;
+  String _multiSearchQuery = '';
+
+  int? get multiFilterSubjectId => _multiFilterSubjectId;
+  String? get multiFilterSubjectName => _multiFilterSubjectName;
+  int? get multiFilterClassId => _multiFilterClassId;
+  String? get multiFilterClassName => _multiFilterClassName;
+  String? get multiFilterStandard => _multiFilterStandard;
+  int? get multiFilterExamId => _multiFilterExamId;
+  String? get multiFilterExamName => _multiFilterExamName;
+  String get multiSearchQuery => _multiSearchQuery;
+
+  bool get hasActiveMultiFilters =>
+      _multiFilterSubjectId != null ||
+      _multiFilterClassId != null ||
+      _multiFilterExamId != null ||
+      _multiSearchQuery.isNotEmpty;
+
+  int get multiActiveFilterCount {
+    int count = 0;
+    if (_multiFilterExamId != null) count++;
+    if (_multiFilterClassId != null) count++;
+    if (_multiFilterSubjectId != null) count++;
+    return count;
+  }
+
   // Fetch marks
   Future<void> fetchAddedTermExamMarks({
     bool loadMore = false,
@@ -105,14 +171,20 @@ class TermExamProvider extends ChangeNotifier {
         _isFetchedOnce = false;
       }
       final response = await TermExamServices()
-          .fetchTermExamMarksAddedByTeacher(pageNo: _currentPage);
+          .fetchTermExamMarksAddedByTeacher(
+            pageNo: _currentPage,
+            subjectId: _filterSubjectId,
+            classId: _filterClassId,
+            examId: _filterExamId,
+            query: _searchQuery,
+          );
       if (response.statusCode == 200) {
         final data = response.data;
 
-        _totalPages = data['totalPages'];
-        _currentPage = data['currentPage'];
+        _totalPages = data['totalPages'] ?? 1;
+        _currentPage = data['currentPage'] ?? 1;
 
-        final List marksJson = data['exams'];
+        final List marksJson = data['exams'] ?? [];
 
         final List<MarksModel> fetchMarks =
             marksJson.map((jsonItem) => MarksModel.fromJson(jsonItem)).toList();
@@ -128,6 +200,70 @@ class TermExamProvider extends ChangeNotifier {
       _isLoadingMarks = false;
       notifyListeners();
     }
+  }
+
+  // Apply filters
+  Future<void> applyTermExamFilters({
+    int? subjectId,
+    String? subjectName,
+    int? classId,
+    String? className,
+    String? standard,
+    int? examId,
+    String? examName,
+  }) async {
+    _filterSubjectId = subjectId;
+    _filterSubjectName = subjectName;
+    _filterClassId = classId;
+    _filterClassName = className;
+    _filterStandard = standard;
+    _filterExamId = examId;
+    _filterExamName = examName;
+    await fetchAddedTermExamMarks(forceRefresh: true);
+  }
+
+  // Clear all filters
+  Future<void> clearTermExamFilters() async {
+    _filterSubjectId = null;
+    _filterSubjectName = null;
+    _filterClassId = null;
+    _filterClassName = null;
+    _filterStandard = null;
+    _filterExamId = null;
+    _filterExamName = null;
+    _searchQuery = '';
+    await fetchAddedTermExamMarks(forceRefresh: true);
+  }
+
+  // Search query helper
+  Future<void> searchTermExamMarks(String query) async {
+    _searchQuery = query.trim();
+    await fetchAddedTermExamMarks(forceRefresh: true);
+  }
+
+  Future<void> clearSearchQuery() async {
+    _searchQuery = '';
+    await fetchAddedTermExamMarks(forceRefresh: true);
+  }
+
+  // Clear single filter helpers
+  Future<void> clearSubjectFilter() async {
+    _filterSubjectId = null;
+    _filterSubjectName = null;
+    await fetchAddedTermExamMarks(forceRefresh: true);
+  }
+
+  Future<void> clearClassFilter() async {
+    _filterClassId = null;
+    _filterClassName = null;
+    _filterStandard = null;
+    await fetchAddedTermExamMarks(forceRefresh: true);
+  }
+
+  Future<void> clearExamFilter() async {
+    _filterExamId = null;
+    _filterExamName = null;
+    await fetchAddedTermExamMarks(forceRefresh: true);
   }
 
   // Add student marks
@@ -173,6 +309,15 @@ class TermExamProvider extends ChangeNotifier {
     }
   }
 
+  void clearStudentMarks() {
+    _studentMarks.clear();
+    _currentPageForStudent = 1;
+    _totalPagesForStudent = 1;
+    isFetchedOnceForStudent = false;
+    _isLoadingStudentMarks = false;
+    notifyListeners();
+  }
+
   // fetch student term exam marks
   Future<void> fetchStudentTermExamMarks({
     required int studentId,
@@ -181,32 +326,31 @@ class TermExamProvider extends ChangeNotifier {
     bool forceRefresh = false,
   }) async {
     if (_isLoadingStudentMarks) return;
+    if (loadMore && !hasMoreStudentMarks) return;
+
     _isLoadingStudentMarks = true;
+    if (!loadMore) {
+      _studentMarks.clear();
+      isFetchedOnceForStudent = false;
+      _currentPageForStudent = 1;
+      _totalPagesForStudent = 1;
+    }
+    notifyListeners();
 
     try {
-      if (loadMore) {
-        if (_currentPageForStudent >= _totalPagesForStudent) {
-          _isLoadingStudentMarks = false;
-          return;
-        }
-        _currentPageForStudent++;
-      } else {
-        _currentPageForStudent = 1;
-        _studentMarks.clear();
-        isFetchedOnceForStudent = false;
-      }
+      final int targetPage = loadMore ? _currentPageForStudent + 1 : 1;
       final response = await TermExamServices().fetchStudentTermExamMarks(
         studentId: studentId,
         forStaff: forStaff,
-        pageNo: _currentPageForStudent,
+        pageNo: targetPage,
       );
       if (response.statusCode == 200) {
         final data = response.data;
 
-        _totalPagesForStudent = data['totalPages'];
-        _currentPageForStudent = data['currentPage'];
+        _totalPagesForStudent = data['totalPages'] ?? 1;
+        _currentPageForStudent = data['currentPage'] ?? targetPage;
 
-        final List marksJson = data['Mark'];
+        final List marksJson = data['Mark'] ?? [];
 
         final List<StudentMarkModel> fetchMarks =
             marksJson
@@ -284,6 +428,10 @@ class TermExamProvider extends ChangeNotifier {
       }
       final response = await TermExamServices().fetchMultiTeacherSubjectMarks(
         pageNo: _currentPageForMultiSubjectMarks,
+        examId: _multiFilterExamId,
+        classId: _multiFilterClassId,
+        subjectId: _multiFilterSubjectId,
+        searchQuery: _multiSearchQuery,
       );
       if (response.statusCode == 200) {
         final data = response.data;
@@ -307,6 +455,67 @@ class TermExamProvider extends ChangeNotifier {
       _isLoadingMultiSubjectMarks = false;
       notifyListeners();
     }
+  }
+
+  // Multi Teacher Filter Helpers
+  Future<void> applyMultiTeacherFilters({
+    int? examId,
+    String? examName,
+    String? standard,
+    int? classId,
+    String? className,
+    int? subjectId,
+    String? subjectName,
+  }) async {
+    _multiFilterExamId = examId;
+    _multiFilterExamName = examName;
+    _multiFilterStandard = standard;
+    _multiFilterClassId = classId;
+    _multiFilterClassName = className;
+    _multiFilterSubjectId = subjectId;
+    _multiFilterSubjectName = subjectName;
+    await fetchMultiTeacherSubjectMarks(forceRefresh: true);
+  }
+
+  Future<void> clearMultiTeacherFilters() async {
+    _multiFilterSubjectId = null;
+    _multiFilterSubjectName = null;
+    _multiFilterClassId = null;
+    _multiFilterClassName = null;
+    _multiFilterStandard = null;
+    _multiFilterExamId = null;
+    _multiFilterExamName = null;
+    _multiSearchQuery = '';
+    await fetchMultiTeacherSubjectMarks(forceRefresh: true);
+  }
+
+  Future<void> searchMultiTeacherMarks(String query) async {
+    _multiSearchQuery = query.trim();
+    await fetchMultiTeacherSubjectMarks(forceRefresh: true);
+  }
+
+  Future<void> clearMultiSearchQuery() async {
+    _multiSearchQuery = '';
+    await fetchMultiTeacherSubjectMarks(forceRefresh: true);
+  }
+
+  Future<void> clearMultiSubjectFilter() async {
+    _multiFilterSubjectId = null;
+    _multiFilterSubjectName = null;
+    await fetchMultiTeacherSubjectMarks(forceRefresh: true);
+  }
+
+  Future<void> clearMultiClassFilter() async {
+    _multiFilterClassId = null;
+    _multiFilterClassName = null;
+    _multiFilterStandard = null;
+    await fetchMultiTeacherSubjectMarks(forceRefresh: true);
+  }
+
+  Future<void> clearMultiExamFilter() async {
+    _multiFilterExamId = null;
+    _multiFilterExamName = null;
+    await fetchMultiTeacherSubjectMarks(forceRefresh: true);
   }
 
   // fetch existing term marks

@@ -68,13 +68,52 @@ Future<void> showAddTermMarksBottomSheet({
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withAlpha(25),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Icon(
+                          LucideIcons.notebookTabs,
+                          color: Theme.of(context).primaryColor,
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     Text(
                       "Add Term Exam Marks",
+                      textAlign: TextAlign.center,
                       style: context.textTheme.titleLarge!.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: Responsive.height * 3),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor.withAlpha(20),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Theme.of(context).primaryColor.withAlpha(50),
+                        ),
+                      ),
+                      child: Text(
+                        "Official Term & Semester Examination",
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: Responsive.height * 2.5),
                     Consumer<TermExamProvider>(
                       builder: (context, provider, _) {
                         if (provider.isLoadingExams) {

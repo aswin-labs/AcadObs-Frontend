@@ -6,9 +6,27 @@ import '../../../../core/services/api_services.dart';
 
 class MyClassServices {
   // Fetch my class marks
-  Future<Response> fetchMyClassMarks({required int pageNo}) async {
+  Future<Response> fetchMyClassMarks({
+    required int pageNo,
+    int? examId,
+    int? subjectId,
+    String? searchQuery,
+  }) async {
+    final queryParams = <String>[
+      'page=$pageNo',
+      'limit=${AppConstants.paginationLimit}',
+    ];
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      queryParams.add('q=${Uri.encodeComponent(searchQuery)}');
+    }
+    if (subjectId != null) {
+      queryParams.add('subject_id=$subjectId');
+    }
+    if (examId != null) {
+      queryParams.add('exam_id=$examId');
+    }
     final response = await ApiServices.get(
-      "${ApiEndpoints.getMyClassMarks}?page=$pageNo&limit=${AppConstants.paginationLimit}",
+      "${ApiEndpoints.getMyClassMarks}?${queryParams.join('&')}",
     );
     return response;
   }

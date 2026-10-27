@@ -37,6 +37,30 @@ class AuthProvider with ChangeNotifier {
 
   Map<String, dynamic>? get schoolDetails => _schoolDetails;
 
+  // Forgot Password State
+  bool _isForgotPasswordLoading = false;
+  String? _forgotPasswordError;
+  String? _resetToken;
+  String? _forgotPasswordPhone;
+
+  bool get isForgotPasswordLoading => _isForgotPasswordLoading;
+  String? get forgotPasswordError => _forgotPasswordError;
+  String? get resetToken => _resetToken;
+  String? get forgotPasswordPhone => _forgotPasswordPhone;
+
+  void clearForgotPasswordError() {
+    _forgotPasswordError = null;
+    notifyListeners();
+  }
+
+  void resetForgotPasswordState() {
+    _isForgotPasswordLoading = false;
+    _forgotPasswordError = null;
+    _resetToken = null;
+    _forgotPasswordPhone = null;
+    notifyListeners();
+  }
+
   // call this at the start of login
   void _setLoading(bool v) {
     _isLoading = v;
@@ -495,5 +519,234 @@ class AuthProvider with ChangeNotifier {
   Future<void> clearSession() async {
     await _storageService.clear();
     notifyListeners();
+  }
+
+  // ===================== FORGOT PASSWORD METHODS =====================
+
+  /// Step 1: Send OTP for forgot password
+  Future<bool> forgetPassword({
+    required BuildContext context,
+    required String phone,
+  }) async {
+    _isForgotPasswordLoading = true;
+    _forgotPasswordError = null;
+    notifyListeners();
+
+    try {
+      final response = await AuthServices().forgetPassword(phone: phone);
+      log("ForgotPassword Response: ${response.data}");
+
+      _forgotPasswordPhone = phone.trim();
+      final message =
+          response.data is Map && response.data['message'] != null
+              ? response.data['message'].toString()
+              : "Verification code sent to your phone number";
+
+      if (context.mounted) {
+        CustomSnackbar.show(
+          context,
+          message: message,
+          type: SnackbarType.success,
+        );
+      }
+      return true;
+    } catch (e, stack) {
+      log("ForgotPassword exception: $e", stackTrace: stack);
+      final errorMsg = _parseErrorMessage(e);
+      _forgotPasswordError = errorMsg;
+      if (context.mounted) {
+        CustomSnackbar.show(
+          context,
+          message: errorMsg,
+          type: SnackbarType.failure,
+        );
+      }
+      return false;
+    } finally {
+      _isForgotPasswordLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Step 2a: Resend OTP to the given phone number
+  Future<bool> resendOtp({
+    required BuildContext context,
+    required String phone,
+  }) async {
+    _isForgotPasswordLoading = true;
+    _forgotPasswordError = null;
+    notifyListeners();
+
+    try {
+      final response = await AuthServices().resendOtp(phone: phone);
+      log("ResendOtp Response: ${response.data}");
+
+      final message =
+          response.data is Map && response.data['message'] != null
+              ? response.data['message'].toString()
+              : "Verification code has been resent successfully";
+
+      if (context.mounted) {
+        CustomSnackbar.show(
+          context,
+          message: message,
+          type: SnackbarType.success,
+        );
+      }
+      return true;
+    } catch (e, stack) {
+      log("ResendOtp exception: $e", stackTrace: stack);
+      final errorMsg = _parseErrorMessage(e);
+      _forgotPasswordError = errorMsg;
+      if (context.mounted) {
+        CustomSnackbar.show(
+          context,
+          message: errorMsg,
+          type: SnackbarType.failure,
+        );
+      }
+      return false;
+    } finally {
+      _isForgotPasswordLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Step 2b: Verify OTP and receive reset token
+  Future<bool> verifyOtp({
+    required BuildContext context,
+    required String phone,
+    required String otp,
+  }) async {
+    _isForgotPasswordLoading = true;
+    _forgotPasswordError = null;
+    notifyListeners();
+
+    try {
+      final response = await AuthServices().verifyOtp(
+        phone: phone,
+        otp: otp,
+      );
+      log("VerifyOtp Response: ${response.data}");
+
+      String? token;
+      if (response.data is Map) {
+        final data = response.data as Map;
+        token = data['resetToken']?.toString() ??
+            data['data']?['resetToken']?.toString() ??
+            data['token']?.toString() ??
+            data['data']?['token']?.toString();
+      }
+
+      if (token == null || token.isEmpty) {
+        _forgotPasswordError = "Verification failed: Reset token missing in response.";
+        if (context.mounted) {
+          CustomSnackbar.show(
+            context,
+            message: _forgotPasswordError!,
+            type: SnackbarType.failure,
+          );
+        }
+        return false;
+      }
+
+      _resetToken = token;
+
+      final message =
+          response.data is Map && response.data['message'] != null
+              ? response.data['message'].toString()
+              : "OTP verified successfully";
+
+      if (context.mounted) {
+        CustomSnackbar.show(
+          context,
+          message: message,
+          type: SnackbarType.success,
+        );
+      }
+      return true;
+    } catch (e, stack) {
+      log("VerifyOtp exception: $e", stackTrace: stack);
+      final errorMsg = _parseErrorMessage(e);
+      _forgotPasswordError = errorMsg;
+      if (context.mounted) {
+        CustomSnackbar.show(
+          context,
+          message: errorMsg,
+          type: SnackbarType.failure,
+        );
+      }
+      return false;
+    } finally {
+      _isForgotPasswordLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Step 3: Set new password using resetToken
+  Future<bool> resetPassword({
+    required BuildContext context,
+    required String newPassword,
+    String? resetToken,
+  }) async {
+    final tokenToUse = resetToken ?? _resetToken;
+
+    if (tokenToUse == null || tokenToUse.isEmpty) {
+      const msg = "Reset token is missing or expired. Please verify OTP again.";
+      _forgotPasswordError = msg;
+      if (context.mounted) {
+        CustomSnackbar.show(
+          context,
+          message: msg,
+          type: SnackbarType.warning,
+        );
+      }
+      return false;
+    }
+
+    _isForgotPasswordLoading = true;
+    _forgotPasswordError = null;
+    notifyListeners();
+
+    try {
+      final response = await AuthServices().resetPassword(
+        resetToken: tokenToUse,
+        newPassword: newPassword,
+      );
+      log("ResetPassword Response: ${response.data}");
+
+      final message =
+          response.data is Map && response.data['message'] != null
+              ? response.data['message'].toString()
+              : "Password has been reset successfully. Please sign in.";
+
+      // Reset forgot password state on completion
+      _resetToken = null;
+      _forgotPasswordPhone = null;
+
+      if (context.mounted) {
+        CustomSnackbar.show(
+          context,
+          message: message,
+          type: SnackbarType.success,
+        );
+      }
+      return true;
+    } catch (e, stack) {
+      log("ResetPassword exception: $e", stackTrace: stack);
+      final errorMsg = _parseErrorMessage(e);
+      _forgotPasswordError = errorMsg;
+      if (context.mounted) {
+        CustomSnackbar.show(
+          context,
+          message: errorMsg,
+          type: SnackbarType.failure,
+        );
+      }
+      return false;
+    } finally {
+      _isForgotPasswordLoading = false;
+      notifyListeners();
+    }
   }
 }

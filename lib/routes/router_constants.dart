@@ -3,6 +3,7 @@ class RouteConstants {
   static const String userRolesScreen = 'userRoleScreen';
   static const String bottomNavScreen = 'bottomNavScreen';
   static const String loginScreen = 'loginScreen';
+  static const String forgotPasswordScreen = 'forgotPasswordScreen';
   static const String authChecker = 'authChecker';
   static const String noInternetScreen = 'noInternetScreen';
   static const String updateProfilePhoto = 'updateProfilePhoto';
@@ -55,6 +56,7 @@ class RouteConstants {
       "studentCoScholasticRatingScreen";
   static const String staffAttendanceHistoryScreen =
       "staffAttendanceHistoryScreen";
+  static const String coScholasticHistoryScreen = "coScholasticHistoryScreen";
   static const String physicalCoscholasticAssessment =
       "physicalCoscholasticAssessment";
   static const String physicalCoscholasticClassSelection =

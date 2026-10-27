@@ -53,13 +53,50 @@ void showAddMarksBottomSheet({required BuildContext context}) {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFCE7F3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      LucideIcons.clipboardCheck,
+                      color: Color(0xFFBE185D),
+                      size: 22,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
                 Text(
-                  "Add Marks",
+                  "Add Class Test Marks",
+                  textAlign: TextAlign.center,
                   style: context.textTheme.titleLarge!.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: Responsive.height * 3),
+                const SizedBox(height: 4),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFCE7F3),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFFBCFE8)),
+                  ),
+                  child: const Text(
+                    "Unit Tests • Chapter Tests • Weekly Tests",
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF9D174D),
+                    ),
+                  ),
+                ),
+                SizedBox(height: Responsive.height * 2.5),
                 CustomDropdown(
                   dropdownKey: 'standard',
                   label: 'Select Standard*',
@@ -141,7 +178,7 @@ void showAddMarksBottomSheet({required BuildContext context}) {
                 CustomTextfield(
                   iconData: Icon(LucideIcons.fileText),
                   controller: titleController,
-                  hintText: 'Title*',
+                  hintText: 'Test Name (e.g. Unit Test 1, Chapter Test)*',
                   validator: (value) {
                     return FormValidator.validateNotEmpty(value);
                   },

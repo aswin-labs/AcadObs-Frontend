@@ -200,6 +200,23 @@ class PhysicalCoscholasticProvider extends ChangeNotifier {
     fetchRecordedAssessments(isRefresh: true);
   }
 
+  void setInitialFilters({
+    int? examId,
+    String? examName,
+    int? classId,
+    String? className,
+    String? searchQuery,
+  }) {
+    _filterExamId = examId;
+    _filterExamName = examName;
+    _filterClassId = classId;
+    _filterClassName = className;
+    _filterStudentId = null;
+    _filterStudentName = null;
+    _filterSearchQuery = searchQuery ?? '';
+    fetchRecordedAssessments(isRefresh: true);
+  }
+
   // Update Co-Scholastic Assessment Grade
   // Endpoint: /teacher/updateCoScholasticAssessmentById/:id
   Future<bool> updateCoScholasticAssessmentGrade({

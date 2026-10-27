@@ -14,11 +14,25 @@ class TermExamServices {
   // fetch marks added by teacher
   Future<Response> fetchTermExamMarksAddedByTeacher({
     required int pageNo,
+    int? subjectId,
+    int? classId,
+    int? examId,
+    String? query,
   }) async {
     final teacherId = await AuthStorageService().getUserId();
-    final response = await ApiServices.get(
-      "${ApiEndpoints.termExamAddedByTeacher}?recorded_by=$teacherId&limit=${AppConstants.paginationLimit}&page=$pageNo",
-    );
+    final searchQuery = query != null ? Uri.encodeComponent(query) : '';
+    String url =
+        "${ApiEndpoints.termExamAddedByTeacher}?recorded_by=$teacherId&limit=${AppConstants.paginationLimit}&page=$pageNo&q=$searchQuery";
+    if (subjectId != null) {
+      url += "&subject_id=$subjectId";
+    }
+    if (classId != null) {
+      url += "&class_id=$classId";
+    }
+    if (examId != null) {
+      url += "&exam_id=$examId";
+    }
+    final response = await ApiServices.get(url);
     return response;
   }
 
@@ -67,9 +81,31 @@ class TermExamServices {
   }
 
   // fetch all multi teacher subject marks
-  Future<Response> fetchMultiTeacherSubjectMarks({required int pageNo}) async {
+  Future<Response> fetchMultiTeacherSubjectMarks({
+    required int pageNo,
+    int? examId,
+    int? classId,
+    int? subjectId,
+    String? searchQuery,
+  }) async {
+    final queryParams = <String>[
+      'page=$pageNo',
+      'limit=${AppConstants.paginationLimit}',
+    ];
+    if (searchQuery != null && searchQuery.isNotEmpty) {
+      queryParams.add('q=${Uri.encodeComponent(searchQuery)}');
+    }
+    if (subjectId != null) {
+      queryParams.add('subject_id=$subjectId');
+    }
+    if (classId != null) {
+      queryParams.add('class_id=$classId');
+    }
+    if (examId != null) {
+      queryParams.add('exam_id=$examId');
+    }
     final response = await ApiServices.get(
-      "${ApiEndpoints.myMultiTeacherSubjectInternalMarks}?page=$pageNo&limit=${AppConstants.paginationLimit}",
+      "${ApiEndpoints.myMultiTeacherSubjectInternalMarks}?${queryParams.join('&')}",
     );
     return response;
   }

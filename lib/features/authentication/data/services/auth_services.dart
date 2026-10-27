@@ -78,4 +78,44 @@ class AuthServices {
     final response = await ApiServices.get(ApiEndpoints.staffPermissions);
     return response;
   }
+
+  // Forgot password - Request OTP
+  Future<Response> forgetPassword({required String phone}) async {
+    final response = await ApiServices.post(ApiEndpoints.forgetPassword, {
+      "phone": phone.trim(),
+    });
+    return response;
+  }
+
+  // Resend OTP
+  Future<Response> resendOtp({required String phone}) async {
+    final response = await ApiServices.post(ApiEndpoints.resendOtp, {
+      "phone": phone.trim(),
+    });
+    return response;
+  }
+
+  // Verify OTP
+  Future<Response> verifyOtp({
+    required String phone,
+    required String otp,
+  }) async {
+    final response = await ApiServices.post(ApiEndpoints.verifyOtp, {
+      "phone": phone.trim(),
+      "otp": otp.trim(),
+    });
+    return response;
+  }
+
+  // Reset password
+  Future<Response> resetPassword({
+    required String resetToken,
+    required String newPassword,
+  }) async {
+    final response = await ApiServices.post(ApiEndpoints.resetPassword, {
+      "resetToken": resetToken.trim(),
+      "newPassword": newPassword,
+    });
+    return response;
+  }
 }

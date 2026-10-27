@@ -1,9 +1,11 @@
 import 'package:acadobs/core/utils/button_loading.dart';
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:acadobs/shared/widgets/custom_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 const Color tSecondaryTextColor = Color(0xFF757575);
@@ -313,7 +315,40 @@ class _LoginScreenState extends State<LoginScreen> {
                                   },
                                 ),
 
-                                const SizedBox(height: 24),
+                                const SizedBox(height: 8),
+
+                                // Forgot Password link
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: isLoading
+                                        ? null
+                                        : () {
+                                            context.pushNamed(
+                                              RouteConstants.forgotPasswordScreen,
+                                            );
+                                          },
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 4,
+                                        vertical: 4,
+                                      ),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: const Text(
+                                      'Forgot Password?',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: Color(0xFF00AEF0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
+                                const SizedBox(height: 18),
 
                                 // Login Button
                                 CommonButton(

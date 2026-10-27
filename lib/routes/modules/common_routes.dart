@@ -3,6 +3,7 @@ import 'package:acadobs/features/ai_insights/presentation/screens/career_insight
 import 'package:acadobs/features/ai_insights/presentation/screens/subject_insights_screen.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/presentation/screens/auth_checker.dart';
+import 'package:acadobs/features/authentication/presentation/screens/forgot_password_screen.dart';
 import 'package:acadobs/features/authentication/presentation/screens/login_screen.dart';
 import 'package:acadobs/features/chats/data/models/chat_model.dart';
 import 'package:acadobs/features/chats/presentation/screens/chat_screen.dart';
@@ -38,6 +39,13 @@ final List<GoRoute> commonRoutes = [
     path: '/login',
     name: RouteConstants.loginScreen,
     builder: (context, state) => LoginScreen(),
+  ),
+
+  // Forgot Password
+  GoRoute(
+    path: '/forgotPassword',
+    name: RouteConstants.forgotPasswordScreen,
+    builder: (context, state) => const ForgotPasswordScreen(),
   ),
 
   // Bottom Nav screen

@@ -50,7 +50,8 @@ class MusicArtsRoboticsProvider extends ChangeNotifier {
 
   // Recorded assessments from API (teacher/getCoScholasticAssessmentRecordedByMe)
   List<RecordedCoScholasticItem> _recordedAssessments = [];
-  List<RecordedCoScholasticItem> get recordedAssessments => _recordedAssessments;
+  List<RecordedCoScholasticItem> get recordedAssessments =>
+      _recordedAssessments;
 
   bool _isLoadingRecorded = false;
   bool get isLoadingRecorded => _isLoadingRecorded;
@@ -111,8 +112,8 @@ class MusicArtsRoboticsProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response =
-          await _services.getCoScholasticMusicOrArtsOrRobticsByYear(year);
+      final response = await _services
+          .getCoScholasticMusicOrArtsOrRobticsByYear(year);
 
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data['data'];
@@ -310,17 +311,12 @@ class MusicArtsRoboticsProvider extends ChangeNotifier {
           "area_id": areaEntry.key,
           "assessed_at": formattedDate,
           "assessments": [
-            {
-              "student_id": studentId,
-              "grade": areaEntry.value,
-            },
+            {"student_id": studentId, "grade": areaEntry.value},
           ],
         };
 
-        final response =
-            await _services.createStudentMusicOrArtsOrRoboticsAssessment(
-              payload: payload,
-            );
+        final response = await _services
+            .createStudentMusicOrArtsOrRoboticsAssessment(payload: payload);
 
         if (response.statusCode != 200 && response.statusCode != 201) {
           allSuccessful = false;
@@ -438,10 +434,8 @@ class MusicArtsRoboticsProvider extends ChangeNotifier {
           "assessments": areaEntry.value,
         };
 
-        final response =
-            await _services.createStudentMusicOrArtsOrRoboticsAssessment(
-              payload: payload,
-            );
+        final response = await _services
+            .createStudentMusicOrArtsOrRoboticsAssessment(payload: payload);
 
         if (response.statusCode != 200 && response.statusCode != 201) {
           allSuccessful = false;
@@ -511,6 +505,7 @@ class MusicArtsRoboticsProvider extends ChangeNotifier {
       );
 
       if (response.statusCode == 200 && response.data != null) {
+        log("Response data for recorded assessments: ${response.data}");
         final parsed = RecordedCoScholasticResponse.fromJson(response.data);
         _recordedAssessments = parsed.data;
         _recordedCurrentPage = parsed.currentPage;
@@ -530,7 +525,8 @@ class MusicArtsRoboticsProvider extends ChangeNotifier {
 
   // Load next page of recorded assessments
   Future<void> loadMoreRecordedAssessments() async {
-    if (!hasMoreRecorded || _isLoadingMoreRecorded || _isLoadingRecorded) return;
+    if (!hasMoreRecorded || _isLoadingMoreRecorded || _isLoadingRecorded)
+      return;
 
     _isLoadingMoreRecorded = true;
     notifyListeners();
@@ -611,8 +607,9 @@ class MusicArtsRoboticsProvider extends ChangeNotifier {
       }
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final index =
-            _recordedAssessments.indexWhere((item) => item.id == assessmentId);
+        final index = _recordedAssessments.indexWhere(
+          (item) => item.id == assessmentId,
+        );
         if (index != -1) {
           _recordedAssessments[index] = _recordedAssessments[index].copyWith(
             grade: grade,

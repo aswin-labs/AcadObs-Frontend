@@ -36,7 +36,8 @@ class StudentProvider extends ChangeNotifier {
   bool get hasCompetencyAssessment => _hasCompetencyAssessment;
 
   List<StudentCompetencyAssessmentItem> _competencyAssessments = [];
-  List<StudentCompetencyAssessmentItem> get competencyAssessments => _competencyAssessments;
+  List<StudentCompetencyAssessmentItem> get competencyAssessments =>
+      _competencyAssessments;
 
   List<GroupedCompetency> _groupedCompetencies = [];
   List<GroupedCompetency> get groupedCompetencies => _groupedCompetencies;
@@ -184,6 +185,7 @@ class StudentProvider extends ChangeNotifier {
       );
       if (response.statusCode == 200) {
         final data = response.data;
+        log("Fetched student details: $data");
         _individualStudent = StudentModel.fromJson(data);
       }
     } catch (e) {
@@ -388,21 +390,24 @@ class StudentProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response =
-          await StudentServices().fetchCompetencyAssessmentByStudentId(
-        studentId: studentId,
-        forStaff: forStaff,
-      );
+      final response = await StudentServices()
+          .fetchCompetencyAssessmentByStudentId(
+            studentId: studentId,
+            forStaff: forStaff,
+          );
 
       if (response.statusCode == 200 && response.data != null) {
         final dynamic rawData = response.data['data'] ?? response.data;
         if (rawData is List && rawData.isNotEmpty) {
-          _competencyAssessments =
-              StudentCompetencyAssessmentItem.fromJsonList(rawData);
-          _groupedCompetencies =
-              StudentCompetencyHelper.groupAssessments(_competencyAssessments);
-          _competencyExams =
-              StudentCompetencyHelper.getUniqueExams(_competencyAssessments);
+          _competencyAssessments = StudentCompetencyAssessmentItem.fromJsonList(
+            rawData,
+          );
+          _groupedCompetencies = StudentCompetencyHelper.groupAssessments(
+            _competencyAssessments,
+          );
+          _competencyExams = StudentCompetencyHelper.getUniqueExams(
+            _competencyAssessments,
+          );
           _hasCompetencyAssessment = _competencyAssessments.isNotEmpty;
         } else {
           _competencyAssessments = [];
@@ -437,11 +442,11 @@ class StudentProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response =
-          await StudentServices().fetchCoScholasticAssessmentByStudentId(
-        studentId: studentId,
-        forStaff: forStaff,
-      );
+      final response = await StudentServices()
+          .fetchCoScholasticAssessmentByStudentId(
+            studentId: studentId,
+            forStaff: forStaff,
+          );
 
       if (response.statusCode == 200 && response.data != null) {
         final dynamic rawData = response.data['data'] ?? response.data;
@@ -450,10 +455,9 @@ class StudentProvider extends ChangeNotifier {
               StudentCoScholasticAssessmentItem.fromJsonList(rawData);
           _groupedCoScholasticAreas =
               StudentCoScholasticHelper.groupAssessments(
-            _coScholasticAssessments,
-          );
-          _coScholasticExams =
-              StudentCoScholasticHelper.getUniqueExams(
+                _coScholasticAssessments,
+              );
+          _coScholasticExams = StudentCoScholasticHelper.getUniqueExams(
             _coScholasticAssessments,
           );
         } else {

@@ -36,11 +36,16 @@ class _StudentExamDetailScreenState extends State<StudentExamDetailScreen> {
   }
 
   void _scrollListener() {
-    final isNearBottom =
-        _scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 200;
+    if (!_scrollController.hasClients) return;
 
-    if (isNearBottom && !_marksProvider.isLoading && _marksProvider.hasMore) {
+    final position = _scrollController.position;
+    final isNearBottom =
+        position.pixels > 0 &&
+        position.pixels >= position.maxScrollExtent - 200;
+
+    if (isNearBottom &&
+        !_marksProvider.isLoading &&
+        _marksProvider.hasMoreForStudent) {
       _marksProvider.fetchStudentMarks(
         loadMore: true,
         studentId: widget.studentId,

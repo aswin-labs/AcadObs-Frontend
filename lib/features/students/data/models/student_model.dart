@@ -91,8 +91,21 @@ class StudentModel {
                 (x) => AttendanceStatusModel.fromJson(x),
               ),
             ),
-    invoiceStudents: json['InvoiceStudents'],
+    invoiceStudents: _parseInvoiceStudents(
+      json['InvoiceStudents'] ??
+          json['invoiceStudent'] ??
+          json['InvoiceStudent'] ??
+          json['invoiceStudents'] ??
+          json['invoice_students'],
+    ),
   );
+
+  static List<dynamic>? _parseInvoiceStudents(dynamic data) {
+    if (data == null) return null;
+    if (data is List) return data;
+    if (data is Map && data.isNotEmpty) return [data];
+    return null;
+  }
 
   bool get hasPendingInvoices =>
       invoiceStudents != null && invoiceStudents!.isNotEmpty;

@@ -7,6 +7,7 @@ import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_overview_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
@@ -93,13 +94,36 @@ class _CoScholasticClassAssessmentScreenState
     }).toList();
   }
 
+  void _openHistoryScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PhysicalCoscholasticOverviewScreen(
+          initialClassId: widget.classGrade.id,
+          initialClassName: widget.classGrade.classname,
+          initialExamId: _selectedExamId,
+          initialExamName: _selectedExamName,
+          title: "Co-Scholastic History",
+          isGeneralCoScholastic: true,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
-      appBar: const CommonAppBar(
+      appBar: CommonAppBar(
         title: "Co-Scholastic Assessment",
         isBackButton: true,
+        actions: [
+          IconButton(
+            icon: const Icon(LucideIcons.history, color: Colors.black87),
+            tooltip: "Assessment History",
+            onPressed: _openHistoryScreen,
+          ),
+        ],
       ),
       body: Consumer<TermExamProvider>(
         builder: (context, termExamProvider, _) {
@@ -177,6 +201,42 @@ class _CoScholasticClassAssessmentScreenState
                                     ),
                                   ),
                                 ],
+                              ),
+                            ),
+                            InkWell(
+                              borderRadius: BorderRadius.circular(10),
+                              onTap: _openHistoryScreen,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.22),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.35),
+                                  ),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      LucideIcons.history,
+                                      size: 14,
+                                      color: Colors.white,
+                                    ),
+                                    SizedBox(width: 5),
+                                    Text(
+                                      "History",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ],

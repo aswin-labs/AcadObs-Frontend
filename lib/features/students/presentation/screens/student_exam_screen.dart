@@ -26,7 +26,6 @@ class _StudentExamScreenState extends State<StudentExamScreen>
     with SingleTickerProviderStateMixin {
   late final MarksProvider _marksProvider;
   late final TermExamProvider _termExamProvider;
-  final ScrollController _scrollController = ScrollController();
   late final TabController _tabController;
 
   final ScrollController _termMarksScrollController = ScrollController();
@@ -38,26 +37,35 @@ class _StudentExamScreenState extends State<StudentExamScreen>
     _tabController = TabController(length: 2, vsync: this);
     _marksProvider = context.read<MarksProvider>();
     _termExamProvider = context.read<TermExamProvider>();
-    _termExamProvider.fetchStudentTermExamMarks(
-      studentId: widget.studentId,
-      forStaff: widget.forStaff,
-    );
-    _marksProvider.fetchStudentMarks(
-      studentId: widget.studentId,
-      forStaff: widget.forStaff,
-    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _termExamProvider.fetchStudentTermExamMarks(
+        studentId: widget.studentId,
+        forStaff: widget.forStaff,
+        forceRefresh: true,
+      );
+      _marksProvider.fetchStudentMarks(
+        studentId: widget.studentId,
+        forStaff: widget.forStaff,
+        forceRefresh: true,
+      );
+    });
+
     _termMarksScrollController.addListener(_termMarksScrollListener);
     _otherMarksScrollController.addListener(_otherMarksScrollListener);
   }
 
   void _termMarksScrollListener() {
+    if (!_termMarksScrollController.hasClients) return;
+
+    final position = _termMarksScrollController.position;
     final isNearBottom =
-        _termMarksScrollController.position.pixels >=
-        _termMarksScrollController.position.maxScrollExtent - 200;
+        position.pixels > 0 &&
+        position.pixels >= position.maxScrollExtent - 200;
 
     if (isNearBottom &&
         !_termExamProvider.isLoadingStudentMarks &&
-        _termExamProvider.hasMore) {
+        _termExamProvider.hasMoreStudentMarks) {
       _termExamProvider.fetchStudentTermExamMarks(
         loadMore: true,
         studentId: widget.studentId,
@@ -67,11 +75,16 @@ class _StudentExamScreenState extends State<StudentExamScreen>
   }
 
   void _otherMarksScrollListener() {
-    final isNearBottom =
-        _otherMarksScrollController.position.pixels >=
-        _otherMarksScrollController.position.maxScrollExtent - 200;
+    if (!_otherMarksScrollController.hasClients) return;
 
-    if (isNearBottom && !_marksProvider.isLoading && _marksProvider.hasMore) {
+    final position = _otherMarksScrollController.position;
+    final isNearBottom =
+        position.pixels > 0 &&
+        position.pixels >= position.maxScrollExtent - 200;
+
+    if (isNearBottom &&
+        !_marksProvider.isLoading &&
+        _marksProvider.hasMoreForStudent) {
       _marksProvider.fetchStudentMarks(
         loadMore: true,
         studentId: widget.studentId,
@@ -82,7 +95,6 @@ class _StudentExamScreenState extends State<StudentExamScreen>
 
   @override
   void dispose() {
-    _scrollController.dispose();
     _tabController.dispose();
     _termMarksScrollController.dispose();
     _otherMarksScrollController.dispose();
@@ -93,6 +105,7 @@ class _StudentExamScreenState extends State<StudentExamScreen>
     await context.read<MarksProvider>().fetchStudentMarks(
       studentId: widget.studentId,
       forStaff: widget.forStaff,
+      forceRefresh: true,
     );
   }
 
@@ -100,6 +113,7 @@ class _StudentExamScreenState extends State<StudentExamScreen>
     await context.read<TermExamProvider>().fetchStudentTermExamMarks(
       studentId: widget.studentId,
       forStaff: widget.forStaff,
+      forceRefresh: true,
     );
   }
 
@@ -155,7 +169,7 @@ class _StudentExamScreenState extends State<StudentExamScreen>
                       children: [
                         Icon(LucideIcons.fileText, size: 16),
                         SizedBox(width: 7),
-                        Text('Internal Marks'),
+                        Text('Other Marks'),
                       ],
                     ),
                   ),
@@ -242,7 +256,7 @@ class _TermMarksTab extends StatelessWidget {
                   Consumer<TermExamProvider>(
                     builder: (context, provider, _) {
                       return provider.isLoadingStudentMarks &&
-                              provider.hasMoreStudentMarks
+                              provider.studentMarks.isNotEmpty
                           ? const Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Center(child: CircularProgressIndicator()),
@@ -317,7 +331,8 @@ class _OtherMarksTab extends StatelessWidget {
 
                   Consumer<MarksProvider>(
                     builder: (context, provider, _) {
-                      return provider.isLoading && provider.hasMoreForStudent
+                      return provider.isLoading &&
+                              provider.studentMarks.isNotEmpty
                           ? const Padding(
                             padding: EdgeInsets.symmetric(vertical: 16),
                             child: Center(child: CircularProgressIndicator()),

@@ -230,6 +230,15 @@ class MarksProvider extends ChangeNotifier {
     }
   }
 
+  void clearStudentMarks() {
+    _studentMarks.clear();
+    _currentPageForStudent = 1;
+    _totalPagesForStudent = 1;
+    isFetchedOnceForStudent = false;
+    _isLoading = false;
+    notifyListeners();
+  }
+
   // fetch student Marks
   Future<void> fetchStudentMarks({
     required int studentId,
@@ -238,32 +247,31 @@ class MarksProvider extends ChangeNotifier {
     bool forceRefresh = false,
   }) async {
     if (_isLoading) return;
+    if (loadMore && !hasMoreForStudent) return;
+
     _isLoading = true;
+    if (!loadMore) {
+      _studentMarks.clear();
+      isFetchedOnceForStudent = false;
+      _currentPageForStudent = 1;
+      _totalPagesForStudent = 1;
+    }
+    notifyListeners();
 
     try {
-      if (loadMore) {
-        if (_currentPageForStudent >= _totalPagesForStudent) {
-          _isLoading = false;
-          return;
-        }
-        _currentPageForStudent++;
-      } else {
-        _currentPageForStudent = 1;
-        _studentMarks.clear();
-        isFetchedOnceForStudent = false;
-      }
+      final int targetPage = loadMore ? _currentPageForStudent + 1 : 1;
       final response = await MarksServices().fetchStudentMarks(
         studentId: studentId,
         forStaff: forStaff,
-        pageNo: _currentPageForStudent,
+        pageNo: targetPage,
       );
       if (response.statusCode == 200) {
         final data = response.data;
 
-        _totalPagesForStudent = data['totalPages'];
-        _currentPageForStudent = data['currentPage'];
+        _totalPagesForStudent = data['totalPages'] ?? 1;
+        _currentPageForStudent = data['currentPage'] ?? targetPage;
 
-        final List marksJson = data['Mark'];
+        final List marksJson = data['Mark'] ?? [];
 
         final List<StudentMarkModel> fetchMarks =
             marksJson

@@ -4,6 +4,12 @@ class ApiEndpoints {
   static const String login = "/public/login";
   static const String logout = "/public/logout";
 
+  // Forget password
+  static const String forgetPassword = "/public/forgot-password";
+  static const String verifyOtp = "/public/verify-otp";
+  static const String resendOtp = "/public/resend-otp";
+  static const String resetPassword = "/public/reset-password";
+
   // Refresh token
   static const String refreshToken = "/public/refresh-token";
 
@@ -232,7 +238,7 @@ class ApiEndpoints {
   static const String getAllDayTimeTableByStudentId =
       "/guardian/getAllDayTimeTableByStudentId";
 
-  // *************************TIME TABLE END***************************
+  // *************************TIME TABLE END**************************
 
   // ************************* HOMEWORKS *****************************
   static const String homeworks = "/teacher/homeworks";

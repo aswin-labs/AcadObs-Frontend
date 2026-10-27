@@ -142,7 +142,9 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Could not access ${source == ImageSource.camera ? "camera" : "gallery"}.'),
+          content: Text(
+            'Could not access ${source == ImageSource.camera ? "camera" : "gallery"}.',
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -225,6 +227,133 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
               ),
             ),
           ),
+    );
+  }
+
+  void _showInvoiceRestrictionDialog({
+    required String featureTitle,
+    String? studentName,
+    required bool forStaff,
+  }) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        final name =
+            (studentName != null && studentName.trim().isNotEmpty)
+                ? studentName.trim()
+                : "the student";
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 24,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF7ED),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: const Color(0xFFFED7AA),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: const Center(
+                    child: Icon(
+                      Icons.lock_rounded,
+                      color: Color(0xFFEA580C),
+                      size: 28,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  "Access Restricted",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "Access to $name's $featureTitle is currently restricted due to pending fee invoices.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    color: Colors.grey[700],
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.of(dialogContext).pop();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          side: BorderSide(color: Colors.grey.shade300),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          "Cancel",
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    forStaff
+                        ? SizedBox.shrink()
+                        : Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(dialogContext).pop();
+                              context.pushNamed(
+                                RouteConstants.paymentsScreen,
+                                extra: widget.studentId,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFEA580C),
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              "View Invoices",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -466,6 +595,10 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                 Consumer<StudentProvider>(
                   builder: (context, studentProvider, _) {
                     final student = studentProvider.individualStudent;
+                    final bool isInvoiceRestricted =
+                        // !widget.forStaff &&
+                        (student?.hasPendingInvoices ?? false);
+
                     return GridView.count(
                       padding: EdgeInsets.zero,
                       crossAxisCount:
@@ -480,7 +613,16 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           icon: Icons.edit_note,
                           title: "Exam",
                           color: Colors.green,
+                          isLocked: isInvoiceRestricted,
                           onTap: () {
+                            if (isInvoiceRestricted) {
+                              _showInvoiceRestrictionDialog(
+                                featureTitle: "Exam",
+                                studentName: student?.fullName,
+                                forStaff: widget.forStaff,
+                              );
+                              return;
+                            }
                             context.pushNamed(
                               RouteConstants.studentExamScreen,
                               extra: StudentScreenArgs(
@@ -608,7 +750,16 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           icon: LucideIcons.fileSpreadsheet,
                           color: const Color(0xFF0D9488),
                           title: "Progress report",
+                          isLocked: isInvoiceRestricted,
                           onTap: () {
+                            if (isInvoiceRestricted) {
+                              _showInvoiceRestrictionDialog(
+                                featureTitle: "Progress report",
+                                studentName: student?.fullName,
+                                forStaff: widget.forStaff,
+                              );
+                              return;
+                            }
                             context.pushNamed(
                               RouteConstants.studentProgressCardScreen,
                               extra: StudentScreenArgs(

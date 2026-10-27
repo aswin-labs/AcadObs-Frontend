@@ -37,6 +37,76 @@ class MyClassProvider extends ChangeNotifier {
   bool _isFetchedOnceInternal = false;
   bool get isInternalMarksFetchedOnce => _isFetchedOnceInternal;
 
+  // My Class Term Marks filters (exam, subject, search)
+  int? _filterSubjectId;
+  String? _filterSubjectName;
+  int? _filterExamId;
+  String? _filterExamName;
+  String _searchQuery = '';
+
+  int? get filterSubjectId => _filterSubjectId;
+  String? get filterSubjectName => _filterSubjectName;
+  int? get filterExamId => _filterExamId;
+  String? get filterExamName => _filterExamName;
+  String get searchQuery => _searchQuery;
+
+  int get activeFilterCount {
+    int count = 0;
+    if (_filterSubjectId != null) count++;
+    if (_filterExamId != null) count++;
+    return count;
+  }
+
+  bool get hasActiveFilters => activeFilterCount > 0 || _searchQuery.isNotEmpty;
+
+  // Apply filters
+  Future<void> applyTermExamFilters({
+    int? examId,
+    String? examName,
+    int? subjectId,
+    String? subjectName,
+  }) async {
+    _filterExamId = examId;
+    _filterExamName = examName;
+    _filterSubjectId = subjectId;
+    _filterSubjectName = subjectName;
+    await fetchMyClassTermExamMarks(forceRefresh: true);
+  }
+
+  // Clear all filters
+  Future<void> clearTermExamFilters() async {
+    _filterSubjectId = null;
+    _filterSubjectName = null;
+    _filterExamId = null;
+    _filterExamName = null;
+    _searchQuery = '';
+    await fetchMyClassTermExamMarks(forceRefresh: true);
+  }
+
+  // Search query helper
+  Future<void> searchTermExamMarks(String query) async {
+    _searchQuery = query.trim();
+    await fetchMyClassTermExamMarks(forceRefresh: true);
+  }
+
+  Future<void> clearSearchQuery() async {
+    _searchQuery = '';
+    await fetchMyClassTermExamMarks(forceRefresh: true);
+  }
+
+  // Clear single filter helpers
+  Future<void> clearSubjectFilter() async {
+    _filterSubjectId = null;
+    _filterSubjectName = null;
+    await fetchMyClassTermExamMarks(forceRefresh: true);
+  }
+
+  Future<void> clearExamFilter() async {
+    _filterExamId = null;
+    _filterExamName = null;
+    await fetchMyClassTermExamMarks(forceRefresh: true);
+  }
+
   // get my class term exam marks
   Future<void> fetchMyClassTermExamMarks({
     bool loadMore = false,
@@ -59,6 +129,9 @@ class MyClassProvider extends ChangeNotifier {
       }
       final response = await MyClassServices().fetchMyClassMarks(
         pageNo: _currentPage,
+        examId: _filterExamId,
+        subjectId: _filterSubjectId,
+        searchQuery: _searchQuery,
       );
       if (response.statusCode == 200) {
         final data = response.data;

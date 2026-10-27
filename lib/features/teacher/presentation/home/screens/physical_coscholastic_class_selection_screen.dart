@@ -5,14 +5,11 @@ import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.
 import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/physical_coscholastic_provider.dart';
-import 'package:acadobs/routes/modules/staff_routes.dart';
-import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/custom_dropdown.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
@@ -157,7 +154,7 @@ class _PhysicalCoscholasticClassSelectionScreenState
     context.read<SharedProvider>().resetClassNames();
   }
 
-  void _openStudentRating(List<StudentModel> students, int index) {
+  void _openGradePopup(List<StudentModel> students, int initialIndex) {
     if (_selectedExamId == null) {
       CustomSnackbar.show(
         context,
@@ -183,18 +180,439 @@ class _PhysicalCoscholasticClassSelectionScreenState
       );
     }
 
-    context.pushNamed(
-      RouteConstants.physicalCoscholasticStudentRating,
-      extra: PhysicalCoscholasticRatingArgs(
-        students: students,
-        initialStudentIndex: index,
-        examId: _selectedExamId!,
-        examName: _selectedExamName ?? "Term Exam",
-        standard: _selectedStandard ?? "",
-        className: _selectedClassName ?? "",
-        classId: _selectedClassId,
-        assessedAt: _assessedDate,
-      ),
+    int currentIndex = initialIndex;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final currentStudent = students[currentIndex];
+            final bool hasPrev = currentIndex > 0;
+            final bool hasNext = currentIndex < students.length - 1;
+
+            return Consumer<PhysicalCoscholasticProvider>(
+              builder: (context, provider, _) {
+                final entry = provider.getOrCreateRating(currentStudent.id);
+                final selectedGrade = entry.grade;
+                final isGraded = selectedGrade.isNotEmpty;
+
+                return Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  padding: EdgeInsets.fromLTRB(
+                    20,
+                    12,
+                    20,
+                    MediaQuery.of(bottomSheetContext).padding.bottom + 20,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Drag Handle
+                      Center(
+                        child: Container(
+                          width: 44,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 14),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+
+                      // Header Row
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF0077B6).withAlpha(24),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(
+                              Icons.fitness_center_rounded,
+                              size: 20,
+                              color: Color(0xFF0077B6),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Physical Education Grade",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                Text(
+                                  "Student ${currentIndex + 1} of ${students.length}",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.grey.shade100,
+                              padding: const EdgeInsets.all(6),
+                            ),
+                            onPressed: () => Navigator.pop(bottomSheetContext),
+                            icon: const Icon(
+                              Icons.close,
+                              size: 18,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      // Student Info Card
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 22,
+                              backgroundColor: const Color(
+                                0xFF0077B6,
+                              ).withAlpha(28),
+                              backgroundImage:
+                                  currentStudent.image != null &&
+                                          currentStudent.image!.isNotEmpty
+                                      ? NetworkImage(currentStudent.image!)
+                                      : null,
+                              child:
+                                  currentStudent.image == null ||
+                                          currentStudent.image!.isEmpty
+                                      ? Text(
+                                        currentStudent.fullName.isNotEmpty
+                                            ? currentStudent.fullName[0]
+                                                .toUpperCase()
+                                            : "S",
+                                        style: const TextStyle(
+                                          color: Color(0xFF0077B6),
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      )
+                                      : null,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    currentStudent.fullName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    "Roll: ${currentStudent.rollNumber ?? '-'} • ${_selectedStandard ?? ''} ${_selectedClassName ?? ''}",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color:
+                                    isGraded
+                                        ? _getGradeColor(
+                                          selectedGrade,
+                                        ).withAlpha(24)
+                                        : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color:
+                                      isGraded
+                                          ? _getGradeColor(selectedGrade)
+                                          : Colors.grey.shade300,
+                                ),
+                              ),
+                              child: Text(
+                                isGraded
+                                    ? "Grade $selectedGrade"
+                                    : "Not Graded",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      isGraded
+                                          ? _getGradeColor(selectedGrade)
+                                          : Colors.grey.shade600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      // Section Title
+                      const Text(
+                        "Assign Grade",
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Grade Selection Buttons (A, B, C, D)
+                      Row(
+                        children:
+                            ['A', 'B', 'C', 'D'].map((grade) {
+                              final isSelected = selectedGrade == grade;
+                              final gradeColor = _getGradeColor(grade);
+
+                              return Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(14),
+                                    onTap: () {
+                                      if (isSelected) {
+                                        provider.setStudentGrade(
+                                          currentStudent.id,
+                                          '',
+                                        );
+                                      } else {
+                                        provider.setStudentGrade(
+                                          currentStudent.id,
+                                          grade,
+                                        );
+                                      }
+                                    },
+                                    child: AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 180,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            isSelected
+                                                ? gradeColor
+                                                : Colors.grey.shade50,
+                                        borderRadius: BorderRadius.circular(14),
+                                        border: Border.all(
+                                          color:
+                                              isSelected
+                                                  ? gradeColor
+                                                  : Colors.grey.shade300,
+                                          width: isSelected ? 2 : 1,
+                                        ),
+                                        boxShadow:
+                                            isSelected
+                                                ? [
+                                                  BoxShadow(
+                                                    color: gradeColor.withAlpha(
+                                                      80,
+                                                    ),
+                                                    blurRadius: 8,
+                                                    offset: const Offset(0, 3),
+                                                  ),
+                                                ]
+                                                : null,
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            grade,
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color:
+                                                  isSelected
+                                                      ? Colors.white
+                                                      : Colors.black87,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            switch (grade) {
+                                              'A' => 'Excellent',
+                                              'B' => 'Good',
+                                              'C' => 'Satisfactory',
+                                              'D' => 'Needs Work',
+                                              _ => '',
+                                            },
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color:
+                                                  isSelected
+                                                      ? Colors.white.withAlpha(
+                                                        230,
+                                                      )
+                                                      : Colors.grey.shade600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Navigation Bar (Previous, Clear, Next / Done)
+                      Row(
+                        children: [
+                          // Previous Button
+                          IconButton(
+                            style: IconButton.styleFrom(
+                              backgroundColor:
+                                  hasPrev
+                                      ? Colors.grey.shade100
+                                      : Colors.grey.shade50,
+                              foregroundColor:
+                                  hasPrev
+                                      ? Colors.black87
+                                      : Colors.grey.shade300,
+                              padding: const EdgeInsets.all(12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color:
+                                      hasPrev
+                                          ? Colors.grey.shade300
+                                          : Colors.grey.shade200,
+                                ),
+                              ),
+                            ),
+                            onPressed:
+                                hasPrev
+                                    ? () {
+                                      setModalState(() {
+                                        currentIndex--;
+                                      });
+                                    }
+                                    : null,
+                            icon: const Icon(LucideIcons.chevronLeft, size: 20),
+                          ),
+                          const SizedBox(width: 8),
+
+                          // Clear button if graded
+                          if (isGraded) ...[
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.red.shade600,
+                                side: BorderSide(color: Colors.red.shade200),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: () {
+                                provider.setStudentGrade(currentStudent.id, '');
+                              },
+                              child: const Text("Clear"),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+
+                          // Next / Done Button
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0077B6),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 13,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
+                              ),
+                              onPressed: () {
+                                if (hasNext) {
+                                  setModalState(() {
+                                    currentIndex++;
+                                  });
+                                } else {
+                                  Navigator.pop(bottomSheetContext);
+                                }
+                              },
+                              icon: Icon(
+                                hasNext
+                                    ? LucideIcons.arrowRight
+                                    : LucideIcons.check,
+                                size: 16,
+                              ),
+                              label: Text(
+                                hasNext ? "Next Student" : "Done",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 
@@ -866,7 +1284,7 @@ class _PhysicalCoscholasticClassSelectionScreenState
                           child: InkWell(
                             borderRadius: BorderRadius.circular(14),
                             onTap:
-                                () => _openStudentRating(
+                                () => _openGradePopup(
                                   allStudents,
                                   originalIndex >= 0 ? originalIndex : 0,
                                 ),
@@ -936,7 +1354,7 @@ class _PhysicalCoscholasticClassSelectionScreenState
                                   if (isGraded)
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
+                                        horizontal: 10,
                                         vertical: 6,
                                       ),
                                       decoration: BoxDecoration(
@@ -948,41 +1366,61 @@ class _PhysicalCoscholasticClassSelectionScreenState
                                           color: _getGradeColor(entry.grade),
                                         ),
                                       ),
-                                      child: Text(
-                                        "Grade ${entry.grade}",
-                                        style: TextStyle(
-                                          fontSize: 12.5,
-                                          fontWeight: FontWeight.bold,
-                                          color: _getGradeColor(entry.grade),
-                                        ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "Grade ${entry.grade}",
+                                            style: TextStyle(
+                                              fontSize: 12.5,
+                                              fontWeight: FontWeight.bold,
+                                              color: _getGradeColor(
+                                                entry.grade,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                            LucideIcons.pencil,
+                                            size: 11,
+                                            color: _getGradeColor(entry.grade),
+                                          ),
+                                        ],
                                       ),
                                     )
                                   else
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 10,
-                                        vertical: 5,
+                                        vertical: 6,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.grey.shade100,
+                                        color: const Color(
+                                          0xFF0077B6,
+                                        ).withAlpha(16),
                                         borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: const Color(
+                                            0xFF0077B6,
+                                          ).withAlpha(60),
+                                        ),
                                       ),
-                                      child: Row(
+                                      child: const Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
+                                          Icon(
+                                            LucideIcons.plus,
+                                            size: 13,
+                                            color: Color(0xFF0077B6),
+                                          ),
+                                          SizedBox(width: 4),
                                           Text(
                                             "Add Grade",
                                             style: TextStyle(
-                                              fontSize: 11.5,
+                                              fontSize: 12,
                                               fontWeight: FontWeight.w600,
-                                              color: Colors.grey.shade700,
+                                              color: Color(0xFF0077B6),
                                             ),
-                                          ),
-                                          const SizedBox(width: 3),
-                                          const Icon(
-                                            LucideIcons.chevronRight,
-                                            size: 14,
-                                            color: Colors.grey,
                                           ),
                                         ],
                                       ),

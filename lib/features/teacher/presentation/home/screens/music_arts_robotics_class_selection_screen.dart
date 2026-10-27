@@ -6,7 +6,6 @@ import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:acadobs/features/teacher/data/models/music_arts_robotics_model.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/music_arts_robotics_provider.dart';
-import 'package:acadobs/routes/modules/staff_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/providers/dropdown_provider.dart';
 import 'package:acadobs/shared/providers/shared_provider.dart';
@@ -39,7 +38,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
   String? _selectedExamName;
   DateTime _assessedDate = DateTime.now();
   String _searchQuery = '';
-  Set<int> _selectedAreaIds = {};
+  int? _selectedAreaId;
 
   late DropdownProvider dropdownProvider;
   late StudentProvider studentProvider;
@@ -47,15 +46,17 @@ class _MusicArtsRoboticsClassSelectionScreenState
 
   static const Color _primaryThemeColor = Color(0xFF7B2CBF);
 
-  List<MusicArtsRoboticsAreaItem> _getEffectiveSelectedAreas(
+  MusicArtsRoboticsAreaItem? _getSelectedArea(
     List<MusicArtsRoboticsAreaItem> areas,
   ) {
-    if (areas.isEmpty) return [];
-    if (areas.length == 1) return areas;
-    final selected =
-        areas.where((a) => _selectedAreaIds.contains(a.id)).toList();
-    return selected.isNotEmpty ? selected : areas;
+    if (areas.isEmpty) return null;
+    if (_selectedAreaId != null) {
+      final match = areas.where((a) => a.id == _selectedAreaId).firstOrNull;
+      if (match != null) return match;
+    }
+    return areas.first;
   }
+
 
   @override
   void initState() {
@@ -112,6 +113,28 @@ class _MusicArtsRoboticsClassSelectionScreenState
     return LucideIcons.sparkles;
   }
 
+  Color _getAreaAccentColor(String areaName) {
+    final lower = areaName.toLowerCase();
+    if (lower.contains('art')) {
+      return const Color(0xFFE84393);
+    } else if (lower.contains('music')) {
+      return const Color(0xFF0984E3);
+    } else if (lower.contains('robot')) {
+      return const Color(0xFF00B894);
+    }
+    return _primaryThemeColor;
+  }
+
+  Color _getGradeColor(String grade) {
+    return switch (grade.toUpperCase().trim()) {
+      'A' => const Color(0xFF2E7D32),
+      'B' => const Color(0xFF1565C0),
+      'C' => const Color(0xFFE65100),
+      'D' => const Color(0xFFC62828),
+      _ => _primaryThemeColor,
+    };
+  }
+
   List<StudentModel> _getFilteredStudents(List<StudentModel> students) {
     if (_searchQuery.trim().isEmpty) return students;
     final query = _searchQuery.toLowerCase().trim();
@@ -155,7 +178,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
       _selectedClassId = null;
       _selectedClassName = null;
       _searchQuery = '';
-      _selectedAreaIds.clear();
+      _selectedAreaId = null;
       _searchController.clear();
     });
 
@@ -165,7 +188,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
     context.read<SharedProvider>().resetClassNames();
   }
 
-  void _openStudentRating(List<StudentModel> students, int index) {
+  void _openGradePopup(List<StudentModel> students, int initialIndex) {
     if (_selectedExamId == null) {
       CustomSnackbar.show(
         context,
@@ -175,46 +198,482 @@ class _MusicArtsRoboticsClassSelectionScreenState
       return;
     }
 
-    final provider = context.read<MusicArtsRoboticsProvider>();
-    provider.setSelectedExam(
+    final musicProvider = context.read<MusicArtsRoboticsProvider>();
+    final activeArea = _getSelectedArea(musicProvider.areas);
+    if (activeArea == null) {
+      CustomSnackbar.show(
+        context,
+        message: "No co-scholastic area available for this class",
+        type: SnackbarType.warning,
+      );
+      return;
+    }
+
+    musicProvider.setSelectedExam(
       _selectedExamId!,
       _selectedExamName ?? "Term Exam",
     );
-    provider.setAssessedDate(_assessedDate);
+    musicProvider.setAssessedDate(_assessedDate);
     if (_selectedClassId != null &&
         _selectedStandard != null &&
         _selectedClassName != null) {
-      provider.setSelectedClass(
+      musicProvider.setSelectedClass(
         standard: _selectedStandard!,
         classId: _selectedClassId!,
         className: _selectedClassName!,
       );
     }
 
-    final activeAreas = _getEffectiveSelectedAreas(provider.areas);
+    int currentIndex = initialIndex;
 
-    context.pushNamed(
-      RouteConstants.musicArtsRoboticsCoscholasticStudentRating,
-      extra: MusicArtsRoboticsRatingArgs(
-        students: students,
-        initialStudentIndex: index,
-        examId: _selectedExamId!,
-        examName: _selectedExamName ?? "Term Exam",
-        standard: _selectedStandard ?? "",
-        className: _selectedClassName ?? "",
-        classId: _selectedClassId,
-        assessedAt: _assessedDate,
-        areas: activeAreas,
-      ),
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final currentStudent = students[currentIndex];
+            final bool hasPrev = currentIndex > 0;
+            final bool hasNext = currentIndex < students.length - 1;
+
+            return Consumer<MusicArtsRoboticsProvider>(
+              builder: (context, provider, _) {
+                final currentArea =
+                    _getSelectedArea(provider.areas) ?? activeArea;
+                final entry = provider.getOrCreateRating(currentStudent.id);
+                final selectedGrade = entry.getGrade(currentArea.id);
+                final isGraded = selectedGrade.isNotEmpty;
+                final areaAccent = _getAreaAccentColor(currentArea.name);
+
+                return Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
+                  ),
+                  padding: EdgeInsets.fromLTRB(
+                    20,
+                    12,
+                    20,
+                    MediaQuery.of(bottomSheetContext).padding.bottom + 20,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Drag Handle
+                      Center(
+                        child: Container(
+                          width: 44,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 14),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+
+                      // Header Row
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: areaAccent.withAlpha(24),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              _getAreaIcon(currentArea.name),
+                              size: 20,
+                              color: areaAccent,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "${currentArea.name} Grade",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                Text(
+                                  "Student ${currentIndex + 1} of ${students.length}",
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            style: IconButton.styleFrom(
+                              backgroundColor: Colors.grey.shade100,
+                              padding: const EdgeInsets.all(6),
+                            ),
+                            onPressed: () => Navigator.pop(bottomSheetContext),
+                            icon: const Icon(
+                              Icons.close,
+                              size: 18,
+                              color: Colors.black54,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 14),
+
+                      // Student Info Card
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: Colors.grey.shade200),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 22,
+                              backgroundColor: _primaryThemeColor.withAlpha(28),
+                              backgroundImage:
+                                  currentStudent.image != null &&
+                                          currentStudent.image!.isNotEmpty
+                                      ? NetworkImage(currentStudent.image!)
+                                      : null,
+                              child:
+                                  currentStudent.image == null ||
+                                          currentStudent.image!.isEmpty
+                                      ? Text(
+                                        currentStudent.fullName.isNotEmpty
+                                            ? currentStudent.fullName[0]
+                                                .toUpperCase()
+                                            : "S",
+                                        style: const TextStyle(
+                                          color: _primaryThemeColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      )
+                                      : null,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    currentStudent.fullName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    "Roll: ${currentStudent.rollNumber ?? '-'} • ${_selectedStandard ?? ''} ${_selectedClassName ?? ''}",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color:
+                                    isGraded
+                                        ? _getGradeColor(
+                                          selectedGrade,
+                                        ).withAlpha(24)
+                                        : Colors.grey.shade100,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color:
+                                      isGraded
+                                          ? _getGradeColor(selectedGrade)
+                                          : Colors.grey.shade300,
+                                ),
+                              ),
+                              child: Text(
+                                isGraded
+                                    ? "Grade $selectedGrade"
+                                    : "Not Graded",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      isGraded
+                                          ? _getGradeColor(selectedGrade)
+                                          : Colors.grey.shade600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      // Section Title
+                      Text(
+                        "Assign ${currentArea.name} Grade",
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Grade Selection Buttons (A, B, C, D)
+                      Row(
+                        children:
+                            ['A', 'B', 'C', 'D'].map((grade) {
+                              final isSelected = selectedGrade == grade;
+                              final gradeColor = _getGradeColor(grade);
+
+                              return Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 4,
+                                  ),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(14),
+                                    onTap: () {
+                                      if (isSelected) {
+                                        provider.setStudentAreaGrade(
+                                          currentStudent.id,
+                                          currentArea.id,
+                                          '',
+                                        );
+                                      } else {
+                                        provider.setStudentAreaGrade(
+                                          currentStudent.id,
+                                          currentArea.id,
+                                          grade,
+                                        );
+                                      }
+                                    },
+                                    child: AnimatedContainer(
+                                      duration: const Duration(
+                                        milliseconds: 180,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            isSelected
+                                                ? gradeColor
+                                                : Colors.grey.shade50,
+                                        borderRadius: BorderRadius.circular(14),
+                                        border: Border.all(
+                                          color:
+                                              isSelected
+                                                  ? gradeColor
+                                                  : Colors.grey.shade300,
+                                          width: isSelected ? 2 : 1,
+                                        ),
+                                        boxShadow:
+                                            isSelected
+                                                ? [
+                                                  BoxShadow(
+                                                    color: gradeColor.withAlpha(
+                                                      80,
+                                                    ),
+                                                    blurRadius: 8,
+                                                    offset: const Offset(0, 3),
+                                                  ),
+                                                ]
+                                                : null,
+                                      ),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            grade,
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color:
+                                                  isSelected
+                                                      ? Colors.white
+                                                      : Colors.black87,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            switch (grade) {
+                                              'A' => 'Excellent',
+                                              'B' => 'Good',
+                                              'C' => 'Satisfactory',
+                                              'D' => 'Needs Work',
+                                              _ => '',
+                                            },
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color:
+                                                  isSelected
+                                                      ? Colors.white.withAlpha(
+                                                        230,
+                                                      )
+                                                      : Colors.grey.shade600,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Navigation Bar (Previous, Clear, Next / Done)
+                      Row(
+                        children: [
+                          // Previous Button
+                          IconButton(
+                            style: IconButton.styleFrom(
+                              backgroundColor:
+                                  hasPrev
+                                      ? Colors.grey.shade100
+                                      : Colors.grey.shade50,
+                              foregroundColor:
+                                  hasPrev
+                                      ? Colors.black87
+                                      : Colors.grey.shade300,
+                              padding: const EdgeInsets.all(12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                side: BorderSide(
+                                  color:
+                                      hasPrev
+                                          ? Colors.grey.shade300
+                                          : Colors.grey.shade200,
+                                ),
+                              ),
+                            ),
+                            onPressed:
+                                hasPrev
+                                    ? () {
+                                      setModalState(() {
+                                        currentIndex--;
+                                      });
+                                    }
+                                    : null,
+                            icon: const Icon(LucideIcons.chevronLeft, size: 20),
+                          ),
+                          const SizedBox(width: 8),
+
+                          // Clear button if graded
+                          if (isGraded) ...[
+                            OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.red.shade600,
+                                side: BorderSide(color: Colors.red.shade200),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 14,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              onPressed: () {
+                                provider.setStudentAreaGrade(
+                                  currentStudent.id,
+                                  currentArea.id,
+                                  '',
+                                );
+                              },
+                              child: const Text("Clear"),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+
+                          // Next / Done Button
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: _primaryThemeColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 13,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                elevation: 0,
+                              ),
+                              onPressed: () {
+                                if (hasNext) {
+                                  setModalState(() {
+                                    currentIndex++;
+                                  });
+                                } else {
+                                  Navigator.pop(bottomSheetContext);
+                                }
+                              },
+                              icon: Icon(
+                                hasNext
+                                    ? LucideIcons.chevronRight
+                                    : LucideIcons.checkCheck,
+                                size: 18,
+                              ),
+                              label: Text(
+                                hasNext ? "Next Student" : "Done",
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 
   Future<void> _submitAllAssessments(List<StudentModel> allStudents) async {
     final provider = context.read<MusicArtsRoboticsProvider>();
-    final activeAreas = _getEffectiveSelectedAreas(provider.areas);
+    final activeArea = _getSelectedArea(provider.areas);
+    final targetAreas = activeArea != null ? [activeArea] : provider.areas;
     final gradedCount = provider.getGradedStudentsCount(
       allStudents,
-      targetAreas: activeAreas,
+      targetAreas: targetAreas,
     );
 
     if (gradedCount == 0) {
@@ -359,7 +818,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
                             onChanged: (standard) {
                               setState(() {
                                 _selectedStandard = standard;
-                                _selectedAreaIds.clear();
+                                _selectedAreaId = null;
                               });
                               _formKey.currentState?.validate();
 
@@ -638,11 +1097,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
                         }
 
                         if (provider.areas.isNotEmpty) {
-                          final activeAreas = _getEffectiveSelectedAreas(
-                            provider.areas,
-                          );
-                          final bool isAllSelected =
-                              activeAreas.length == provider.areas.length;
+                          final activeArea = _getSelectedArea(provider.areas);
 
                           return Padding(
                             padding: const EdgeInsets.only(top: 14),
@@ -652,48 +1107,49 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                 Row(
                                   children: [
                                     Icon(
-                                      provider.areas.length > 1
-                                          ? LucideIcons.checkSquare
-                                          : LucideIcons.sparkles,
+                                      LucideIcons.sparkles,
                                       size: 13,
                                       color: _primaryThemeColor,
                                     ),
                                     const SizedBox(width: 6),
-                                    Text(
-                                      provider.areas.length > 1
-                                          ? "Select Assessment Area(s):"
-                                          : "Assessment Area for Class ${_selectedStandard ?? ''}:",
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.black87,
+                                    Expanded(
+                                      child: Text(
+                                        provider.areas.length > 1
+                                            ? "Select Assessment Area:"
+                                            : "Assessment Area for Class ${_selectedStandard ?? ''}:",
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
                                       ),
                                     ),
-                                    if (provider.areas.length > 1) ...[
-                                      const Spacer(),
+                                    if (activeArea != null &&
+                                        provider.areas.length > 1) ...[
+                                      const SizedBox(width: 8),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 7,
+                                          horizontal: 8,
                                           vertical: 2,
                                         ),
                                         decoration: BoxDecoration(
-                                          color: _primaryThemeColor.withAlpha(
-                                            20,
-                                          ),
+                                          color: _getAreaAccentColor(
+                                            activeArea.name,
+                                          ).withAlpha(20),
                                           borderRadius: BorderRadius.circular(
                                             6,
                                           ),
                                         ),
                                         child: Text(
-                                          isAllSelected
-                                              ? (provider.areas.length == 2
-                                                  ? "Both Selected"
-                                                  : "All Selected")
-                                              : "${activeAreas.length} of ${provider.areas.length} Selected",
-                                          style: const TextStyle(
+                                          activeArea.name,
+                                          style: TextStyle(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
-                                            color: _primaryThemeColor,
+                                            color: _getAreaAccentColor(
+                                              activeArea.name,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -702,146 +1158,17 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                 ),
                                 const SizedBox(height: 8),
 
-                                // If only 1 area is returned, no selection is needed
-                                if (provider.areas.length <= 1)
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 6,
-                                    children:
-                                        provider.areas.map((area) {
-                                          return Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 5,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: _primaryThemeColor
-                                                  .withAlpha(16),
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                              border: Border.all(
-                                                color: _primaryThemeColor
-                                                    .withAlpha(50),
-                                              ),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  _getAreaIcon(area.name),
-                                                  size: 14,
-                                                  color: _primaryThemeColor,
-                                                ),
-                                                const SizedBox(width: 6),
-                                                Text(
-                                                  area.name,
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: _primaryThemeColor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }).toList(),
-                                  )
-                                else
-                                  // When 2 or more areas are returned, provide options to select 1 or both
-                                  Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: [
-                                      // "Both / All" selection option
-                                      InkWell(
-                                        borderRadius: BorderRadius.circular(10),
-                                        onTap: () {
-                                          setState(() {
-                                            _selectedAreaIds =
-                                                provider.areas
-                                                    .map((a) => a.id)
-                                                    .toSet();
-                                          });
-                                        },
-                                        child: AnimatedContainer(
-                                          duration: const Duration(
-                                            milliseconds: 180,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 7,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color:
-                                                isAllSelected
-                                                    ? _primaryThemeColor
-                                                    : Colors.grey.shade100,
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                            border: Border.all(
-                                              color:
-                                                  isAllSelected
-                                                      ? _primaryThemeColor
-                                                      : Colors.grey.shade300,
-                                              width: isAllSelected ? 1.5 : 1,
-                                            ),
-                                            boxShadow:
-                                                isAllSelected
-                                                    ? [
-                                                      BoxShadow(
-                                                        color:
-                                                            _primaryThemeColor
-                                                                .withAlpha(45),
-                                                        blurRadius: 6,
-                                                        offset: const Offset(
-                                                          0,
-                                                          2,
-                                                        ),
-                                                      ),
-                                                    ]
-                                                    : null,
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                isAllSelected
-                                                    ? LucideIcons.checkCheck
-                                                    : LucideIcons.layers,
-                                                size: 14,
-                                                color:
-                                                    isAllSelected
-                                                        ? Colors.white
-                                                        : Colors.grey.shade700,
-                                              ),
-                                              const SizedBox(width: 6),
-                                              Text(
-                                                provider.areas.length == 2
-                                                    ? "Both (${provider.areas.map((a) => a.name).join(' & ')})"
-                                                    : "All Areas (${provider.areas.length})",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                  color:
-                                                      isAllSelected
-                                                          ? Colors.white
-                                                          : Colors.black87,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-
-                                      // Individual Area options (select one or toggle)
-                                      ...provider.areas.map((area) {
-                                        final isSingleActive =
-                                            !isAllSelected &&
-                                            _selectedAreaIds.contains(area.id);
-                                        final isPartOfAll =
-                                            isAllSelected &&
-                                            _selectedAreaIds.contains(area.id);
+                                // Area selection chips (Single select: Music OR Arts, not both)
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 8,
+                                  children:
+                                      provider.areas.map((area) {
+                                        final isSelected =
+                                            activeArea?.id == area.id;
+                                        final areaColor = _getAreaAccentColor(
+                                          area.name,
+                                        );
 
                                         return InkWell(
                                           borderRadius: BorderRadius.circular(
@@ -849,32 +1176,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                           ),
                                           onTap: () {
                                             setState(() {
-                                              if (isAllSelected) {
-                                                // From all selected, tapping an individual area isolates it
-                                                _selectedAreaIds = {area.id};
-                                              } else if (_selectedAreaIds
-                                                  .contains(area.id)) {
-                                                if (_selectedAreaIds.length >
-                                                    1) {
-                                                  _selectedAreaIds.remove(
-                                                    area.id,
-                                                  );
-                                                } else {
-                                                  // Tapping the only selected area toggles back to all/both
-                                                  _selectedAreaIds =
-                                                      provider.areas
-                                                          .map((a) => a.id)
-                                                          .toSet();
-                                                }
-                                              } else {
-                                                // When 2 areas exist, tapping the other area switches to it
-                                                if (provider.areas.length ==
-                                                    2) {
-                                                  _selectedAreaIds = {area.id};
-                                                } else {
-                                                  _selectedAreaIds.add(area.id);
-                                                }
-                                              }
+                                              _selectedAreaId = area.id;
                                             });
                                           },
                                           child: AnimatedContainer(
@@ -882,38 +1184,29 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                               milliseconds: 180,
                                             ),
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 7,
+                                              horizontal: 14,
+                                              vertical: 8,
                                             ),
                                             decoration: BoxDecoration(
                                               color:
-                                                  isSingleActive
-                                                      ? _primaryThemeColor
-                                                      : (isPartOfAll
-                                                          ? _primaryThemeColor
-                                                              .withAlpha(20)
-                                                          : Colors
-                                                              .grey
-                                                              .shade100),
+                                                  isSelected
+                                                      ? areaColor
+                                                      : Colors.grey.shade100,
                                               borderRadius:
                                                   BorderRadius.circular(10),
                                               border: Border.all(
                                                 color:
-                                                    (isSingleActive ||
-                                                            isPartOfAll)
-                                                        ? _primaryThemeColor
+                                                    isSelected
+                                                        ? areaColor
                                                         : Colors.grey.shade300,
-                                                width: isSingleActive ? 1.5 : 1,
+                                                width: isSelected ? 1.5 : 1,
                                               ),
                                               boxShadow:
-                                                  isSingleActive
+                                                  isSelected
                                                       ? [
                                                         BoxShadow(
-                                                          color:
-                                                              _primaryThemeColor
-                                                                  .withAlpha(
-                                                                    40,
-                                                                  ),
+                                                          color: areaColor
+                                                              .withAlpha(50),
                                                           blurRadius: 6,
                                                           offset: const Offset(
                                                             0,
@@ -927,44 +1220,35 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Icon(
-                                                  isSingleActive
+                                                  isSelected
                                                       ? LucideIcons.check
                                                       : _getAreaIcon(area.name),
-                                                  size: 14,
+                                                  size: 15,
                                                   color:
-                                                      isSingleActive
+                                                      isSelected
                                                           ? Colors.white
-                                                          : ((isSingleActive ||
-                                                                  isPartOfAll)
-                                                              ? _primaryThemeColor
-                                                              : Colors
-                                                                  .grey
-                                                                  .shade600),
+                                                          : Colors
+                                                              .grey
+                                                              .shade700,
                                                 ),
                                                 const SizedBox(width: 6),
                                                 Text(
                                                   area.name,
                                                   style: TextStyle(
-                                                    fontSize: 12,
+                                                    fontSize: 12.5,
                                                     fontWeight: FontWeight.bold,
                                                     color:
-                                                        isSingleActive
+                                                        isSelected
                                                             ? Colors.white
-                                                            : ((isSingleActive ||
-                                                                    isPartOfAll)
-                                                                ? _primaryThemeColor
-                                                                : Colors
-                                                                    .grey
-                                                                    .shade800),
+                                                            : Colors.black87,
                                                   ),
                                                 ),
                                               ],
                                             ),
                                           ),
                                         );
-                                      }),
-                                    ],
-                                  ),
+                                      }).toList(),
+                                ),
                               ],
                             ),
                           );
@@ -1005,12 +1289,12 @@ class _MusicArtsRoboticsClassSelectionScreenState
                 return Consumer<MusicArtsRoboticsProvider>(
                   builder: (context, provider, _) {
                     final allStudents = studentProv.students;
-                    final activeAreas = _getEffectiveSelectedAreas(
-                      provider.areas,
-                    );
+                    final activeArea = _getSelectedArea(provider.areas);
+                    final targetAreas =
+                        activeArea != null ? [activeArea] : provider.areas;
                     final gradedCount = provider.getGradedStudentsCount(
                       allStudents,
-                      targetAreas: activeAreas,
+                      targetAreas: targetAreas,
                     );
                     final total = allStudents.length;
 
@@ -1039,8 +1323,8 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    activeAreas.length == 1
-                                        ? "$gradedCount of $total Graded (${activeAreas.first.name})"
+                                    activeArea != null
+                                        ? "$gradedCount of $total Graded (${activeArea.name})"
                                         : "$gradedCount of $total Students Graded",
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -1088,20 +1372,25 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                   ),
                                 ),
                                 onSelected: (grade) {
+                                  if (activeArea == null) {
+                                    CustomSnackbar.show(
+                                      context,
+                                      message: "No area selected",
+                                      type: SnackbarType.warning,
+                                    );
+                                    return;
+                                  }
                                   final ids =
                                       allStudents.map((s) => s.id).toList();
-                                  provider.quickFillAllAreasGrades(
+                                  provider.quickFillAreaGrades(
                                     ids,
+                                    activeArea.id,
                                     grade,
-                                    targetAreaIds:
-                                        activeAreas.map((a) => a.id).toList(),
                                   );
                                   CustomSnackbar.show(
                                     context,
                                     message:
-                                        activeAreas.length == 1
-                                            ? "Applied Grade $grade for ${activeAreas.first.name} to all students"
-                                            : "Applied Grade $grade across selected areas to all students",
+                                        "Applied Grade $grade for ${activeArea.name} to all students",
                                     type: SnackbarType.success,
                                   );
                                 },
@@ -1279,7 +1568,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
 
                 return Consumer<MusicArtsRoboticsProvider>(
                   builder: (context, provider, _) {
-                    final areas = _getEffectiveSelectedAreas(provider.areas);
+                    final activeArea = _getSelectedArea(provider.areas);
 
                     return ListView.separated(
                       shrinkWrap: true,
@@ -1293,15 +1582,11 @@ class _MusicArtsRoboticsClassSelectionScreenState
                           (s) => s.id == student.id,
                         );
                         final entry = provider.studentRatings[student.id];
-                        final gradedInActiveAreas =
-                            areas
-                                .where((a) => entry?.hasGrade(a.id) ?? false)
-                                .length;
-                        final hasAny = gradedInActiveAreas > 0;
-                        final isComplete =
-                            entry != null &&
-                            areas.isNotEmpty &&
-                            areas.every((a) => entry.hasGrade(a.id));
+                        final studentGrade =
+                            activeArea != null
+                                ? (entry?.getGrade(activeArea.id) ?? '')
+                                : '';
+                        final isGraded = studentGrade.isNotEmpty;
 
                         return Material(
                           color: Colors.white,
@@ -1311,7 +1596,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
                           child: InkWell(
                             borderRadius: BorderRadius.circular(14),
                             onTap:
-                                () => _openStudentRating(
+                                () => _openGradePopup(
                                   allStudents,
                                   originalIndex >= 0 ? originalIndex : 0,
                                 ),
@@ -1377,11 +1662,9 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                                 color: Colors.grey.shade600,
                                               ),
                                             ),
-                                            if (hasAny && areas.isNotEmpty)
+                                            if (activeArea != null)
                                               Text(
-                                                areas.length == 1
-                                                    ? "• Grade: ${entry?.getGrade(areas.first.id) ?? '-'}"
-                                                    : "• $gradedInActiveAreas/${areas.length} areas",
+                                                "• ${activeArea.name}",
                                                 style: TextStyle(
                                                   fontSize: 11.5,
                                                   color: Colors.grey.shade500,
@@ -1395,17 +1678,19 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                   const SizedBox(width: 8),
 
                                   // Grade Status Pill
-                                  if (isComplete)
+                                  if (isGraded)
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 10,
                                         vertical: 5,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: Colors.green.shade50,
+                                        color: _getGradeColor(
+                                          studentGrade,
+                                        ).withAlpha(24),
                                         borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
-                                          color: Colors.green.shade300,
+                                          color: _getGradeColor(studentGrade),
                                         ),
                                       ),
                                       child: Row(
@@ -1414,42 +1699,20 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                           Icon(
                                             LucideIcons.checkCheck,
                                             size: 13,
-                                            color: Colors.green.shade700,
+                                            color: _getGradeColor(studentGrade),
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
-                                            areas.length == 1
-                                                ? "Grade ${entry.getGrade(areas.first.id)}"
-                                                : "All Graded",
+                                            "Grade $studentGrade",
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.green.shade800,
+                                              color: _getGradeColor(
+                                                studentGrade,
+                                              ),
                                             ),
                                           ),
                                         ],
-                                      ),
-                                    )
-                                  else if (hasAny)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 5,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.orange.shade50,
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: Colors.orange.shade300,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        "$gradedInActiveAreas/${areas.length} Graded",
-                                        style: TextStyle(
-                                          fontSize: 11.5,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.orange.shade800,
-                                        ),
                                       ),
                                     )
                                   else
@@ -1461,23 +1724,26 @@ class _MusicArtsRoboticsClassSelectionScreenState
                                       decoration: BoxDecoration(
                                         color: Colors.grey.shade100,
                                         borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.grey.shade300,
+                                        ),
                                       ),
-                                      child: Row(
+                                      child: const Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
+                                          Icon(
+                                            LucideIcons.plus,
+                                            size: 13,
+                                            color: _primaryThemeColor,
+                                          ),
+                                          SizedBox(width: 4),
                                           Text(
                                             "Add Grade",
                                             style: TextStyle(
                                               fontSize: 11.5,
                                               fontWeight: FontWeight.w600,
-                                              color: Colors.grey.shade700,
+                                              color: _primaryThemeColor,
                                             ),
-                                          ),
-                                          const SizedBox(width: 3),
-                                          const Icon(
-                                            LucideIcons.chevronRight,
-                                            size: 14,
-                                            color: Colors.grey,
                                           ),
                                         ],
                                       ),
@@ -1505,10 +1771,12 @@ class _MusicArtsRoboticsClassSelectionScreenState
           return Consumer<MusicArtsRoboticsProvider>(
             builder: (context, provider, _) {
               final allStudents = studentProv.students;
-              final activeAreas = _getEffectiveSelectedAreas(provider.areas);
+              final activeArea = _getSelectedArea(provider.areas);
+              final targetAreas =
+                  activeArea != null ? [activeArea] : provider.areas;
               final gradedCount = provider.getGradedStudentsCount(
                 allStudents,
-                targetAreas: activeAreas,
+                targetAreas: targetAreas,
               );
 
               if (gradedCount == 0) return const SizedBox.shrink();
@@ -1540,7 +1808,9 @@ class _MusicArtsRoboticsClassSelectionScreenState
                     onPressed: () => _submitAllAssessments(allStudents),
                     icon: const Icon(LucideIcons.checkCheck, size: 18),
                     label: Text(
-                      "Submit Assessments ($gradedCount Graded)",
+                      activeArea != null
+                          ? "Submit ${activeArea.name} Assessments ($gradedCount Graded)"
+                          : "Submit Assessments ($gradedCount Graded)",
                       style: const TextStyle(
                         fontSize: 14.5,
                         fontWeight: FontWeight.bold,

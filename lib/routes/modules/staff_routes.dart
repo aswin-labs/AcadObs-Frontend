@@ -638,9 +638,41 @@ List<GoRoute> staffRoutes = [
     },
   ),
   GoRoute(
+    path: '/coScholasticHistory',
+    name: RouteConstants.coScholasticHistoryScreen,
+    builder: (context, state) {
+      final extra = state.extra;
+      if (extra is Map<String, dynamic>) {
+        return PhysicalCoscholasticOverviewScreen(
+          initialClassId: extra['classId'] as int?,
+          initialClassName: extra['className'] as String?,
+          initialExamId: extra['examId'] as int?,
+          initialExamName: extra['examName'] as String?,
+          title: extra['title'] as String?,
+          isGeneralCoScholastic: extra['isGeneralCoScholastic'] as bool? ?? true,
+        );
+      }
+      return const PhysicalCoscholasticOverviewScreen(
+        title: "Co-Scholastic History",
+        isGeneralCoScholastic: true,
+      );
+    },
+  ),
+  GoRoute(
     path: '/physicalCoscholasticAssessment',
     name: RouteConstants.physicalCoscholasticAssessment,
     builder: (context, state) {
+      final extra = state.extra;
+      if (extra is Map<String, dynamic>) {
+        return PhysicalCoscholasticOverviewScreen(
+          initialClassId: extra['classId'] as int?,
+          initialClassName: extra['className'] as String?,
+          initialExamId: extra['examId'] as int?,
+          initialExamName: extra['examName'] as String?,
+          title: extra['title'] as String?,
+          isGeneralCoScholastic: extra['isGeneralCoScholastic'] as bool? ?? false,
+        );
+      }
       return const PhysicalCoscholasticOverviewScreen();
     },
   ),
