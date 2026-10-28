@@ -285,4 +285,7 @@ class ApiEndpoints {
   static const String getLeaveTypesForTeacher = "/teacher/getLeaveTypes";
   static const String getLeaveTypesForGuardian = "/guardian/getLeaveTypes";
   // ************************* LEAVE REQUESTS END************************
+
+  // ************************* PARENT NOTES *****************************
+  static const String parentNotes = "/teacher/parentNotes";
 }

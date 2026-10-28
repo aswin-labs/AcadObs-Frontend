@@ -70,7 +70,16 @@ class FabOptionsDialog extends StatelessWidget {
                       Navigator.pop(context);
                     },
                   ),
-                  // Divider(height: 1, color: Colors.grey.shade200),
+                  Divider(height: 1, color: Colors.grey.shade200),
+                  OptionTile(
+                    icon: LucideIcons.fileText,
+                    label: 'Parent Notes',
+                    iconColor: Color(0xFF43A047),
+                    onTap: () {
+                      context.pushNamed(RouteConstants.parentNotesListingScreen);
+                      Navigator.pop(context);
+                    },
+                  ),
                 ],
               ),
             ),

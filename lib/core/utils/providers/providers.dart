@@ -22,6 +22,7 @@ import 'package:acadobs/features/teacher/presentation/home/provider/music_arts_r
 import 'package:acadobs/features/teacher/presentation/home/provider/physical_coscholastic_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
+import 'package:acadobs/features/parent_notes/presentation/provider/parent_notes_provider.dart';
 import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
 import 'package:acadobs/features/timetables/presentation/provider/timetables_provider.dart';
 import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
@@ -73,6 +74,7 @@ getProviders() {
 
     //**************parent note ****************//
     ChangeNotifierProvider(create: (_) => ParentNoteProvider()),
+    ChangeNotifierProvider(create: (_) => ParentNotesProvider()),
 
     //**************payment ****************//
     ChangeNotifierProvider(create: (_) => PaymentProvider()),

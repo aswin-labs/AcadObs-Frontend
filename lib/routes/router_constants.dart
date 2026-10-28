@@ -138,4 +138,9 @@ class RouteConstants {
   static const String multiTeacherSubjectMarksDetails = 'multiTeacherSubjectMarksDetails';
   static const addMissingStudentMarks = 'addMissingStudentMarks';
   // ******************************MARKS END*******************************
+
+  // **************************PARENT NOTES****************************
+  static const String parentNotesListingScreen = "parentNotesListingScreen";
+  static const String parentNoteDetailsScreen = "parentNoteDetailsScreen";
+  // **************************PARENT NOTES END************************
 }

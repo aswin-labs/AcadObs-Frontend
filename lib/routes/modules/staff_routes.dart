@@ -13,6 +13,9 @@ import 'package:acadobs/features/homeworks/data/models/homework_model.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/add_missing_homework_student_ranking_screen.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/edit_home_work_screen.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/homework_ranking_screen.dart';
+import 'package:acadobs/features/parent_notes/data/models/parent_note_model.dart';
+import 'package:acadobs/features/parent_notes/presentation/screens/parent_note_details_screen.dart';
+import 'package:acadobs/features/parent_notes/presentation/screens/parent_notes_listing_screen.dart';
 import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/data/models/marks_upload_model.dart';
 import 'package:acadobs/features/marks/presentation/screens/add_missing_students_marks_screen.dart';
@@ -298,6 +301,26 @@ List<GoRoute> staffRoutes = [
       if (state.extra == null) return buildRouteExtraFallback(context);
       final Note noteModel = state.extra as Note;
       return NoteDetailsScreen(note: noteModel);
+    },
+  ),
+
+  // parent notes listing screen
+  GoRoute(
+    path: '/parentNotesListingScreen',
+    name: RouteConstants.parentNotesListingScreen,
+    builder: (context, state) {
+      return const ParentNotesListingScreen();
+    },
+  ),
+
+  // parent note detail screen
+  GoRoute(
+    path: '/parentNoteDetailsScreen',
+    name: RouteConstants.parentNoteDetailsScreen,
+    builder: (context, state) {
+      if (state.extra == null) return buildRouteExtraFallback(context);
+      final ParentNoteModel noteModel = state.extra as ParentNoteModel;
+      return ParentNoteDetailsScreen(note: noteModel);
     },
   ),
 
