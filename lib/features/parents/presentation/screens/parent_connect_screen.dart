@@ -1,6 +1,7 @@
 import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/core/utils/responsive.dart';
+import 'package:acadobs/features/communication/presentation/provider/communication_provider.dart';
 import 'package:acadobs/features/parent_notes/presentation/provider/parent_notes_provider.dart';
 import 'package:acadobs/features/parent_notes/presentation/screens/student_parent_notes_listing_screen.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
@@ -32,6 +33,9 @@ class _ParentConnectScreenState extends State<ParentConnectScreen> {
     if (!mounted) return;
     final parentProvider = context.read<ParentProvider>();
     final notesProvider = context.read<ParentNotesProvider>();
+    final commProvider = context.read<CommunicationProvider>();
+
+    commProvider.fetchMyChats(forStaff: false, forceRefresh: true);
 
     if (parentProvider.students.isEmpty && !parentProvider.isLoading) {
       await parentProvider.fetchStudentsUnderParentBySchoolId();
@@ -309,123 +313,12 @@ class _ParentConnectScreenState extends State<ParentConnectScreen> {
     );
   }
 
-  void _showComingSoonSheet(
-    BuildContext context, {
-    required String title,
-    required String description,
-    required IconData icon,
-    required Color accentColor,
-    required Color lightBgColor,
-  }) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (sheetContext) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-          ),
-          child: SafeArea(
-            top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 42,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  width: 68,
-                  height: 68,
-                  decoration: BoxDecoration(
-                    color: lightBgColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(icon, size: 32, color: accentColor),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: accentColor.withAlpha(25),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    "Coming Soon",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: accentColor,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  description,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    height: 1.5,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(sheetContext).pop(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E293B),
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    child: const Text(
-                      "Got it",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final totalUnseenNotes =
         context.watch<ParentNotesProvider>().totalUnseenNoteCount;
+    final totalUnseenMessages =
+        context.watch<CommunicationProvider>().totalUnseenMessagesCount;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -450,20 +343,21 @@ class _ParentConnectScreenState extends State<ParentConnectScreen> {
             _ConnectOptionData(
               title: "Chat",
               subtitle:
-                  "Have real-time conversations with teachers regarding your child's progress.",
+                  "Have conversations with teachers regarding your child's progress.",
               icon: LucideIcons.messageCircle,
               accentColor: const Color(0xFF7C3AED),
               lightBgColor: const Color(0xFFF3E8FF),
-              isComingSoon: true,
-              onTap: () => _showComingSoonSheet(
-                context,
-                title: "Direct Chat",
-                description:
-                    "Real-time messaging with teachers is currently under development and will be available in an upcoming update.",
-                icon: LucideIcons.messageCircle,
-                accentColor: const Color(0xFF7C3AED),
-                lightBgColor: const Color(0xFFF3E8FF),
-              ),
+              isComingSoon: false,
+              unseenCount: totalUnseenMessages,
+              onTap: () async {
+                await context.pushNamed(
+                  RouteConstants.communicationListingScreen,
+                  extra: false,
+                );
+                if (mounted) {
+                  _refreshUnseenCounts();
+                }
+              },
             ),
             _ConnectOptionData(
               title: "Teachers",
@@ -473,8 +367,11 @@ class _ParentConnectScreenState extends State<ParentConnectScreen> {
               accentColor: const Color(0xFF00AEF0),
               lightBgColor: const Color(0xFFE0F7FA),
               isComingSoon: false,
-              onTap: () {
-                context.pushNamed(RouteConstants.teachersListingScreen);
+              onTap: () async {
+                await context.pushNamed(RouteConstants.teachersListingScreen);
+                if (mounted) {
+                  _refreshUnseenCounts();
+                }
               },
             ),
           ];

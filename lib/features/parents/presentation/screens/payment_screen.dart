@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:acadobs/core/utils/common_shimmer_list.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
+import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
+import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/transport_payment_provider.dart';
 import 'package:acadobs/features/parents/presentation/widgets/payment_card.dart';
@@ -13,7 +15,13 @@ import 'package:provider/provider.dart';
 
 class PaymentScreen extends StatefulWidget {
   final int studentId;
-  const PaymentScreen({super.key, required this.studentId});
+  final bool isBackButton;
+
+  const PaymentScreen({
+    super.key,
+    required this.studentId,
+    this.isBackButton = true,
+  });
 
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
@@ -24,6 +32,7 @@ class _PaymentScreenState extends State<PaymentScreen>
   TabController? _tabController;
   late final PaymentProvider _paymentProvider;
   late final TransportPaymentProvider _transportProvider;
+  late int _activeStudentId;
   int _tabCount = 2;
   bool _isInitialLoading = true;
 
@@ -35,6 +44,7 @@ class _PaymentScreenState extends State<PaymentScreen>
   void initState() {
     super.initState();
 
+    _activeStudentId = widget.studentId;
     _paymentProvider = context.read<PaymentProvider>();
     _transportProvider = context.read<TransportPaymentProvider>();
 
@@ -46,34 +56,72 @@ class _PaymentScreenState extends State<PaymentScreen>
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
-      try {
-        await Future.wait([
-          _paymentProvider.fetchInvoices(
-            studentId: widget.studentId,
-            forceRefresh: true,
-          ),
-          _paymentProvider.fetchPayments(
-            studentId: widget.studentId,
-            forceRefresh: true,
-          ),
-          _transportProvider.fetchTransportInvoices(
-            studentId: widget.studentId,
-            forceRefresh: true,
-          ),
-        ]);
-      } catch (e) {
-        log("Error during initial payment screen fetch: $e");
-      } finally {
-        if (mounted) {
-          final hasTransport = _transportProvider.isAvailable;
-          setState(() {
-            _tabCount = hasTransport ? 3 : 2;
-            _tabController = TabController(length: _tabCount, vsync: this);
-            _isInitialLoading = false;
-          });
-        }
-      }
+      await _loadStudentPaymentData(_activeStudentId, isInitial: true);
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant PaymentScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.studentId != widget.studentId &&
+        _activeStudentId != widget.studentId) {
+      _activeStudentId = widget.studentId;
+      _loadStudentPaymentData(_activeStudentId, isInitial: false);
+    }
+  }
+
+  Future<void> _loadStudentPaymentData(
+    int studentId, {
+    required bool isInitial,
+  }) async {
+    if (!isInitial && mounted) {
+      setState(() {
+        _isInitialLoading = true;
+      });
+    }
+
+    try {
+      await Future.wait([
+        _paymentProvider.fetchInvoices(
+          studentId: studentId,
+          forceRefresh: true,
+        ),
+        _paymentProvider.fetchPayments(
+          studentId: studentId,
+          forceRefresh: true,
+        ),
+        _transportProvider.fetchTransportInvoices(
+          studentId: studentId,
+          forceRefresh: true,
+        ),
+      ]);
+    } catch (e) {
+      log("Error during payment screen fetch: $e");
+    } finally {
+      if (mounted) {
+        final hasTransport = _transportProvider.isAvailable;
+        final newCount = hasTransport ? 3 : 2;
+        final previousIndex = _tabController?.index ?? 0;
+        _tabController?.dispose();
+        setState(() {
+          _tabCount = newCount;
+          _tabController = TabController(
+            length: _tabCount,
+            vsync: this,
+            initialIndex: previousIndex < newCount ? previousIndex : 0,
+          );
+          _isInitialLoading = false;
+        });
+      }
+    }
+  }
+
+  void _switchStudent(int newStudentId) {
+    if (_activeStudentId == newStudentId) return;
+    setState(() {
+      _activeStudentId = newStudentId;
+    });
+    _loadStudentPaymentData(newStudentId, isInitial: false);
   }
 
   void _onTransportProviderChanged() {
@@ -105,7 +153,7 @@ class _PaymentScreenState extends State<PaymentScreen>
         _paymentProvider.hasMoreInvoice) {
       _paymentProvider.fetchInvoices(
         loadMore: true,
-        studentId: widget.studentId,
+        studentId: _activeStudentId,
       );
     }
   }
@@ -122,7 +170,7 @@ class _PaymentScreenState extends State<PaymentScreen>
         _paymentProvider.hasMore) {
       _paymentProvider.fetchPayments(
         loadMore: true,
-        studentId: widget.studentId,
+        studentId: _activeStudentId,
       );
     }
   }
@@ -139,7 +187,7 @@ class _PaymentScreenState extends State<PaymentScreen>
         _transportProvider.hasMore) {
       _transportProvider.fetchTransportInvoices(
         loadMore: true,
-        studentId: widget.studentId,
+        studentId: _activeStudentId,
       );
     }
   }
@@ -156,22 +204,177 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   Future<void> _refreshInvoices() async {
     await context.read<PaymentProvider>().fetchInvoices(
-      studentId: widget.studentId,
+      studentId: _activeStudentId,
       forceRefresh: true,
     );
   }
 
   Future<void> _refreshPayments() async {
     await context.read<PaymentProvider>().fetchPayments(
-      studentId: widget.studentId,
+      studentId: _activeStudentId,
       forceRefresh: true,
     );
   }
 
   Future<void> _refreshTransportInvoices() async {
     await context.read<TransportPaymentProvider>().fetchTransportInvoices(
-      studentId: widget.studentId,
+      studentId: _activeStudentId,
       forceRefresh: true,
+    );
+  }
+
+  Widget _buildStudentSelectorBanner() {
+    return Consumer<ParentProvider>(
+      builder: (context, parentProvider, _) {
+        final students = parentProvider.students;
+        if (students.isEmpty) return const SizedBox.shrink();
+
+        if (students.length == 1) {
+          final student = students.first;
+          final className = student.classGrade?.classname;
+
+          return Container(
+            margin: const EdgeInsets.fromLTRB(16, 12, 16, 2),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 17,
+                  backgroundColor: const Color(0xFFE8F5E9),
+                  child: Text(
+                    student.fullName.isNotEmpty
+                        ? student.fullName[0].toUpperCase()
+                        : 'S',
+                    style: const TextStyle(
+                      color: Color(0xFF2EAF3B),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13.5,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        capitalizeEachWord(student.fullName),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0F172A),
+                        ),
+                      ),
+                      if (className != null && className.isNotEmpty)
+                        Text(
+                          "Class: $className",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Multiple students horizontal selector chips (consistent with Parent Notes)
+        return Container(
+          height: 52,
+          margin: const EdgeInsets.only(top: 12, bottom: 2),
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: students.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (context, index) {
+              final student = students[index];
+              final isSelected = student.id == _activeStudentId;
+
+              return GestureDetector(
+                onTap: () => _switchStudent(student.id),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        isSelected ? const Color(0xFF2EAF3B) : Colors.white,
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(
+                      color:
+                          isSelected
+                              ? const Color(0xFF2EAF3B)
+                              : const Color(0xFFE2E8F0),
+                    ),
+                    boxShadow:
+                        isSelected
+                            ? [
+                              BoxShadow(
+                                color: const Color(0xFF2EAF3B).withAlpha(50),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              ),
+                            ]
+                            : null,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 12,
+                        backgroundColor:
+                            isSelected
+                                ? Colors.white.withAlpha(55)
+                                : const Color(0xFFE8F5E9),
+                        child: Text(
+                          student.fullName.isNotEmpty
+                              ? student.fullName[0].toUpperCase()
+                              : 'S',
+                          style: TextStyle(
+                            color:
+                                isSelected
+                                    ? Colors.white
+                                    : const Color(0xFF2EAF3B),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        capitalizeEachWord(student.fullName),
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color:
+                              isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF1E293B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
@@ -180,28 +383,33 @@ class _PaymentScreenState extends State<PaymentScreen>
     if (_isInitialLoading || _tabController == null) {
       return Scaffold(
         backgroundColor: const Color(0xFFF8FAFC),
-        appBar: const CommonAppBar(
+        appBar: CommonAppBar(
           title: "Payments & Invoices",
-          isBackButton: true,
+          isBackButton: widget.isBackButton,
         ),
-        body: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-          child: Column(
-            children: [
-              Container(
-                height: 48,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+        body: Column(
+          children: [
+            _buildStudentSelectorBanner(),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
+                child: Column(
+                  children: [
+                    Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(child: commonShimmerList()),
+                  ],
                 ),
               ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: commonShimmerList(),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       );
     }
@@ -210,14 +418,15 @@ class _PaymentScreenState extends State<PaymentScreen>
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      appBar: const CommonAppBar(
+      appBar: CommonAppBar(
         title: "Payments & Invoices",
-        isBackButton: true,
+        isBackButton: widget.isBackButton,
       ),
       body: Column(
         children: [
+          _buildStudentSelectorBanner(),
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
             child: Container(
               height: 48,
               padding: const EdgeInsets.all(4),
@@ -268,19 +477,19 @@ class _PaymentScreenState extends State<PaymentScreen>
               controller: _tabController,
               children: [
                 _InvoiceTab(
-                  studentId: widget.studentId,
+                  studentId: _activeStudentId,
                   scrollController: _invoiceScrollController,
                   onRefresh: _refreshInvoices,
                 ),
 
                 if (hasTransport)
                   _TransportInvoiceTab(
-                    studentId: widget.studentId,
+                    studentId: _activeStudentId,
                     scrollController: _transportScrollController,
                     onRefresh: _refreshTransportInvoices,
                   ),
                 _PaymentTab(
-                  studentId: widget.studentId,
+                  studentId: _activeStudentId,
                   scrollController: _paymentScrollController,
                   onRefresh: _refreshPayments,
                 ),

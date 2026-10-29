@@ -294,4 +294,15 @@ class ApiEndpoints {
       "/guardian/getParentNotesByIdAndStudentId";
   static const String getParentNoteUnseenCountByStudentId =
       "/guardian/getParentNoteUnseenCount";
+
+  // ************************* COMMUNICATION ****************************
+  static const String teacherCreateMessage = "/teacher/createMessage";
+  static const String teacherGetMyChats = "/teacher/getMyChats";
+  static const String teacherGetMessagesByChatId =
+      "/teacher/getMessagesByChatId";
+
+  static const String guardianCreateMessage = "/guardian/createMessage";
+  static const String guardianGetMyChats = "/guardian/getMyChats";
+  static const String guardianGetMessagesByChatId =
+      "/guardian/getMessagesByChatId";
 }

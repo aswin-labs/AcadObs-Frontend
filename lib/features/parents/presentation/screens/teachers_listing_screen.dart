@@ -6,10 +6,13 @@ import 'package:acadobs/core/utils/empty_screen.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
-import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
+import 'package:acadobs/features/communication/presentation/screens/communication_detail_screen.dart';
+import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/features/parents/presentation/widgets/staff_details_card.dart';
+import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class TeachersListingScreen extends StatefulWidget {
@@ -20,7 +23,7 @@ class TeachersListingScreen extends StatefulWidget {
 }
 
 class _TeachersListingScreenState extends State<TeachersListingScreen> {
-  late final ChatProvider _chatProvider;
+  late final ParentProvider _parentProvider;
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   Timer? _debounceTimer;
@@ -28,22 +31,23 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
   @override
   void initState() {
     super.initState();
-    _chatProvider = context.read<ChatProvider>();
+    _parentProvider = context.read<ParentProvider>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _chatProvider.fetchStaffsUnderSchool(forceRefresh: true);
+      _parentProvider.fetchStaffsUnderSchool(forceRefresh: true);
     });
     _scrollController.addListener(_scrollListener);
   }
 
   void _scrollListener() {
+    if (!_scrollController.hasClients) return;
     final isNearBottom =
         _scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200;
 
     if (isNearBottom &&
-        !_chatProvider.isLoadingStaffs &&
-        _chatProvider.hasMoreStaffs) {
-      _chatProvider.fetchStaffsUnderSchool(loadMore: true);
+        !_parentProvider.isLoadingStaffs &&
+        _parentProvider.hasMoreStaffs) {
+      _parentProvider.fetchStaffsUnderSchool(loadMore: true);
     }
   }
 
@@ -52,7 +56,7 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(const Duration(milliseconds: 400), () {
       final trimmed = query.trim();
-      _chatProvider.fetchStaffsUnderSchool(
+      _parentProvider.fetchStaffsUnderSchool(
         forceRefresh: true,
         query: trimmed.isEmpty ? null : trimmed,
       );
@@ -74,7 +78,7 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           final query = _searchController.text.trim();
-          await context.read<ChatProvider>().fetchStaffsUnderSchool(
+          await context.read<ParentProvider>().fetchStaffsUnderSchool(
             forceRefresh: true,
             query: query.isEmpty ? null : query,
           );
@@ -163,7 +167,7 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
                         ),
                       ),
                     ),
-                    Consumer<ChatProvider>(
+                    Consumer<ParentProvider>(
                       builder: (context, provider, _) {
                         if (provider.isLoadingStaffs &&
                             provider.staffs.isEmpty) {
@@ -205,12 +209,29 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
                               profileImageUrl: profileImageUrl,
                               backgroundColor: Colors.white,
                               borderColor: Colors.blueGrey.shade100,
+                              onChatTap:
+                                  staff.id != null
+                                      ? () {
+                                        context.pushNamed(
+                                          RouteConstants
+                                              .communicationDetailScreen,
+                                          extra: CommunicationDetailScreenArgs(
+                                            forStaff: false,
+                                            receiverId: staff.id,
+                                            opponentName:
+                                                staff.name ?? "Teacher",
+                                            opponentPhone: staff.phone,
+                                            opponentDp: staff.dp,
+                                          ),
+                                        );
+                                      }
+                                      : null,
                             );
                           },
                         );
                       },
                     ),
-                    Consumer<ChatProvider>(
+                    Consumer<ParentProvider>(
                       builder: (context, provider, _) {
                         return provider.isLoadingStaffs &&
                                 provider.hasMoreStaffs

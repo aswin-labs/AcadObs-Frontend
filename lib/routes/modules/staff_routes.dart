@@ -5,7 +5,6 @@ import 'package:acadobs/features/achievements/presentaion/screens/achievement_li
 import 'package:acadobs/features/achievements/presentaion/screens/add_achievements_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/school_achievement_details_screen.dart';
 import 'package:acadobs/features/achievements/presentaion/screens/school_achievement_listing.dart';
-import 'package:acadobs/features/chats/presentation/screens/add_teacher_note_screen.dart';
 import 'package:acadobs/features/events/data/models/event_model.dart';
 import 'package:acadobs/features/events/presentation/screens/event_detail_screen.dart';
 import 'package:acadobs/features/events/presentation/screens/event_listing_screen.dart';
@@ -13,9 +12,6 @@ import 'package:acadobs/features/homeworks/data/models/homework_model.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/add_missing_homework_student_ranking_screen.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/edit_home_work_screen.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/homework_ranking_screen.dart';
-import 'package:acadobs/features/parent_notes/data/models/parent_note_model.dart';
-import 'package:acadobs/features/parent_notes/presentation/screens/parent_note_details_screen.dart';
-import 'package:acadobs/features/parent_notes/presentation/screens/parent_notes_listing_screen.dart';
 import 'package:acadobs/features/marks/data/models/marks_model.dart';
 import 'package:acadobs/features/marks/data/models/marks_upload_model.dart';
 import 'package:acadobs/features/marks/presentation/screens/add_missing_students_marks_screen.dart';
@@ -30,8 +26,12 @@ import 'package:acadobs/features/news/presentation/screens/news_screen_details.d
 import 'package:acadobs/features/notices/data/models/notice_model.dart';
 import 'package:acadobs/features/notices/presentation/screens/notice_details_screen.dart';
 import 'package:acadobs/features/notices/presentation/screens/notice_listing_screen.dart';
+import 'package:acadobs/features/parent_notes/data/models/parent_note_model.dart';
+import 'package:acadobs/features/parent_notes/presentation/screens/parent_note_details_screen.dart';
+import 'package:acadobs/features/parent_notes/presentation/screens/parent_notes_listing_screen.dart';
 import 'package:acadobs/features/parents/data/models/payment_model.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_detail_screen.dart';
+import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/students/data/models/student_profile_args.dart';
 import 'package:acadobs/features/students/data/models/student_screen_args.dart';
 import 'package:acadobs/features/students/presentation/screens/student_achievement_screen.dart';
@@ -47,33 +47,29 @@ import 'package:acadobs/features/students/presentation/screens/students_listing_
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_model.dart';
 import 'package:acadobs/features/teacher/data/models/attendance/attendance_upload_model.dart';
 import 'package:acadobs/features/teacher/data/models/leave_model.dart';
-import 'package:acadobs/features/teacher/data/models/note_model.dart';
+import 'package:acadobs/features/teacher/data/models/music_arts_robotics_model.dart';
 import 'package:acadobs/features/teacher/data/models/staff_duty_model.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_details_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_taking_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/edit_attendance_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_detail_screen.dart';
-import 'package:acadobs/features/teacher/presentation/home/screens/edit_profile_staff.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/co_scholastic_class_assessment_screen.dart';
-import 'package:acadobs/features/teacher/presentation/home/screens/student_co_scholastic_rating_screen.dart';
-import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_overview_screen.dart';
-import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_class_selection_screen.dart';
-import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_student_rating_screen.dart';
-import 'package:acadobs/features/teacher/data/models/music_arts_robotics_model.dart';
-import 'package:acadobs/features/teacher/presentation/home/screens/music_arts_robotics_overview_screen.dart';
-import 'package:acadobs/features/teacher/presentation/home/screens/music_arts_robotics_class_selection_screen.dart';
-import 'package:acadobs/features/teacher/presentation/home/screens/music_arts_robotics_student_rating_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/competency_class_assessment_screen.dart';
-import 'package:acadobs/features/teacher/presentation/home/screens/student_competency_rating_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/edit_profile_staff.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/music_arts_robotics_class_selection_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/music_arts_robotics_overview_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/music_arts_robotics_student_rating_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/my_class_marks_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/my_class_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_class_selection_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_overview_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/physical_coscholastic_student_rating_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/staff_attendance_history_screen.dart';
-import 'package:acadobs/features/students/data/models/student_model.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/student_co_scholastic_rating_screen.dart';
+import 'package:acadobs/features/teacher/presentation/home/screens/student_competency_rating_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/leave_request_detail_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/student_leaves_screen.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/screens/teacher_leave_request_home_screen.dart';
-import 'package:acadobs/features/teacher/presentation/notes/screens/note_details_screen.dart';
-import 'package:acadobs/features/teacher/presentation/notes/screens/note_listing_screen.dart';
 import 'package:acadobs/routes/route_extra_guard.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/models/class_grade_model.dart';
@@ -272,35 +268,6 @@ List<GoRoute> staffRoutes = [
     name: RouteConstants.achievementList,
     builder: (context, state) {
       return AchievementListingScreen();
-    },
-  ),
-
-  //add Note screen
-  GoRoute(
-    path: '/addteachernotesection',
-    name: RouteConstants.addTeacherNoteSection,
-    builder: (context, state) {
-      return AddTeacherNoteScreen();
-    },
-  ),
-
-  //note listing screen
-  GoRoute(
-    path: '/noteListingScreen',
-    name: RouteConstants.noteListingScreen,
-    builder: (context, state) {
-      return NoteListingScreen();
-    },
-  ),
-
-  //note detail screen
-  GoRoute(
-    path: '/noteDetailScreen',
-    name: RouteConstants.noteDetailScreen,
-    builder: (context, state) {
-      if (state.extra == null) return buildRouteExtraFallback(context);
-      final Note noteModel = state.extra as Note;
-      return NoteDetailsScreen(note: noteModel);
     },
   ),
 
@@ -672,7 +639,8 @@ List<GoRoute> staffRoutes = [
           initialExamId: extra['examId'] as int?,
           initialExamName: extra['examName'] as String?,
           title: extra['title'] as String?,
-          isGeneralCoScholastic: extra['isGeneralCoScholastic'] as bool? ?? true,
+          isGeneralCoScholastic:
+              extra['isGeneralCoScholastic'] as bool? ?? true,
         );
       }
       return const PhysicalCoscholasticOverviewScreen(
@@ -693,7 +661,8 @@ List<GoRoute> staffRoutes = [
           initialExamId: extra['examId'] as int?,
           initialExamName: extra['examName'] as String?,
           title: extra['title'] as String?,
-          isGeneralCoScholastic: extra['isGeneralCoScholastic'] as bool? ?? false,
+          isGeneralCoScholastic:
+              extra['isGeneralCoScholastic'] as bool? ?? false,
         );
       }
       return const PhysicalCoscholasticOverviewScreen();
@@ -864,4 +833,3 @@ class MusicArtsRoboticsRatingArgs {
     this.areas = const [],
   });
 }
-

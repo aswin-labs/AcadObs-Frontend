@@ -3,6 +3,7 @@ import 'package:acadobs/core/utils/helpers/capitalize_word.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
+import 'package:acadobs/features/communication/presentation/provider/communication_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
@@ -92,6 +93,11 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
           ...commonTasks,
           studentLeaveRequestProvider.getLeaveRequestNotification(),
           subjectProvider.fetchAllSubjects(),
+          context.read<CommunicationProvider>().fetchMyChats(
+            forStaff: true,
+            forceRefresh: true,
+            silent: true,
+          ),
         ];
 
       case UserType.nonTeachingStaff:
@@ -210,13 +216,13 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                   Colors.black.withAlpha(178),
                                 ],
                                 stops: const [0.0, 0.45, 1.0],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
                             ),
                           ),
-                        ),
 
-                        SafeArea(
+                          SafeArea(
                             child: Padding(
                               padding: const EdgeInsets.fromLTRB(
                                 16,
@@ -599,15 +605,6 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                                   classGrade: classGrade,
                                                   isCbse: isCbse,
                                                 ),
-                                                //  ClassGradeModel(
-                                                // id:
-                                                //     classId is int
-                                                //         ? classId
-                                                //         : int.parse(
-                                                //           classId.toString(),
-                                                //         ),
-                                                // classname: className,
-                                                // ),
                                               );
                                             },
                                           ),
@@ -738,12 +735,112 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         ),
         floatingActionButton:
             widget.userType == UserType.teacher
-                ? CommonFloatingButton(
-                  onPressed:
-                      () => showDialog(
-                        context: context,
-                        builder: (context) => FabOptionsDialog(),
-                      ),
+                ? Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Consumer<CommunicationProvider>(
+                      builder: (context, commProv, _) {
+                        final unseenCount = commProv.totalUnseenMessagesCount;
+
+                        return Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF35C2C1),
+                                    Color(0xFF00AEF0),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF00AEF0,
+                                    ).withAlpha(90),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                shape: const CircleBorder(),
+                                child: InkWell(
+                                  customBorder: const CircleBorder(),
+                                  onTap: () async {
+                                    await context.pushNamed(
+                                      RouteConstants.communicationListingScreen,
+                                      extra: true,
+                                    );
+                                    if (mounted) {
+                                      commProv.fetchMyChats(
+                                        forStaff: true,
+                                        forceRefresh: true,
+                                        silent: true,
+                                      );
+                                    }
+                                  },
+                                  child: const Center(
+                                    child: Icon(
+                                      LucideIcons.messageCircle,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (unseenCount > 0)
+                              Positioned(
+                                top: -3,
+                                right: -3,
+                                child: Container(
+                                  constraints: const BoxConstraints(
+                                    minWidth: 22,
+                                    minHeight: 22,
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE11D48),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: Colors.white,
+                                      width: 2,
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    unseenCount > 99 ? '99+' : '$unseenCount',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    CommonFloatingButton(
+                      onPressed:
+                          () => showDialog(
+                            context: context,
+                            builder: (context) => FabOptionsDialog(),
+                          ),
+                    ),
+                  ],
                 )
                 : null,
       ),

@@ -91,6 +91,8 @@ class RouteConstants {
 
   // CHATS
   static const String chatScreen = "chatScreen";
+  static const String communicationListingScreen = "communicationListingScreen";
+  static const String communicationDetailScreen = "communicationDetailScreen";
 
   //change password
   static const String changePassword = "changePassword";

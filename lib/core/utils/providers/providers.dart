@@ -1,13 +1,15 @@
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
-import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
+// import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
+import 'package:acadobs/features/communication/presentation/provider/communication_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/notices/presentation/provider/notice_provider.dart';
+import 'package:acadobs/features/parent_notes/presentation/provider/parent_notes_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/leave_request_student_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
@@ -17,13 +19,11 @@ import 'package:acadobs/features/students/presentation/provider/student_provider
 import 'package:acadobs/features/subjects/presentation/provider/subject_provider.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/provider/attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/duties/provider/duty_provider.dart';
-import 'package:acadobs/features/teacher/presentation/home/provider/my_class_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/music_arts_robotics_provider.dart';
+import 'package:acadobs/features/teacher/presentation/home/provider/my_class_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/physical_coscholastic_provider.dart';
 import 'package:acadobs/features/teacher/presentation/home/provider/teacher_attendance_provider.dart';
 import 'package:acadobs/features/teacher/presentation/leave_request/provider/teacher_leave_request_provider.dart';
-import 'package:acadobs/features/parent_notes/presentation/provider/parent_notes_provider.dart';
-import 'package:acadobs/features/teacher/presentation/notes/provider/parent_note_provider.dart';
 import 'package:acadobs/features/timetables/presentation/provider/timetables_provider.dart';
 import 'package:acadobs/features/tracking/presentation/provider/student_route_provider.dart';
 import 'package:acadobs/shared/bottom_nav/controller/bottom_navbar_controller.dart';
@@ -67,13 +67,14 @@ getProviders() {
     ChangeNotifierProvider(create: (_) => AchievementProvider()),
 
     //**************CHATS****************//
-    ChangeNotifierProvider(create: (_) => ChatProvider()),
+    // ChangeNotifierProvider(create: (_) => ChatProvider()),
+    ChangeNotifierProvider(create: (_) => CommunicationProvider()),
 
     //**************PARENTS****************//
     ChangeNotifierProvider(create: (_) => ParentProvider()),
 
     //**************parent note ****************//
-    ChangeNotifierProvider(create: (_) => ParentNoteProvider()),
+    // ChangeNotifierProvider(create: (_) => ParentNoteProvider()),
     ChangeNotifierProvider(create: (_) => ParentNotesProvider()),
 
     //**************payment ****************//

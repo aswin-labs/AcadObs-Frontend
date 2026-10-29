@@ -1,7 +1,7 @@
 import 'package:acadobs/features/authentication/presentation/screens/school_selection_screen.dart';
 import 'package:acadobs/features/parent_notes/presentation/screens/student_parent_note_details_screen.dart';
 import 'package:acadobs/features/parent_notes/presentation/screens/student_parent_notes_listing_screen.dart';
-import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
+// import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
 import 'package:acadobs/features/parents/data/models/invoice_student_model.dart';
 import 'package:acadobs/features/parents/data/models/transport_invoice_model.dart';
 import 'package:acadobs/features/parents/presentation/screens/invoice_detail_screen.dart';
@@ -40,7 +40,7 @@ List<GoRoute> parentRoutes = [
     path: '/sharebottomsheet',
     name: RouteConstants.shareBottomSheet,
     builder: (context, state) {
-      return ShareBottomSheet();
+      return buildRouteExtraFallback(context); // ShareBottomSheet();
     },
   ),
 

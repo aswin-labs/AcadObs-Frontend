@@ -151,7 +151,10 @@ class AuthStorageService {
   Future<int?> getUserId() async {
     final data = await getUserData();
     if (data == null) return null;
-    return data['user_id'] as int?;
+    final raw = data['user_id'] ?? data['id'];
+    if (raw is int) return raw;
+    if (raw != null) return int.tryParse(raw.toString());
+    return null;
   }
 
   /// Get user role only

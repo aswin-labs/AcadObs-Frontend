@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:acadobs/core/utils/common_shimmer_tile.dart';
+import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/core/utils/urls/base_urls.dart';
 import 'package:acadobs/core/utils/urls/media_end_points.dart';
+import 'package:acadobs/features/communication/presentation/screens/communication_detail_screen.dart';
 import 'package:acadobs/features/homeworks/data/models/homework_viewer_type.dart';
 import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
 import 'package:acadobs/features/students/data/models/student_profile_args.dart';
@@ -688,6 +690,46 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                             );
                           },
                         ),
+                        if (widget.forStaff)
+                          StudentFeatureCard(
+                            icon: LucideIcons.messageCircle,
+                            color: const Color(0xFF7C3AED),
+                            title: "Message Parent",
+                            onTap: () {
+                              if (student == null ||
+                                  student.id != widget.studentId) {
+                                return;
+                              }
+                              final parentUserId =
+                                  student.user?.id ?? student.guardianId;
+                              if (parentUserId == null) {
+                                CustomSnackbar.show(
+                                  context,
+                                  message:
+                                      "Parent account details are not available for this student.",
+                                  type: SnackbarType.warning,
+                                );
+                                return;
+                              }
+                              final parentName =
+                                  (student.user?.name != null &&
+                                          student.user!.name!.isNotEmpty)
+                                      ? student.user!.name
+                                      : "${student.fullName}'s Parent";
+                              context.pushNamed(
+                                RouteConstants.communicationDetailScreen,
+                                extra: CommunicationDetailScreenArgs(
+                                  forStaff: true,
+                                  receiverId: parentUserId,
+                                  opponentName: parentName,
+                                  opponentPhone: student.user?.phone,
+                                  opponentDp: student.user?.dp,
+                                  studentId: student.id,
+                                  studentName: student.fullName,
+                                ),
+                              );
+                            },
+                          ),
                         if (!widget.forStaff)
                           StudentFeatureCard(
                             icon: Icons.notifications,

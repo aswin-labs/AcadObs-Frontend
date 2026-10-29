@@ -12,6 +12,7 @@ class StaffDetailsCard extends StatelessWidget {
   final Color backgroundColor;
   final Color borderColor;
   final String profileImageUrl;
+  final VoidCallback? onChatTap;
 
   const StaffDetailsCard({
     super.key,
@@ -23,6 +24,7 @@ class StaffDetailsCard extends StatelessWidget {
     required this.backgroundColor,
     required this.borderColor,
     this.profileImageUrl = "",
+    this.onChatTap,
   });
 
   @override
@@ -56,31 +58,34 @@ class StaffDetailsCard extends StatelessWidget {
               color: Colors.blueGrey,
             ),
             child: ClipOval(
-              child: profileImageUrl.isNotEmpty
-                  ? CachedNetworkImage(
-                      imageUrl: profileImageUrl,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const Center(
-                        child: SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => const Icon(
+              child:
+                  profileImageUrl.isNotEmpty
+                      ? CachedNetworkImage(
+                        imageUrl: profileImageUrl,
+                        fit: BoxFit.cover,
+                        placeholder:
+                            (context, url) => const Center(
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                        errorWidget:
+                            (context, url, error) => const Icon(
+                              LucideIcons.user,
+                              size: 40,
+                              color: Colors.white,
+                            ),
+                      )
+                      : const Icon(
                         LucideIcons.user,
                         size: 40,
                         color: Colors.white,
                       ),
-                    )
-                  : const Icon(
-                      LucideIcons.user,
-                      size: 40,
-                      color: Colors.white,
-                    ),
             ),
           ),
           const SizedBox(height: 12),
@@ -125,6 +130,35 @@ class StaffDetailsCard extends StatelessWidget {
             iconSize,
             fontSize,
           ),
+          if (onChatTap != null) ...[
+            const SizedBox(height: 6),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: onChatTap,
+                icon: const Icon(
+                  LucideIcons.messageCircle,
+                  size: 18,
+                  color: Color(0xFF00AEF0),
+                ),
+                label: const Text(
+                  "Message Teacher",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF00AEF0),
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 11),
+                  side: const BorderSide(color: Color(0xFF00AEF0), width: 1.2),
+                  backgroundColor: const Color(0xFFF0F9FF),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

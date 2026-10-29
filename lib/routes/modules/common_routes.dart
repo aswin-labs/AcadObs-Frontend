@@ -5,8 +5,10 @@ import 'package:acadobs/features/authentication/data/models/user_type_enum.dart'
 import 'package:acadobs/features/authentication/presentation/screens/auth_checker.dart';
 import 'package:acadobs/features/authentication/presentation/screens/forgot_password_screen.dart';
 import 'package:acadobs/features/authentication/presentation/screens/login_screen.dart';
-import 'package:acadobs/features/chats/data/models/chat_model.dart';
-import 'package:acadobs/features/chats/presentation/screens/chat_screen.dart';
+// import 'package:acadobs/features/chats/data/models/chat_model.dart';
+// import 'package:acadobs/features/chats/presentation/screens/chat_screen.dart';
+import 'package:acadobs/features/communication/presentation/screens/communication_detail_screen.dart';
+import 'package:acadobs/features/communication/presentation/screens/communication_listing_screen.dart';
 import 'package:acadobs/features/homeworks/data/models/homework_viewer_type.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/homework_details_screen.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/homeworks_listing_screen.dart';
@@ -64,8 +66,8 @@ final List<GoRoute> commonRoutes = [
     name: RouteConstants.chatScreen,
     builder: (context, state) {
       if (state.extra == null) return buildRouteExtraFallback(context);
-      final chat = state.extra as ChatModel;
-      return ChatScreen(chatModel: chat);
+      // final chat = state.extra as ChatModel;
+      return buildRouteExtraFallback(context); // ChatScreen(chatModel: chat);
     },
   ),
 
@@ -229,6 +231,30 @@ final List<GoRoute> commonRoutes = [
   ),
 
   // ********************HOMEWORKS END********************************
+
+  // ********************COMMUNICATION********************************
+  GoRoute(
+    path: '/communicationListingScreen',
+    name: RouteConstants.communicationListingScreen,
+    builder: (context, state) {
+      final forStaff =
+          state.extra as bool? ??
+          (state.uri.queryParameters['forStaff'] == 'true');
+      return CommunicationListingScreen(forStaff: forStaff);
+    },
+  ),
+  GoRoute(
+    path: '/communicationDetailScreen',
+    name: RouteConstants.communicationDetailScreen,
+    builder: (context, state) {
+      if (state.extra is! CommunicationDetailScreenArgs) {
+        return buildRouteExtraFallback(context);
+      }
+      final args = state.extra as CommunicationDetailScreenArgs;
+      return CommunicationDetailScreen(args: args);
+    },
+  ),
+  // ********************COMMUNICATION END****************************
 ];
 
 class TodayTimetableParameters {

@@ -4,6 +4,7 @@ import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
+import 'package:acadobs/features/communication/presentation/provider/communication_provider.dart';
 import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
 import 'package:acadobs/features/parent_notes/presentation/provider/parent_notes_provider.dart';
 import 'package:acadobs/features/parents/presentation/screens/parent_home_screen.dart';
@@ -132,7 +133,9 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
         _bottomNavItem(
           icon: LucideIcons.messagesSquare,
           label: 'Connect',
-          badgeCount: context.watch<ParentNotesProvider>().totalUnseenNoteCount,
+          badgeCount:
+              context.watch<ParentNotesProvider>().totalUnseenNoteCount +
+              context.watch<CommunicationProvider>().totalUnseenMessagesCount,
         ),
       ];
     } else if (userType == UserType.nonTeachingStaff) {
