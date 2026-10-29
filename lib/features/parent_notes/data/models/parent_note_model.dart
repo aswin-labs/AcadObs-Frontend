@@ -6,6 +6,12 @@ ParentNoteModel parentNoteModelFromJson(String str) =>
 String parentNoteModelToJson(ParentNoteModel data) =>
     json.encode(data.toJson());
 
+int? _parseInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  return int.tryParse(value.toString());
+}
+
 class ParentNoteModel {
   final int? id;
   final int? schoolId;
@@ -34,16 +40,20 @@ class ParentNoteModel {
   int get studentCount => parentNoteStudents?.length ?? 0;
   int get seenCount =>
       parentNoteStudents?.where((s) => s.isSeen == true).length ?? 0;
+  bool get isSeenByStudent =>
+      parentNoteStudents != null &&
+      parentNoteStudents!.isNotEmpty &&
+      (parentNoteStudents!.first.isSeen ?? false);
 
   factory ParentNoteModel.fromJson(Map<String, dynamic> json) =>
       ParentNoteModel(
-        id: json["id"],
-        schoolId: json["school_id"],
-        noteTitle: json["note_title"],
-        noteContent: json["note_content"],
+        id: _parseInt(json["id"]),
+        schoolId: _parseInt(json["school_id"]),
+        noteTitle: json["note_title"]?.toString(),
+        noteContent: json["note_content"]?.toString(),
         noteAttachment: json["note_attachment"]?.toString(),
-        recordedBy: json["recorded_by"],
-        trash: json["trash"],
+        recordedBy: _parseInt(json["recorded_by"]),
+        trash: json["trash"] == true || json["trash"] == 1,
         createdAt:
             json["createdAt"] == null
                 ? null
@@ -85,9 +95,9 @@ class ParentNoteStudentModel {
 
   factory ParentNoteStudentModel.fromJson(Map<String, dynamic> json) =>
       ParentNoteStudentModel(
-        id: json["id"],
-        studentId: json["student_id"],
-        isSeen: json["is_seen"] ?? false,
+        id: _parseInt(json["id"]),
+        studentId: _parseInt(json["student_id"]),
+        isSeen: json["is_seen"] == true || json["is_seen"] == 1,
         student:
             json["Student"] is Map<String, dynamic>
                 ? ParentNoteStudentInfoModel.fromJson(json["Student"])
@@ -117,10 +127,10 @@ class ParentNoteStudentInfoModel {
 
   factory ParentNoteStudentInfoModel.fromJson(Map<String, dynamic> json) =>
       ParentNoteStudentInfoModel(
-        id: json["id"],
-        fullName: json["full_name"],
+        id: _parseInt(json["id"]),
+        fullName: json["full_name"]?.toString(),
         regNo: json["reg_no"]?.toString(),
-        classId: json["class_id"],
+        classId: _parseInt(json["class_id"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -144,16 +154,23 @@ class ParentNoteListResponse {
     this.notes = const [],
   });
 
-  factory ParentNoteListResponse.fromJson(Map<String, dynamic> json) =>
-      ParentNoteListResponse(
-        totalContent: json["totalcontent"] ?? json["totalContent"],
-        totalPages: json["totalPages"],
-        currentPage: json["currentPage"],
-        notes:
-            json["notes"] is List
-                ? (json["notes"] as List)
-                    .map((e) => ParentNoteModel.fromJson(e))
-                    .toList()
-                : [],
-      );
+  factory ParentNoteListResponse.fromJson(Map<String, dynamic> json) {
+    final rawList = json["notes"] ?? json["data"];
+    return ParentNoteListResponse(
+      totalContent: _parseInt(
+        json["totalcontent"] ?? json["totalContent"] ?? json["total_content"],
+      ),
+      totalPages: _parseInt(json["totalPages"] ?? json["total_pages"]),
+      currentPage: _parseInt(
+        json["currentPage"] ?? json["current_page"] ?? json["pageNo"],
+      ),
+      notes:
+          rawList is List
+              ? rawList
+                  .whereType<Map<String, dynamic>>()
+                  .map((e) => ParentNoteModel.fromJson(e))
+                  .toList()
+              : [],
+    );
+  }
 }

@@ -5,9 +5,10 @@ import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
+import 'package:acadobs/features/parent_notes/presentation/provider/parent_notes_provider.dart';
 import 'package:acadobs/features/parents/presentation/screens/parent_home_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/payments_home_screen.dart';
-import 'package:acadobs/features/parents/presentation/screens/teachers_listing_screen.dart';
+import 'package:acadobs/features/parents/presentation/screens/parent_connect_screen.dart';
 import 'package:acadobs/features/teacher/presentation/attendance/screens/attendance_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/duties/screens/duty_home_screen.dart';
 import 'package:acadobs/features/teacher/presentation/home/screens/teacher_home_screen.dart';
@@ -101,7 +102,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       return [
         () => ParentHomeScreen(),
         () => PaymentsHomeScreen(),
-        () => TeachersListingScreen(),
+        () => const ParentConnectScreen(),
       ];
     } else if (userType == UserType.nonTeachingStaff) {
       return [
@@ -128,7 +129,11 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       return [
         _bottomNavItem(icon: LucideIcons.home, label: 'Home'),
         _bottomNavItem(icon: LucideIcons.creditCard, label: 'Payments'),
-        _bottomNavItem(icon: LucideIcons.users, label: 'Teachers'),
+        _bottomNavItem(
+          icon: LucideIcons.messagesSquare,
+          label: 'Connect',
+          badgeCount: context.watch<ParentNotesProvider>().totalUnseenNoteCount,
+        ),
       ];
     } else if (userType == UserType.nonTeachingStaff) {
       return [
@@ -203,10 +208,39 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   BottomNavigationBarItem _bottomNavItem({
     required IconData icon,
     required String label,
+    int badgeCount = 0,
   }) {
     return BottomNavigationBarItem(
-      icon: Icon(icon, size: 24),
-      activeIcon: Icon(icon, size: 26),
+      icon:
+          badgeCount > 0
+              ? Badge(
+                label: Text(
+                  badgeCount > 99 ? '99+' : badgeCount.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                backgroundColor: const Color(0xFFE11D48),
+                child: Icon(icon, size: 24),
+              )
+              : Icon(icon, size: 24),
+      activeIcon:
+          badgeCount > 0
+              ? Badge(
+                label: Text(
+                  badgeCount > 99 ? '99+' : badgeCount.toString(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                backgroundColor: const Color(0xFFE11D48),
+                child: Icon(icon, size: 26),
+              )
+              : Icon(icon, size: 26),
       label: label,
     );
   }

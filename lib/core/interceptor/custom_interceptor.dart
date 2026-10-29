@@ -118,7 +118,7 @@ class CustomInterceptor extends Interceptor {
       return handler.next(err);
     }
 
-    if (err.response?.statusCode == 401) {
+    if (err.response?.statusCode == 401 && !err.requestOptions.path.startsWith('/public/')) {
       try {
         final newToken = await _refreshToken();
 
@@ -250,7 +250,7 @@ class CustomInterceptor extends Interceptor {
 
 //     log('ERROR DATA => ${err.response?.data}', name: 'API_SERVICE');
 
-//     if (err.response?.statusCode == 401) {
+//     if (err.response?.statusCode == 401 && !err.requestOptions.path.startsWith('/public/')) {
 //       try {
 //         log(
 //           '================ REFRESH FLOW STARTED ================',

@@ -4,6 +4,7 @@ import 'package:acadobs/features/achievements/presentaion/provider/achievement_p
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
 import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
+import 'package:acadobs/features/parent_notes/presentation/provider/parent_notes_provider.dart';
 import 'package:acadobs/features/news/presentation/provider/news_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/parent_provider.dart';
 import 'package:acadobs/features/parents/presentation/provider/payment_provider.dart';
@@ -79,6 +80,12 @@ class _ParentHomeScreenState extends State<ParentHomeScreen> {
 
     if (mounted) {
       final homeworksProvider = context.read<HomeworksProvider>();
+      final parentNotesProvider = context.read<ParentNotesProvider>();
+      for (final student in parentProvider.students) {
+        parentNotesProvider.getUnseenParentNoteCountByStudentId(
+          studentId: student.id,
+        );
+      }
       for (final student in parentProvider.students) {
         homeworksProvider.getUnseenHomeworkCountByStudentId(
           studentId: student.id,

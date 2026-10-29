@@ -83,6 +83,7 @@ class RouteConstants {
   static const String routeProgress = 'routeProgress';
   static const String invoiceDetailScreen = 'invoiceDetailScreen';
   static const String transportInvoiceDetailScreen = 'transportInvoiceDetailScreen';
+  static const String teachersListingScreen = 'teachersListingScreen';
 
   // STUDENTS
   static const String studentListing = 'studentListing';
@@ -142,5 +143,9 @@ class RouteConstants {
   // **************************PARENT NOTES****************************
   static const String parentNotesListingScreen = "parentNotesListingScreen";
   static const String parentNoteDetailsScreen = "parentNoteDetailsScreen";
+  static const String studentParentNotesListingScreen =
+      "studentParentNotesListingScreen";
+  static const String studentParentNoteDetailsScreen =
+      "studentParentNoteDetailsScreen";
   // **************************PARENT NOTES END************************
 }

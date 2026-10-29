@@ -37,18 +37,22 @@ class _ParentNotesListingScreenState extends State<ParentNotesListingScreen> {
       }
     });
 
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 200 &&
-          !_provider.isLoadingNotes &&
-          _provider.hasMore) {
-        _provider.fetchParentNotes(loadMore: true);
-      }
-    });
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !_provider.isLoadingNotes &&
+        _provider.hasMore) {
+      _provider.fetchParentNotes(loadMore: true);
+    }
   }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }

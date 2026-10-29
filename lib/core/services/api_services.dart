@@ -100,7 +100,9 @@ class ApiServices {
     if (isFormData) {
       // Already a FormData — don't double-wrap it.
       if (data is FormData) return data;
-      if (data is Map<String, dynamic>) return FormData.fromMap(data);
+      if (data is Map<String, dynamic>) {
+        return FormData.fromMap(data, ListFormat.multiCompatible);
+      }
     }
     return data;
   }

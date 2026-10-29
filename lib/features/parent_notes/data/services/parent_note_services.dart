@@ -26,14 +26,19 @@ class ParentNoteServices {
     final fileUpload = context.read<FilePickerProvider>().getFile(fileKey);
     final multipartFile = await FileUploadUtils.toMultipartFile(fileUpload);
 
-    final formData = {
+    final formDataMap = {
       "note_title": title,
       "note_content": content,
       "studentIds": studentIds,
       if (multipartFile != null) "note_attachment": multipartFile,
     };
 
-    log("PARENT NOTE CREATE FORMDATA => $formData");
+    log("PARENT NOTE CREATE FORMDATA => $formDataMap");
+
+    final formData = FormData.fromMap(
+      formDataMap,
+      ListFormat.multiCompatible,
+    );
 
     final response = await ApiServices.post(
       ApiEndpoints.parentNotes,
@@ -45,8 +50,9 @@ class ParentNoteServices {
 
   /// Fetch parent notes with pagination
   Future<Response> fetchParentNotes({required int pageNo, int? limit}) async {
+    final effectiveLimit = limit ?? AppConstants.paginationLimit;
     final response = await ApiServices.get(
-      "${ApiEndpoints.parentNotes}?limit=${limit ?? AppConstants.paginationLimit}&pageNo=$pageNo",
+      "${ApiEndpoints.parentNotes}?limit=$effectiveLimit&pageNo=$pageNo&page=$pageNo",
     );
     return response;
   }
@@ -71,14 +77,19 @@ class ParentNoteServices {
     final fileUpload = context.read<FilePickerProvider>().getFile(fileKey);
     final multipartFile = await FileUploadUtils.toMultipartFile(fileUpload);
 
-    final formData = {
+    final formDataMap = {
       "note_title": title,
       "note_content": content,
       if (studentIds != null) "studentIds": studentIds,
       if (multipartFile != null) "note_attachment": multipartFile,
     };
 
-    log("PARENT NOTE UPDATE ($noteId) => $formData");
+    log("PARENT NOTE UPDATE ($noteId) => $formDataMap");
+
+    final formData = FormData.fromMap(
+      formDataMap,
+      ListFormat.multiCompatible,
+    );
 
     final response = await ApiServices.put(
       "${ApiEndpoints.parentNotes}/$noteId",
@@ -92,6 +103,40 @@ class ParentNoteServices {
   Future<Response> deleteParentNote({required int noteId}) async {
     final response = await ApiServices.delete(
       "${ApiEndpoints.parentNotes}/$noteId",
+    );
+    return response;
+  }
+
+  /// Fetch parent notes for a student (Guardian view) with pagination
+  Future<Response> fetchParentNotesByStudentId({
+    required int studentId,
+    required int pageNo,
+    int? limit,
+  }) async {
+    final effectiveLimit = limit ?? AppConstants.paginationLimit;
+    final response = await ApiServices.get(
+      "${ApiEndpoints.getParentNotesByStudentId}/$studentId?limit=$effectiveLimit&pageNo=$pageNo&page=$pageNo",
+    );
+    return response;
+  }
+
+  /// Fetch single parent note by noteId and studentId (Guardian view)
+  Future<Response> fetchParentNoteByIdAndStudentId({
+    required int noteId,
+    required int studentId,
+  }) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.getParentNotesByIdAndStudentId}/$noteId/$studentId",
+    );
+    return response;
+  }
+
+  /// Fetch unseen parent note count by studentId (Guardian view)
+  Future<Response> fetchUnseenParentNoteCountByStudentId({
+    required int studentId,
+  }) async {
+    final response = await ApiServices.get(
+      "${ApiEndpoints.getParentNoteUnseenCountByStudentId}/$studentId",
     );
     return response;
   }

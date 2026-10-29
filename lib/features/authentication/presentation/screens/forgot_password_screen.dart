@@ -111,6 +111,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
 
     if (success && mounted) {
+      authProvider.clearForgotPasswordError();
+      _otpController.clear();
       _startResendTimer();
       setState(() {
         _currentStep = 2;
@@ -132,6 +134,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
 
     if (success && mounted) {
+      _otpController.clear();
       _startResendTimer();
     }
   }
@@ -152,6 +155,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
 
     if (success && mounted) {
+      authProvider.clearForgotPasswordError();
       setState(() {
         _currentStep = 3;
       });
@@ -172,6 +176,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
 
     if (success && mounted) {
+      authProvider.clearForgotPasswordError();
       setState(() {
         _currentStep = 4; // Success step
       });
@@ -179,6 +184,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void _handleBack() {
+    context.read<AuthProvider>().clearForgotPasswordError();
     if (_currentStep == 1 || _currentStep == 4) {
       context.pop();
     } else if (_currentStep == 2) {
@@ -301,57 +307,147 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   ],
 
                                   // Error Banner
-                                  if (error != null) ...[
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFFEF2F2),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: const Color(0xFFFCA5A5),
-                                        ),
-                                      ),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Icon(
-                                            Icons.error_outline_rounded,
-                                            color: Color(0xFFDC2626),
-                                            size: 18,
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(
-                                              error,
-                                              style: const TextStyle(
-                                                fontSize: 12.5,
-                                                color: Color(0xFFB91C1C),
-                                                fontWeight: FontWeight.w500,
-                                                height: 1.3,
+                                  AnimatedSize(
+                                    duration: const Duration(milliseconds: 220),
+                                    curve: Curves.easeOutCubic,
+                                    child:
+                                        error != null && _currentStep < 4
+                                            ? Padding(
+                                              padding: const EdgeInsets.only(
+                                                bottom: 18,
                                               ),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 4),
-                                          GestureDetector(
-                                            onTap:
-                                                () =>
-                                                    provider
-                                                        .clearForgotPasswordError(),
-                                            child: const Icon(
-                                              Icons.close,
-                                              size: 16,
-                                              color: Color(0xFF991B1B),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                  ],
+                                              child: Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 14,
+                                                      vertical: 12,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFFFFF1F2,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(14),
+                                                  border: Border.all(
+                                                    color: const Color(
+                                                      0xFFFECDD3,
+                                                    ),
+                                                  ),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: const Color(
+                                                        0xFFE11D48,
+                                                      ).withAlpha(12),
+                                                      blurRadius: 10,
+                                                      offset: const Offset(
+                                                        0,
+                                                        3,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            6,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: const Color(
+                                                          0xFFFFE4E6,
+                                                        ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8,
+                                                            ),
+                                                      ),
+                                                      child: const Icon(
+                                                        LucideIcons.circleAlert,
+                                                        color: Color(
+                                                          0xFFE11D48,
+                                                        ),
+                                                        size: 16,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Text(
+                                                            switch (_currentStep) {
+                                                              1 =>
+                                                                "Couldn't Send Code",
+                                                              2 =>
+                                                                "Verification Failed",
+                                                              _ =>
+                                                                "Password Reset Failed",
+                                                            },
+                                                            style:
+                                                                const TextStyle(
+                                                                  fontSize: 13,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  color: Color(
+                                                                    0xFF9F1239,
+                                                                  ),
+                                                                ),
+                                                          ),
+                                                          const SizedBox(
+                                                            height: 2,
+                                                          ),
+                                                          Text(
+                                                            error,
+                                                            style:
+                                                                const TextStyle(
+                                                                  fontSize:
+                                                                      12.5,
+                                                                  color: Color(
+                                                                    0xFFBE123C,
+                                                                  ),
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w500,
+                                                                  height: 1.35,
+                                                                ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 6),
+                                                    InkWell(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            20,
+                                                          ),
+                                                      onTap:
+                                                          provider
+                                                              .clearForgotPasswordError,
+                                                      child: const Padding(
+                                                        padding: EdgeInsets.all(
+                                                          4,
+                                                        ),
+                                                        child: Icon(
+                                                          LucideIcons.x,
+                                                          size: 15,
+                                                          color: Color(
+                                                            0xFF9F1239,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                            : const SizedBox.shrink(),
+                                  ),
 
                                   // Step Content
                                   AnimatedSwitcher(
@@ -667,6 +763,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(width: 6),
               GestureDetector(
                 onTap: () {
+                  provider.clearForgotPasswordError();
                   setState(() {
                     _currentStep = 1;
                   });

@@ -49,6 +49,7 @@ class AuthProvider with ChangeNotifier {
   String? get forgotPasswordPhone => _forgotPasswordPhone;
 
   void clearForgotPasswordError() {
+    if (_forgotPasswordError == null) return;
     _forgotPasswordError = null;
     notifyListeners();
   }
@@ -80,6 +81,188 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Checks whether a string looks like a developer/console error, stack trace, or HTML dump
+  bool _isDeveloperOrTechnicalMessage(String text) {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return true;
+    if (trimmed.length > 180) return true;
+    if (trimmed.startsWith('{') ||
+        trimmed.startsWith('[') ||
+        trimmed.startsWith('<')) {
+      return true;
+    }
+
+    final lower = trimmed.toLowerCase();
+    const technicalPatterns = [
+      'dioexception',
+      'bad response',
+      'validatestatus',
+      'requestoptions',
+      'developer.mozilla.org',
+      'status code of',
+      '<!doctype',
+      '<html',
+      '<body',
+      '<pre>',
+      'cannot post',
+      'cannot get',
+      'cannot put',
+      'typeerror',
+      'referenceerror',
+      'syntaxerror',
+      'rangeerror',
+      'axioserror',
+      'sequelize',
+      'prisma',
+      'sqlstate',
+      'econnrefused',
+      'etimedout',
+      'enotfound',
+      'socketexception',
+      'formatexception',
+      'handshakeexception',
+      'clientexception',
+      'jsonwebtokenerror',
+      'tokenexpirederror',
+      'jwt malformed',
+      'stacktrace',
+      'at object.',
+      'package:',
+      'dart:',
+      'internal server error',
+      'unhandled',
+      'exception:',
+      'errno',
+    ];
+
+    for (final pattern in technicalPatterns) {
+      if (lower.contains(pattern)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Extracts a clean, user-friendly message from server response data if available
+  String? _extractCleanServerMessage(dynamic data) {
+    if (data == null) return null;
+
+    String? candidate;
+    if (data is Map) {
+      final rawMessage = data['message'] ?? data['msg'];
+      if (rawMessage is String && rawMessage.trim().isNotEmpty) {
+        candidate = rawMessage.trim();
+      } else if (data['error'] is String &&
+          (data['error'] as String).trim().isNotEmpty) {
+        candidate = (data['error'] as String).trim();
+      } else if (data['errors'] != null) {
+        final errors = data['errors'];
+        if (errors is List && errors.isNotEmpty) {
+          final first = errors.first;
+          if (first is String) {
+            candidate = first.trim();
+          } else if (first is Map && first['message'] is String) {
+            candidate = (first['message'] as String).trim();
+          } else if (first is Map && first['msg'] is String) {
+            candidate = (first['msg'] as String).trim();
+          }
+        } else if (errors is Map && errors.isNotEmpty) {
+          final firstVal = errors.values.first;
+          if (firstVal is String) {
+            candidate = firstVal.trim();
+          }
+        }
+      }
+    } else if (data is String && data.trim().isNotEmpty) {
+      candidate = data.trim();
+    }
+
+    if (candidate == null || candidate.isEmpty) return null;
+
+    final lower = candidate.toLowerCase();
+    if (lower.contains('jwt expired') ||
+        lower.contains('token expired') ||
+        lower.contains('invalid token')) {
+      return "Your password reset session has expired. Please verify your phone number again.";
+    }
+
+    if (_isDeveloperOrTechnicalMessage(candidate)) {
+      return null;
+    }
+
+    return candidate[0].toUpperCase() + candidate.substring(1);
+  }
+
+  /// Extract human-readable error messages for Forgot Password steps
+  String _parseForgotPasswordError(dynamic error, {required String step}) {
+    if (error is DioException) {
+      switch (error.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+          return "Request timed out. Please check your internet connection and try again.";
+        case DioExceptionType.connectionError:
+          return "No internet connection. Please check your network settings and try again.";
+        case DioExceptionType.badResponse:
+          final response = error.response;
+          final cleanMsg = _extractCleanServerMessage(response?.data);
+          if (cleanMsg != null) {
+            return cleanMsg;
+          }
+
+          final statusCode = response?.statusCode;
+          if (statusCode == 404) {
+            if (step == 'send_otp' || step == 'resend_otp') {
+              return "No account found with this phone number. Please check the number and try again.";
+            }
+            return "The requested service is currently unavailable. Please try again later.";
+          } else if (statusCode == 400 || statusCode == 422) {
+            if (step == 'send_otp' || step == 'resend_otp') {
+              return "Please enter a valid registered 10-digit mobile number.";
+            } else if (step == 'verify_otp') {
+              return "Invalid verification code. Please check the 6-digit OTP and try again.";
+            } else if (step == 'reset_password') {
+              return "Unable to reset password. Please check your new password and try again.";
+            }
+          } else if (statusCode == 401 || statusCode == 403) {
+            if (step == 'verify_otp') {
+              return "Incorrect or expired OTP code. Please try again or request a new code.";
+            } else if (step == 'reset_password') {
+              return "Your reset session has expired. Please verify your phone number again.";
+            }
+            return "Unable to verify your request. Please check your details and try again.";
+          } else if (statusCode == 429) {
+            return "Too many attempts. Please wait a moment before trying again.";
+          } else if (statusCode != null && statusCode >= 500) {
+            return "Our server is temporarily unavailable. Please try again in a few moments.";
+          }
+          break;
+        case DioExceptionType.cancel:
+          return "Request was cancelled. Please try again.";
+        default:
+          if (error.error is SocketException) {
+            return "No internet connection. Please check your network settings and try again.";
+          }
+          break;
+      }
+    } else if (error is SocketException) {
+      return "No internet connection. Please check your network settings and try again.";
+    }
+
+    switch (step) {
+      case 'send_otp':
+        return "Unable to send verification code right now. Please try again.";
+      case 'resend_otp':
+        return "Unable to resend verification code right now. Please try again.";
+      case 'verify_otp':
+        return "Unable to verify the code. Please check the OTP and try again.";
+      case 'reset_password':
+        return "Unable to reset your password right now. Please try again.";
+      default:
+        return "Something went wrong. Please try again.";
+    }
+  }
+
   /// Extract human-readable error messages from various exceptions and response bodies
   String _parseErrorMessage(dynamic error) {
     if (error is DioException) {
@@ -92,32 +275,9 @@ class AuthProvider with ChangeNotifier {
           return "Unable to connect to server. Please check your internet connection.";
         case DioExceptionType.badResponse:
           final response = error.response;
-          if (response?.data != null) {
-            final data = response!.data;
-            if (data is Map) {
-              if (data['message'] != null &&
-                  data['message'].toString().trim().isNotEmpty) {
-                return data['message'].toString().trim();
-              }
-              if (data['error'] != null &&
-                  data['error'].toString().trim().isNotEmpty) {
-                return data['error'].toString().trim();
-              }
-              if (data['msg'] != null &&
-                  data['msg'].toString().trim().isNotEmpty) {
-                return data['msg'].toString().trim();
-              }
-              if (data['errors'] != null) {
-                final errors = data['errors'];
-                if (errors is List && errors.isNotEmpty) {
-                  return errors.first.toString();
-                } else if (errors is Map && errors.isNotEmpty) {
-                  return errors.values.first.toString();
-                }
-              }
-            } else if (data is String && data.trim().isNotEmpty) {
-              return data.trim();
-            }
+          final cleanMsg = _extractCleanServerMessage(response?.data);
+          if (cleanMsg != null) {
+            return cleanMsg;
           }
           final statusCode = response?.statusCode;
           if (statusCode == 400) {
@@ -133,7 +293,7 @@ class AuthProvider with ChangeNotifier {
           } else if (statusCode != null && statusCode >= 500) {
             return "Server is temporarily unavailable. Please try again later.";
           }
-          return "Login failed (${statusCode ?? 'Unknown'}). Please try again.";
+          return "Unable to sign in right now. Please try again.";
         case DioExceptionType.cancel:
           return "Login request was cancelled.";
         default:
@@ -174,8 +334,7 @@ class AuthProvider with ChangeNotifier {
 
       if (token == null || userData == null) {
         final serverMsg =
-            data['message']?.toString() ??
-            data['error']?.toString() ??
+            _extractCleanServerMessage(data) ??
             "Invalid credentials. Please try again.";
         _setError(serverMsg);
         return false;
@@ -538,9 +697,8 @@ class AuthProvider with ChangeNotifier {
 
       _forgotPasswordPhone = phone.trim();
       final message =
-          response.data is Map && response.data['message'] != null
-              ? response.data['message'].toString()
-              : "Verification code sent to your phone number";
+          _extractCleanServerMessage(response.data) ??
+          "Verification code sent to your phone number";
 
       if (context.mounted) {
         CustomSnackbar.show(
@@ -552,15 +710,7 @@ class AuthProvider with ChangeNotifier {
       return true;
     } catch (e, stack) {
       log("ForgotPassword exception: $e", stackTrace: stack);
-      final errorMsg = _parseErrorMessage(e);
-      _forgotPasswordError = errorMsg;
-      if (context.mounted) {
-        CustomSnackbar.show(
-          context,
-          message: errorMsg,
-          type: SnackbarType.failure,
-        );
-      }
+      _forgotPasswordError = _parseForgotPasswordError(e, step: 'send_otp');
       return false;
     } finally {
       _isForgotPasswordLoading = false;
@@ -582,9 +732,8 @@ class AuthProvider with ChangeNotifier {
       log("ResendOtp Response: ${response.data}");
 
       final message =
-          response.data is Map && response.data['message'] != null
-              ? response.data['message'].toString()
-              : "Verification code has been resent successfully";
+          _extractCleanServerMessage(response.data) ??
+          "Verification code has been resent successfully";
 
       if (context.mounted) {
         CustomSnackbar.show(
@@ -596,15 +745,7 @@ class AuthProvider with ChangeNotifier {
       return true;
     } catch (e, stack) {
       log("ResendOtp exception: $e", stackTrace: stack);
-      final errorMsg = _parseErrorMessage(e);
-      _forgotPasswordError = errorMsg;
-      if (context.mounted) {
-        CustomSnackbar.show(
-          context,
-          message: errorMsg,
-          type: SnackbarType.failure,
-        );
-      }
+      _forgotPasswordError = _parseForgotPasswordError(e, step: 'resend_otp');
       return false;
     } finally {
       _isForgotPasswordLoading = false;
@@ -639,23 +780,17 @@ class AuthProvider with ChangeNotifier {
       }
 
       if (token == null || token.isEmpty) {
-        _forgotPasswordError = "Verification failed: Reset token missing in response.";
-        if (context.mounted) {
-          CustomSnackbar.show(
-            context,
-            message: _forgotPasswordError!,
-            type: SnackbarType.failure,
-          );
-        }
+        _forgotPasswordError =
+            _extractCleanServerMessage(response.data) ??
+            "Could not verify the OTP code. Please request a new code and try again.";
         return false;
       }
 
       _resetToken = token;
 
       final message =
-          response.data is Map && response.data['message'] != null
-              ? response.data['message'].toString()
-              : "OTP verified successfully";
+          _extractCleanServerMessage(response.data) ??
+          "OTP verified successfully";
 
       if (context.mounted) {
         CustomSnackbar.show(
@@ -667,15 +802,7 @@ class AuthProvider with ChangeNotifier {
       return true;
     } catch (e, stack) {
       log("VerifyOtp exception: $e", stackTrace: stack);
-      final errorMsg = _parseErrorMessage(e);
-      _forgotPasswordError = errorMsg;
-      if (context.mounted) {
-        CustomSnackbar.show(
-          context,
-          message: errorMsg,
-          type: SnackbarType.failure,
-        );
-      }
+      _forgotPasswordError = _parseForgotPasswordError(e, step: 'verify_otp');
       return false;
     } finally {
       _isForgotPasswordLoading = false;
@@ -692,15 +819,9 @@ class AuthProvider with ChangeNotifier {
     final tokenToUse = resetToken ?? _resetToken;
 
     if (tokenToUse == null || tokenToUse.isEmpty) {
-      const msg = "Reset token is missing or expired. Please verify OTP again.";
-      _forgotPasswordError = msg;
-      if (context.mounted) {
-        CustomSnackbar.show(
-          context,
-          message: msg,
-          type: SnackbarType.warning,
-        );
-      }
+      _forgotPasswordError =
+          "Your password reset session has expired. Please verify your phone number again.";
+      notifyListeners();
       return false;
     }
 
@@ -716,9 +837,8 @@ class AuthProvider with ChangeNotifier {
       log("ResetPassword Response: ${response.data}");
 
       final message =
-          response.data is Map && response.data['message'] != null
-              ? response.data['message'].toString()
-              : "Password has been reset successfully. Please sign in.";
+          _extractCleanServerMessage(response.data) ??
+          "Password has been reset successfully. Please sign in.";
 
       // Reset forgot password state on completion
       _resetToken = null;
@@ -734,15 +854,10 @@ class AuthProvider with ChangeNotifier {
       return true;
     } catch (e, stack) {
       log("ResetPassword exception: $e", stackTrace: stack);
-      final errorMsg = _parseErrorMessage(e);
-      _forgotPasswordError = errorMsg;
-      if (context.mounted) {
-        CustomSnackbar.show(
-          context,
-          message: errorMsg,
-          type: SnackbarType.failure,
-        );
-      }
+      _forgotPasswordError = _parseForgotPasswordError(
+        e,
+        step: 'reset_password',
+      );
       return false;
     } finally {
       _isForgotPasswordLoading = false;

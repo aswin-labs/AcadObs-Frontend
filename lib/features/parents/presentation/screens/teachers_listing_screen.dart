@@ -70,7 +70,7 @@ class _TeachersListingScreenState extends State<TeachersListingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: "Teachers"),
+      appBar: const CommonAppBar(title: "Teachers", isBackButton: true),
       body: RefreshIndicator(
         onRefresh: () async {
           final query = _searchController.text.trim();

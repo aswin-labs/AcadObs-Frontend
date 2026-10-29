@@ -288,4 +288,10 @@ class ApiEndpoints {
 
   // ************************* PARENT NOTES *****************************
   static const String parentNotes = "/teacher/parentNotes";
+  static const String getParentNotesByStudentId =
+      "/guardian/getParentNotesByStudentId";
+  static const String getParentNotesByIdAndStudentId =
+      "/guardian/getParentNotesByIdAndStudentId";
+  static const String getParentNoteUnseenCountByStudentId =
+      "/guardian/getParentNoteUnseenCount";
 }

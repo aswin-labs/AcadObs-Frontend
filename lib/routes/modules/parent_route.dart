@@ -1,9 +1,12 @@
 import 'package:acadobs/features/authentication/presentation/screens/school_selection_screen.dart';
+import 'package:acadobs/features/parent_notes/presentation/screens/student_parent_note_details_screen.dart';
+import 'package:acadobs/features/parent_notes/presentation/screens/student_parent_notes_listing_screen.dart';
 import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
 import 'package:acadobs/features/parents/data/models/invoice_student_model.dart';
 import 'package:acadobs/features/parents/data/models/transport_invoice_model.dart';
 import 'package:acadobs/features/parents/presentation/screens/invoice_detail_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/payment_screen.dart';
+import 'package:acadobs/features/parents/presentation/screens/teachers_listing_screen.dart';
 import 'package:acadobs/features/parents/presentation/screens/transport_invoice_detail_screen.dart';
 import 'package:acadobs/features/students/presentation/screens/prediction.dart';
 import 'package:acadobs/features/students/presentation/screens/student_leave_request_details_screen.dart';
@@ -116,6 +119,46 @@ List<GoRoute> parentRoutes = [
       if (state.extra == null) return buildRouteExtraFallback(context);
       final invoice = state.extra as TransportInvoice;
       return TransportInvoiceDetailScreen(invoice: invoice);
+    },
+  ),
+  // teachers listing screen
+  GoRoute(
+    path: '/teachersListingScreen',
+    name: RouteConstants.teachersListingScreen,
+    builder: (context, state) {
+      return const TeachersListingScreen();
+    },
+  ),
+  // student parent notes listing screen
+  GoRoute(
+    path: '/studentParentNotesListingScreen',
+    name: RouteConstants.studentParentNotesListingScreen,
+    builder: (context, state) {
+      if (state.extra is StudentParentNotesScreenArgs) {
+        final args = state.extra as StudentParentNotesScreenArgs;
+        return StudentParentNotesListingScreen(
+          studentId: args.studentId,
+          studentName: args.studentName,
+        );
+      } else if (state.extra is int) {
+        return StudentParentNotesListingScreen(studentId: state.extra as int);
+      }
+      return buildRouteExtraFallback(context);
+    },
+  ),
+  // student parent note details screen
+  GoRoute(
+    path: '/studentParentNoteDetailsScreen',
+    name: RouteConstants.studentParentNoteDetailsScreen,
+    builder: (context, state) {
+      if (state.extra is StudentParentNoteDetailArgs) {
+        final args = state.extra as StudentParentNoteDetailArgs;
+        return StudentParentNoteDetailsScreen(
+          note: args.note,
+          studentId: args.studentId,
+        );
+      }
+      return buildRouteExtraFallback(context);
     },
   ),
 ];
