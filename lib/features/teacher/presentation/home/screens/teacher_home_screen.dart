@@ -240,11 +240,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                     children: [
                                       Expanded(
                                         child: Consumer<AuthProvider>(
-                                          builder: (
-                                            context,
-                                            authProv,
-                                            _,
-                                          ) {
+                                          builder: (context, authProv, _) {
                                             final schoolDetails =
                                                 authProv.schoolDetails;
                                             final schoolName =
@@ -390,10 +386,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                       }
 
                                       final name =
-                                          provider
-                                              .staffProfile
-                                              ?.user
-                                              ?.name ??
+                                          provider.staffProfile?.user?.name ??
                                           '';
 
                                       return Column(
@@ -750,14 +743,15 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                               height: 56,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF35C2C1),
-                                    Color(0xFF00AEF0),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                                color: const Color(0xFFFFFFFF),
+                                // gradient: const LinearGradient(
+                                //   colors: [
+                                //     Color(0xFF35C2C1),
+                                //     Color.fromARGB(255, 244, 245, 245),
+                                //   ],
+                                //   begin: Alignment.topLeft,
+                                //   end: Alignment.bottomRight,
+                                // ),
                                 boxShadow: [
                                   BoxShadow(
                                     color: const Color(
@@ -789,7 +783,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
                                   child: const Center(
                                     child: Icon(
                                       LucideIcons.messageCircle,
-                                      color: Colors.white,
+                                      color: Color(0xFF00AEF0),
                                       size: 24,
                                     ),
                                   ),

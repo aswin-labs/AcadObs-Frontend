@@ -39,7 +39,7 @@ class _MusicArtsRoboticsOverviewScreenState
       final provider = context.read<MusicArtsRoboticsProvider>();
       _searchController.text = provider.filterSearchQuery;
       provider.fetchRecordedAssessments(isRefresh: true);
-      context.read<TermExamProvider>().fetchTermExams();
+      context.read<TermExamProvider>().fetchAllTermExams();
     });
   }
 
@@ -212,7 +212,7 @@ class _MusicArtsRoboticsOverviewScreenState
                             value: null,
                             child: Text("All Exams"),
                           ),
-                          ...termExamProv.termExams.map((e) {
+                          ...termExamProv.allTermExams.map((e) {
                             final id =
                                 e['id'] is int
                                     ? e['id'] as int
@@ -231,7 +231,7 @@ class _MusicArtsRoboticsOverviewScreenState
                             if (val == null) {
                               tempExamName = null;
                             } else {
-                              final ex = termExamProv.termExams.firstWhere(
+                              final ex = termExamProv.allTermExams.firstWhere(
                                 (e) => e['id'] == val,
                                 orElse: () => {},
                               );

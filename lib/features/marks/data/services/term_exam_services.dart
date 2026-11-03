@@ -11,6 +11,12 @@ class TermExamServices {
     return response;
   }
 
+  // fetch all term exams (including published exams)
+  Future<Response> fetchAllTermExams() async {
+    final response = await ApiServices.get(ApiEndpoints.allTermExams);
+    return response;
+  }
+
   // fetch marks added by teacher
   Future<Response> fetchTermExamMarksAddedByTeacher({
     required int pageNo,

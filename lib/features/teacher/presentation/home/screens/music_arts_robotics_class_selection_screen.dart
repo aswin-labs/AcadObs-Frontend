@@ -75,12 +75,12 @@ class _MusicArtsRoboticsClassSelectionScreenState
   }
 
   Future<void> _loadInitialData() async {
-    if (termExamProvider.termExams.isEmpty) {
-      await termExamProvider.fetchTermExams();
+    if (termExamProvider.allTermExams.isEmpty) {
+      await termExamProvider.fetchAllTermExams();
     }
 
-    if (mounted && termExamProvider.termExams.isNotEmpty) {
-      final firstExam = termExamProvider.termExams.first;
+    if (mounted && termExamProvider.allTermExams.isNotEmpty) {
+      final firstExam = termExamProvider.allTermExams.first;
       setState(() {
         _selectedExamId = firstExam['id'] as int? ?? 5;
         final name = firstExam['exam_name']?.toString() ?? 'Term 1 Exam';
@@ -930,7 +930,7 @@ class _MusicArtsRoboticsClassSelectionScreenState
                         Expanded(
                           child: Consumer<TermExamProvider>(
                             builder: (context, termProv, _) {
-                              final exams = termProv.termExams;
+                              final exams = termProv.allTermExams;
                               return Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,

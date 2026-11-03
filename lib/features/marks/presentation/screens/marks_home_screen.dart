@@ -54,6 +54,7 @@ class _MarksHomeScreenState extends State<MarksHomeScreen>
       if (!mounted) return;
       _marksProvider.fetchAddedMarks();
       _termExamProvider.fetchTermExams();
+      _termExamProvider.fetchAllTermExams();
       context.read<SubjectProvider>().fetchAllSubjects();
       context.read<TermExamProvider>().fetchAddedTermExamMarks(
         forceRefresh: true,

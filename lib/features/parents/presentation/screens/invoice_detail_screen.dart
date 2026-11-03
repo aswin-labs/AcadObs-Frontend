@@ -9,6 +9,7 @@ import 'package:acadobs/features/parents/presentation/widgets/create_payment_bot
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:acadobs/shared/widgets/common_button.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
@@ -118,6 +119,12 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
                           upiId: upiId,
                           upiName: upiName,
                           amount: formattedPayableAmount,
+                          invoice: activeInvoice,
+                        ),
+                      ] else if (_isPayable(activeInvoice.status)) ...[
+                        const SizedBox(height: 16),
+                        _buildScreenshotNoticeBanner(
+                          context: context,
                           invoice: activeInvoice,
                         ),
                       ],
@@ -701,27 +708,108 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
 
-          // Step hint
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Icon(LucideIcons.info, size: 13, color: Color(0xFF94A3B8)),
-              const SizedBox(width: 6),
-              const Expanded(
-                child: Text(
-                  "Pay with any UPI app, screenshot the confirmation, and tap 'Upload Receipt' below.",
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Color(0xFF64748B),
-                    height: 1.3,
-                  ),
-                ),
-              ),
-            ],
+          // Prominent Screenshot & Receipt Upload Notice
+          _buildScreenshotNoticeBanner(
+            context: context,
+            invoice: invoice,
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildScreenshotNoticeBanner({
+    required BuildContext context,
+    required InvoiceStudent invoice,
+  }) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () {
+        showCreatePaymentBottomSheet(
+          context: context,
+          invoice: invoice,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFFBEB),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: const Color(0xFFF59E0B).withValues(alpha: 0.6),
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(
+                LucideIcons.camera,
+                size: 18,
+                color: Color(0xFFD97706),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Important: Upload Payment Screenshot",
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF92400E),
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  RichText(
+                    text: const TextSpan(
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: Color(0xFFB45309),
+                        height: 1.4,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: "After completing your payment, take a ",
+                        ),
+                        TextSpan(
+                          text: "screenshot of the confirmation",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF78350F),
+                          ),
+                        ),
+                        TextSpan(
+                          text: " and tap ",
+                        ),
+                        TextSpan(
+                          text: "'Upload Receipt'",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF78350F),
+                          ),
+                        ),
+                        TextSpan(
+                          text: " below.",
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -913,10 +1001,14 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
     required String? upiName,
     required String amount,
     required String? note,
+    String scheme = 'upi',
+    String host = 'pay',
+    String path = '',
   }) {
     return Uri(
-      scheme: 'upi',
-      host: 'pay',
+      scheme: scheme,
+      host: host,
+      path: path.isEmpty ? null : path,
       queryParameters: {
         'pa': upiId,
         if (upiName != null && upiName.isNotEmpty) 'pn': upiName,
@@ -941,9 +1033,28 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
       note: note,
     );
 
+    // On iOS (including iPhone Safari web build), generic `upi://` is hijacked
+    // by a single app (commonly WhatsApp) because iOS has no system app chooser
+    // for custom URL schemes. Show an explicit UPI app selector instead.
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      _showIosUpiAppPicker(
+        context: context,
+        upiUri: upiUri,
+        upiId: upiId,
+        upiName: upiName,
+        amount: amount,
+        note: note,
+      );
+      return;
+    }
+
     bool launched = false;
     try {
-      launched = await launchUrl(upiUri, mode: LaunchMode.externalApplication);
+      launched = await launchUrl(
+        upiUri,
+        mode: LaunchMode.externalApplication,
+        webOnlyWindowName: kIsWeb ? '_self' : null,
+      );
     } catch (_) {
       launched = false;
     }
@@ -957,6 +1068,318 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
         amount: amount,
       );
     }
+  }
+
+  Future<void> _launchSpecificUpiApp({
+    required BuildContext context,
+    required Uri appUri,
+    required Uri fallbackUpiUri,
+    required String upiId,
+    required String? upiName,
+    required String amount,
+  }) async {
+    bool launched = false;
+    try {
+      launched = await launchUrl(
+        appUri,
+        mode: LaunchMode.externalApplication,
+        webOnlyWindowName: kIsWeb ? '_self' : null,
+      );
+    } catch (_) {
+      launched = false;
+    }
+
+    if (!launched && context.mounted) {
+      _showUpiQrDialog(
+        context: context,
+        upiUri: fallbackUpiUri,
+        upiId: upiId,
+        upiName: upiName,
+        amount: amount,
+      );
+    }
+  }
+
+  void _showIosUpiAppPicker({
+    required BuildContext context,
+    required Uri upiUri,
+    required String upiId,
+    required String? upiName,
+    required String amount,
+    required String? note,
+  }) {
+    final apps = [
+      (
+        name: 'Google Pay (GPay)',
+        subtitle: 'Open in Google Pay',
+        icon: Icons.account_balance_wallet_rounded,
+        color: const Color(0xFF1A73E8),
+        bgColor: const Color(0xFFE8F0FE),
+        uri: _buildUpiUri(
+          upiId: upiId,
+          upiName: upiName,
+          amount: amount,
+          note: note,
+          scheme: 'tez',
+          host: 'upi',
+          path: '/pay',
+        ),
+      ),
+      (
+        name: 'PhonePe',
+        subtitle: 'Open in PhonePe',
+        icon: Icons.currency_rupee_rounded,
+        color: const Color(0xFF5F259F),
+        bgColor: const Color(0xFFF3E8FF),
+        uri: _buildUpiUri(
+          upiId: upiId,
+          upiName: upiName,
+          amount: amount,
+          note: note,
+          scheme: 'phonepe',
+          host: 'pay',
+        ),
+      ),
+      (
+        name: 'Paytm',
+        subtitle: 'Open in Paytm',
+        icon: Icons.payments_rounded,
+        color: const Color(0xFF00BAF2),
+        bgColor: const Color(0xFFE0F7FA),
+        uri: _buildUpiUri(
+          upiId: upiId,
+          upiName: upiName,
+          amount: amount,
+          note: note,
+          scheme: 'paytmmp',
+          host: 'pay',
+        ),
+      ),
+      (
+        name: 'BHIM UPI',
+        subtitle: 'Open in BHIM app',
+        icon: Icons.verified_user_rounded,
+        color: const Color(0xFFEA580C),
+        bgColor: const Color(0xFFFFEDD5),
+        uri: _buildUpiUri(
+          upiId: upiId,
+          upiName: upiName,
+          amount: amount,
+          note: note,
+          scheme: 'bhim',
+          host: 'pay',
+        ),
+      ),
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetCtx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFCBD5E1),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Select UPI App",
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0F172A),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "Pay ₹ $amount to ${upiName ?? upiId}",
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(sheetCtx),
+                      icon: const Icon(Icons.close, size: 20),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                ...apps.map(
+                  (app) => Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: () {
+                        Navigator.pop(sheetCtx);
+                        _launchSpecificUpiApp(
+                          context: context,
+                          appUri: app.uri,
+                          fallbackUpiUri: upiUri,
+                          upiId: upiId,
+                          upiName: upiName,
+                          amount: amount,
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: app.bgColor,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                app.icon,
+                                color: app.color,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    app.name,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    app.subtitle,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 14,
+                              color: Color(0xFF94A3B8),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: () {
+                    Navigator.pop(sheetCtx);
+                    _showUpiQrDialog(
+                      context: context,
+                      upiUri: upiUri,
+                      upiId: upiId,
+                      upiName: upiName,
+                      amount: amount,
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.qr_code_2_rounded,
+                            color: Color(0xFF0F172A),
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 14),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Scan QR Code / Copy UPI ID",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFF0F172A),
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                "Works with any UPI app",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0xFF64748B),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 14,
+                          color: Color(0xFF94A3B8),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _copyToClipboard(BuildContext context, String text, String label) {
@@ -1161,7 +1584,42 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color(0xFFF59E0B).withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(
+                            LucideIcons.camera,
+                            size: 16,
+                            color: Color(0xFFD97706),
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              "Take a screenshot after paying and tap 'Upload Receipt' on the invoice screen.",
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF92400E),
+                                height: 1.3,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(

@@ -33,9 +33,7 @@ Future<void> showAddTermMarksBottomSheet({
 
   final termExamProvider = context.read<TermExamProvider>();
 
-  if (termExamProvider.termExams.isEmpty) {
-    await termExamProvider.fetchTermExams();
-  }
+  await termExamProvider.fetchTermExams();
 
   if (!context.mounted) return;
   dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());

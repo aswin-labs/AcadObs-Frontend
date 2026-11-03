@@ -26,8 +26,8 @@ Future<void> showMarksReportDialog({
 
   final termExamProvider = context.read<TermExamProvider>();
 
-  if (termExamProvider.termExams.isEmpty) {
-    await termExamProvider.fetchTermExams();
+  if (termExamProvider.allTermExams.isEmpty) {
+    await termExamProvider.fetchAllTermExams();
   }
 
   if (!context.mounted) return;
@@ -69,14 +69,14 @@ Future<void> showMarksReportDialog({
                   children: [
                     Consumer<TermExamProvider>(
                       builder: (context, provider, _) {
-                        if (provider.isLoadingExams) {
+                        if (provider.isLoadingAllExams) {
                           return const Padding(
                             padding: EdgeInsets.all(16),
                             child: CircularProgressIndicator(),
                           );
                         }
 
-                        if (provider.termExams.isEmpty) {
+                        if (provider.allTermExams.isEmpty) {
                           return const Padding(
                             padding: EdgeInsets.all(8),
                             child: Text(
@@ -87,7 +87,7 @@ Future<void> showMarksReportDialog({
                         }
 
                         final examLabels =
-                            provider.termExams.map((exam) {
+                            provider.allTermExams.map((exam) {
                               final examName =
                                   exam['exam_name']?.toString() ?? '';
                               final educationYear =
@@ -108,9 +108,8 @@ Future<void> showMarksReportDialog({
                             return null;
                           },
                           onChanged: (selectedLabel) {
-                            final selectedExam = provider.termExams.firstWhere((
-                              exam,
-                            ) {
+                            final selectedExam = provider.allTermExams
+                                .firstWhere((exam) {
                               final examName =
                                   exam['exam_name']?.toString() ?? '';
                               final educationYear =

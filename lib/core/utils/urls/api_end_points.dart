@@ -76,6 +76,7 @@ class ApiEndpoints {
   static const String studentTermExamMarksForTeacher =
       "/teacher/getTermExamByStudentId";
   static const String termExams = "/teacher/getExams";
+  static const String allTermExams = "/teacher/getAllExams";
   static const String myMultiTeacherSubjectInternalMarks =
       "/teacher/myMultiTeacherSubjectInternalMarks";
   static const String getInternalMarksByIdWithSubject =

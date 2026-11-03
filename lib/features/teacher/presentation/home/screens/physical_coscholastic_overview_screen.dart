@@ -85,7 +85,7 @@ class _PhysicalCoscholasticOverviewScreenState
       } else {
         provider.fetchRecordedAssessments(isRefresh: true);
       }
-      context.read<TermExamProvider>().fetchTermExams();
+      context.read<TermExamProvider>().fetchAllTermExams();
     });
   }
 
@@ -163,7 +163,7 @@ class _PhysicalCoscholasticOverviewScreenState
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            final exams = termExamProv.termExams;
+            final exams = termExamProv.allTermExams;
 
             return Container(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),

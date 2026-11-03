@@ -46,8 +46,8 @@ class _CoScholasticClassAssessmentScreenState
     final myClassProvider = context.read<MyClassProvider>();
     final studentProvider = context.read<StudentProvider>();
 
-    if (termExamProvider.termExams.isEmpty) {
-      await termExamProvider.fetchTermExams();
+    if (termExamProvider.allTermExams.isEmpty) {
+      await termExamProvider.fetchAllTermExams();
     }
 
     if (studentProvider.students.isEmpty) {
@@ -65,13 +65,13 @@ class _CoScholasticClassAssessmentScreenState
       );
     }
 
-    if (mounted && termExamProvider.termExams.isNotEmpty) {
+    if (mounted && termExamProvider.allTermExams.isNotEmpty) {
       setState(() {
-        _selectedExamId = termExamProvider.termExams.first['id'] as int?;
+        _selectedExamId = termExamProvider.allTermExams.first['id'] as int?;
         final name =
-            termExamProvider.termExams.first['exam_name']?.toString() ?? '';
+            termExamProvider.allTermExams.first['exam_name']?.toString() ?? '';
         final year =
-            termExamProvider.termExams.first['education_year']?.toString() ??
+            termExamProvider.allTermExams.first['education_year']?.toString() ??
                 '';
         _selectedExamName = year.isNotEmpty ? '$name - $year' : name;
       });
@@ -129,7 +129,7 @@ class _CoScholasticClassAssessmentScreenState
         builder: (context, termExamProvider, _) {
           return Consumer<StudentProvider>(
             builder: (context, studentProvider, _) {
-              if (termExamProvider.isLoadingExams ||
+              if (termExamProvider.isLoadingAllExams ||
                   (studentProvider.isLoading &&
                       studentProvider.students.isEmpty)) {
                 return Padding(
@@ -269,7 +269,7 @@ class _CoScholasticClassAssessmentScreenState
                                 size: 20,
                                 color: Color(0xFF0077B6),
                               ),
-                              items: termExamProvider.termExams.map((exam) {
+                              items: termExamProvider.allTermExams.map((exam) {
                                 final id = exam['id'] as int;
                                 final name =
                                     exam['exam_name']?.toString() ?? '';
@@ -292,7 +292,7 @@ class _CoScholasticClassAssessmentScreenState
                               onChanged: (newExamId) {
                                 if (newExamId == null) return;
                                 final selected =
-                                    termExamProvider.termExams.firstWhere(
+                                    termExamProvider.allTermExams.firstWhere(
                                   (e) => e['id'] == newExamId,
                                   orElse: () => {},
                                 );

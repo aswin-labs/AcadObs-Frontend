@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 class TermExamProvider extends ChangeNotifier {
   bool _isLoadingExams = false;
+  bool _isLoadingAllExams = false;
   bool _isLoadingMarks = false;
   bool _isLoadingStudentMarks = false;
   bool _isLoadingMultiSubjectMarks = false;
@@ -18,6 +19,7 @@ class TermExamProvider extends ChangeNotifier {
   bool _isLoadingForSingleMarks = false;
 
   bool get isLoadingExams => _isLoadingExams;
+  bool get isLoadingAllExams => _isLoadingAllExams;
   bool get isLoadingMarks => _isLoadingMarks;
   bool get isLoadingStudentMarks => _isLoadingStudentMarks;
   bool get isLoadingMultiSubjectMarks => _isLoadingMultiSubjectMarks;
@@ -57,10 +59,13 @@ class TermExamProvider extends ChangeNotifier {
   bool isFetchedOnceForStudent = false;
   bool _isFetchedOnceForMultiSubjectMarks = false;
   List<Map<String, dynamic>> _termExams = [];
+  List<Map<String, dynamic>> _allTermExams = [];
 
   List<Map<String, dynamic>> get termExams => List.unmodifiable(_termExams);
+  List<Map<String, dynamic>> get allTermExams =>
+      List.unmodifiable(_allTermExams);
 
-  // fetch term exams
+  // fetch term exams (unpublished only - used when adding term marks)
   Future<void> fetchTermExams() async {
     _isLoadingExams = true;
     notifyListeners();
@@ -80,6 +85,32 @@ class TermExamProvider extends ChangeNotifier {
       log(e.toString());
     } finally {
       _isLoadingExams = false;
+      notifyListeners();
+    }
+  }
+
+  // fetch all term exams (including published - used for reports, assessments & filters)
+  Future<void> fetchAllTermExams() async {
+    _isLoadingAllExams = true;
+    notifyListeners();
+    try {
+      final response = await TermExamServices().fetchAllTermExams();
+      if (response.statusCode == 200) {
+        final data = response.data;
+        final List examsJson = data['data'];
+        _allTermExams =
+            examsJson
+                .map((jsonItem) => Map<String, dynamic>.from(jsonItem))
+                .toList();
+      } else {
+        throw Exception(
+          'Failed to fetch all term exams: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      _isLoadingAllExams = false;
       notifyListeners();
     }
   }

@@ -45,8 +45,8 @@ class _CompetencyClassAssessmentScreenState
     final myClassProvider = context.read<MyClassProvider>();
     final studentProvider = context.read<StudentProvider>();
 
-    if (termExamProvider.termExams.isEmpty) {
-      await termExamProvider.fetchTermExams();
+    if (termExamProvider.allTermExams.isEmpty) {
+      await termExamProvider.fetchAllTermExams();
     }
 
     if (myClassProvider.competencies.isEmpty) {
@@ -61,11 +61,11 @@ class _CompetencyClassAssessmentScreenState
       );
     }
 
-    if (mounted && termExamProvider.termExams.isNotEmpty) {
+    if (mounted && termExamProvider.allTermExams.isNotEmpty) {
       setState(() {
-        _selectedExamId = termExamProvider.termExams.first['id'] as int?;
-        final name = termExamProvider.termExams.first['exam_name']?.toString() ?? '';
-        final year = termExamProvider.termExams.first['education_year']?.toString() ?? '';
+        _selectedExamId = termExamProvider.allTermExams.first['id'] as int?;
+        final name = termExamProvider.allTermExams.first['exam_name']?.toString() ?? '';
+        final year = termExamProvider.allTermExams.first['education_year']?.toString() ?? '';
         _selectedExamName = year.isNotEmpty ? '$name - $year' : name;
       });
     }
@@ -99,7 +99,7 @@ class _CompetencyClassAssessmentScreenState
         builder: (context, termExamProvider, _) {
           return Consumer<StudentProvider>(
             builder: (context, studentProvider, _) {
-              if (termExamProvider.isLoadingExams ||
+              if (termExamProvider.isLoadingAllExams ||
                   (studentProvider.isLoading && studentProvider.students.isEmpty)) {
                 return Padding(
                   padding: const EdgeInsets.all(20),
@@ -192,7 +192,7 @@ class _CompetencyClassAssessmentScreenState
                                 style: TextStyle(color: Colors.black54, fontSize: 13),
                               ),
                               icon: const Icon(LucideIcons.chevronDown, size: 20, color: Color(0xFF4834D4)),
-                              items: termExamProvider.termExams.map((exam) {
+                              items: termExamProvider.allTermExams.map((exam) {
                                 final id = exam['id'] as int;
                                 final name = exam['exam_name']?.toString() ?? '';
                                 final year = exam['education_year']?.toString() ?? '';
@@ -211,7 +211,7 @@ class _CompetencyClassAssessmentScreenState
                               }).toList(),
                               onChanged: (newExamId) {
                                 if (newExamId == null) return;
-                                final selected = termExamProvider.termExams.firstWhere(
+                                final selected = termExamProvider.allTermExams.firstWhere(
                                   (e) => e['id'] == newExamId,
                                   orElse: () => {},
                                 );

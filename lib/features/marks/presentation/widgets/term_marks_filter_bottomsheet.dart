@@ -37,8 +37,8 @@ Future<void> showTermMarksFilterBottomSheet({
   final subjectProvider = context.read<SubjectProvider>();
 
   // Ensure exams & subjects are available
-  if (termExamProvider.termExams.isEmpty) {
-    termExamProvider.fetchTermExams();
+  if (termExamProvider.allTermExams.isEmpty) {
+    termExamProvider.fetchAllTermExams();
   }
   if (subjectProvider.subjectsAll.isEmpty) {
     subjectProvider.fetchAllSubjects();
@@ -330,7 +330,7 @@ class _TermMarksFilterModalState extends State<_TermMarksFilterModal> {
                   value: null,
                   child: Text("All Exams"),
                 ),
-                ...termExamProvider.termExams.map((exam) {
+                ...termExamProvider.allTermExams.map((exam) {
                   final id =
                       exam['id'] is int
                           ? exam['id'] as int
@@ -356,7 +356,7 @@ class _TermMarksFilterModalState extends State<_TermMarksFilterModal> {
                   if (val == null) {
                     _selectedExamName = null;
                   } else {
-                    final found = termExamProvider.termExams.firstWhere(
+                    final found = termExamProvider.allTermExams.firstWhere(
                       (e) => e['id'] == val,
                       orElse: () => {},
                     );
