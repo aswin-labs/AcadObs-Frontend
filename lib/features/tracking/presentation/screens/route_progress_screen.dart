@@ -5,6 +5,7 @@ import 'package:acadobs/features/tracking/presentation/widgets/route_timeline_ti
 import 'package:acadobs/features/tracking/presentation/widgets/route_top_card.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:lucide_flutter/lucide_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -21,10 +22,29 @@ class RouteProgressScreen extends StatefulWidget {
 class _RouteProgressScreenState extends State<RouteProgressScreen> {
   int? _activeStudentId;
 
+  /// When `null`, defaults to Today (no `date` query param sent, matching default backend behavior).
+  DateTime? _selectedDate;
+
   static const _navyPrimary = Color(0xFF1E3A8A);
   static const _navyLight = Color(0xFF2563EB);
   static const _slateText = Color(0xFF0F172A);
   static const _slateMuted = Color(0xFF64748B);
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  bool get _isTodaySelected {
+    if (_selectedDate == null) return true;
+    return _isSameDay(_selectedDate!, DateTime.now());
+  }
+
+  DateTime get _effectiveDate => _selectedDate ?? DateTime.now();
+
+  String? get _apiDateParam {
+    if (_isTodaySelected) return null;
+    return DateFormat('yyyy-MM-dd').format(_selectedDate!);
+  }
 
   @override
   void initState() {
@@ -60,6 +80,7 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
     if (_activeStudentId != null) {
       await provider.getTodayTransportationByStudentId(
         studentId: _activeStudentId!,
+        date: _apiDateParam,
       );
     }
   }
@@ -68,119 +89,107 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
     if (_activeStudentId != null) {
       await context
           .read<StudentRouteProvider>()
-          .getTodayTransportationByStudentId(studentId: _activeStudentId!);
+          .getTodayTransportationByStudentId(
+            studentId: _activeStudentId!,
+            date: _apiDateParam,
+          );
     } else {
       await _initAndFetch();
     }
+  }
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final initial = _effectiveDate.isAfter(today) ? today : _effectiveDate;
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(2023, 1, 1),
+      lastDate: today,
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: _navyPrimary,
+              onPrimary: Colors.white,
+              onSurface: _slateText,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      _applySelectedDate(picked);
+    }
+  }
+
+  void _applySelectedDate(DateTime? date) {
+    final now = DateTime.now();
+    setState(() {
+      if (date == null || _isSameDay(date, now)) {
+        _selectedDate = null;
+      } else {
+        _selectedDate = DateTime(date.year, date.month, date.day);
+      }
+    });
+    refreshData();
+  }
+
+  void _stepDate(int daysDelta) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final current = DateTime(
+      _effectiveDate.year,
+      _effectiveDate.month,
+      _effectiveDate.day,
+    );
+    final target = current.add(Duration(days: daysDelta));
+    if (target.isAfter(today)) return;
+    _applySelectedDate(target);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      appBar: const CommonAppBar(
+      appBar: CommonAppBar(
         title: "Live Route Tracker",
         isBackButton: true,
         backgroundColor: _navyPrimary,
         titleColor: Colors.white,
+        actions: [
+          IconButton(
+            onPressed: _pickDate,
+            tooltip: "Filter by Date",
+            icon: const Icon(
+              LucideIcons.calendar,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+        ],
       ),
       body: Consumer<StudentRouteProvider>(
         builder: (context, provider, _) {
-          if (provider.isTransportationLoading &&
-              provider.todayTransportation == null) {
-            return const Center(
-              child: CircularProgressIndicator(color: _navyLight),
-            );
-          }
-
-          if (provider.isRouteInactive &&
-              provider.todayTransportation == null) {
-            return _buildInactiveRouteState(
-              provider.transportationError ??
-                  "The transportation route is not active right now.",
-            );
-          }
-
-          if (provider.transportationError != null &&
-              provider.todayTransportation == null) {
-            return _buildErrorState(provider.transportationError!);
-          }
-
-          final transportation = provider.todayTransportation;
-          if (transportation == null || transportation.stops.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  emptyScreen(message: "No route information available today"),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: refreshData,
-                    icon: const Icon(Icons.refresh, size: 18),
-                    label: const Text("Retry"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _navyPrimary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          final sortedStops = transportation.sortedStops;
-          final currentStudent = transportation.student;
-
-          // Latest arrived stop (current vehicle position)
-          TransportationStop? latestArrivedStop;
-          for (final stop in sortedStops) {
-            if (transportation.isStopArrived(stop.id)) {
-              latestArrivedStop = stop;
-            }
-          }
-
           return Column(
             children: [
-              // Subtle top progress bar when background refresh is active
+              // Subtle top progress bar when refresh/loading is active
               if (provider.isTransportationLoading)
                 const LinearProgressIndicator(
                   minHeight: 3,
                   backgroundColor: Colors.transparent,
                   valueColor: AlwaysStoppedAnimation<Color>(_navyLight),
                 ),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: refreshData,
-                  color: _navyLight,
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
-                    children: [
-                      // Top Route Summary Card
-                      RouteTopCard(
-                        transportation: transportation,
-                        latestArrivedStop: latestArrivedStop,
-                      ),
-                      const SizedBox(height: 24),
 
-                      // Timeline Section Header
-                      _buildTimelineHeader(sortedStops.length),
-                      const SizedBox(height: 12),
+              // Date Filter Bar (Always visible so user can switch dates anytime)
+              _buildDateFilterBar(provider.isTransportationLoading),
 
-                      // "Where Is My Train" Style Continuous Track
-                      _buildTimeline(
-                        sortedStops: sortedStops,
-                        transportation: transportation,
-                        currentStudent: currentStudent,
-                        latestArrivedStop: latestArrivedStop,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              // Main Content Area
+              Expanded(child: _buildBodyContent(provider)),
             ],
           );
         },
@@ -211,6 +220,223 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
                     ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildDateFilterBar(bool isLoading) {
+    final isToday = _isTodaySelected;
+    final formattedDate = DateFormat('EEE, dd MMM yyyy').format(_effectiveDate);
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color:
+              isToday
+                  ? const Color(0xFFE2E8F0)
+                  : _navyLight.withValues(alpha: 0.45),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Previous Day Button
+          IconButton(
+            onPressed: isLoading ? null : () => _stepDate(-1),
+            tooltip: "Previous Day",
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: const Icon(
+              LucideIcons.chevronLeft,
+              size: 18,
+              color: _slateText,
+            ),
+          ),
+
+          // Center Date Picker Trigger
+          Expanded(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10),
+              onTap: isLoading ? null : _pickDate,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color:
+                            isToday
+                                ? const Color(0xFFEEF2FF)
+                                : const Color(0xFFDBEAFE),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        LucideIcons.calendar,
+                        size: 15,
+                        color: _navyPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        isToday ? "Today • $formattedDate" : formattedDate,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: _slateText,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // Quick Reset to "Today" chip when viewing a past date
+          if (!isToday) ...[
+            InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: isLoading ? null : () => _applySelectedDate(null),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: _navyPrimary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  "Today",
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: _navyPrimary,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 2),
+          ],
+
+          // Next Day Button (disabled when already on Today)
+          IconButton(
+            onPressed: (isLoading || isToday) ? null : () => _stepDate(1),
+            tooltip: "Next Day",
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            icon: Icon(
+              LucideIcons.chevronRight,
+              size: 18,
+              color: isToday ? const Color(0xFFCBD5E1) : _slateText,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBodyContent(StudentRouteProvider provider) {
+    if (provider.isTransportationLoading &&
+        provider.todayTransportation == null) {
+      return const Center(child: CircularProgressIndicator(color: _navyLight));
+    }
+
+    if (provider.isRouteInactive && provider.todayTransportation == null) {
+      return _buildInactiveRouteState(
+        provider.transportationError ??
+            (_isTodaySelected
+                ? "The transportation route is not active right now."
+                : "No transportation activity recorded for ${DateFormat('dd MMM yyyy').format(_effectiveDate)}."),
+      );
+    }
+
+    if (provider.transportationError != null &&
+        provider.todayTransportation == null) {
+      return _buildErrorState(provider.transportationError!);
+    }
+
+    final transportation = provider.todayTransportation;
+    if (transportation == null || transportation.stops.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            emptyScreen(
+              message:
+                  _isTodaySelected
+                      ? "No route information available today"
+                      : "No route information available for ${DateFormat('dd MMM yyyy').format(_effectiveDate)}",
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: refreshData,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text("Retry"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _navyPrimary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final sortedStops = transportation.sortedStops;
+    final currentStudent = transportation.student;
+
+    // Latest arrived stop (current vehicle position)
+    TransportationStop? latestArrivedStop;
+    for (final stop in sortedStops) {
+      if (transportation.isStopArrived(stop.id)) {
+        latestArrivedStop = stop;
+      }
+    }
+
+    return RefreshIndicator(
+      onRefresh: refreshData,
+      color: _navyLight,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 80),
+        children: [
+          // Top Route Summary Card
+          RouteTopCard(
+            transportation: transportation,
+            latestArrivedStop: latestArrivedStop,
+          ),
+          const SizedBox(height: 24),
+
+          // Timeline Section Header
+          _buildTimelineHeader(sortedStops.length),
+          const SizedBox(height: 12),
+
+          // "Where Is My Train" Style Continuous Track
+          _buildTimeline(
+            sortedStops: sortedStops,
+            transportation: transportation,
+            currentStudent: currentStudent,
+            latestArrivedStop: latestArrivedStop,
+          ),
+        ],
       ),
     );
   }
@@ -327,9 +553,11 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                const Text(
-                  "Route is Not Active Right Now",
-                  style: TextStyle(
+                Text(
+                  _isTodaySelected
+                      ? "Route is Not Active Right Now"
+                      : "No Route Activity on ${DateFormat('dd MMM yyyy').format(_effectiveDate)}",
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: _slateText,
@@ -348,25 +576,52 @@ class _RouteProgressScreenState extends State<RouteProgressScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: refreshData,
-                  icon: const Icon(Icons.refresh_rounded, size: 18),
-                  label: const Text(
-                    "Check Again",
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _navyPrimary,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (!_isTodaySelected) ...[
+                      OutlinedButton.icon(
+                        onPressed: () => _applySelectedDate(null),
+                        icon: const Icon(LucideIcons.calendar, size: 16),
+                        label: const Text(
+                          "Back to Today",
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _navyPrimary,
+                          side: const BorderSide(color: _navyPrimary),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 18,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                    ],
+                    ElevatedButton.icon(
+                      onPressed: refreshData,
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: const Text(
+                        "Check Again",
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _navyPrimary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
+                  ],
                 ),
               ],
             ),

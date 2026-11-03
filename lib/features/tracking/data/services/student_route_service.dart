@@ -10,10 +10,14 @@ class StudentRouteService {
 
   Future<Response> getTodayTransportationByStudentId({
     required int studentId,
+    String? date,
   }) async {
-    final response = await ApiServices.get(
-      '${ApiEndpoints.getTodayTransportationByStudentId}/$studentId',
-    );
+    String url =
+        '${ApiEndpoints.getTodayTransportationByStudentId}/$studentId';
+    if (date != null && date.trim().isNotEmpty) {
+      url += '?date=${Uri.encodeComponent(date.trim())}';
+    }
+    final response = await ApiServices.get(url);
     return response;
   }
 

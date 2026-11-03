@@ -38,6 +38,7 @@ class StudentRouteProvider extends ChangeNotifier {
 
   Future<void> getTodayTransportationByStudentId({
     required int studentId,
+    String? date,
   }) async {
     try {
       _isTransportationLoading = true;
@@ -46,7 +47,10 @@ class StudentRouteProvider extends ChangeNotifier {
       notifyListeners();
 
       final response = await StudentRouteService()
-          .getTodayTransportationByStudentId(studentId: studentId);
+          .getTodayTransportationByStudentId(
+            studentId: studentId,
+            date: date,
+          );
 
       log("Today Transportation API Response: ${response.data}");
 
