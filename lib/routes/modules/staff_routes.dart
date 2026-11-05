@@ -8,6 +8,7 @@ import 'package:acadobs/features/achievements/presentaion/screens/school_achieve
 import 'package:acadobs/features/events/data/models/event_model.dart';
 import 'package:acadobs/features/events/presentation/screens/event_detail_screen.dart';
 import 'package:acadobs/features/events/presentation/screens/event_listing_screen.dart';
+import 'package:acadobs/features/exam_timetable/presentation/screens/exam_timetable_screen.dart';
 import 'package:acadobs/features/homeworks/data/models/homework_model.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/add_missing_homework_student_ranking_screen.dart';
 import 'package:acadobs/features/homeworks/presentation/screens/edit_home_work_screen.dart';
@@ -697,6 +698,11 @@ List<GoRoute> staffRoutes = [
     builder: (context, state) {
       return const MusicArtsRoboticsClassSelectionScreen();
     },
+  ),
+  GoRoute(
+    path: '/examTimetableScreen',
+    name: RouteConstants.examTimetableScreen,
+    builder: (context, state) => const ExamTimetableScreen(),
   ),
   GoRoute(
     path: '/musicArtsRoboticsCoscholasticStudentRating',

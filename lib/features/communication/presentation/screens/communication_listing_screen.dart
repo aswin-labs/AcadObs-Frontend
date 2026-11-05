@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/empty_screen.dart';
-import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/communication/presentation/provider/communication_provider.dart';
 import 'package:acadobs/features/communication/presentation/screens/communication_detail_screen.dart';
 import 'package:acadobs/features/communication/presentation/widgets/communication_thread_tile.dart';
@@ -222,7 +221,7 @@ class _CommunicationListingScreenState
                     child: ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       children: [
-                        SizedBox(height: Responsive.height * 16),
+                        // SizedBox(height: Responsive.height * 16),
                         emptyScreen(
                           message:
                               widget.forStaff

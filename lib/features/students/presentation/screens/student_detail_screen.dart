@@ -732,6 +732,21 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           ),
                         if (!widget.forStaff)
                           StudentFeatureCard(
+                            icon: LucideIcons.calendarClock,
+                            title: "Exam Timetable",
+                            color: const Color(0xFF7E57C2),
+                            onTap: () {
+                              context.pushNamed(
+                                RouteConstants.studentExamTimetableScreen,
+                                extra: StudentScreenArgs(
+                                  studentId: widget.studentId,
+                                  forStaff: false,
+                                ),
+                              );
+                            },
+                          ),
+                        if (!widget.forStaff)
+                          StudentFeatureCard(
                             icon: Icons.notifications,
                             title: "Notice",
                             color: Colors.amberAccent,

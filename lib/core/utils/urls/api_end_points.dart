@@ -306,4 +306,15 @@ class ApiEndpoints {
   static const String guardianGetMyChats = "/guardian/getMyChats";
   static const String guardianGetMessagesByChatId =
       "/guardian/getMessagesByChatId";
+
+  // ************************* EXAM TIMETABLE ***************************
+  static const String teacherGetExamTitles = "/teacher/getExamTitles";
+  static const String teacherGetExamTimetableByStandard =
+      "/teacher/getAllExamTimeTablebyStandard";
+  static const String teacherGetExamTimetableByOwnSubjects =
+      "/teacher/getExamTimeTablesByOwnSubjects";
+  static const String guardianGetExamTitles = "/guardian/getExamTitles";
+  static const String guardianGetAllExams = "/guardian/getAllExams";
+  static const String guardianGetExamTimetableByStudentId =
+      "/guardian/getexamtimetablebyStudnetId";
 }

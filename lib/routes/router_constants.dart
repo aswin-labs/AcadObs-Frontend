@@ -117,6 +117,8 @@ class RouteConstants {
   static const String todayTimetableScreen = "todayTimetableScreen";
   // all days timetable screen
   static const String allDayTimetableScreen = "allDayTimetableScreen";
+  static const String examTimetableScreen = "examTimetableScreen";
+  static const String studentExamTimetableScreen = "studentExamTimetableScreen";
 
   // ******************************************************************
 

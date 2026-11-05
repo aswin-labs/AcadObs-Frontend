@@ -1,4 +1,6 @@
 import 'package:acadobs/features/authentication/presentation/screens/school_selection_screen.dart';
+import 'package:acadobs/features/exam_timetable/presentation/screens/student_exam_timetable_screen.dart';
+import 'package:acadobs/features/students/data/models/student_screen_args.dart';
 import 'package:acadobs/features/parent_notes/presentation/screens/student_parent_note_details_screen.dart';
 import 'package:acadobs/features/parent_notes/presentation/screens/student_parent_notes_listing_screen.dart';
 // import 'package:acadobs/features/chats/presentation/widgets/share_bottom_sheet.dart';
@@ -127,6 +129,25 @@ List<GoRoute> parentRoutes = [
     name: RouteConstants.teachersListingScreen,
     builder: (context, state) {
       return const TeachersListingScreen();
+    },
+  ),
+  // student exam timetable screen (for guardian)
+  GoRoute(
+    path: '/studentExamTimetableScreen',
+    name: RouteConstants.studentExamTimetableScreen,
+    builder: (context, state) {
+      int? studentId;
+      if (state.extra is StudentScreenArgs) {
+        studentId = (state.extra as StudentScreenArgs).studentId;
+      } else if (state.extra is int) {
+        studentId = state.extra as int;
+      } else {
+        studentId = int.tryParse(state.uri.queryParameters['studentId'] ?? '');
+      }
+      if (studentId == null || studentId <= 0) {
+        return buildRouteExtraFallback(context);
+      }
+      return StudentExamTimetableScreen(studentId: studentId);
     },
   ),
   // student parent notes listing screen

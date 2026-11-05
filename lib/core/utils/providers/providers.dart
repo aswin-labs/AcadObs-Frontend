@@ -4,6 +4,7 @@ import 'package:acadobs/features/authentication/presentation/provider/auth_provi
 // import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/communication/presentation/provider/communication_provider.dart';
 import 'package:acadobs/features/events/presentation/provider/event_provider.dart';
+import 'package:acadobs/features/exam_timetable/presentation/provider/exam_timetable_provider.dart';
 import 'package:acadobs/features/homeworks/presentation/provider/homeworks_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/marks_provider.dart';
 import 'package:acadobs/features/marks/presentation/provider/term_exam_provider.dart';
@@ -104,5 +105,8 @@ getProviders() {
 
     // *************music / arts / robotics co-scholastic provider*****
     ChangeNotifierProvider(create: (_) => MusicArtsRoboticsProvider()),
+
+    // *************exam timetable provider*************
+    ChangeNotifierProvider(create: (_) => ExamTimetableProvider()),
   ];
 }
