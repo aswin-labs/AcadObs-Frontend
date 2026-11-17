@@ -1,8 +1,8 @@
 import 'package:acadobs/core/services/api_services.dart';
+import 'package:acadobs/core/services/notification_services.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
 import 'package:acadobs/core/utils/urls/api_end_points.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthServices {
   // Login
@@ -49,15 +49,10 @@ class AuthServices {
   }
 
   // send fcm token safely
-  Future<Response?> sendFcmToken() async {
+  Future<Response?> sendFcmToken({String? fcmToken}) async {
     try {
-      String? token;
-      try {
-        token = await FirebaseMessaging.instance.getToken();
-      } catch (e) {
-        // Firebase token fetching may fail if notification permission is denied
-      }
-
+      String? token = fcmToken;
+      token ??= await NotificationServices().getAndSaveToken();
       token ??= await AuthStorageService().getFcmToken();
 
       if (token == null || token.isEmpty) {

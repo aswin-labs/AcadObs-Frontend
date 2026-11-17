@@ -403,6 +403,12 @@ class AuthProvider with ChangeNotifier {
           log("Error fetching school details for teacher: $e");
         }
 
+        try {
+          await AuthServices().sendFcmToken();
+        } catch (e) {
+          log("FCM token sync skipped/failed: $e");
+        }
+
         isLoginSuccess = true;
         if (!context.mounted) return true;
         context.pushReplacementNamed(
@@ -420,6 +426,12 @@ class AuthProvider with ChangeNotifier {
           await getStaffPermissions(manageLoading: false);
         } catch (e) {
           log("Error fetching staff permissions: $e");
+        }
+
+        try {
+          await AuthServices().sendFcmToken();
+        } catch (e) {
+          log("FCM token sync skipped/failed: $e");
         }
 
         isLoginSuccess = true;

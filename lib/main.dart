@@ -7,6 +7,7 @@ import 'package:acadobs/core/utils/providers/providers.dart';
 import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/routes/app_router.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -24,6 +25,7 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   if (!kIsWeb) {
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
     await NotificationServices().initNotification();
   }
 
@@ -45,6 +47,9 @@ class _MyAppState extends State<MyApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FlutterNativeSplash.remove();
       AppUpdateService.checkForUpdate();
+      if (!kIsWeb) {
+        NotificationServices().handleInitialMessage();
+      }
     });
   }
 

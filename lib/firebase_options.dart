@@ -59,13 +59,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCYg7Lp0HR-N5TOPamZLcAjsIxrpbPosNc',
-    appId: '1:999846872581:ios:36a854beb7bd279156be6c',
+    appId: '1:999846872581:ios:4381835bfc57ef1356be6c',
     messagingSenderId: '999846872581',
     projectId: 'acadobs-c32a5',
     storageBucket: 'acadobs-c32a5.firebasestorage.app',
-    iosBundleId: 'com.example.flutterProviderTemplate',
+    iosBundleId: 'com.altezzai.acadobs',
   );
-
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyCYg7Lp0HR-N5TOPamZLcAjsIxrpbPosNc',
     appId: '1:999846872581:ios:36a854beb7bd279156be6c',
