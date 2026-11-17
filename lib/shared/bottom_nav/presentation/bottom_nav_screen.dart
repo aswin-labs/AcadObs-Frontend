@@ -2,7 +2,6 @@ import 'dart:developer';
 
 import 'package:acadobs/core/theme/colors/app_colors.dart';
 import 'package:acadobs/core/utils/auth_storage_services.dart';
-import 'package:acadobs/core/utils/responsive.dart';
 import 'package:acadobs/features/authentication/data/models/user_type_enum.dart';
 import 'package:acadobs/features/communication/presentation/provider/communication_provider.dart';
 import 'package:acadobs/features/marks/presentation/screens/marks_home_screen.dart';
@@ -185,24 +184,21 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
           return const SizedBox.shrink();
         }),
       ),
-      bottomNavigationBar: SizedBox(
-        height: Responsive.height * 8,
-        child: BottomNavigationBar(
-          backgroundColor: AppColors.white,
-          type: BottomNavigationBarType.fixed,
-          currentIndex: currentIndex,
-          selectedItemColor:
-              Colors.black, // handled by BottomNavigationBar itself
-          unselectedItemColor: Color(0xFF848484),
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
-          selectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-          unselectedLabelStyle: TextStyle(fontWeight: FontWeight.bold),
-          onTap: (index) {
-            bottomNavProvider.setIndex(index);
-          },
-          items: navItems,
-        ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: AppColors.white,
+        type: BottomNavigationBarType.fixed,
+        currentIndex: currentIndex,
+        selectedItemColor:
+            Colors.black, // handled by BottomNavigationBar itself
+        unselectedItemColor: const Color(0xFF848484),
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
+        onTap: (index) {
+          bottomNavProvider.setIndex(index);
+        },
+        items: navItems,
       ),
       // ),
     );

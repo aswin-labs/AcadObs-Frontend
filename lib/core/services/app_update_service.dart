@@ -1,26 +1,20 @@
 import 'package:flutter/foundation.dart';
-import 'package:in_app_update/in_app_update.dart';
+import 'package:upgrader/upgrader.dart';
 
 class AppUpdateService {
+  /// Shared [Upgrader] instance configured for in-app updates.
+  static final Upgrader upgrader = Upgrader(
+    debugLogging: kDebugMode,
+    durationUntilAlertAgain: const Duration(days: 1),
+  );
+
+  /// Initializes the upgrader and checks for updates.
   static Future<void> checkForUpdate() async {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
-      return;
-    }
-
+    if (kIsWeb) return;
     try {
-      final updateInfo = await InAppUpdate.checkForUpdate();
-
-      if (updateInfo.updateAvailability ==
-          UpdateAvailability.updateAvailable) {
-        if (updateInfo.immediateUpdateAllowed) {
-          await InAppUpdate.performImmediateUpdate();
-        } else if (updateInfo.flexibleUpdateAllowed) {
-          await InAppUpdate.startFlexibleUpdate();
-          await InAppUpdate.completeFlexibleUpdate();
-        }
-      }
+      await upgrader.initialize();
     } catch (e) {
-      debugPrint("Update check failed: $e");
+      debugPrint("App update check failed: $e");
     }
   }
 }

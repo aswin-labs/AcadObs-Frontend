@@ -63,11 +63,11 @@ dependencies:
   geolocator: ^14.0.2
   change_app_package_name: ^1.5.0
   jwt_decoder: ^2.0.1
-  flutter_native_splash: ^2.4.8
-  in_app_update: ^5.0.0
+  flutter_native_splash: ^2.4.4
   crop_your_image: ^2.0.1
   image: ^4.10.1
   screen_protector: ^1.5.3
+  upgrader: ^13.8.0
   # open_filex: ^4.7.0
 
 dev_dependencies:

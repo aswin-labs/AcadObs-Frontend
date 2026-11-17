@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:provider/provider.dart';
+import 'package:upgrader/upgrader.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -67,6 +68,19 @@ class _MyAppState extends State<MyApp> {
                     debugShowCheckedModeBanner: false,
                     routerConfig: appRouter,
                     theme: AppTheme.lightTheme,
+                    builder: (context, child) {
+                      return UpgradeAlert(
+                        upgrader: AppUpdateService.upgrader,
+                        navigatorKey: appRouter.routerDelegate.navigatorKey,
+                        dialogStyle:
+                            defaultTargetPlatform == TargetPlatform.iOS
+                                ? UpgradeDialogStyle.cupertino
+                                : UpgradeDialogStyle.material,
+                        showIgnore: false,
+                        showLater: true,
+                        child: child ?? const SizedBox.shrink(),
+                      );
+                    },
                   );
                 },
               ),
