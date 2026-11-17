@@ -47,5 +47,13 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSCameraUsageDescription</key>
+		<string>Acadobs needs access to your camera to take a profile photo.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Acadobs needs access to your photo library to select a profile photo.</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Acadobs needs access to save photos to your photo library.</string>
+		<key>NSMicrophoneUsageDescription</key>
+		<string>Acadobs needs access to your microphone when capturing media.</string>
 	</dict>
 </plist>

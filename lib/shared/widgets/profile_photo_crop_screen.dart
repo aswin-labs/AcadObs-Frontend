@@ -65,6 +65,7 @@ class _ProfilePhotoCropScreenState extends State<ProfilePhotoCropScreen> {
   Uint8List? _currentBytes;
   bool _isLoading = true;
   bool _isCropping = false;
+  bool _isCropReady = false;
 
   @override
   void initState() {
@@ -172,6 +173,15 @@ class _ProfilePhotoCropScreenState extends State<ProfilePhotoCropScreen> {
                       image: _currentBytes!,
                       controller: _controller,
                       onCropped: _onCropped,
+                      onStatusChanged: (status) {
+                        if (!mounted) return;
+                        if (status == CropStatus.ready && !_isCropReady) {
+                          setState(() => _isCropReady = true);
+                        } else if (status == CropStatus.cropping &&
+                            !_isCropping) {
+                          setState(() => _isCropping = true);
+                        }
+                      },
                       aspectRatio: 1.0,
                       withCircleUi: false,
                       interactive: true,
@@ -268,7 +278,7 @@ class _ProfilePhotoCropScreenState extends State<ProfilePhotoCropScreen> {
           ),
           ElevatedButton(
             onPressed:
-                (_isCropping || _isLoading)
+                (_isCropping || _isLoading || !_isCropReady)
                     ? null
                     : () {
                       setState(() => _isCropping = true);

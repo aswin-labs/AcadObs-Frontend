@@ -105,16 +105,25 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
   }
 
   final ImagePicker _picker = ImagePicker();
+  bool _isPickingImage = false;
 
   Future<void> _pickImage(ImageSource source) async {
+    if (_isPickingImage) return;
+    _isPickingImage = true;
     try {
+      await Future.delayed(const Duration(milliseconds: 250));
+      if (!mounted) return;
       final pickedFile = await _picker.pickImage(
         source: source,
-        imageQuality: 95,
+        maxWidth: 1080,
+        maxHeight: 1080,
+        imageQuality: 85,
+        requestFullMetadata: false,
       );
       if (pickedFile != null && mounted) {
         final bytes = await pickedFile.readAsBytes();
         final original = kIsWeb ? null : File(pickedFile.path);
+        await Future.delayed(const Duration(milliseconds: 200));
         if (!mounted) return;
         final cropResult = await ProfilePhotoCropScreen.cropImage(
           context,
@@ -148,6 +157,8 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
           backgroundColor: Colors.red,
         ),
       );
+    } finally {
+      _isPickingImage = false;
     }
   }
 
@@ -156,7 +167,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder:
-          (_) => Container(
+          (sheetContext) => Container(
             decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
@@ -197,7 +208,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pop(sheetContext);
                       _pickImage(ImageSource.gallery);
                     },
                   ),
@@ -218,7 +229,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       style: TextStyle(fontWeight: FontWeight.w500),
                     ),
                     onTap: () {
-                      Navigator.pop(context);
+                      Navigator.pop(sheetContext);
                       _pickImage(ImageSource.camera);
                     },
                   ),
