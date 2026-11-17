@@ -12,89 +12,116 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-/// Top-level background message handler for FCM when the app is in background or terminated.
+/// Handles background Firebase messages.
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  log('🌙 Background message received: ${message.messageId}');
+
+  log('Background notification received: ${message.messageId}');
 }
 
 class NotificationServices {
   NotificationServices._internal();
-  static final NotificationServices _instance = NotificationServices._internal();
+
+  static final NotificationServices _instance =
+      NotificationServices._internal();
+
   factory NotificationServices() => _instance;
 
   static const AndroidNotificationChannel _highImportanceChannel =
       AndroidNotificationChannel(
-    'high_importance_channel',
-    'High Importance Notifications',
-    description: 'This channel is used for important notifications.',
-    importance: Importance.max,
-  );
+        'high_importance_channel',
+        'High Importance Notifications',
+        description: 'This channel is used for important notifications.',
+        importance: Importance.max,
+      );
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
+
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+
   final AuthStorageService _storageService = AuthStorageService();
 
   bool _initialized = false;
   bool _initialMessageHandled = false;
 
+  // ---------------- INITIALIZATION ----------------
+
   Future<void> initNotification() async {
     if (_initialized || kIsWeb) return;
-    _initialized = true;
 
     try {
       await _requestPermission();
+
       await _initLocalNotifications();
+
       _initFirebaseListeners();
-      _initTokenHandling();
+
+      _initTokenRefreshListener();
+
+      await getAndSaveToken();
+
+      _initialized = true;
+
+      log('Notification service initialized successfully.');
     } catch (e, s) {
-      log('❌ Notification init failed safely: $e');
+      _initialized = false;
+      log('Notification initialization failed: $e');
       log('$s');
     }
   }
 
-  /// Handles notification taps that launched the app from a terminated state.
-  /// Call this after the widget tree and GoRouter are mounted.
+  // ---------------- INITIAL MESSAGE ----------------
+
   Future<void> handleInitialMessage() async {
     if (_initialMessageHandled || kIsWeb) return;
+
     _initialMessageHandled = true;
 
     try {
       final initialMessage = await _firebaseMessaging.getInitialMessage();
+
       if (initialMessage != null) {
-        log('🚀 App opened from terminated state via FCM: ${initialMessage.data}');
+        log('App opened from terminated state via FCM.');
+
         await _handleNotificationClick(initialMessage.data);
         return;
       }
 
       final launchDetails =
-          await _flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
+          await _flutterLocalNotificationsPlugin
+              .getNotificationAppLaunchDetails();
+
       if (launchDetails != null &&
           launchDetails.didNotificationLaunchApp &&
           launchDetails.notificationResponse?.payload != null) {
         final payload = launchDetails.notificationResponse!.payload!;
+
         final decoded = jsonDecode(payload);
+
         if (decoded is Map<String, dynamic>) {
-          log('🚀 App opened from terminated state via local notification: $decoded');
           await _handleNotificationClick(decoded);
+        } else if (decoded is Map) {
+          await _handleNotificationClick(Map<String, dynamic>.from(decoded));
         }
       }
     } catch (e, s) {
-      log('⚠️ Failed to handle initial notification message: $e');
+      log('Failed to handle initial notification: $e');
       log('$s');
     }
   }
 
   // ---------------- PERMISSION ----------------
+
   Future<void> _requestPermission() async {
     final settings = await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
-    log('🔔 Permission status: ${settings.authorizationStatus}');
+
+    log('Notification permission: ${settings.authorizationStatus}');
 
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       await _firebaseMessaging.setForegroundNotificationPresentationOptions(
@@ -105,7 +132,8 @@ class NotificationServices {
     }
   }
 
-  // ---------------- LOCAL NOTIFICATION ----------------
+  // ---------------- LOCAL NOTIFICATIONS ----------------
+
   Future<void> _initLocalNotifications() async {
     const androidInitSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -125,20 +153,18 @@ class NotificationServices {
     await _flutterLocalNotificationsPlugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: (response) {
-        if (response.payload == null || response.payload!.isEmpty) return;
+        final payload = response.payload;
+
+        if (payload == null || payload.isEmpty) return;
 
         try {
-          final decoded = jsonDecode(response.payload!);
-          if (decoded is Map<String, dynamic>) {
-            log('🟢 Notification clicked: $decoded');
-            _handleNotificationClick(decoded);
-          } else if (decoded is Map) {
-            final data = Map<String, dynamic>.from(decoded);
-            log('🟢 Notification clicked: $data');
-            _handleNotificationClick(data);
+          final decoded = jsonDecode(payload);
+
+          if (decoded is Map) {
+            _handleNotificationClick(Map<String, dynamic>.from(decoded));
           }
         } catch (e) {
-          log('⚠️ Failed to decode notification payload: $e');
+          log('Failed to decode notification payload: $e');
         }
       },
     );
@@ -146,22 +172,24 @@ class NotificationServices {
     if (defaultTargetPlatform == TargetPlatform.android) {
       await _flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
-              AndroidFlutterLocalNotificationsPlugin>()
+            AndroidFlutterLocalNotificationsPlugin
+          >()
           ?.createNotificationChannel(_highImportanceChannel);
     }
   }
 
   // ---------------- FIREBASE LISTENERS ----------------
+
   void _initFirebaseListeners() {
     FirebaseMessaging.onMessage.listen((message) {
-      log('📩 Foreground message: ${message.notification?.title ?? message.data['title']}');
+      log('Foreground notification received.');
 
       if (defaultTargetPlatform == TargetPlatform.iOS) {
-        // On iOS, setForegroundNotificationPresentationOptions displays messages
-        // that carry a notification payload natively. Only show a local
-        // notification for data-only messages to avoid duplicate banners.
+        // iOS displays notification payloads natively while foregrounded.
+        // Use local notifications for data-only messages with display data.
         final hasDisplayData =
             message.data['title'] != null || message.data['body'] != null;
+
         if (message.notification == null && hasDisplayData) {
           _showNotification(message);
         }
@@ -171,42 +199,53 @@ class NotificationServices {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      log('🟢 Opened from notification: ${message.data}');
+      log('Notification opened by user.');
       _handleNotificationClick(message.data);
     });
   }
 
-  // ---------------- TOKEN HANDLING ----------------
-  void _initTokenHandling() {
-    getAndSaveToken();
+  // ---------------- TOKEN REFRESH ----------------
 
-    // Token refresh listener
-    _firebaseMessaging.onTokenRefresh.listen((newToken) async {
-      log('🔄 FCM Token refreshed: $newToken');
-      await _storageService.saveFcmToken(fcmToken: newToken);
+  void _initTokenRefreshListener() {
+    _firebaseMessaging.onTokenRefresh.listen(
+      (newToken) async {
+        try {
+          await _storageService.saveFcmToken(fcmToken: newToken);
 
-      try {
-        final authToken = await _storageService.getToken();
-        if (authToken != null && authToken.isNotEmpty) {
-          await AuthServices().sendFcmToken(fcmToken: newToken);
+          final authToken = await _storageService.getToken();
+
+          if (authToken != null && authToken.isNotEmpty) {
+            await AuthServices().sendFcmToken(fcmToken: newToken);
+          }
+
+          log('FCM token refreshed and saved successfully.');
+        } catch (e, s) {
+          log('Failed to save refreshed FCM token: $e');
+          log('$s');
         }
-      } catch (e) {
-        log('⚠️ Failed to sync refreshed FCM token: $e');
-      }
-    });
+      },
+      onError: (error) {
+        log('FCM token refresh listener error: $error');
+      },
+    );
   }
 
-  /// Fetches the current FCM token (waiting briefly for APNs on iOS) and saves it.
+  // ---------------- GET AND SAVE TOKEN ----------------
+
   Future<String?> getAndSaveToken() async {
     try {
       if (defaultTargetPlatform == TargetPlatform.iOS) {
         String? apnsToken = await _firebaseMessaging.getAPNSToken();
-        for (int attempt = 0; attempt < 5 && apnsToken == null; attempt++) {
+
+        // Wait briefly for iOS APNs registration.
+        for (int attempt = 0; attempt < 10 && apnsToken == null; attempt++) {
           await Future.delayed(const Duration(seconds: 1));
+
           apnsToken = await _firebaseMessaging.getAPNSToken();
         }
+
         if (apnsToken == null) {
-          log('⚠️ APNs token not available yet; will rely on onTokenRefresh or later retry.');
+          log('APNs token is not available yet.');
           return null;
         }
       } else {
@@ -214,18 +253,26 @@ class NotificationServices {
       }
 
       final token = await _firebaseMessaging.getToken();
+
       if (token != null && token.isNotEmpty) {
-        log('🔥 FCM Token: $token');
         await _storageService.saveFcmToken(fcmToken: token);
+
+        log('FCM token generated and saved successfully.');
+
         return token;
       }
-    } catch (e) {
-      log('⚠️ FCM token fetch failed (will retry later): $e');
+
+      log('Firebase returned an empty FCM token.');
+    } catch (e, s) {
+      log('FCM token retrieval failed: $e');
+      log('$s');
     }
+
     return null;
   }
 
   // ---------------- SHOW NOTIFICATION ----------------
+
   Future<void> _showNotification(RemoteMessage message) async {
     final androidDetails = AndroidNotificationDetails(
       _highImportanceChannel.id,
@@ -247,10 +294,18 @@ class NotificationServices {
     );
 
     final title =
-        message.notification?.title ?? message.data['title']?.toString() ?? 'No Title';
+        message.notification?.title ??
+        message.data['title']?.toString() ??
+        'No Title';
+
     final body =
-        message.notification?.body ?? message.data['body']?.toString() ?? 'No Body';
-    final notificationId = message.messageId?.hashCode ?? DateTime.now().millisecondsSinceEpoch ~/ 1000;
+        message.notification?.body ??
+        message.data['body']?.toString() ??
+        'No Body';
+
+    final notificationId =
+        message.messageId?.hashCode ??
+        DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
     await _flutterLocalNotificationsPlugin.show(
       notificationId,
@@ -261,12 +316,14 @@ class NotificationServices {
     );
   }
 
-  // ---------------- NAVIGATION ON CLICK ----------------
+  // ---------------- NOTIFICATION NAVIGATION ----------------
+
   Future<void> _handleNotificationClick(Map<String, dynamic> data) async {
     try {
       final authToken = await _storageService.getToken();
+
       if (authToken == null || authToken.isEmpty) {
-        log('ℹ️ Ignoring notification navigation: user is not logged in.');
+        log('Ignoring notification navigation: user is not logged in.');
         return;
       }
 
@@ -289,6 +346,7 @@ class NotificationServices {
       }
 
       final resolvedRoute = _resolveNamedRoute(rawTarget, role);
+
       if (resolvedRoute != null) {
         if (resolvedRoute == RouteConstants.bottomNavScreen) {
           appRouter.goNamed(RouteConstants.bottomNavScreen, extra: userType);
@@ -299,10 +357,12 @@ class NotificationServices {
         appRouter.goNamed(RouteConstants.bottomNavScreen, extra: userType);
       }
     } catch (e, s) {
-      log('⚠️ Notification navigation error: $e');
+      log('Notification navigation error: $e');
       log('$s');
     }
   }
+
+  // ---------------- USER ROLE ----------------
 
   UserType? _mapRoleToUserType(String? role) {
     switch (role) {
@@ -317,19 +377,24 @@ class NotificationServices {
     }
   }
 
+  // ---------------- ROUTE MAPPING ----------------
+
   String? _resolveNamedRoute(String target, String? role) {
     switch (target.toLowerCase()) {
       case 'notice':
       case 'notices':
       case 'noticedetaillistscreen':
         return RouteConstants.noticeListscreen;
+
       case 'event':
       case 'events':
       case 'eventlistscreen':
         return RouteConstants.eventListscreen;
+
       case 'news':
       case 'newsscreen':
         return RouteConstants.newsScreen;
+
       case 'chat':
       case 'chats':
       case 'message':
@@ -337,26 +402,32 @@ class NotificationServices {
       case 'communication':
       case 'communicationlistingscreen':
         return RouteConstants.communicationListingScreen;
+
       case 'homework':
       case 'homeworks':
       case 'homeworklisitingscreen':
         return RouteConstants.homeworkLisitingScreen;
+
       case 'leave':
       case 'leaves':
       case 'leave_request':
         return role == 'guardian'
             ? RouteConstants.bottomNavScreen
             : RouteConstants.staffLeaveRequestHome;
+
       case 'student_leave':
       case 'studentleaveletter':
         return RouteConstants.studentLeaveLetter;
+
       case 'parent_note':
       case 'parent_notes':
       case 'parentnoteslistingscreen':
         return RouteConstants.parentNotesListingScreen;
+
       case 'home':
       case 'bottomnavscreen':
         return RouteConstants.bottomNavScreen;
+
       default:
         return target;
     }
