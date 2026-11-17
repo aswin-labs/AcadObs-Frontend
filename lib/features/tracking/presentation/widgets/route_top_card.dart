@@ -1,9 +1,12 @@
 import 'package:acadobs/features/tracking/data/models/today_transportation_model.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class RouteTopCard extends StatelessWidget {
   final TodayTransportationModel transportation;
   final TransportationStop? latestArrivedStop;
+  final DateTime? selectedDate;
+  final bool isToday;
 
   static const _navyPrimary = Color(0xFF1E3A8A);
   static const _navyLight = Color(0xFF2563EB);
@@ -13,6 +16,8 @@ class RouteTopCard extends StatelessWidget {
     super.key,
     required this.transportation,
     this.latestArrivedStop,
+    this.selectedDate,
+    this.isToday = true,
   });
 
   @override
@@ -48,7 +53,7 @@ class RouteTopCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Route Type & Live Tag Row
+          // Route Type & Live/Date Tag Row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -85,35 +90,62 @@ class RouteTopCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // Live Pulse Badge
+              // Live Pulse Badge (or Historical Date Badge when viewing a past date)
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.black.withAlpha(50),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: _emeraldSuccess.withAlpha(150)),
+                  border: Border.all(
+                    color:
+                        isToday
+                            ? _emeraldSuccess.withAlpha(150)
+                            : Colors.white.withAlpha(90),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF4ADE80),
-                        shape: BoxShape.circle,
+                    if (isToday) ...[
+                      Container(
+                        width: 7,
+                        height: 7,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF4ADE80),
+                          shape: BoxShape.circle,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 5),
-                    const Text(
-                      "LIVE",
-                      style: TextStyle(
+                      const SizedBox(width: 5),
+                      const Text(
+                        "LIVE",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ] else ...[
+                      const Icon(
+                        Icons.history_rounded,
                         color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 0.8,
+                        size: 13,
                       ),
-                    ),
+                      const SizedBox(width: 4),
+                      Text(
+                        selectedDate != null
+                            ? DateFormat('dd MMM yyyy')
+                                .format(selectedDate!)
+                                .toUpperCase()
+                            : "HISTORY",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -243,7 +275,9 @@ class RouteTopCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       latestArrivedStop != null
-                          ? "Currently at ${latestArrivedStop!.stopName}"
+                          ? (isToday
+                              ? "Currently at ${latestArrivedStop!.stopName}"
+                              : "Last recorded stop: ${latestArrivedStop!.stopName}")
                           : "Preparing to depart",
                       style: const TextStyle(
                         color: Colors.white,

@@ -615,15 +615,15 @@ class _StudentExamTimetableScreenState
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final item = items[index];
-        return _buildExamScheduleCard(item, index);
+        return _buildExamScheduleCard(item);
       },
     );
   }
 
-  Widget _buildExamScheduleCard(ExamTimetableItem item, int index) {
+  Widget _buildExamScheduleCard(ExamTimetableItem item) {
     final subjectName = item.subject?.subjectName.isNotEmpty == true
         ? item.subject!.subjectName
         : 'Subject #${item.subjectId}';
@@ -1219,6 +1219,7 @@ class _StudentExamTimetableScreenState
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF00897B),
                 foregroundColor: Colors.white,
+                minimumSize: const Size(120, 42),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

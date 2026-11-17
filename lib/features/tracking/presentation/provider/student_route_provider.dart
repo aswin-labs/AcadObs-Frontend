@@ -14,9 +14,6 @@ class StudentRouteProvider extends ChangeNotifier {
   List<StudentRouteModel> _studentRoutes = [];
   List<StudentRouteModel> get studentRoutes => _studentRoutes;
 
-  // final List<GuardianStopModel> _guardianStops = [];
-  // List<GuardianStopModel> get guardianStops => _guardianStops;
-
   int _routeCount = 0;
   int get routeCount => _routeCount;
 
@@ -39,6 +36,7 @@ class StudentRouteProvider extends ChangeNotifier {
   Future<void> getTodayTransportationByStudentId({
     required int studentId,
     String? date,
+    String? routeType,
   }) async {
     try {
       _isTransportationLoading = true;
@@ -50,6 +48,7 @@ class StudentRouteProvider extends ChangeNotifier {
           .getTodayTransportationByStudentId(
             studentId: studentId,
             date: date,
+            routeType: routeType,
           );
 
       log("Today Transportation API Response: ${response.data}");
@@ -76,16 +75,18 @@ class StudentRouteProvider extends ChangeNotifier {
         final serverData = e.response?.data;
         String? serverMsg;
         if (serverData is Map) {
-          serverMsg = (serverData['message'] ??
-                  serverData['error'] ??
-                  serverData['detail'])
-              ?.toString();
+          serverMsg =
+              (serverData['message'] ??
+                      serverData['error'] ??
+                      serverData['detail'])
+                  ?.toString();
         } else if (serverData is String && serverData.trim().isNotEmpty) {
           serverMsg = serverData.trim();
         }
-        _transportationError = (serverMsg != null && serverMsg.isNotEmpty)
-            ? serverMsg
-            : "The transportation route is not active right now.";
+        _transportationError =
+            (serverMsg != null && serverMsg.isNotEmpty)
+                ? serverMsg
+                : "The transportation route is not active right now.";
       } else if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout ||
           e.type == DioExceptionType.sendTimeout ||
@@ -98,9 +99,11 @@ class StudentRouteProvider extends ChangeNotifier {
         final serverData = e.response?.data;
         String? serverMsg;
         if (serverData is Map) {
-          serverMsg = (serverData['message'] ?? serverData['error'])?.toString();
+          serverMsg =
+              (serverData['message'] ?? serverData['error'])?.toString();
         }
-        _transportationError = serverMsg ??
+        _transportationError =
+            serverMsg ??
             "Unable to load route information. Please try again later.";
       }
     } catch (e) {
@@ -140,46 +143,4 @@ class StudentRouteProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  // //get route count
-  // Future<void> getRouteCount() async {
-  //   try {
-  //     _isLoading = true;
-  //     notifyListeners();
-  //     final response = await StudentRouteService().getRouteCount();
-  //     if (response.statusCode == 200) {
-  //       final data = response.data;
-  //       log("data: $data ");
-  //       _routeCount = data['total_routes'] ?? 0;
-  //     }
-  //   } catch (e) {
-  //     log(e.toString());
-  //   } finally {
-  //     _isLoading = false;
-  //     notifyListeners();
-  //   }
-  // }
-
-  //get stops for parent
-  // Future<void> getStopsForParent({required int routeId}) async {
-  //   try {
-  //     _isLoading = true;
-  //     notifyListeners();
-  //     final response = await StudentRouteService().getStopsForParent(
-  //       routeId: routeId,
-  //     );
-  //     if (response.statusCode == 200) {
-  //       final data = response.data;
-  //       _guardianStops =
-  //           (data['data'] as List<dynamic>)
-  //               .map((res) => GuardianStopModel.fromJson(res))
-  //               .toList();
-  //     }
-  //   } catch (e) {
-  //     log(e.toString());
-  //   } finally {
-  //     _isLoading = false;
-  //     notifyListeners();
-  //   }
-  // }
 }

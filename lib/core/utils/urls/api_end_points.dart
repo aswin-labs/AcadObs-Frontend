@@ -317,4 +317,11 @@ class ApiEndpoints {
   static const String guardianGetAllExams = "/guardian/getAllExams";
   static const String guardianGetExamTimetableByStudentId =
       "/guardian/getexamtimetablebyStudnetId";
+
+  // ************************* AI INSIGHTS ******************************
+  static const String aiStudentsBase = "/api/students";
+  static String aiStudentSkills(int studentId) =>
+      "/api/students/$studentId/skills";
+  static String aiStudentCareerPath(int studentId) =>
+      "/api/students/$studentId/career-path";
 }

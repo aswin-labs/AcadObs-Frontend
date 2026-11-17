@@ -4,6 +4,8 @@ class TodayTransportationModel {
   final RouteTransportationInfo? route;
   final List<TransportationStop> stops;
   final List<TransportationProgressData> data;
+  final LastLocationInfo? lastLocation;
+  final NearestStopInfo? nearestStop;
 
   TodayTransportationModel({
     this.message,
@@ -11,31 +13,44 @@ class TodayTransportationModel {
     this.route,
     this.stops = const [],
     this.data = const [],
+    this.lastLocation,
+    this.nearestStop,
   });
 
   factory TodayTransportationModel.fromJson(Map<String, dynamic> json) {
+    final rawLastLocation = json["lastLoaction"] ?? json["lastLocation"];
     return TodayTransportationModel(
       message: json["message"]?.toString(),
       student:
-          json["student"] != null
+          json["student"] is Map<String, dynamic>
               ? StudentTransportationInfo.fromJson(json["student"])
               : null,
       route:
-          json["route"] != null
+          json["route"] is Map<String, dynamic>
               ? RouteTransportationInfo.fromJson(json["route"])
               : null,
       stops:
           json["stops"] is List
               ? (json["stops"] as List)
+                  .whereType<Map<String, dynamic>>()
                   .map((e) => TransportationStop.fromJson(e))
                   .toList()
               : [],
       data:
           json["data"] is List
               ? (json["data"] as List)
+                  .whereType<Map<String, dynamic>>()
                   .map((e) => TransportationProgressData.fromJson(e))
                   .toList()
               : [],
+      lastLocation:
+          rawLastLocation is Map<String, dynamic>
+              ? LastLocationInfo.fromJson(rawLastLocation)
+              : null,
+      nearestStop:
+          json["nearestStop"] is Map<String, dynamic>
+              ? NearestStopInfo.fromJson(json["nearestStop"])
+              : null,
     );
   }
 
@@ -63,7 +78,10 @@ class TodayTransportationModel {
   }
 
   /// Get student stop status for a specific stop
-  StudentStopStatus? getStudentStatusForStop(int? stopId, int? targetStudentId) {
+  StudentStopStatus? getStudentStatusForStop(
+    int? stopId,
+    int? targetStudentId,
+  ) {
     final progress = getProgressForStop(stopId);
     if (progress == null) return null;
     final sId = targetStudentId ?? student?.id;
@@ -128,11 +146,11 @@ class RouteTransportationInfo {
       type: json["type"]?.toString(),
       active: json["active"] == true,
       vehicle:
-          json["vehicle"] != null
+          json["vehicle"] is Map<String, dynamic>
               ? VehicleTransportationInfo.fromJson(json["vehicle"])
               : null,
       driver:
-          json["driver"] != null
+          json["driver"] is Map<String, dynamic>
               ? DriverTransportationInfo.fromJson(json["driver"])
               : null,
     );
@@ -200,6 +218,7 @@ class TransportationStop {
       stopRoutes:
           json["StopRoutes"] is List
               ? (json["StopRoutes"] as List)
+                  .whereType<Map<String, dynamic>>()
                   .map((e) => StopRoutePriority.fromJson(e))
                   .toList()
               : [],
@@ -229,6 +248,7 @@ class TransportationProgressData {
   final double? longitude;
   final int? routeId;
   final int? stopId;
+  final DateTime? createdAt;
   final TransportationStop? stop;
   final List<StudentStopStatus> studentsStopStatuses;
 
@@ -237,6 +257,7 @@ class TransportationProgressData {
     this.longitude,
     this.routeId,
     this.stopId,
+    this.createdAt,
     this.stop,
     this.studentsStopStatuses = const [],
   });
@@ -247,16 +268,103 @@ class TransportationProgressData {
       longitude: _toDouble(json["longitude"]),
       routeId: _toInt(json["route_id"]),
       stopId: _toInt(json["stop_id"]),
+      createdAt:
+          json["createdAt"] != null
+              ? DateTime.tryParse(json["createdAt"].toString())
+              : null,
       stop:
-          json["Stop"] != null
+          json["Stop"] is Map<String, dynamic>
               ? TransportationStop.fromJson(json["Stop"])
               : null,
       studentsStopStatuses:
           json["StudentsStopStatuses"] is List
               ? (json["StudentsStopStatuses"] as List)
+                  .whereType<Map<String, dynamic>>()
                   .map((e) => StudentStopStatus.fromJson(e))
                   .toList()
               : [],
+    );
+  }
+}
+
+class LastLocationInfo {
+  final int? id;
+  final double? latitude;
+  final double? longitude;
+  final int? routeId;
+  final int? userId;
+  final int? stopId;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final TransportationStop? stop;
+
+  LastLocationInfo({
+    this.id,
+    this.latitude,
+    this.longitude,
+    this.routeId,
+    this.userId,
+    this.stopId,
+    this.createdAt,
+    this.updatedAt,
+    this.stop,
+  });
+
+  factory LastLocationInfo.fromJson(Map<String, dynamic> json) {
+    return LastLocationInfo(
+      id: _toInt(json["id"]),
+      latitude: _toDouble(json["latitude"]),
+      longitude: _toDouble(json["longitude"]),
+      routeId: _toInt(json["route_id"]),
+      userId: _toInt(json["user_id"]),
+      stopId: _toInt(json["stop_id"]),
+      createdAt:
+          json["createdAt"] != null
+              ? DateTime.tryParse(json["createdAt"].toString())
+              : null,
+      updatedAt:
+          json["updatedAt"] != null
+              ? DateTime.tryParse(json["updatedAt"].toString())
+              : null,
+      stop:
+          json["Stop"] is Map<String, dynamic>
+              ? TransportationStop.fromJson(json["Stop"])
+              : null,
+    );
+  }
+}
+
+class NearestStopInfo {
+  final int? id;
+  final String? stopName;
+  final double? latitude;
+  final double? longitude;
+  final int? priority;
+  final double? distanceKm;
+  final int? distanceMeters;
+  final String? distance;
+
+  NearestStopInfo({
+    this.id,
+    this.stopName,
+    this.latitude,
+    this.longitude,
+    this.priority,
+    this.distanceKm,
+    this.distanceMeters,
+    this.distance,
+  });
+
+  factory NearestStopInfo.fromJson(Map<String, dynamic> json) {
+    return NearestStopInfo(
+      id: _toInt(json["id"]),
+      stopName: json["stop_name"]?.toString(),
+      latitude: _toDouble(json["latitude"]),
+      longitude: _toDouble(json["longitude"]),
+      priority: _toInt(json["priority"]),
+      distanceKm: _toDouble(json["distance_km"]),
+      distanceMeters: _toInt(json["distance_meters"]),
+      distance: json["distance"]?.toString(),
     );
   }
 }
@@ -285,6 +393,7 @@ class StudentStopStatus {
 int? _toInt(dynamic value) {
   if (value == null) return null;
   if (value is int) return value;
+  if (value is num) return value.toInt();
   return int.tryParse(value.toString());
 }
 

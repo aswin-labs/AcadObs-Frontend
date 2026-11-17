@@ -1,3 +1,4 @@
+import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/students/data/models/student_model.dart';
 import 'package:acadobs/features/students/presentation/provider/student_provider.dart';
 import 'package:flutter/material.dart';
@@ -8,47 +9,109 @@ class SingleStudentPicker extends StatelessWidget {
   final int classId;
   final StudentModel? selectedStudent;
   final ValueChanged<StudentModel> onStudentSelected;
+  final String? Function(StudentModel?)? validator;
 
   const SingleStudentPicker({
     super.key,
     required this.classId,
     required this.onStudentSelected,
     this.selectedStudent,
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap:
-          () => showSingleStudentSelectionPopup(
-            context,
-            classId,
-            selectedStudent,
-            onStudentSelected,
-          ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(color: Colors.grey),
-        ),
-        child: Row(
+    return FormField<StudentModel>(
+      key: ValueKey('student_picker_${classId}_${selectedStudent?.id}'),
+      initialValue: selectedStudent,
+      validator:
+          validator ??
+          (val) => val == null ? 'Please select a student' : null,
+      builder: (fieldState) {
+        final hasError = fieldState.hasError;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.only(right: 15, left: 2),
-              child: Icon(LucideIcons.user, color: Colors.grey),
-            ),
-            Expanded(
-              child: Text(
-                selectedStudent?.fullName ?? 'Select Student',
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 14, color: Colors.black54),
+            GestureDetector(
+              onTap: () {
+                if (classId <= 0) {
+                  CustomSnackbar.show(
+                    context,
+                    message: 'Please select Standard and Class first.',
+                    type: SnackbarType.warning,
+                  );
+                  return;
+                }
+                showSingleStudentSelectionPopup(
+                  context,
+                  classId,
+                  selectedStudent,
+                  (student) {
+                    fieldState.didChange(student);
+                    onStudentSelected(student);
+                  },
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(
+                    color:
+                        hasError
+                            ? Theme.of(context).colorScheme.error
+                            : Colors.grey,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 14, left: 4),
+                      child: Icon(
+                        LucideIcons.user,
+                        color:
+                            hasError
+                                ? Theme.of(context).colorScheme.error
+                                : Colors.grey.shade700,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(
+                        selectedStudent?.fullName ?? 'Select Student*',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color:
+                              selectedStudent != null
+                                  ? Colors.black87
+                                  : Colors.black54,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.arrow_drop_down, color: Colors.black54),
+                  ],
+                ),
               ),
             ),
+            if (hasError && fieldState.errorText != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 16, top: 6),
+                child: Text(
+                  fieldState.errorText!,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -67,7 +130,7 @@ Future<void> showSingleStudentSelectionPopup(
 
   showDialog(
     context: context,
-    builder: (context) {
+    builder: (dialogContext) {
       return Consumer<StudentProvider>(
         builder: (context, provider, _) {
           final students = provider.students;
@@ -76,50 +139,68 @@ Future<void> showSingleStudentSelectionPopup(
           return StatefulBuilder(
             builder: (context, setState) {
               return AlertDialog(
-                title: const Text("Select Student"),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                title: const Text(
+                  "Select Student",
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                ),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Divider(),
                     SizedBox(
-                      height: 320,
+                      height: 300,
                       width: 300,
-                      child: RadioGroup<int>(
-                        groupValue: tempSelected?.id,
-                        onChanged: (selectedId) {
-                          if (selectedId == null) return;
-                          final index = students.indexWhere(
-                            (s) => s.id == selectedId,
-                          );
-                          if (index == -1) return;
-                          final student = students[index];
-                          setState(() {
-                            tempSelected = student;
-                          });
-                          onStudentSelected(student);
-                        },
-                        child: ListView.builder(
-                          itemCount: students.length,
-                          itemBuilder: (context, index) {
-                            final student = students[index];
+                      child:
+                          students.isEmpty
+                              ? const Center(
+                                child: Text(
+                                  "No students found in this class.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.black54),
+                                ),
+                              )
+                              : RadioGroup<int>(
+                                groupValue: tempSelected?.id,
+                                onChanged: (selectedId) {
+                                  if (selectedId == null) return;
+                                  final index = students.indexWhere(
+                                    (s) => s.id == selectedId,
+                                  );
+                                  if (index == -1) return;
+                                  final student = students[index];
+                                  setState(() {
+                                    tempSelected = student;
+                                  });
+                                  onStudentSelected(student);
+                                },
+                                child: ListView.builder(
+                                  itemCount: students.length,
+                                  itemBuilder: (context, index) {
+                                    final student = students[index];
 
-                            return RadioListTile<int>(
-                              title: Text(student.fullName),
-                              value: student.id,
-                            );
-                          },
-                        ),
-                      ),
+                                    return RadioListTile<int>(
+                                      title: Text(student.fullName),
+                                      value: student.id,
+                                    );
+                                  },
+                                ),
+                              ),
                     ),
                   ],
                 ),
                 actions: [
                   TextButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop(dialogContext),
                     child: const Text("Cancel"),
                   ),
                   ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(80, 40),
+                    ),
+                    onPressed: () => Navigator.pop(dialogContext),
                     child: const Text("Done"),
                   ),
                 ],

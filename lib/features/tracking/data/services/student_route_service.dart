@@ -11,26 +11,28 @@ class StudentRouteService {
   Future<Response> getTodayTransportationByStudentId({
     required int studentId,
     String? date,
+    String? routeType,
   }) async {
+    final queryParams = <String, String>{};
+    if (date != null && date.trim().isNotEmpty) {
+      queryParams['date'] = date.trim();
+    }
+    if (routeType != null && routeType.trim().isNotEmpty) {
+      queryParams['routeType'] = routeType.trim().toUpperCase();
+    }
+
     String url =
         '${ApiEndpoints.getTodayTransportationByStudentId}/$studentId';
-    if (date != null && date.trim().isNotEmpty) {
-      url += '?date=${Uri.encodeComponent(date.trim())}';
+    if (queryParams.isNotEmpty) {
+      final queryString = queryParams.entries
+          .map(
+            (e) =>
+                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+          )
+          .join('&');
+      url += '?$queryString';
     }
     final response = await ApiServices.get(url);
     return response;
   }
-
-  // Future<Response> getRouteCount() async {
-  //   final response = await ApiServices.get(ApiEndpoints.getRouteCount);
-  //   return response;
-  // }
-
-  // //guardians sees arrived stops in routes
-  // Future<Response> getStopsForParent({required int routeId}) async {
-  //   final response = await ApiServices.get(
-  //     '${ApiEndpoints.getStopsForParent}/$routeId',
-  //   );
-  //   return response;
-  // }
 }

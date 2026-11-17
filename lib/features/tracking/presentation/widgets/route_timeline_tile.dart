@@ -1,6 +1,7 @@
 import 'package:acadobs/features/tracking/data/models/today_transportation_model.dart';
 import 'package:acadobs/features/tracking/presentation/widgets/student_stop_completed_card.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class RouteTimelineTile extends StatelessWidget {
   final TransportationStop stop;
@@ -213,6 +214,15 @@ class RouteTimelineTile extends StatelessWidget {
 
   // ── Station Card ────────────────────────────────────────────────────
   Widget _buildStationCard() {
+    final progress = transportation.getProgressForStop(stop.id);
+    final arrivedTime =
+        progress?.createdAt != null
+            ? DateFormat('hh:mm a').format(progress!.createdAt!.toLocal())
+            : null;
+    final isNearestStop =
+        transportation.nearestStop?.id != null &&
+        transportation.nearestStop?.id == stop.id;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
@@ -256,11 +266,15 @@ class RouteTimelineTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
-                      "Stop ${stop.priority}",
+                      arrivedTime != null
+                          ? "Stop ${stop.priority} • $arrivedTime"
+                          : "Stop ${stop.priority}",
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -272,8 +286,7 @@ class RouteTimelineTile extends StatelessWidget {
                                 : _slateMuted,
                       ),
                     ),
-                    if (isStudentStop) ...[
-                      const SizedBox(width: 6),
+                    if (isStudentStop)
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 6,
@@ -293,7 +306,27 @@ class RouteTimelineTile extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ],
+                    if (isNearestStop &&
+                        transportation.nearestStop?.distance != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFF6FF),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFFBFDBFE)),
+                        ),
+                        child: Text(
+                          "Nearest (${transportation.nearestStop!.distance})",
+                          style: const TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.bold,
+                            color: _navyLight,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
                 const SizedBox(height: 3),

@@ -6,6 +6,7 @@ import 'package:acadobs/core/utils/custom_snackbar.dart';
 import 'package:acadobs/features/achievements/data/services/achievement_service.dart';
 import 'package:acadobs/features/achievements/models/achievement_model.dart';
 import 'package:acadobs/features/achievements/models/student_achievement_model.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 class AchievementProvider extends ChangeNotifier {
@@ -18,6 +19,49 @@ class AchievementProvider extends ChangeNotifier {
   AchievementModel? singleAchievement;
 
   void clearError() => _error = null;
+
+  String _resolveUserFriendlyError(
+    dynamic error, {
+    required String fallback,
+  }) {
+    if (error is DioException) {
+      if (error.type == DioExceptionType.connectionTimeout ||
+          error.type == DioExceptionType.receiveTimeout ||
+          error.type == DioExceptionType.sendTimeout ||
+          error.type == DioExceptionType.connectionError) {
+        return 'Unable to connect to the server. Please check your internet connection.';
+      }
+
+      final statusCode = error.response?.statusCode ?? 0;
+      if (statusCode >= 500) {
+        return 'Something went wrong on the server. Please verify the entered details and try again.';
+      }
+
+      final data = error.response?.data;
+      if (data is Map) {
+        final rawMsg =
+            (data['message'] ?? data['error'] ?? data['detail'])
+                ?.toString()
+                .trim();
+        if (rawMsg != null && rawMsg.isNotEmpty) {
+          final lower = rawMsg.toLowerCase();
+          final isTechnicalError =
+              lower.contains('sequelize') ||
+              lower.contains('sql') ||
+              lower.contains('exception') ||
+              lower.contains('stack') ||
+              lower.contains('cannot read') ||
+              lower.contains('undefined') ||
+              lower.contains('null is not');
+          if (!isTechnicalError) {
+            return rawMsg;
+          }
+        }
+      }
+      return fallback;
+    }
+    return fallback;
+  }
 
   // ===========================================================================
   // LOADING STATES
@@ -47,7 +91,6 @@ class AchievementProvider extends ChangeNotifier {
   bool get isLoadingTeacher => _isLoadingTeacher;
 
   bool hasMoreTeacher = true;
-  // bool _isFetchedOnce = false;
 
   Future<void> fetchAchievementsAddedByTeacher({
     bool loadMore = false,
@@ -97,8 +140,11 @@ class AchievementProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      _error = e.toString();
-      log("Error fetching teacher achievements: $_error");
+      _error = _resolveUserFriendlyError(
+        e,
+        fallback: 'Unable to load achievements right now.',
+      );
+      log("Error fetching teacher achievements: $e");
     } finally {
       _isLoadingTeacher = false;
       notifyListeners();
@@ -113,7 +159,6 @@ class AchievementProvider extends ChangeNotifier {
       List.unmodifiable(_studentAchievements);
 
   int _studentPage = 1;
-  // int _studentTotalPages = 1;
   bool _isLoadingStudent = false;
   bool get isLoadingStudent => _isLoadingStudent;
   bool hasMoreStudent = true;
@@ -164,8 +209,11 @@ class AchievementProvider extends ChangeNotifier {
         }
       }
     } catch (e) {
-      _error = e.toString();
-      log("Error fetching student achievements: $_error");
+      _error = _resolveUserFriendlyError(
+        e,
+        fallback: 'Unable to load student achievements.',
+      );
+      log("Error fetching student achievements: $e");
     } finally {
       _isLoadingStudent = false;
       notifyListeners();
@@ -238,6 +286,7 @@ class AchievementProvider extends ChangeNotifier {
       List.unmodifiable(_schoolAchievementsLatest);
   bool _isLatestLoading = false;
   bool get isLatestLoading => _isLatestLoading;
+
   Future<void> fetchLatestSchoolAchievements({
     required bool forStaff,
     int limit = 3,
@@ -265,8 +314,11 @@ class AchievementProvider extends ChangeNotifier {
         _schoolAchievementsLatest.addAll(fetched);
       }
     } catch (e) {
-      _error = e.toString();
-      log("Error fetching latest achievements: $_error");
+      _error = _resolveUserFriendlyError(
+        e,
+        fallback: 'Unable to load latest achievements.',
+      );
+      log("Error fetching latest achievements: $e");
     } finally {
       _isLatestLoading = false;
       notifyListeners();
@@ -294,8 +346,11 @@ class AchievementProvider extends ChangeNotifier {
         singleAchievement = AchievementModel.fromJson(response.data);
       }
     } catch (e) {
-      _error = e.toString();
-      log("Error fetching single achievement: $_error");
+      _error = _resolveUserFriendlyError(
+        e,
+        fallback: 'Unable to load achievement details.',
+      );
+      log("Error fetching single achievement: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -315,6 +370,15 @@ class AchievementProvider extends ChangeNotifier {
     required String awardingBody,
     required List<Map<String, dynamic>> students,
   }) async {
+    if (students.isEmpty) {
+      CustomSnackbar.show(
+        context,
+        message: "Please add and select at least one student.",
+        type: SnackbarType.warning,
+      );
+      return false;
+    }
+
     _isLoadingSecondary = true;
     notifyListeners();
 
@@ -344,19 +408,27 @@ class AchievementProvider extends ChangeNotifier {
         return true;
       }
 
-      if (code == 400 || code == 422) {
-        final msg = response.data?['message'] ?? 'Invalid data';
-        if (context.mounted) CustomErrorDialog.show(context, msg);
-        return false;
-      }
-
+      final msg = _resolveUserFriendlyError(
+        null,
+        fallback:
+            response.data is Map
+                ? (response.data['message']?.toString() ??
+                    'Could not save achievement. Please check all fields.')
+                : 'Could not save achievement. Please check all fields.',
+      );
+      if (context.mounted) CustomErrorDialog.show(context, msg);
       return false;
     } catch (e) {
       log("Error creating achievement: $e");
+      final friendlyMsg = _resolveUserFriendlyError(
+        e,
+        fallback:
+            'Could not add achievement. Please verify all details and try again.',
+      );
       if (context.mounted) {
         CustomSnackbar.show(
           context,
-          message: "Failed to create achievement: $e",
+          message: friendlyMsg,
           type: SnackbarType.failure,
         );
       }
@@ -397,15 +469,26 @@ class AchievementProvider extends ChangeNotifier {
             type: SnackbarType.success,
           );
         }
-      } else if (response.statusCode == 400 && context.mounted) {
+      } else if (context.mounted) {
         CustomSnackbar.show(
           context,
-          message: "${response.data['error']} — can't update",
+          message: "Unable to update achievement. Please try again.",
           type: SnackbarType.failure,
         );
       }
     } catch (e) {
       log("Error editing achievement: $e");
+      if (context.mounted) {
+        final friendlyMsg = _resolveUserFriendlyError(
+          e,
+          fallback: "Unable to update achievement right now.",
+        );
+        CustomSnackbar.show(
+          context,
+          message: friendlyMsg,
+          type: SnackbarType.failure,
+        );
+      }
     } finally {
       _isLoadingSecondary = false;
       notifyListeners();
@@ -421,7 +504,6 @@ class AchievementProvider extends ChangeNotifier {
       if (response.statusCode == 200 || response.statusCode == 204) {
         _teacherAchievements.removeWhere((a) => a.id == id);
         _studentAchievements.removeWhere((a) => a.id == id);
-        // _schoolAchievements.removeWhere((a) => a.id == id);
         notifyListeners();
         return true;
       } else {
@@ -462,7 +544,6 @@ class AchievementProvider extends ChangeNotifier {
       if (response.statusCode == 200) {
         final data = response.data;
 
-        // Only update totalPages from server — never preset it!
         _totalPages = data['totalPages'] ?? 1;
 
         final List fetched = data['achievements'] ?? [];
@@ -473,14 +554,16 @@ class AchievementProvider extends ChangeNotifier {
 
         _schoolAchievementsAll.addAll(achievements);
 
-        // Only increment page if we got data and there might be more
         if (achievements.isNotEmpty) {
           _currentPage++;
         }
       }
     } catch (e) {
-      _error = e.toString();
-      log("Error fetching school achievements: $_error");
+      _error = _resolveUserFriendlyError(
+        e,
+        fallback: 'Unable to load school achievements.',
+      );
+      log("Error fetching school achievements: $e");
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -493,7 +576,6 @@ class AchievementProvider extends ChangeNotifier {
   void clearAll() {
     _teacherAchievements.clear();
     _studentAchievements.clear();
-    // _schoolAchievements.clear();
     singleAchievement = null;
     notifyListeners();
   }

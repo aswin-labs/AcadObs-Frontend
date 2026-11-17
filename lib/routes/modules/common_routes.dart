@@ -136,7 +136,11 @@ final List<GoRoute> commonRoutes = [
     path: '/aiInsightsHome',
     name: RouteConstants.aiInsightsHome,
     builder: (context, state) {
-      return AiInsightsHomescreen();
+      final studentId =
+          state.extra as int? ??
+          int.tryParse(state.uri.queryParameters['studentId'] ?? '') ??
+          0;
+      return AiInsightsHomescreen(studentId: studentId);
     },
   ),
 
@@ -154,7 +158,10 @@ final List<GoRoute> commonRoutes = [
     path: '/careerGuidance',
     name: RouteConstants.careerGuidance,
     builder: (context, state) {
-      return CareerInsightsScreen();
+      final studentId =
+          state.extra as int? ??
+          int.tryParse(state.uri.queryParameters['studentId'] ?? '');
+      return CareerInsightsScreen(studentId: studentId);
     },
   ),
 

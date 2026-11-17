@@ -506,7 +506,7 @@ class _ExamTimetableScreenState extends State<ExamTimetableScreen> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: AppConstants.classGrades.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   final grade = AppConstants.classGrades[index];
                   final isSelected = _selectedStandardLabel == grade;
@@ -826,15 +826,15 @@ class _ExamTimetableScreenState extends State<ExamTimetableScreen> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final item = items[index];
-        return _buildExamScheduleCard(item, index);
+        return _buildExamScheduleCard(item);
       },
     );
   }
 
-  Widget _buildExamScheduleCard(ExamTimetableItem item, int index) {
+  Widget _buildExamScheduleCard(ExamTimetableItem item) {
     final subjectName = item.subject?.subjectName.isNotEmpty == true
         ? item.subject!.subjectName
         : 'Subject #${item.subjectId}';
@@ -1481,6 +1481,7 @@ class _ExamTimetableScreenState extends State<ExamTimetableScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF00897B),
                 foregroundColor: Colors.white,
+                minimumSize: const Size(120, 42),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

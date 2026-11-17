@@ -18,8 +18,6 @@ import 'package:acadobs/features/timetables/presentation/widgets/today_timetable
 import 'package:acadobs/routes/modules/common_routes.dart';
 import 'package:acadobs/routes/router_constants.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
-import 'package:acadobs/shared/widgets/common_button.dart';
-import 'package:acadobs/shared/widgets/common_floating_button2.dart';
 import 'package:acadobs/shared/widgets/profile_photo_crop_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -359,6 +357,136 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     );
   }
 
+  Widget _buildAiAnalyticsTab(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1E3A5F), Color(0xFF355872), Color(0xFF4F46E5)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF355872).withValues(alpha: 0.22),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            context.pushNamed(
+              RouteConstants.aiInsightsHome,
+              extra: widget.studentId,
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+            child: Row(
+              children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(11),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.25),
+                    ),
+                  ),
+                  child: const Icon(
+                    LucideIcons.sparkles,
+                    color: Color(0xFFFDE68A),
+                    size: 19,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 3,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          const Text(
+                            'AI Analytics & Career Path',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 1.5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(
+                                0xFFFDE68A,
+                              ).withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(
+                                color: const Color(
+                                  0xFFFDE68A,
+                                ).withValues(alpha: 0.45),
+                              ),
+                            ),
+                            child: const Text(
+                              'AI',
+                              style: TextStyle(
+                                color: Color(0xFFFDE68A),
+                                fontSize: 9,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Academic profile, skill scores & career predictions',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.82),
+                          fontSize: 11.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(
+                    LucideIcons.arrowRight,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -373,7 +501,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               children: [
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(
@@ -384,7 +512,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                           if (provider.isLoading ||
                               student == null ||
                               student.id != widget.studentId) {
-                            return CommonShimmerTile(height: 100);
+                            return const CommonShimmerTile(height: 100);
                           }
 
                           return Container(
@@ -575,6 +703,11 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 16),
+
+                // Dedicated Unique AI Analytics Tab
+                _buildAiAnalyticsTab(context),
 
                 const SizedBox(height: 20),
 
@@ -851,83 +984,18 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
 
                 const SizedBox(height: 20),
                 widget.forStaff
-                    ? SizedBox.shrink()
+                    ? const SizedBox.shrink()
                     : TodayTimetableWidget(
                       type: TimetableType.student,
                       studentId: widget.studentId,
                       forStudent: true,
                     ),
 
-                const SizedBox(height: 100),
+                const SizedBox(height: 40),
               ],
             ),
           ),
         ),
-      ),
-      floatingActionButton: CommonFloatingButton2(
-        onPressed: () {
-          // context.pushNamed(RouteConstants.aiInsightsHome);
-          showDialog(
-            context: context,
-            builder: (context) {
-              return Dialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                insetPadding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 24,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Icon
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).primaryColor.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          LucideIcons.sparkles,
-                          size: 42,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Title
-                      const Text(
-                        "AI Insights Coming Soon!",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      // Button
-                      CommonButton(
-                        onPressed: () {
-                          context.pop();
-                        },
-                        widget: Text('OK'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-        icon: LucideIcons.sparkles,
       ),
     );
   }

@@ -1,508 +1,1270 @@
+import 'package:acadobs/features/ai_insights/data/models/ai_career_prediction_model.dart';
+import 'package:acadobs/features/ai_insights/presentation/provider/ai_insights_provider.dart';
 import 'package:acadobs/shared/widgets/common_appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:lucide_flutter/lucide_flutter.dart';
+import 'package:provider/provider.dart';
 
-class CareerInsightsScreen extends StatelessWidget {
-  const CareerInsightsScreen({super.key});
+class CareerInsightsScreen extends StatefulWidget {
+  final int? studentId;
+
+  const CareerInsightsScreen({super.key, this.studentId});
+
+  @override
+  State<CareerInsightsScreen> createState() => _CareerInsightsScreenState();
+}
+
+class _CareerInsightsScreenState extends State<CareerInsightsScreen> {
+  /// 0 = Overview & Roadmap, 1 = Top Career Matches
+  int _selectedTabIndex = 0;
+
+  /// Rank of currently expanded job card (defaults to #1 so it's neat & scannable)
+  int? _expandedJobRank = 1;
+
+  int _resolveStudentId(AiInsightsProvider provider) {
+    if (widget.studentId != null && widget.studentId! > 0) {
+      return widget.studentId!;
+    }
+    if (provider.activeStudentId != null && provider.activeStudentId! > 0) {
+      return provider.activeStudentId!;
+    }
+    return provider.aiProfile?.student.studentId ?? 0;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final provider = context.read<AiInsightsProvider>();
+      final id = _resolveStudentId(provider);
+      if (id > 0) {
+        provider.fetchStudentCareerPrediction(studentId: id);
+      }
+    });
+  }
+
+  String _formatNum(double value) {
+    if (value == value.roundToDouble()) {
+      return value.toInt().toString();
+    }
+    return value.toStringAsFixed(1);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8F6),
-      appBar: CommonAppBar(title: "Career Insights", isBackButton: true),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+      backgroundColor: const Color(0xFFF6F7FB),
+      appBar: CommonAppBar(title: 'AI Career Prediction', isBackButton: true),
+      body: Consumer<AiInsightsProvider>(
+        builder: (context, provider, _) {
+          final studentId = _resolveStudentId(provider);
+
+          if (provider.isCareerLoading && provider.careerPrediction == null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(28),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEEF2FF),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const CircularProgressIndicator(
+                        color: Color(0xFF355872),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    const Text(
+                      'Generating AI Career Prediction...',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1F2937),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Analyzing academic marks, cognitive skills, and co-scholastic strengths to map ideal career paths.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF6B7280),
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          if (provider.careerErrorMessage != null &&
+              provider.careerPrediction == null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEE2E2),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: const Icon(
+                          Icons.error_outline_rounded,
+                          color: Color(0xFFDC2626),
+                          size: 32,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Unable to Load Career Prediction',
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1F2937),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        provider.careerErrorMessage!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton.icon(
+                        onPressed:
+                            studentId > 0
+                                ? () {
+                                  provider.fetchStudentCareerPrediction(
+                                    studentId: studentId,
+                                    forceRefresh: true,
+                                  );
+                                }
+                                : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF355872),
+                          foregroundColor: Colors.white,
+                          minimumSize: const Size(0, 44),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: const Icon(LucideIcons.refreshCw, size: 16),
+                        label: const Text('Try Again'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+
+          final prediction = provider.careerPrediction;
+          if (prediction == null) {
+            return const Center(
+              child: Text(
+                'No career prediction data available.',
+                style: TextStyle(color: Color(0xFF6B7280)),
+              ),
+            );
+          }
+
+          final studentName = provider.aiProfile?.student.studentName;
+
+          return RefreshIndicator(
+            color: const Color(0xFF355872),
+            onRefresh:
+                () => provider.fetchStudentCareerPrediction(
+                  studentId: studentId,
+                  forceRefresh: true,
+                ),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 36),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 1. Primary Career Domain & Stream Hero Card
+                  _buildCareerHeroCard(prediction, studentName),
+                  const SizedBox(height: 16),
+
+                  // 2. Clean 2-Tab Switcher
+                  _buildSegmentedTabBar(prediction.top10Jobs.length),
+                  const SizedBox(height: 18),
+
+                  // 3. Active Tab Content
+                  if (_selectedTabIndex == 0)
+                    _buildOverviewAndRoadmapTab(prediction.careerPath, () {
+                      setState(() {
+                        _selectedTabIndex = 1;
+                      });
+                    })
+                  else
+                    _buildTopJobsTab(prediction.top10Jobs),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCareerHeroCard(
+    AiCareerPredictionModel prediction,
+    String? studentName,
+  ) {
+    final path = prediction.careerPath;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF1E3A5F), Color(0xFF355872), Color(0xFF4A7391)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1E3A5F).withValues(alpha: 0.25),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ── Suggested Career Areas ──────────────────────────────────────
-          SuggestedCareerAreasWidget(
-            careers: const [
-              CareerItem(
-                label: 'HIGH GROWTH',
-                title: 'Environmental\nScience',
-                icon: Icons.eco_rounded,
-                iconColor: Color(0xFF16A34A),
-                iconBg: Color(0xFFDCFCE7),
-                borderColor: Color(0xFF16A34A),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  LucideIcons.compass,
+                  color: Colors.white,
+                  size: 22,
+                ),
               ),
-              CareerItem(
-                label: 'STABLE PATH',
-                title: 'Data\nAnalyst',
-                icon: Icons.bar_chart_rounded,
-                iconColor: Color(0xFFF59E0B),
-                iconBg: Color(0xFFFEF3C7),
-                borderColor: Color(0xFFF59E0B),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      studentName != null && studentName.isNotEmpty
+                          ? '$studentName • AI CAREER PATH'
+                          : 'PRIMARY CAREER DOMAIN',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.6,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      path.primaryCareerDomain.isNotEmpty
+                          ? path.primaryCareerDomain
+                          : 'Recommended Career Path',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        height: 1.25,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
 
-          // ── Student Strengths ───────────────────────────────────────────
-          StudentStrengthsWidget(
-            strengths: const ['Logical Reasoning', 'Curiosity'],
+          if (path.recommendedAcademicStream.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.22),
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 2),
+                    child: Icon(
+                      LucideIcons.graduationCap,
+                      color: Color(0xFFFDE68A),
+                      size: 18,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Recommended Academic Stream',
+                          style: TextStyle(
+                            color: Color(0xFFFDE68A),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          path.recommendedAcademicStream,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          if (path.secondaryCareerDomains.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            const Text(
+              'Secondary Career Domains:',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children:
+                  path.secondaryCareerDomains
+                      .map(
+                        (domain) => Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            domain,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSegmentedTabBar(int jobsCount) {
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          const SizedBox(height: 12),
-
-          // ── Areas to Improve ────────────────────────────────────────────
-          AreasToImproveWidget(areas: const ['Public Speaking']),
-          const SizedBox(height: 20),
-
-          // ── Career Roadmap ──────────────────────────────────────────────
-          CareerRoadmapWidget(
-            milestones: const [
-              RoadmapMilestone(
-                stage: 'After 10th Grade',
-                description:
-                    'Focus on Science stream. Select Physics, Chemistry, and Math to build a technical foundation.',
-                dotColor: Color(0xFF22C55E),
-              ),
-              RoadmapMilestone(
-                stage: 'After 12th Grade',
-                description:
-                    'Undergraduate Research. Pursue degrees in Environmental Engineering or Data Science.',
-                dotColor: Color(0xFFF59E0B),
-              ),
-              RoadmapMilestone(
-                stage: 'Future Direction',
-                description:
-                    'Sustainable technology. Leading innovative projects that combine data and ecology.',
-                dotColor: Color(0xFFEF4444),
-              ),
-            ],
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildTabButton(
+              index: 0,
+              icon: LucideIcons.sparkles,
+              label: 'Overview & Roadmap',
+            ),
+          ),
+          const SizedBox(width: 6),
+          Expanded(
+            child: _buildTabButton(
+              index: 1,
+              icon: LucideIcons.briefcase,
+              label: 'Top $jobsCount Careers',
+            ),
           ),
         ],
       ),
     );
   }
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 1. SUGGESTED CAREER AREAS WIDGET
-// ─────────────────────────────────────────────────────────────────────────────
+  Widget _buildTabButton({
+    required int index,
+    required IconData icon,
+    required String label,
+  }) {
+    final isSelected = _selectedTabIndex == index;
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: () {
+        setState(() {
+          _selectedTabIndex = index;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(vertical: 11, horizontal: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF355872) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? Colors.white : const Color(0xFF6B7280),
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? Colors.white : const Color(0xFF4B5563),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-class CareerItem {
-  final String label;
-  final String title;
-  final IconData icon;
-  final Color iconColor;
-  final Color iconBg;
-  final Color borderColor;
-
-  const CareerItem({
-    required this.label,
-    required this.title,
-    required this.icon,
-    required this.iconColor,
-    required this.iconBg,
-    required this.borderColor,
-  });
-}
-
-class SuggestedCareerAreasWidget extends StatelessWidget {
-  final List<CareerItem> careers;
-  final String heading;
-
-  const SuggestedCareerAreasWidget({
-    super.key,
-    required this.careers,
-    this.heading = 'Suggested Career Areas',
-  });
-
-  @override
-  Widget build(BuildContext context) {
+  // ── TAB 0: OVERVIEW & ROADMAP ──────────────────────────────────────
+  Widget _buildOverviewAndRoadmapTab(
+    AiCareerPathDetails path,
+    VoidCallback onViewTopCareers,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionHeading(
-          icon: Icons.radio_button_checked_rounded,
-          iconColor: const Color(0xFF16A34A),
-          text: heading,
-        ),
-        const SizedBox(height: 10),
-        Row(
-          children: List.generate(careers.length, (i) {
-            return Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  right: i < careers.length - 1 ? 10 : 0,
-                ),
-                child: _CareerCard(item: careers[i]),
+        // Executive Career Summary
+        if (path.overallCareerSummary.isNotEmpty) ...[
+          _buildSectionCard(
+            title: 'AI Career Assessment Summary',
+            icon: LucideIcons.fileText,
+            accentColor: const Color(0xFF2563EB),
+            child: Text(
+              path.overallCareerSummary,
+              style: const TextStyle(
+                fontSize: 13.5,
+                color: Color(0xFF374151),
+                height: 1.5,
               ),
-            );
-          }),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Core Strengths
+        if (path.coreStrengths.isNotEmpty) ...[
+          _buildSectionCard(
+            title: 'Core Strengths',
+            icon: LucideIcons.trendingUp,
+            accentColor: const Color(0xFF16A34A),
+            child: Column(
+              children:
+                  path.coreStrengths
+                      .map(
+                        (item) => _buildBulletItem(
+                          text: item,
+                          icon: Icons.check_circle_rounded,
+                          color: const Color(0xFF16A34A),
+                        ),
+                      )
+                      .toList(),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Areas for Growth
+        if (path.areasForGrowth.isNotEmpty) ...[
+          _buildSectionCard(
+            title: 'Areas for Growth',
+            icon: LucideIcons.target,
+            accentColor: const Color(0xFFD97706),
+            child: Column(
+              children:
+                  path.areasForGrowth
+                      .map(
+                        (item) => _buildBulletItem(
+                          text: item,
+                          icon: LucideIcons.arrowUpRight,
+                          color: const Color(0xFFD97706),
+                        ),
+                      )
+                      .toList(),
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // Actionable Career Roadmap
+        _buildRoadmapCard(path.careerRoadmap),
+        const SizedBox(height: 18),
+
+        // CTA to switch to Top 10 Careers tab
+        InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: onViewTopCareers,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF355872), Color(0xFF1E3A5F)],
+              ),
+              borderRadius: BorderRadius.circular(18),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1E3A5F).withValues(alpha: 0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Row(
+              children: [
+                Icon(LucideIcons.briefcase, color: Colors.white, size: 20),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Explore Top 10 Recommended Careers',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Icon(LucideIcons.arrowRight, color: Colors.white, size: 18),
+              ],
+            ),
+          ),
         ),
       ],
     );
   }
-}
 
-class _CareerCard extends StatelessWidget {
-  final CareerItem item;
-  const _CareerCard({required this.item});
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildRoadmapCard(AiCareerRoadmap roadmap) {
     return Container(
-      padding: const EdgeInsets.all(14),
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border(left: BorderSide(color: item.borderColor, width: 3.5)),
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(10),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF7C3AED).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  LucideIcons.map,
+                  color: Color(0xFF7C3AED),
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              const Expanded(
+                child: Text(
+                  'Step-by-Step Career Roadmap',
+                  style: TextStyle(
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1F2937),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (roadmap.schoolFocus.isNotEmpty) ...[
+            _buildRoadmapSubSection(
+              stepTitle: '1. School Focus',
+              items: roadmap.schoolFocus,
+              color: const Color(0xFF2563EB),
+            ),
+            const SizedBox(height: 14),
+          ],
+          if (roadmap.higherEducationOptions.isNotEmpty) ...[
+            _buildRoadmapSubSection(
+              stepTitle: '2. Higher Education Options',
+              items: roadmap.higherEducationOptions,
+              color: const Color(0xFF7C3AED),
+            ),
+            const SizedBox(height: 14),
+          ],
+          if (roadmap.skillBuildingActions.isNotEmpty)
+            _buildRoadmapSubSection(
+              stepTitle: '3. Skill Building Actions',
+              items: roadmap.skillBuildingActions,
+              color: const Color(0xFF0D9488),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRoadmapSubSection({
+    required String stepTitle,
+    required List<String> items,
+    required Color color,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withValues(alpha: 0.18)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            stepTitle,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...items.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: Color(0xFF374151),
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── TAB 1: TOP 10 CAREER MATCHES ──────────────────────────────────
+  Widget _buildTopJobsTab(List<AiPredictedJob> jobs) {
+    if (jobs.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: const Center(
+          child: Text(
+            'No career matches available.',
+            style: TextStyle(color: Color(0xFF6B7280)),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(bottom: 10),
+          child: Text(
+            'Tap any career card to view required skills, education pathway & career progression.',
+            style: TextStyle(fontSize: 12, color: Color(0xFF6B7280)),
+          ),
+        ),
+        ...jobs.map(_buildJobCard),
+      ],
+    );
+  }
+
+  Widget _buildJobCard(AiPredictedJob job) {
+    final isExpanded = _expandedJobRank == job.rank;
+    final fitColor = _getFitColor(job.fitLevel);
+    final growthSteps = job.growthSteps;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color:
+              isExpanded
+                  ? const Color(0xFF355872).withValues(alpha: 0.4)
+                  : const Color(0xFFE5E7EB),
+          width: isExpanded ? 1.4 : 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: item.iconBg,
-              borderRadius: BorderRadius.circular(9),
-            ),
-            child: Icon(item.icon, color: item.iconColor, size: 18),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            item.label,
-            style: TextStyle(
-              fontSize: 9.5,
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF6B7280).withAlpha(200),
-              letterSpacing: 0.8,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            item.title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF111827),
-              letterSpacing: -0.3,
-              height: 1.25,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 2. STUDENT STRENGTHS WIDGET
-// ─────────────────────────────────────────────────────────────────────────────
-
-class StudentStrengthsWidget extends StatelessWidget {
-  final List<String> strengths;
-  final String heading;
-
-  const StudentStrengthsWidget({
-    super.key,
-    required this.strengths,
-    this.heading = 'Student Strengths',
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _TagSectionCard(
-      icon: Icons.check_circle_outline_rounded,
-      iconColor: const Color(0xFF16A34A),
-      heading: heading,
-      tags: strengths,
-      tagTextColor: const Color(0xFF166534),
-      tagBgColor: const Color(0xFFDCFCE7),
-      tagBorderColor: const Color(0xFFBBF7D0),
-      cardBg: const Color(0xFFF0FDF4),
-      cardBorderColor: const Color(0xFFBBF7D0),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 3. AREAS TO IMPROVE WIDGET
-// ─────────────────────────────────────────────────────────────────────────────
-
-class AreasToImproveWidget extends StatelessWidget {
-  final List<String> areas;
-  final String heading;
-
-  const AreasToImproveWidget({
-    super.key,
-    required this.areas,
-    this.heading = 'Areas to Improve',
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _TagSectionCard(
-      icon: Icons.trending_up_rounded,
-      iconColor: const Color(0xFFEF4444),
-      heading: heading,
-      tags: areas,
-      tagTextColor: const Color(0xFF991B1B),
-      tagBgColor: const Color(0xFFFFE4E4),
-      tagBorderColor: const Color(0xFFFECACA),
-      cardBg: const Color(0xFFFFF5F5),
-      cardBorderColor: const Color(0xFFFECACA),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SHARED: Tag Section Card (used by Strengths & Areas to Improve)
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _TagSectionCard extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String heading;
-  final List<String> tags;
-  final Color tagTextColor;
-  final Color tagBgColor;
-  final Color tagBorderColor;
-  final Color cardBg;
-  final Color cardBorderColor;
-
-  const _TagSectionCard({
-    required this.icon,
-    required this.iconColor,
-    required this.heading,
-    required this.tags,
-    required this.tagTextColor,
-    required this.tagBgColor,
-    required this.tagBorderColor,
-    required this.cardBg,
-    required this.cardBorderColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-      decoration: BoxDecoration(
-        color: cardBg,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: cardBorderColor, width: 1),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _SectionHeading(icon: icon, iconColor: iconColor, text: heading),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children:
-                tags
-                    .map(
-                      (t) => _Tag(
-                        label: t,
-                        textColor: tagTextColor,
-                        bgColor: tagBgColor,
-                        borderColor: tagBorderColor,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () {
+          setState(() {
+            _expandedJobRank = isExpanded ? null : job.rank;
+          });
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Top Row: Rank + Job Title + Match %
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color:
+                          job.rank <= 3
+                              ? const Color(0xFF1E3A5F)
+                              : const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '#${job.rank}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color:
+                              job.rank <= 3
+                                  ? Colors.white
+                                  : const Color(0xFF374151),
+                        ),
                       ),
-                    )
-                    .toList(),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Tag extends StatelessWidget {
-  final String label;
-  final Color textColor;
-  final Color bgColor;
-  final Color borderColor;
-
-  const _Tag({
-    required this.label,
-    required this.textColor,
-    required this.bgColor,
-    required this.borderColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(100),
-        border: Border.all(color: borderColor, width: 1),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12.5,
-          fontWeight: FontWeight.w500,
-          color: textColor,
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// 4. CAREER ROADMAP WIDGET
-// ─────────────────────────────────────────────────────────────────────────────
-
-class RoadmapMilestone {
-  final String stage;
-  final String description;
-  final Color dotColor;
-
-  const RoadmapMilestone({
-    required this.stage,
-    required this.description,
-    required this.dotColor,
-  });
-}
-
-class CareerRoadmapWidget extends StatelessWidget {
-  final List<RoadmapMilestone> milestones;
-  final String heading;
-
-  const CareerRoadmapWidget({
-    super.key,
-    required this.milestones,
-    this.heading = 'Career Roadmap',
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SectionHeading(
-          icon: Icons.route_rounded,
-          iconColor: const Color(0xFF16A34A),
-          text: heading,
-          fontSize: 16,
-        ),
-        const SizedBox(height: 14),
-        ...List.generate(milestones.length, (i) {
-          final milestone = milestones[i];
-          final isLast = i == milestones.length - 1;
-          return _RoadmapStep(milestone: milestone, isLast: isLast);
-        }),
-      ],
-    );
-  }
-}
-
-class _RoadmapStep extends StatelessWidget {
-  final RoadmapMilestone milestone;
-  final bool isLast;
-
-  const _RoadmapStep({required this.milestone, required this.isLast});
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Timeline column
-          SizedBox(
-            width: 28,
-            child: Column(
-              children: [
-                // Dot
-                Container(
-                  width: 14,
-                  height: 14,
-                  decoration: BoxDecoration(
-                    color: milestone.dotColor,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: milestone.dotColor.withAlpha(80),
-                        blurRadius: 6,
-                        spreadRadius: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          job.jobTitle,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1F2937),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              job.careerDomain,
+                              style: const TextStyle(
+                                fontSize: 11.5,
+                                color: Color(0xFF6B7280),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            if (job.fitLevel.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: fitColor.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  job.fitLevel,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: fitColor,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 9,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFECFDF5),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: const Color(0xFFA7F3D0),
+                          ),
+                        ),
+                        child: Text(
+                          '${_formatNum(job.matchPercentage)}%',
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF047857),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Icon(
+                        isExpanded
+                            ? LucideIcons.chevronUp
+                            : LucideIcons.chevronDown,
+                        size: 16,
+                        color: const Color(0xFF9CA3AF),
                       ),
                     ],
                   ),
+                ],
+              ),
+
+              if (!isExpanded && job.whyBestForStudent.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text(
+                  job.whyBestForStudent,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    color: Color(0xFF4B5563),
+                    height: 1.4,
+                  ),
                 ),
-                // Line
-                if (!isLast)
-                  Expanded(
-                    child: Container(
-                      width: 2,
-                      margin: const EdgeInsets.symmetric(vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE5E7EB),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+              ],
+
+              // Expanded Details
+              if (isExpanded) ...[
+                const SizedBox(height: 14),
+                const Divider(height: 1, color: Color(0xFFE5E7EB)),
+                const SizedBox(height: 12),
+
+                // Why it fits
+                if (job.whyBestForStudent.isNotEmpty) ...[
+                  const Text(
+                    'Why This Fits:',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1F2937),
                     ),
                   ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-
-          // Content
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: isLast ? 0 : 16),
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withAlpha(8),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                  const SizedBox(height: 4),
+                  Text(
+                    job.whyBestForStudent,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      color: Color(0xFF374151),
+                      height: 1.45,
                     ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                // Supporting Subjects
+                if (job.supportingSubjects.isNotEmpty) ...[
+                  const Text(
+                    'Supporting Subjects:',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1F2937),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children:
+                        job.supportingSubjects
+                            .map(
+                              (s) => _buildPill(
+                                s,
+                                const Color(0xFFEFF6FF),
+                                const Color(0xFF1D4ED8),
+                              ),
+                            )
+                            .toList(),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                // Matching Student Skills
+                if (job.matchingStudentSkills.isNotEmpty) ...[
+                  const Text(
+                    'Matching Student Skills:',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1F2937),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children:
+                        job.matchingStudentSkills
+                            .map(
+                              (s) => _buildPill(
+                                s,
+                                const Color(0xFFDCFCE7),
+                                const Color(0xFF15803D),
+                              ),
+                            )
+                            .toList(),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                // Skills to Develop
+                if (job.skillsToDevelop.isNotEmpty) ...[
+                  const Text(
+                    'Skills to Develop:',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1F2937),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children:
+                        job.skillsToDevelop
+                            .map(
+                              (s) => _buildPill(
+                                s,
+                                const Color(0xFFFEF3C7),
+                                const Color(0xFFB45309),
+                              ),
+                            )
+                            .toList(),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+
+                // Education Pathway
+                if (job.educationPathway.isNotEmpty) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF9FAFB),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: milestone.dotColor,
-                            shape: BoxShape.circle,
-                          ),
+                        const Row(
+                          children: [
+                            Icon(
+                              LucideIcons.graduationCap,
+                              size: 15,
+                              color: Color(0xFF355872),
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              'Education Pathway',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF1F2937),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 7),
+                        const SizedBox(height: 4),
                         Text(
-                          milestone.stage,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: milestone.dotColor,
-                            letterSpacing: -0.1,
+                          job.educationPathway,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Color(0xFF4B5563),
+                            height: 1.4,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      milestone.description,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        color: const Color(0xFF374151).withAlpha(220),
-                        height: 1.6,
-                      ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+
+                // Career Growth Progression
+                if (growthSteps.isNotEmpty) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F3FF),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFDDD6FE)),
                     ),
-                  ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(
+                              LucideIcons.trendingUp,
+                              size: 15,
+                              color: Color(0xFF6D28D9),
+                            ),
+                            SizedBox(width: 6),
+                            Text(
+                              'Career Progression Path',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF4C1D95),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            for (int i = 0; i < growthSteps.length; i++) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: const Color(0xFFC4B5FD),
+                                  ),
+                                ),
+                                child: Text(
+                                  growthSteps[i],
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF5B21B6),
+                                  ),
+                                ),
+                              ),
+                              if (i < growthSteps.length - 1)
+                                const Icon(
+                                  LucideIcons.arrowRight,
+                                  size: 12,
+                                  color: Color(0xFF7C3AED),
+                                ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionCard({
+    required String title,
+    required IconData icon,
+    required Color accentColor,
+    required Widget child,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: accentColor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
+                child: Icon(icon, color: accentColor, size: 18),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1F2937),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBulletItem({
+    required String text,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(icon, size: 16, color: color),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF374151),
+                height: 1.4,
               ),
             ),
           ),
@@ -510,41 +1272,25 @@ class _RoadmapStep extends StatelessWidget {
       ),
     );
   }
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SHARED: Section Heading
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _SectionHeading extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String text;
-  final double fontSize;
-
-  const _SectionHeading({
-    required this.icon,
-    required this.iconColor,
-    required this.text,
-    this.fontSize = 14.5,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, color: iconColor, size: 18),
-        const SizedBox(width: 7),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: fontSize,
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF111827),
-            letterSpacing: -0.2,
-          ),
-        ),
-      ],
+  Widget _buildPill(String text, Color bg, Color fg) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: fg),
+      ),
     );
+  }
+
+  Color _getFitColor(String fitLevel) {
+    final lower = fitLevel.toLowerCase();
+    if (lower.contains('best')) return const Color(0xFF16A34A);
+    if (lower.contains('good')) return const Color(0xFF2563EB);
+    return const Color(0xFFD97706);
   }
 }

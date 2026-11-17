@@ -1,5 +1,6 @@
 import 'package:acadobs/core/netwok/network_provider.dart';
 import 'package:acadobs/features/achievements/presentaion/provider/achievement_provider.dart';
+import 'package:acadobs/features/ai_insights/presentation/provider/ai_insights_provider.dart';
 import 'package:acadobs/features/authentication/presentation/provider/auth_provider.dart';
 // import 'package:acadobs/features/chats/presentation/provider/chat_provider.dart';
 import 'package:acadobs/features/communication/presentation/provider/communication_provider.dart';
@@ -108,5 +109,8 @@ getProviders() {
 
     // *************exam timetable provider*************
     ChangeNotifierProvider(create: (_) => ExamTimetableProvider()),
+
+    // *************AI insights provider****************
+    ChangeNotifierProvider(create: (_) => AiInsightsProvider()),
   ];
 }
